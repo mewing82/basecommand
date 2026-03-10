@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment — NEVER commit these
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets / credentials
+keys/
+*.rtf
+
+# Dev artifacts & reference files
+screenshots/
+docs/
+*.jpg
+BaseCommand.jsx
+terminal-cheat-sheet.jsx
+terminal-exercises.jsx
+library-jsx-need.jpg
+taskimporterror.jpg
+
+# Claude Code
+.claude/

@@ -1,0 +1,22 @@
+{
+  "name": "basecommand",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n API,VITE -c cyan,yellow \"node scripts/dev-api.js\" \"vite\"",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "mammoth": "^1.11.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.4.7",
+    "vite": "^6.3.1"
+  }
+}
