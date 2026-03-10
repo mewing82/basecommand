@@ -14,7 +14,6 @@ npm --version
 
 ### 2. Install dependencies
 ```bash
-cd /Users/mewing/BaseCommand
 npm install
 ```
 
@@ -39,37 +38,20 @@ Your API key is loaded from `.env.local` by the server. The browser never sees i
 ## Deploying to basecommand.ai (Cloud)
 
 ### 1. Push to a private GitHub repo
-```bash
-git init
-git add -A
-git commit -m "Initial build"
-# Create private repo on github.com, then:
-git remote add origin git@github.com:YOUR_USERNAME/basecommand.git
-git push -u origin main
-```
 
 ### 2. Deploy to Vercel
-```bash
-npm install -g vercel
-vercel
-```
 - Framework: Vite
 - Root directory: `.`
 
 ### 3. Add your API key to Vercel
-In the Vercel dashboard: **Settings → Environment Variables**
+In the Vercel dashboard: **Settings > Environment Variables**
 - Key: `ANTHROPIC_API_KEY`
-- Value: `sk-ant-...`
+- Value: your key
 - Scope: Production + Preview
 
-### 4. Redeploy
-```bash
-vercel --prod
-```
-
-### 5. Connect basecommand.ai
-In Vercel: **Settings → Domains → Add `basecommand.ai`**
-Follow the DNS instructions for Namecheap.
+### 4. Connect basecommand.ai
+In Vercel: **Settings > Domains > Add `basecommand.ai`**
+Follow the DNS instructions for your registrar.
 
 ---
 
@@ -84,7 +66,7 @@ Follow the DNS instructions for Namecheap.
 ```
 BaseCommand/
   src/
-    App.jsx          # Full application (migrated from Claude artifact)
+    App.jsx          # Full application
     main.jsx         # React entry point
   api/
     claude.js        # Vercel serverless function — API proxy (production)
