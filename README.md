@@ -3,10 +3,10 @@
 
 ---
 
-## Quick Start (Local)
+## Quick Start
 
 ### 1. Install Node.js
-Go to https://nodejs.org and download the LTS version (v20+). Install it, then verify:
+Go to https://nodejs.org and download the LTS version (v20+). Verify:
 ```bash
 node --version   # should print v20.x.x
 npm --version
@@ -17,66 +17,67 @@ npm --version
 npm install
 ```
 
-### 3. Add your API key
-```bash
-cp .env.example .env.local
-```
-Open `.env.local` and replace `sk-ant-your-key-here` with your actual key from https://console.anthropic.com.
-
-### 4. Run
+### 3. Run
 ```bash
 npm run dev
 ```
-This starts two things at once:
-- **API server** on `http://localhost:3001` — holds your API key, never exposed to the browser
-- **Vite frontend** on `http://localhost:5173` — open this in your browser
+Open `http://localhost:5173` in your browser.
 
-Your API key is loaded from `.env.local` by the server. The browser never sees it.
-
----
-
-## Deploying to basecommand.ai (Cloud)
-
-### 1. Push to a private GitHub repo
-
-### 2. Deploy to Vercel
-- Framework: Vite
-- Root directory: `.`
-
-### 3. Add your API key to Vercel
-In the Vercel dashboard: **Settings > Environment Variables**
-- Key: `ANTHROPIC_API_KEY`
-- Value: your key
-- Scope: Production + Preview
-
-### 4. Connect basecommand.ai
-In Vercel: **Settings > Domains > Add `basecommand.ai`**
-Follow the DNS instructions for your registrar.
+### 4. Add your API key
+Go to **Settings > AI Configuration** and add your Anthropic or OpenAI API key. Keys are stored locally in your browser — never sent to any server.
 
 ---
 
-## Security Notes
-- `.env.local` is gitignored — your API key will never be committed
-- All AI calls are proxied through the server — the browser never touches the Anthropic API
-- The `api/claude.js` file is the same code used locally and on Vercel — zero changes needed to deploy
+## Architecture
 
----
+- **Frontend**: React 18 single-page app (Vite)
+- **Data storage**: Browser localStorage with `bc2-` namespaced keys
+- **AI calls**: Direct browser-to-API (Anthropic / OpenAI) — no proxy server
+- **Fonts**: Space Grotesk (headings) + Inter (body) + JetBrains Mono (code/data)
+- **Icons**: Lucide React (tree-shaken SVG)
 
-## Project Structure
+### Local-First Design
+All user data (decisions, tasks, priorities, meetings, projects, documents) stays in your browser's localStorage. AI API calls go directly from your browser to the AI provider — no intermediary servers. Your API keys are stored locally and never transmitted to third parties.
+
+### File Structure
 ```
 BaseCommand/
   src/
-    App.jsx          # Full application
+    App.jsx          # Full application (single-file architecture)
     main.jsx         # React entry point
-  api/
-    claude.js        # Vercel serverless function — API proxy (production)
+  api/               # Vercel serverless functions (inactive in local-first mode)
   scripts/
-    dev-api.js       # Local dev API server (development)
-  .env.example       # Copy to .env.local and add your key
-  .env.local         # Your actual key — gitignored, never committed
-  .gitignore
-  index.html
+    dev-api.js       # Local dev API proxy (legacy)
+  .env.example       # Environment variable template
+  index.html         # HTML shell with font imports
   package.json
   vite.config.js
   vercel.json        # Security headers for production
 ```
+
+### Core Entities
+- **Decisions** — track decisions through a lifecycle (draft → analyzing → decided → implementing → closed)
+- **Tasks** — actionable items with priority, status, subtasks, and AI guidance
+- **Priorities** — ranked strategic priorities with health scoring
+- **Projects** — organize tasks, decisions, and documents with AI-generated plans
+- **Meetings** — log meetings and auto-extract tasks/decisions
+- **Library** — upload and study documents with AI-powered guides
+
+---
+
+## Deployment (Optional)
+
+The app can be deployed to Vercel as a static site:
+1. Push to a private GitHub repo
+2. Connect to Vercel (Framework: Vite, Root: `.`)
+3. Add custom domain in Vercel settings
+
+Note: Email connectors (Gmail/Outlook) require server-side OAuth and are not available in local-first mode.
+
+---
+
+## Security
+- `.env.local` is gitignored — secrets are never committed
+- All AI calls go directly from browser to API provider
+- API keys stored in browser localStorage only
+- No user data is stored on any server

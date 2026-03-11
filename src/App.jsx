@@ -1,30 +1,64 @@
 import { useState, useEffect, useRef } from "react";
 import mammoth from "mammoth";
+import {
+  LayoutDashboard, Inbox, Diamond, CheckSquare, TrendingUp,
+  FolderKanban, Users, Library, Settings as SettingsIcon, Sparkles,
+  ChevronLeft, ChevronRight, ChevronDown, Search,
+  Plus, Copy, Check, X, AlertTriangle,
+  ArrowRight, FileText, Zap, Star, Filter,
+  Lightbulb, Circle, Grid3X3, Target,
+  PlusCircle, ChevronUp, Hash,
+} from "lucide-react";
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
+// "Command Indigo" — AI-native design system
+// Warm-neutral dark base (not pure black) for accessibility per Smashing Magazine
+// Dual accent: Indigo = human actions/authority, Cyan = AI intelligence/data
 const C = {
-  bgPrimary: "#0A0F1C",
-  bgCard: "#111827",
-  bgCardHover: "#1A2332",
-  bgSidebar: "#0D1321",
-  bgAI: "#0F1A2E",
-  borderDefault: "#1E293B",
-  borderActive: "#D4A853",
-  borderAI: "#1E3A5F",
-  textPrimary: "#E2E8F0",
-  textSecondary: "#94A3B8",
-  textTertiary: "#64748B",
-  gold: "#D4A853",
-  goldHover: "#E0B964",
-  goldMuted: "rgba(212, 168, 83, 0.15)",
-  green: "#2D8653",
-  amber: "#C17B1A",
-  red: "#B23A3A",
-  blue: "#3A7CA5",
+  // Backgrounds — warm-neutral layered depth system
+  bgPrimary: "#0F1013",
+  bgCard: "#171921",
+  bgCardHover: "#1E2029",
+  bgSidebar: "#0B0C0F",
+  bgAI: "#0F1319",
+  bgElevated: "#1E2029",
+  bgSurface: "#262830",
+  // Borders
+  borderDefault: "#262830",
+  borderActive: "#6366F1",
+  borderSubtle: "#32353D",
+  borderAI: "#1E2A4A",
+  // Text — high contrast hierarchy (no pure white — prevents halation)
+  textPrimary: "#ECEDF0",
+  textSecondary: "#9CA3AF",
+  textTertiary: "#8B95A5",
+  // Primary accent — indigo for human actions, decisions, authority
+  gold: "#6366F1",
+  goldHover: "#818CF8",
+  goldMuted: "rgba(99, 102, 241, 0.14)",
+  goldGlow: "rgba(99, 102, 241, 0.06)",
+  // AI accent — cyan for AI-generated content, intelligence, data
+  aiBlue: "#22D3EE",
+  aiBlueMuted: "rgba(34, 211, 238, 0.10)",
+  aiBlueGlow: "rgba(34, 211, 238, 0.06)",
+  // Status — desaturated for dark mode (avoid oversaturation per Smashing)
+  green: "#34D399",
+  greenMuted: "rgba(52, 211, 153, 0.12)",
+  amber: "#FBBF24",
+  amberMuted: "rgba(251, 191, 36, 0.12)",
+  red: "#F87171",
+  redMuted: "rgba(248, 113, 113, 0.12)",
+  blue: "#6366F1",
+  blueMuted: "rgba(99, 102, 241, 0.12)",
+  // Special
+  purple: "#A78BFA",
+  purpleMuted: "rgba(167, 139, 250, 0.12)",
 };
 
-const FONT_MONO = "'DM Mono', monospace";
-const FONT_SANS = "'DM Sans', sans-serif";
+const FONT_MONO = "'JetBrains Mono', monospace";
+const FONT_DISPLAY = "'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT_BODY = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT_SANS = FONT_DISPLAY; // backward compat — explicit FONT_DISPLAY/FONT_BODY preferred
 
 const DECISION_STATUSES = ["draft", "analyzing", "decided", "implementing", "evaluating", "closed"];
 const DECISION_STATUS_LABELS = {
@@ -46,7 +80,7 @@ const XP_ACTIONS = { task_complete: 10, decision_made: 15, document_added: 5, ai
 const RANK_LEVELS = [
   { name: "Rookie", threshold: 0, color: "#64748B", flavor: "You have a desk. Barely." },
   { name: "Operator", threshold: 50, color: "#3A7CA5", flavor: "You know where the buttons are." },
-  { name: "Strategist", threshold: 150, color: "#D4A853", flavor: "People pretend to listen now." },
+  { name: "Strategist", threshold: 150, color: "#6366F1", flavor: "People pretend to listen now." },
   { name: "Mastermind", threshold: 300, color: "#2D8653", flavor: "You break things on purpose. And it works." },
   { name: "The Architect", threshold: 500, color: "#A855F7", flavor: "They don't schedule meetings with you. You schedule them." },
 ];
@@ -65,16 +99,131 @@ const DECISION_TEMPLATES = {
   budget: { label: "Budget Allocation", context: "Total budget: \nCompeting requests: \nPriorities: \nConstraints: " },
 };
 
+// ─── AI Provider Registry ─────────────────────────────────────────────────────
+const AI_PROVIDERS = {
+  anthropic: {
+    label: "Anthropic",
+    models: [
+      { id: "claude-opus-4-20250514", label: "Claude Opus 4", tier: "premium" },
+      { id: "claude-sonnet-4-20250514", label: "Claude Sonnet 4", tier: "standard" },
+      { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5", tier: "fast" },
+    ],
+    keyPrefix: "sk-ant-",
+    keyPlaceholder: "sk-ant-api03-...",
+  },
+  openai: {
+    label: "OpenAI",
+    models: [
+      { id: "gpt-4.1", label: "GPT-4.1", tier: "premium" },
+      { id: "gpt-4o", label: "GPT-4o", tier: "standard" },
+      { id: "gpt-4o-mini", label: "GPT-4o Mini", tier: "fast" },
+      { id: "o3-mini", label: "o3-mini", tier: "reasoning" },
+    ],
+    keyPrefix: "sk-",
+    keyPlaceholder: "sk-proj-...",
+  },
+};
+
+function getActiveAIConfig() {
+  const configId = localStorage.getItem(`bc2-${store._ws}-ai-active-config`);
+  if (!configId) return null;
+  const raw = localStorage.getItem(store._key("ai-config", configId));
+  return raw ? JSON.parse(raw) : null;
+}
+
+function setActiveAIConfig(configId) {
+  localStorage.setItem(`bc2-${store._ws}-ai-active-config`, configId);
+}
+
+// Resolve the actual API key from localStorage for a given config
+function resolveAPIKey(config) {
+  if (!config?.keyId) return null;
+  const raw = localStorage.getItem(store._key("ai-key", config.keyId));
+  if (!raw) return null;
+  return JSON.parse(raw).apiKey || null;
+}
+
+function getModelLabel(provider, modelId) {
+  const p = AI_PROVIDERS[provider];
+  if (!p) return modelId;
+  const m = p.models.find(m => m.id === modelId);
+  return m ? m.label : modelId;
+}
+
+// ─── Workspace Management ─────────────────────────────────────────────────────
+const GLOBAL_KEYS = ["bc2-workspaces", "bc2-active-workspace", "bc2-user-id", "bc2-meta:schema-version"];
+const WS_DEFAULT_ID = "ws_default";
+
+function getWorkspaces() {
+  const raw = localStorage.getItem("bc2-workspaces");
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveWorkspaces(list) {
+  localStorage.setItem("bc2-workspaces", JSON.stringify(list));
+}
+
+function getActiveWorkspaceId() {
+  return localStorage.getItem("bc2-active-workspace") || WS_DEFAULT_ID;
+}
+
+function createWorkspace(name, icon) {
+  const ws = {
+    id: `ws_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    name: name.trim(),
+    icon: icon || "",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  const list = getWorkspaces();
+  list.push(ws);
+  saveWorkspaces(list);
+  return ws;
+}
+
+function renameWorkspace(wsId, newName) {
+  const list = getWorkspaces();
+  const ws = list.find(w => w.id === wsId);
+  if (ws) { ws.name = newName.trim(); ws.updatedAt = new Date().toISOString(); }
+  saveWorkspaces(list);
+}
+
+function deleteWorkspace(wsId) {
+  if (wsId === WS_DEFAULT_ID) return; // never delete default
+  // Remove all data for this workspace
+  const prefix = `bc2-${wsId}-`;
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(prefix)) keys.push(key);
+  }
+  keys.forEach(k => localStorage.removeItem(k));
+  // Remove from workspace list
+  const list = getWorkspaces().filter(w => w.id !== wsId);
+  saveWorkspaces(list);
+  // Switch to default if this was active
+  if (getActiveWorkspaceId() === wsId) {
+    localStorage.setItem("bc2-active-workspace", WS_DEFAULT_ID);
+  }
+}
+
 // ─── Storage / Data Access Layer ──────────────────────────────────────────────
+function safeParse(raw, fallback) {
+  if (!raw) return fallback;
+  try { return JSON.parse(raw); } catch { return fallback; }
+}
+
 const store = {
-  _key: (entityType, id) => `bc2-${entityType}:${id}`,
-  _indexKey: (entityType) => `bc2-${entityType}:index`,
-  _aiKey: (entityType, entityId) => `bc2-${entityType}:${entityId}:ai-history`,
-  _linksKey: (sourceType, sourceId) => `bc2-links:${sourceType}:${sourceId}`,
+  _ws: getActiveWorkspaceId(),
+  setWorkspace(wsId) { this._ws = wsId; localStorage.setItem("bc2-active-workspace", wsId); },
+  _key(entityType, id) { return `bc2-${this._ws}-${entityType}:${id}`; },
+  _indexKey(entityType) { return `bc2-${this._ws}-${entityType}:index`; },
+  _aiKey(entityType, entityId) { return `bc2-${this._ws}-${entityType}:${entityId}:ai-history`; },
+  _linksKey(sourceType, sourceId) { return `bc2-${this._ws}-links:${sourceType}:${sourceId}`; },
 
   async get(entityType, id) {
     const raw = localStorage.getItem(this._key(entityType, id));
-    return raw ? JSON.parse(raw) : null;
+    return safeParse(raw, null);
   },
 
   async save(entityType, entity) {
@@ -84,7 +233,7 @@ const store = {
     // update index
     const idxKey = this._indexKey(entityType);
     const raw = localStorage.getItem(idxKey);
-    const ids = raw ? JSON.parse(raw) : [];
+    const ids = safeParse(raw, []);
     if (!ids.includes(entity.id)) {
       ids.push(entity.id);
       localStorage.setItem(idxKey, JSON.stringify(ids));
@@ -97,7 +246,7 @@ const store = {
     const idxKey = this._indexKey(entityType);
     const raw = localStorage.getItem(idxKey);
     if (raw) {
-      const ids = JSON.parse(raw).filter(i => i !== id);
+      const ids = safeParse(raw, []).filter(i => i !== id);
       localStorage.setItem(idxKey, JSON.stringify(ids));
     }
   },
@@ -106,7 +255,7 @@ const store = {
     const idxKey = this._indexKey(entityType);
     const raw = localStorage.getItem(idxKey);
     if (!raw) return [];
-    const ids = JSON.parse(raw);
+    const ids = safeParse(raw, []);
     const results = [];
     for (const id of ids) {
       const entity = await this.get(entityType, id);
@@ -119,7 +268,7 @@ const store = {
     // Forward link
     const fwdKey = this._linksKey(sourceType, sourceId);
     const fwdRaw = localStorage.getItem(fwdKey);
-    const fwd = fwdRaw ? JSON.parse(fwdRaw) : [];
+    const fwd = safeParse(fwdRaw, []);
     const ref = { type: targetType, id: targetId };
     if (!fwd.some(r => r.type === targetType && r.id === targetId)) {
       fwd.push(ref);
@@ -128,7 +277,7 @@ const store = {
     // Reverse link
     const revKey = this._linksKey(targetType, targetId);
     const revRaw = localStorage.getItem(revKey);
-    const rev = revRaw ? JSON.parse(revRaw) : [];
+    const rev = safeParse(revRaw, []);
     const revRef = { type: sourceType, id: sourceId };
     if (!rev.some(r => r.type === sourceType && r.id === sourceId)) {
       rev.push(revRef);
@@ -139,19 +288,19 @@ const store = {
   async getLinks(sourceType, sourceId) {
     const key = this._linksKey(sourceType, sourceId);
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : [];
+    return safeParse(raw, []);
   },
 
   async getAIHistory(entityType, entityId) {
     const key = this._aiKey(entityType, entityId);
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : [];
+    return safeParse(raw, []);
   },
 
   async appendAIHistory(entityType, entityId, interaction) {
     const key = this._aiKey(entityType, entityId);
     const raw = localStorage.getItem(key);
-    const history = raw ? JSON.parse(raw) : [];
+    const history = safeParse(raw, []);
     history.push(interaction);
     const trimmed = history.slice(-50);
     localStorage.setItem(key, JSON.stringify(trimmed));
@@ -160,22 +309,64 @@ const store = {
   async checkAndMigrate() {
     const versionKey = "bc2-meta:schema-version";
     const current = localStorage.getItem(versionKey);
-    if (current !== "2.0") {
-      localStorage.setItem(versionKey, "2.0");
+
+    // Workspace migration: move old bc2-{type}:{id} keys to bc2-ws_default-{type}:{id}
+    if (!localStorage.getItem("bc2-workspaces")) {
+      const entityTypes = ["decision", "task", "priority", "meeting", "ingest", "document", "project", "links", "digest", "connector", "copilot"];
+      const keysToMigrate = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith("bc2-")) continue;
+        if (GLOBAL_KEYS.includes(key)) continue;
+        if (key.startsWith("bc2-ui:")) continue;
+        // Skip if already workspace-scoped (contains ws_ after bc2-)
+        if (key.match(/^bc2-ws_/)) continue;
+        // Check if this is an entity key
+        const afterPrefix = key.slice(4); // after "bc2-"
+        if (entityTypes.some(t => afterPrefix.startsWith(t + ":") || afterPrefix.startsWith(t + "-"))) {
+          keysToMigrate.push(key);
+        }
+      }
+      // Also migrate copilot cache
+      const copilotKey = "bc-copilot-dashboard";
+      if (localStorage.getItem(copilotKey)) {
+        const val = localStorage.getItem(copilotKey);
+        localStorage.setItem(`bc2-${WS_DEFAULT_ID}-copilot-dashboard`, val);
+        localStorage.removeItem(copilotKey);
+      }
+      // Migrate entity keys
+      for (const key of keysToMigrate) {
+        const val = localStorage.getItem(key);
+        const newKey = key.replace(/^bc2-/, `bc2-${WS_DEFAULT_ID}-`);
+        localStorage.setItem(newKey, val);
+        localStorage.removeItem(key);
+      }
+      // Create default workspace
+      const defaultWs = { id: WS_DEFAULT_ID, name: "Default", icon: "", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      saveWorkspaces([defaultWs]);
+      localStorage.setItem("bc2-active-workspace", WS_DEFAULT_ID);
+      this._ws = WS_DEFAULT_ID;
+    }
+
+    if (current !== "3.0") {
+      localStorage.setItem(versionKey, "3.0");
     }
   },
 
+  // Export only the active workspace's data
   exportAll() {
+    const prefix = `bc2-${this._ws}-`;
     const data = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith("bc2-")) {
+      if (key && key.startsWith(prefix)) {
         data[key] = localStorage.getItem(key);
       }
     }
     return data;
   },
 
+  // Import data — keys are stored as-is (workspace prefix included)
   importAll(data) {
     for (const [key, val] of Object.entries(data)) {
       if (key.startsWith("bc2-")) {
@@ -184,11 +375,13 @@ const store = {
     }
   },
 
+  // Clear only the active workspace's data
   clearAll() {
+    const prefix = `bc2-${this._ws}-`;
     const keys = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith("bc2-")) keys.push(key);
+      if (key && key.startsWith(prefix)) keys.push(key);
     }
     keys.forEach(k => localStorage.removeItem(k));
   },
@@ -212,19 +405,69 @@ When assessing priorities: evaluate progress based on linked decisions and task 
 
 Format using markdown. Use **bold** for key points. Use bullet lists sparingly. Keep under 500 words unless complexity demands more.`;
 
-async function callAI(messages, systemOverride, maxTokens) {
-  const res = await fetch("/api/claude", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: maxTokens || 4000,
-      system: systemOverride || BC_SYSTEM_PROMPT,
-      messages,
-    }),
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message || "API error");
+async function callAI(messages, systemOverride, maxTokens, configOverride) {
+  const config = configOverride || getActiveAIConfig();
+  const provider = config?.provider || "anthropic";
+  const model = config?.model || "claude-sonnet-4-20250514";
+  const system = systemOverride || BC_SYSTEM_PROMPT;
+  const max_tokens = maxTokens || 4000;
+
+  // Resolve API key from localStorage (never leaves the browser)
+  const apiKey = resolveAPIKey(config);
+  if (!apiKey) {
+    throw new Error(`No ${provider === "openai" ? "OpenAI" : "Anthropic"} API key configured. Add one in Settings → AI Configuration.`);
+  }
+
+  let data;
+
+  if (provider === "anthropic") {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens,
+        ...(system ? { system } : {}),
+        messages,
+      }),
+    });
+    data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || `Anthropic API error (${res.status})`);
+  } else if (provider === "openai") {
+    const openaiMessages = [];
+    if (system) openaiMessages.push({ role: "system", content: system });
+    for (const msg of messages) openaiMessages.push({ role: msg.role, content: msg.content });
+
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({ model, max_tokens, messages: openaiMessages }),
+    });
+    const raw = await res.json();
+    if (!res.ok) throw new Error(raw.error?.message || `OpenAI API error (${res.status})`);
+
+    // Normalize to Anthropic response shape
+    const choice = raw.choices?.[0];
+    data = {
+      content: [{ text: choice?.message?.content || "" }],
+      stop_reason: choice?.finish_reason === "stop" ? "end_turn"
+        : choice?.finish_reason === "length" ? "max_tokens"
+        : choice?.finish_reason || "end_turn",
+      model: raw.model,
+      usage: { input_tokens: raw.usage?.prompt_tokens || 0, output_tokens: raw.usage?.completion_tokens || 0 },
+    };
+  } else {
+    throw new Error(`Unknown AI provider: ${provider}`);
+  }
+
   const text = data.content?.map(b => b.text || "").join("") || "";
   // Attach stop_reason so callers can detect truncation
   const result = new String(text);
@@ -232,7 +475,7 @@ async function callAI(messages, systemOverride, maxTokens) {
   return result;
 }
 
-async function callAIForEntity(entityType, entityId, userPrompt) {
+async function callAIForEntity(entityType, entityId, userPrompt, configOverride) {
   const history = await store.getAIHistory(entityType, entityId);
   const messages = [
     ...history.flatMap(h => [
@@ -241,7 +484,7 @@ async function callAIForEntity(entityType, entityId, userPrompt) {
     ]),
     { role: "user", content: userPrompt },
   ];
-  const response = await callAI(messages);
+  const response = await callAI(messages, undefined, undefined, configOverride);
   await store.appendAIHistory(entityType, entityId, {
     prompt: userPrompt,
     response,
@@ -293,13 +536,6 @@ let _idCounter = 0;
 const genId = (prefix) => `${prefix}_${Date.now()}_${_idCounter++}`;
 const isoNow = () => new Date().toISOString();
 
-function getWeekKey() {
-  const d = new Date();
-  const jan1 = new Date(d.getFullYear(), 0, 1);
-  const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
-  return `bc2-digest:week-${d.getFullYear()}-W${String(week).padStart(2, "0")}`;
-}
-
 function fmtDate(iso) {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -321,18 +557,27 @@ function isOverdue(dueDate) {
   return new Date(dueDate) < new Date() && true;
 }
 
-function isDueThisWeek(dueDate) {
-  if (!dueDate) return false;
-  const due = new Date(dueDate);
-  const now = new Date();
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - now.getDay() + 1);
-  monday.setHours(0, 0, 0, 0);
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  sunday.setHours(23, 59, 59, 999);
-  return due >= monday && due <= sunday;
+// Levenshtein-based similarity (0-1) for dedup matching
+function similarity(a, b) {
+  if (a === b) return 1;
+  if (!a || !b) return 0;
+  const lenA = a.length, lenB = b.length;
+  if (lenA === 0 || lenB === 0) return 0;
+  const matrix = Array.from({ length: lenA + 1 }, (_, i) => {
+    const row = new Array(lenB + 1);
+    row[0] = i;
+    return row;
+  });
+  for (let j = 0; j <= lenB; j++) matrix[0][j] = j;
+  for (let i = 1; i <= lenA; i++) {
+    for (let j = 1; j <= lenB; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
+    }
+  }
+  return 1 - matrix[lenA][lenB] / Math.max(lenA, lenB);
 }
+
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -404,21 +649,23 @@ function useProjectLinks(projects) {
 function ProjectFilterPills({ projects, filterProject, setFilterProject }) {
   if (!projects || projects.length === 0) return null;
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 12 }}>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
       <button onClick={() => setFilterProject(null)} style={{
-        padding: "4px 10px", borderRadius: 14, border: "none", cursor: "pointer",
-        background: filterProject === null ? C.gold : "rgba(255,255,255,0.04)",
-        color: filterProject === null ? C.bgPrimary : C.textTertiary,
-        fontFamily: FONT_MONO, fontSize: 10, fontWeight: filterProject === null ? 700 : 400,
-        transition: "all 0.15s",
+        padding: "5px 12px", borderRadius: 8, cursor: "pointer",
+        border: `1px solid ${filterProject === null ? C.borderSubtle : C.borderDefault}`,
+        background: filterProject === null ? "rgba(255,255,255,0.08)" : "transparent",
+        color: filterProject === null ? C.textPrimary : C.textSecondary,
+        fontFamily: FONT_SANS, fontSize: 12, fontWeight: filterProject === null ? 600 : 400,
+        transition: "all 0.15s ease",
       }}>All</button>
       {projects.map(p => (
         <button key={p.id} onClick={() => setFilterProject(filterProject === p.id ? null : p.id)} style={{
-          padding: "4px 10px", borderRadius: 14, border: "none", cursor: "pointer",
-          background: filterProject === p.id ? C.gold : "rgba(255,255,255,0.04)",
-          color: filterProject === p.id ? C.bgPrimary : C.textTertiary,
-          fontFamily: FONT_MONO, fontSize: 10, fontWeight: filterProject === p.id ? 700 : 400,
-          transition: "all 0.15s", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          padding: "5px 12px", borderRadius: 8, cursor: "pointer",
+          border: `1px solid ${filterProject === p.id ? C.borderSubtle : C.borderDefault}`,
+          background: filterProject === p.id ? "rgba(255,255,255,0.08)" : "transparent",
+          color: filterProject === p.id ? C.textPrimary : C.textSecondary,
+          fontFamily: FONT_SANS, fontSize: 12, fontWeight: filterProject === p.id ? 600 : 400,
+          transition: "all 0.15s ease", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>{p.title}</button>
       ))}
     </div>
@@ -447,20 +694,20 @@ function renderMarkdown(text) {
     }
     // Heading
     if (line.startsWith("### ")) {
-      elements.push(<div key={key++} style={{ fontWeight: 600, fontSize: 14, color: C.textPrimary, marginTop: 12, marginBottom: 4, fontFamily: FONT_SANS }}>{inlineMarkdown(line.slice(4))}</div>);
+      elements.push(<div key={key++} style={{ fontWeight: 600, fontSize: 15, color: C.textPrimary, marginTop: 12, marginBottom: 4, fontFamily: FONT_SANS }}>{inlineMarkdown(line.slice(4))}</div>);
     } else if (line.startsWith("## ")) {
       elements.push(<div key={key++} style={{ fontWeight: 700, fontSize: 15, color: C.textPrimary, marginTop: 14, marginBottom: 4, fontFamily: FONT_SANS }}>{inlineMarkdown(line.slice(3))}</div>);
     } else if (line.startsWith("# ")) {
       elements.push(<div key={key++} style={{ fontWeight: 700, fontSize: 16, color: C.textPrimary, marginTop: 16, marginBottom: 6, fontFamily: FONT_SANS }}>{inlineMarkdown(line.slice(2))}</div>);
     } else if (line.startsWith("- ") || line.startsWith("* ")) {
       elements.push(
-        <div key={key++} style={{ display: "flex", gap: 8, marginBottom: 3, fontFamily: FONT_SANS, fontSize: 14, color: C.textSecondary }}>
+        <div key={key++} style={{ display: "flex", gap: 8, marginBottom: 3, fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary }}>
           <span style={{ color: C.gold, flexShrink: 0 }}>•</span>
           <span>{inlineMarkdown(line.slice(2))}</span>
         </div>
       );
     } else {
-      elements.push(<div key={key++} style={{ marginBottom: 4, fontFamily: FONT_SANS, fontSize: 14, color: C.textSecondary, lineHeight: 1.6 }}>{inlineMarkdown(line)}</div>);
+      elements.push(<div key={key++} style={{ marginBottom: 4, fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.6 }}>{inlineMarkdown(line)}</div>);
     }
   }
   return elements;
@@ -485,17 +732,20 @@ function inlineMarkdown(text) {
 // ─── Reusable Components ──────────────────────────────────────────────────────
 
 function Badge({ label, color, bg }) {
+  const c = color || C.textSecondary;
   return (
     <span style={{
       display: "inline-block",
-      padding: "2px 7px",
-      borderRadius: 4,
+      padding: "3px 8px",
+      borderRadius: 6,
       fontSize: 11,
       fontFamily: FONT_MONO,
       fontWeight: 500,
-      color: color || C.textSecondary,
-      background: bg || "rgba(255,255,255,0.06)",
-      letterSpacing: "0.03em",
+      color: c,
+      background: bg || `${c}18`,
+      letterSpacing: "0.02em",
+      lineHeight: 1,
+      border: `1px solid ${c}15`,
     }}>{label}</span>
   );
 }
@@ -505,26 +755,48 @@ function Btn({ children, onClick, variant = "ghost", disabled, style: extraStyle
   const base = {
     cursor: disabled ? "not-allowed" : "pointer",
     border: "none",
-    borderRadius: 6,
-    fontFamily: FONT_MONO,
+    borderRadius: 8,
+    fontFamily: FONT_SANS,
     fontWeight: 500,
-    opacity: disabled ? 0.5 : 1,
-    transition: "background 0.15s, color 0.15s",
+    fontSize: 13,
+    opacity: disabled ? 0.4 : 1,
+    transition: "all 0.15s ease",
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
+    letterSpacing: "-0.01em",
     ...extraStyle,
   };
   const sizes = {
-    sm: { padding: "4px 10px", fontSize: 11 },
-    md: { padding: "7px 14px", fontSize: 12 },
-    lg: { padding: "10px 20px", fontSize: 13 },
+    sm: { padding: "5px 10px", fontSize: 13 },
+    md: { padding: "8px 16px", fontSize: 13 },
+    lg: { padding: "10px 22px", fontSize: 14 },
   };
   const variants = {
-    primary: { background: hovered ? C.goldHover : C.gold, color: "#0A0F1C" },
-    ghost: { background: hovered ? "rgba(255,255,255,0.07)" : "transparent", color: C.textSecondary },
-    danger: { background: hovered ? "#7f2020" : "rgba(178,58,58,0.15)", color: C.red },
-    outline: { background: "transparent", color: C.textSecondary, border: `1px solid ${C.borderDefault}` },
+    primary: {
+      background: hovered ? C.goldHover : C.gold, color: "#0F1013",
+      fontWeight: 600,
+      boxShadow: hovered ? `0 0 20px ${C.goldGlow}` : "none",
+    },
+    ghost: {
+      background: hovered ? "rgba(255,255,255,0.06)" : "transparent",
+      color: hovered ? C.textPrimary : C.textSecondary,
+    },
+    danger: {
+      background: hovered ? C.redMuted : "transparent",
+      color: C.red,
+      border: `1px solid ${hovered ? C.red + "40" : "transparent"}`,
+    },
+    outline: {
+      background: hovered ? "rgba(255,255,255,0.04)" : "transparent",
+      color: hovered ? C.textPrimary : C.textSecondary,
+      border: `1px solid ${hovered ? C.borderSubtle : C.borderDefault}`,
+    },
+    ai: {
+      background: hovered ? C.aiBlueMuted : C.aiBlueGlow,
+      color: C.aiBlue,
+      border: `1px solid ${hovered ? C.aiBlue + "30" : "transparent"}`,
+    },
   };
   return (
     <button
@@ -538,23 +810,26 @@ function Btn({ children, onClick, variant = "ghost", disabled, style: extraStyle
 
 function Input({ value, onChange, placeholder, multiline, rows = 3, style: extraStyle, onKeyDown }) {
   const base = {
-    background: "rgba(255,255,255,0.04)",
+    background: C.bgCard,
     border: `1px solid ${C.borderDefault}`,
-    borderRadius: 6,
+    borderRadius: 8,
     color: C.textPrimary,
     fontFamily: FONT_SANS,
     fontSize: 14,
-    padding: "8px 12px",
+    padding: "10px 14px",
     width: "100%",
     outline: "none",
     boxSizing: "border-box",
     resize: multiline ? "vertical" : "none",
+    transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+    lineHeight: 1.5,
     ...extraStyle,
   };
+  const focusStyle = `border-color: ${C.borderSubtle}; box-shadow: 0 0 0 3px ${C.goldGlow};`;
   if (multiline) {
-    return <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} style={base} onKeyDown={onKeyDown} />;
+    return <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} style={base} onKeyDown={onKeyDown} onFocus={e => e.target.style.cssText += focusStyle} onBlur={e => { e.target.style.borderColor = C.borderDefault; e.target.style.boxShadow = "none"; }} />;
   }
-  return <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} style={base} onKeyDown={onKeyDown} />;
+  return <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} style={base} onKeyDown={onKeyDown} onFocus={e => e.target.style.cssText += focusStyle} onBlur={e => { e.target.style.borderColor = C.borderDefault; e.target.style.boxShadow = "none"; }} />;
 }
 
 function Select({ value, onChange, options, style: extraStyle }) {
@@ -563,15 +838,16 @@ function Select({ value, onChange, options, style: extraStyle }) {
       value={value}
       onChange={e => onChange(e.target.value)}
       style={{
-        background: "#111827",
+        background: C.bgCard,
         border: `1px solid ${C.borderDefault}`,
-        borderRadius: 6,
+        borderRadius: 8,
         color: C.textPrimary,
         fontFamily: FONT_SANS,
         fontSize: 14,
-        padding: "7px 10px",
+        padding: "10px 14px",
         outline: "none",
         cursor: "pointer",
+        transition: "border-color 0.15s ease",
         ...extraStyle,
       }}
     >
@@ -591,20 +867,115 @@ function Modal({ title, onClose, children, width = 580 }) {
 
   return (
     <div style={{
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000,
+      position: "fixed", inset: 0, background: "rgba(1,4,9,0.80)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", zIndex: 1000,
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
     }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={{
-        background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10,
+        background: C.bgElevated, border: `1px solid ${C.borderSubtle}`, borderRadius: 14,
         width: "100%", maxWidth: width, maxHeight: "90vh", overflow: "auto",
         padding: 28, position: "relative",
+        boxShadow: "0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03)",
       }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 14, fontWeight: 500, color: C.textPrimary }}>{title}</div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 16, padding: 4 }}>✕</button>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.02em" }}>{title}</div>
+          <button onClick={onClose} style={{
+            background: "rgba(255,255,255,0.06)", border: "none", color: C.textTertiary, cursor: "pointer",
+            fontSize: 14, padding: "4px 8px", borderRadius: 6, transition: "all 0.15s",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.10)"; e.currentTarget.style.color = C.textPrimary; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = C.textTertiary; }}
+          >✕</button>
         </div>
         {children}
       </div>
+    </div>
+  );
+}
+
+function AIConfigPicker({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [configs, setConfigs] = useState([]);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    store.list("ai-config").then(setConfigs);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  if (configs.length === 0) return null;
+
+  const active = value ? configs.find(c => c.id === value.id) : (getActiveAIConfig() || null);
+  const label = active ? `${getModelLabel(active.provider, active.model)}` : "Default";
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-flex" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          display: "flex", alignItems: "center", gap: 4,
+          padding: "3px 8px", borderRadius: 4, cursor: "pointer",
+          background: "transparent", border: `1px solid ${C.borderDefault}`,
+          fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
+          transition: "all 0.12s",
+        }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.color = C.textSecondary; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textTertiary; }}
+        title="Switch AI model"
+      >
+        <Sparkles size={8} color={C.aiBlue} />
+        {label}
+        <span style={{ fontSize: 7, opacity: 0.5 }}>▾</span>
+      </button>
+      {open && (
+        <div style={{
+          position: "absolute", bottom: "100%", right: 0, zIndex: 200,
+          background: C.bgElevated, border: `1px solid ${C.borderSubtle}`,
+          borderRadius: 6, padding: 3, marginBottom: 4, minWidth: 180,
+          boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
+        }}>
+          {/* Workspace default */}
+          <button
+            onClick={() => { onChange(null); setOpen(false); }}
+            style={{
+              width: "100%", padding: "6px 8px", borderRadius: 4, cursor: "pointer",
+              background: !value && !active ? "rgba(255,255,255,0.08)" : "transparent",
+              border: "none", textAlign: "left", fontFamily: FONT_MONO, fontSize: 11,
+              color: !value && !active ? C.textPrimary : C.textSecondary,
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+            onMouseLeave={e => { if (value || active) e.currentTarget.style.background = "transparent"; }}
+          >
+            Workspace Default
+          </button>
+          {configs.map(cfg => {
+            const isSelected = value ? cfg.id === value.id : (active?.id === cfg.id);
+            return (
+              <button
+                key={cfg.id}
+                onClick={() => { onChange(cfg); setOpen(false); }}
+                style={{
+                  width: "100%", padding: "6px 8px", borderRadius: 4, cursor: "pointer",
+                  background: isSelected ? "rgba(255,255,255,0.08)" : "transparent",
+                  border: "none", textAlign: "left", display: "flex", flexDirection: "column", gap: 1,
+                }}
+                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = "transparent"; }}
+              >
+                <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: isSelected ? C.textPrimary : C.textPrimary }}>{cfg.name}</span>
+                <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
+                  {AI_PROVIDERS[cfg.provider]?.label} · {getModelLabel(cfg.provider, cfg.model)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -613,21 +984,42 @@ function AIPanel({ response, loading, error }) {
   if (!loading && !response && !error) return null;
   return (
     <div style={{
-      background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8,
-      padding: 16, marginTop: 12,
+      background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
+      border: `1px solid ${C.borderAI}`,
+      borderLeft: `2px solid ${C.aiBlue}40`,
+      borderRadius: 10,
+      padding: "16px 18px", marginTop: 14,
+      position: "relative",
     }}>
       {loading && (
-        <div style={{ color: C.textTertiary, fontFamily: FONT_MONO, fontSize: 12, display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ animation: "pulse 1.5s ease-in-out infinite" }}>✦</span> Thinking...
+        <div style={{ display: "flex", alignItems: "center", gap: 10, color: C.textTertiary }}>
+          <div style={{
+            width: 20, height: 20, borderRadius: "50%",
+            background: C.aiBlueMuted,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            animation: "aiPulse 2s ease-in-out infinite",
+          }}>
+            <Sparkles size={10} color={C.aiBlue} />
+          </div>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary }}>BC is analyzing...</span>
         </div>
       )}
-      {error && <div style={{ color: C.red, fontFamily: FONT_SANS, fontSize: 13 }}>Error: {error}</div>}
+      {error && <div style={{ color: C.red, fontFamily: FONT_BODY, fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
+        <AlertTriangle size={14} /> {error}
+      </div>}
       {response && !loading && (
-        <div style={{ color: C.textSecondary }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-            <span style={{ color: C.gold, fontSize: 12, fontFamily: FONT_MONO }}>✦ BC</span>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <div style={{
+              width: 22, height: 22, borderRadius: "50%",
+              background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}30`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Sparkles size={10} color={C.aiBlue} />
+            </div>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: C.aiBlue, letterSpacing: "-0.01em" }}>BC Intelligence</span>
           </div>
-          {renderMarkdown(response)}
+          <div style={{ color: C.textSecondary }}>{renderMarkdown(response)}</div>
         </div>
       )}
     </div>
@@ -636,10 +1028,10 @@ function AIPanel({ response, loading, error }) {
 
 function EmptyState({ icon, title, sub, action, onAction }) {
   return (
-    <div style={{ textAlign: "center", padding: "60px 24px", color: C.textTertiary }}>
-      {icon && <div style={{ fontSize: 32, marginBottom: 12 }}>{icon}</div>}
-      <div style={{ fontFamily: FONT_SANS, fontSize: 15, color: C.textSecondary, marginBottom: 6 }}>{title}</div>
-      {sub && <div style={{ fontFamily: FONT_SANS, fontSize: 13, marginBottom: 20 }}>{sub}</div>}
+    <div style={{ textAlign: "center", padding: "80px 32px", color: C.textTertiary }}>
+      {icon && <div style={{ fontSize: 36, marginBottom: 16, opacity: 0.5 }}>{icon}</div>}
+      <div style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 700, color: C.textSecondary, marginBottom: 8, letterSpacing: "-0.01em" }}>{title}</div>
+      {sub && <div style={{ fontFamily: FONT_BODY, fontSize: 14, marginBottom: 24, lineHeight: 1.6, maxWidth: 400, margin: "0 auto 24px" }}>{sub}</div>}
       {action && <Btn variant="outline" onClick={onAction}>{action}</Btn>}
     </div>
   );
@@ -649,19 +1041,19 @@ function HealthBar({ score }) {
   const color = healthColor(score);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
-        <div style={{ width: `${score || 0}%`, height: "100%", background: color, borderRadius: 2, transition: "width 0.4s ease" }} />
+      <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+        <div style={{ width: `${score || 0}%`, height: "100%", background: `linear-gradient(90deg, ${color}, ${color}CC)`, borderRadius: 2, transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} />
       </div>
-      <span style={{ fontFamily: FONT_MONO, fontSize: 11, color, minWidth: 30 }}>{score !== null && score !== undefined ? `${score}%` : "—"}</span>
+      <span style={{ fontFamily: FONT_MONO, fontSize: 11, color, minWidth: 30, fontWeight: 500 }}>{score !== null && score !== undefined ? `${score}%` : "—"}</span>
     </div>
   );
 }
 
 function FormField({ label, children, required }) {
   return (
-    <div style={{ marginBottom: 16 }}>
-      <label style={{ display: "block", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-        {label}{required && <span style={{ color: C.gold, marginLeft: 3 }}>*</span>}
+    <div style={{ marginBottom: 18 }}>
+      <label style={{ display: "block", fontFamily: FONT_SANS, fontSize: 13, fontWeight: 500, color: C.textSecondary, marginBottom: 8, letterSpacing: "-0.01em" }}>
+        {label}{required && <span style={{ color: C.gold, marginLeft: 4 }}>*</span>}
       </label>
       {children}
     </div>
@@ -669,106 +1061,351 @@ function FormField({ label, children, required }) {
 }
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
-function Sidebar({ activeView, setView, collapsed, setCollapsed, aiNotifications }) {
-  const [hovered, setHovered] = useState(false);
+function WorkspaceSwitcher({ workspaces, activeWsId, onSwitch, onCreate, onRename, onDelete, collapsed }) {
+  const [open, setOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [renamingId, setRenamingId] = useState(null);
+  const [renameVal, setRenameVal] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const ref = useRef(null);
+
+  const activeWs = workspaces.find(w => w.id === activeWsId) || { name: "Default", icon: "" };
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  if (collapsed) {
+    return (
+      <div style={{ padding: "0 0 8px", display: "flex", justifyContent: "center" }}>
+        <button
+          onClick={() => setOpen(!open)}
+          title={activeWs.name}
+          style={{
+            width: 28, height: 28, borderRadius: 6, border: `1px solid ${C.borderDefault}`,
+            background: C.bgCard, color: C.gold, fontFamily: FONT_SANS, fontSize: 12,
+            fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          {activeWs.icon || activeWs.name.charAt(0).toUpperCase()}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={ref} style={{ padding: "0 12px 8px", position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%", display: "flex", alignItems: "center", gap: 8,
+          padding: "7px 10px", borderRadius: 6, cursor: "pointer",
+          background: open ? C.bgCardHover : "transparent",
+          border: `1px solid ${open ? C.borderSubtle : "transparent"}`,
+          transition: "all 0.15s",
+        }}
+        onMouseEnter={e => { if (!open) e.currentTarget.style.background = C.bgCardHover; }}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.background = "transparent"; }}
+      >
+        <span style={{
+          width: 22, height: 22, borderRadius: 5, background: C.goldMuted,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 11, fontWeight: 700, color: C.gold, fontFamily: FONT_SANS, flexShrink: 0,
+        }}>
+          {activeWs.icon || activeWs.name.charAt(0).toUpperCase()}
+        </span>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {activeWs.name}
+        </span>
+        <span style={{ fontSize: 11, color: C.textTertiary, transition: "transform 0.15s", transform: open ? "rotate(180deg)" : "none" }}>▾</span>
+      </button>
+
+      {open && (
+        <div style={{
+          position: "absolute", top: "100%", left: 12, right: 12, zIndex: 200,
+          background: C.bgElevated, border: `1px solid ${C.borderSubtle}`,
+          borderRadius: 8, padding: 4, marginTop: 4,
+          boxShadow: "0 8px 30px rgba(0,0,0,0.4)",
+        }}>
+          {workspaces.map(ws => (
+            <div key={ws.id}>
+              {renamingId === ws.id ? (
+                <div style={{ display: "flex", gap: 4, padding: "4px 6px" }}>
+                  <input
+                    autoFocus
+                    value={renameVal}
+                    onChange={e => setRenameVal(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === "Enter" && renameVal.trim()) { onRename(ws.id, renameVal); setRenamingId(null); }
+                      if (e.key === "Escape") setRenamingId(null);
+                    }}
+                    style={{
+                      flex: 1, background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+                      borderRadius: 4, padding: "4px 8px", color: C.textPrimary,
+                      fontFamily: FONT_SANS, fontSize: 12, outline: "none",
+                    }}
+                  />
+                  <button onClick={() => { if (renameVal.trim()) { onRename(ws.id, renameVal); setRenamingId(null); } }}
+                    style={{ background: "none", border: "none", color: C.green, cursor: "pointer", fontSize: 12 }}>✓</button>
+                </div>
+              ) : (
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <button
+                    onClick={() => { onSwitch(ws.id); setOpen(false); }}
+                    style={{
+                      flex: 1, display: "flex", alignItems: "center", gap: 8,
+                      padding: "7px 8px", borderRadius: 5, cursor: "pointer",
+                      background: ws.id === activeWsId ? C.goldMuted : "transparent",
+                      border: "none", textAlign: "left", transition: "background 0.12s",
+                    }}
+                    onMouseEnter={e => { if (ws.id !== activeWsId) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+                    onMouseLeave={e => { if (ws.id !== activeWsId) e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <span style={{
+                      width: 20, height: 20, borderRadius: 4, background: ws.id === activeWsId ? C.gold + "20" : C.bgSurface,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 10, fontWeight: 700, color: ws.id === activeWsId ? C.gold : C.textTertiary, fontFamily: FONT_SANS,
+                    }}>
+                      {ws.icon || ws.name.charAt(0).toUpperCase()}
+                    </span>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: ws.id === activeWsId ? C.textPrimary : C.textSecondary }}>
+                      {ws.name}
+                    </span>
+                    {ws.id === activeWsId && <span style={{ fontSize: 10, color: C.gold, marginLeft: "auto" }}>●</span>}
+                  </button>
+                  {/* Rename / Delete actions */}
+                  <button
+                    onClick={() => { setRenamingId(ws.id); setRenameVal(ws.name); }}
+                    title="Rename"
+                    style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 10, padding: "4px", flexShrink: 0 }}
+                  >✎</button>
+                  {ws.id !== WS_DEFAULT_ID && (
+                    confirmDeleteId === ws.id ? (
+                      <button
+                        onClick={() => { onDelete(ws.id); setConfirmDeleteId(null); setOpen(false); }}
+                        title="Confirm delete"
+                        style={{ background: "none", border: "none", color: C.red, cursor: "pointer", fontSize: 10, padding: "4px", flexShrink: 0 }}
+                      >✓</button>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDeleteId(ws.id)}
+                        title="Delete workspace"
+                        style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 10, padding: "4px", flexShrink: 0 }}
+                      >✕</button>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Divider */}
+          <div style={{ height: 1, background: C.borderDefault, margin: "4px 6px" }} />
+
+          {creating ? (
+            <div style={{ padding: "4px 6px" }}>
+              <input
+                autoFocus
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                placeholder="Workspace name..."
+                onKeyDown={e => {
+                  if (e.key === "Enter" && newName.trim()) { onCreate(newName); setNewName(""); setCreating(false); setOpen(false); }
+                  if (e.key === "Escape") { setCreating(false); setNewName(""); }
+                }}
+                style={{
+                  width: "100%", background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+                  borderRadius: 4, padding: "6px 8px", color: C.textPrimary,
+                  fontFamily: FONT_SANS, fontSize: 12, outline: "none",
+                }}
+              />
+            </div>
+          ) : (
+            <button
+              onClick={() => setCreating(true)}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", gap: 8,
+                padding: "7px 8px", borderRadius: 5, cursor: "pointer",
+                background: "transparent", border: "none", textAlign: "left",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            >
+              <span style={{ width: 20, height: 20, borderRadius: 4, background: C.bgSurface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: C.textTertiary }}>+</span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary }}>New Workspace</span>
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Sidebar({ activeView, setView, collapsed, setCollapsed, aiNotifications, workspaces, activeWsId, onSwitchWorkspace, onCreateWorkspace, onRenameWorkspace, onDeleteWorkspace }) {
+  const [hoveredItem, setHoveredItem] = useState(null);
   const isExpanded = !collapsed;
 
-  const navItems = [
-    { id: "dashboard", icon: "⌂", label: "Dashboard" },
-    { id: "ingest", icon: "⊕", label: "Ingest" },
-    { id: "decisions", icon: "◆", label: "Decisions" },
-    { id: "tasks", icon: "☐", label: "Tasks" },
-    { id: "priorities", icon: "▲", label: "Priorities" },
-    { id: "meetings", icon: "◎", label: "Meetings" },
-    { id: "projects", icon: "▣", label: "Projects" },
-    { id: "library", icon: "▤", label: "Library" },
+  const navSections = [
+    { label: "Command", items: [
+      { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
+      { id: "ingest", icon: Inbox, label: "Ingest" },
+    ]},
+    { label: "Work", items: [
+      { id: "decisions", icon: Diamond, label: "Decisions" },
+      { id: "tasks", icon: CheckSquare, label: "Tasks" },
+      { id: "priorities", icon: TrendingUp, label: "Priorities" },
+      { id: "projects", icon: FolderKanban, label: "Projects" },
+    ]},
+    { label: "Reference", items: [
+      { id: "meetings", icon: Users, label: "Meetings" },
+      { id: "library", icon: Library, label: "Library" },
+    ]},
   ];
 
   return (
     <div
       style={{
-        width: isExpanded ? 220 : 56,
-        minWidth: isExpanded ? 220 : 56,
+        width: isExpanded ? 240 : 56,
+        minWidth: isExpanded ? 240 : 56,
         background: C.bgSidebar,
         borderRight: `1px solid ${C.borderDefault}`,
         display: "flex",
         flexDirection: "column",
-        transition: "width 0.2s ease, min-width 0.2s ease",
+        transition: "width 0.2s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
         overflow: "hidden",
         zIndex: 100,
         flexShrink: 0,
       }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
       {/* Logo */}
-      <div style={{ padding: isExpanded ? "20px 18px 16px" : "20px 0 16px", display: "flex", alignItems: "center", gap: 10, justifyContent: isExpanded ? "space-between" : "center" }}>
-        <span style={{ fontFamily: FONT_MONO, fontWeight: 500, fontSize: 14, color: C.gold, letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
-          {isExpanded ? "BASE COMMAND" : "BC"}
-        </span>
+      <div style={{ padding: isExpanded ? "20px 20px 16px" : "20px 0 16px", display: "flex", alignItems: "center", gap: 10, justifyContent: isExpanded ? "space-between" : "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 8,
+            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 12, fontWeight: 700, color: C.bgSidebar,
+            fontFamily: FONT_MONO, flexShrink: 0,
+          }}>B</div>
+          {isExpanded && (
+            <span style={{ fontFamily: FONT_SANS, fontWeight: 600, fontSize: 17, color: C.textPrimary, letterSpacing: "-0.03em", whiteSpace: "nowrap" }}>
+              Base Command
+            </span>
+          )}
+        </div>
         {isExpanded && (
-          <button onClick={() => { setCollapsed(true); localStorage.setItem("bc2-ui:sidebar-collapsed", "true"); }} style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 14, padding: 2 }}>☰</button>
+          <button onClick={() => { setCollapsed(true); localStorage.setItem("bc2-ui:sidebar-collapsed", "true"); }} style={{
+            background: "rgba(255,255,255,0.04)", border: "none", color: C.textTertiary, cursor: "pointer",
+            fontSize: 12, padding: "4px 6px", borderRadius: 6, transition: "all 0.15s",
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
+            onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+          ><ChevronLeft size={14} /></button>
         )}
       </div>
 
       {!isExpanded && (
-        <button onClick={() => { setCollapsed(false); localStorage.setItem("bc2-ui:sidebar-collapsed", "false"); }} style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 16, padding: "4px 0", marginBottom: 8, width: "100%" }}>☰</button>
+        <button onClick={() => { setCollapsed(false); localStorage.setItem("bc2-ui:sidebar-collapsed", "false"); }} style={{
+          background: "none", border: "none", color: C.textTertiary, cursor: "pointer",
+          fontSize: 14, padding: "6px 0", marginBottom: 4, width: "100%",
+          transition: "color 0.15s",
+        }}
+          onMouseEnter={e => e.currentTarget.style.color = C.textPrimary}
+          onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}
+        ><ChevronRight size={14} /></button>
       )}
 
-      <div style={{ width: "80%", height: 1, background: C.borderDefault, margin: "0 auto 12px" }} />
+      {/* Workspace switcher */}
+      <WorkspaceSwitcher
+        workspaces={workspaces}
+        activeWsId={activeWsId}
+        onSwitch={onSwitchWorkspace}
+        onCreate={onCreateWorkspace}
+        onRename={onRenameWorkspace}
+        onDelete={onDeleteWorkspace}
+        collapsed={!isExpanded}
+      />
 
-      {/* Nav items */}
-      <nav style={{ flex: 1 }}>
-        {navItems.map(item => {
-          const active = activeView === item.id;
-          const hasNotif = aiNotifications && aiNotifications[item.id];
-          return (
-            <button
-              key={item.id}
-              onClick={() => setView(item.id)}
-              style={{
-                width: "100%",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: isExpanded ? "10px 16px" : "10px 0",
-                justifyContent: isExpanded ? "flex-start" : "center",
-                color: active ? C.gold : C.textSecondary,
-                borderLeft: active ? `3px solid ${C.gold}` : "3px solid transparent",
-                transition: "background 0.15s, color 0.15s",
-                position: "relative",
-              }}
-            >
-              <span style={{ fontSize: 15, flexShrink: 0, width: 20, textAlign: "center" }}>{item.icon}</span>
-              {isExpanded && (
-                <span style={{ fontFamily: FONT_MONO, fontSize: 12, whiteSpace: "nowrap" }}>{item.label}</span>
-              )}
-              {hasNotif && (
-                <span style={{ marginLeft: "auto", color: C.gold, fontSize: 10 }}>✦</span>
-              )}
-            </button>
-          );
-        })}
+      {/* Nav sections */}
+      <nav style={{ flex: 1, padding: "4px 0", overflow: "hidden" }}>
+        {navSections.map((section, si) => (
+          <div key={si} style={{ marginBottom: 8 }}>
+            {isExpanded && (
+              <div style={{
+                fontFamily: FONT_SANS, fontSize: 12, fontWeight: 700, color: C.textTertiary,
+                padding: "8px 20px 4px", textTransform: "uppercase", letterSpacing: "0.06em",
+              }}>{section.label}</div>
+            )}
+            {!isExpanded && si > 0 && (
+              <div style={{ width: 20, height: 1, background: C.borderDefault, margin: "6px auto" }} />
+            )}
+            {section.items.map(item => {
+              const active = activeView === item.id;
+              const isHovered = hoveredItem === item.id;
+              const hasNotif = aiNotifications && aiNotifications[item.id];
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setView(item.id)}
+                  onMouseEnter={() => setHoveredItem(item.id)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  style={{
+                    width: "100%",
+                    background: active ? "rgba(255,255,255,0.07)" : isHovered ? "rgba(255,255,255,0.04)" : "none",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: isExpanded ? "12px 20px" : "12px 0",
+                    justifyContent: isExpanded ? "flex-start" : "center",
+                    color: active ? C.textPrimary : isHovered ? C.textPrimary : C.textSecondary,
+                    borderRight: active ? `2px solid ${C.gold}` : "2px solid transparent",
+                    transition: "all 0.12s ease",
+                    position: "relative",
+                  }}
+                >
+                  <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ flexShrink: 0, opacity: active ? 1 : 0.75 }} />
+                  {isExpanded && (
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: active ? 600 : 500, whiteSpace: "nowrap", letterSpacing: "0em" }}>{item.label}</span>
+                  )}
+                  {hasNotif && (
+                    <span style={{
+                      marginLeft: "auto", width: 6, height: 6, borderRadius: "50%",
+                      background: C.aiBlue, boxShadow: `0 0 8px ${C.aiBlue}60`,
+                    }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
-      <div style={{ width: "80%", height: 1, background: C.borderDefault, margin: "12px auto" }} />
+      <div style={{ width: isExpanded ? "85%" : 20, height: 1, background: C.borderDefault, margin: "4px auto 8px" }} />
 
       {/* Settings */}
       <button
         onClick={() => setView("settings")}
+        onMouseEnter={() => setHoveredItem("settings")}
+        onMouseLeave={() => setHoveredItem(null)}
         style={{
-          width: "100%", background: "none", border: "none", cursor: "pointer",
-          display: "flex", alignItems: "center", gap: 12, padding: isExpanded ? "10px 16px 20px" : "10px 0 20px",
+          width: "100%", background: activeView === "settings" ? "rgba(255,255,255,0.07)" : hoveredItem === "settings" ? "rgba(255,255,255,0.04)" : "none",
+          border: "none", cursor: "pointer",
+          display: "flex", alignItems: "center", gap: 12, padding: isExpanded ? "12px 20px 20px" : "12px 0 20px",
           justifyContent: isExpanded ? "flex-start" : "center",
-          color: activeView === "settings" ? C.gold : C.textTertiary,
-          borderLeft: activeView === "settings" ? `3px solid ${C.gold}` : "3px solid transparent",
+          color: activeView === "settings" ? C.textPrimary : hoveredItem === "settings" ? C.textPrimary : C.textSecondary,
+          borderRight: activeView === "settings" ? `2px solid ${C.gold}` : "2px solid transparent",
+          transition: "all 0.12s ease",
         }}
       >
-        <span style={{ fontSize: 15, width: 20, textAlign: "center" }}>⚙</span>
-        {isExpanded && <span style={{ fontFamily: FONT_MONO, fontSize: 12 }}>Settings</span>}
+        <SettingsIcon size={18} strokeWidth={activeView === "settings" ? 2 : 1.75} style={{ flexShrink: 0, opacity: activeView === "settings" ? 1 : 0.75 }} />
+        {isExpanded && <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: activeView === "settings" ? 600 : 500, whiteSpace: "nowrap" }}>Settings</span>}
       </button>
     </div>
   );
@@ -808,17 +1445,17 @@ function CommandPalette({ onClose, setView, decisions, tasks, priorities }) {
       const hits = [];
       decisions.forEach(d => {
         if (d.title?.toLowerCase().includes(q) || (d.tags || []).some(t => t.toLowerCase().includes(q))) {
-          hits.push({ type: "decision", icon: "◆", entity: d, action: () => { setView("decisions"); onClose(); } });
+          hits.push({ type: "decision", icon: <Diamond size={13} />, entity: d, action: () => { setView("decisions"); onClose(); } });
         }
       });
       tasks.forEach(t => {
         if (t.title?.toLowerCase().includes(q) || (t.tags || []).some(tag => tag.toLowerCase().includes(q))) {
-          hits.push({ type: "task", icon: "☐", entity: t, action: () => { setView("tasks"); onClose(); } });
+          hits.push({ type: "task", icon: <CheckSquare size={13} />, entity: t, action: () => { setView("tasks"); onClose(); } });
         }
       });
       priorities.forEach(p => {
         if (p.title?.toLowerCase().includes(q) || (p.tags || []).some(t => t.toLowerCase().includes(q))) {
-          hits.push({ type: "priority", icon: "▲", entity: p, action: () => { setView("priorities"); onClose(); } });
+          hits.push({ type: "priority", icon: <ChevronUp size={13} />, entity: p, action: () => { setView("priorities"); onClose(); } });
         }
       });
       setResults(hits.slice(0, 10));
@@ -831,47 +1468,52 @@ function CommandPalette({ onClose, setView, decisions, tasks, priorities }) {
 
   return (
     <div style={{
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 2000,
+      position: "fixed", inset: 0, background: "rgba(1,4,9,0.80)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", zIndex: 2000,
       display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "15vh",
     }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, width: "100%", maxWidth: 560, overflow: "hidden" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: `1px solid ${C.borderDefault}` }}>
-          <span style={{ color: C.textTertiary, fontSize: 14 }}>⌕</span>
+      <div style={{
+        background: C.bgElevated, border: `1px solid ${C.borderSubtle}`, borderRadius: 14,
+        width: "100%", maxWidth: 580, overflow: "hidden",
+        boxShadow: "0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: `1px solid ${C.borderDefault}` }}>
+          <span style={{ color: C.textTertiary, fontSize: 16, opacity: 0.6 }}>⌕</span>
           <input
             ref={inputRef}
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search decisions, tasks, priorities... or type /new decision"
+            placeholder="Search or type / for commands..."
             style={{
               flex: 1, background: "none", border: "none", outline: "none",
-              color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 15,
+              color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 400,
+              letterSpacing: "-0.01em",
             }}
           />
-          <kbd style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, background: "rgba(255,255,255,0.06)", padding: "2px 6px", borderRadius: 4 }}>ESC</kbd>
+          <kbd style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, background: "rgba(255,255,255,0.06)", padding: "3px 8px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.06)" }}>ESC</kbd>
         </div>
         {results.length > 0 && (
-          <div style={{ maxHeight: 360, overflow: "auto" }}>
+          <div style={{ maxHeight: 380, overflow: "auto", padding: "4px 0" }}>
             {results.map((r, i) => (
               <button key={i} onClick={r.action} style={{
                 width: "100%", background: "none", border: "none", cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 12,
-                padding: "10px 16px", textAlign: "left",
-                borderBottom: `1px solid ${C.borderDefault}`,
+                padding: "10px 18px", textAlign: "left",
+                transition: "background 0.1s ease",
               }}
-                onMouseEnter={e => e.currentTarget.style.background = C.bgCardHover}
+                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
                 onMouseLeave={e => e.currentTarget.style.background = "none"}
               >
                 {r.type === "action" ? (
                   <>
-                    <span style={{ color: C.gold, fontFamily: FONT_MONO, fontSize: 12 }}>/</span>
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textPrimary }}>{r.label}</span>
+                    <span style={{ color: C.gold, fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600 }}>/</span>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textPrimary, fontWeight: 500 }}>{r.label}</span>
                     <span style={{ marginLeft: "auto", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{r.cmd}</span>
                   </>
                 ) : (
                   <>
-                    <span style={{ color: C.textTertiary, fontSize: 13 }}>{r.icon}</span>
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textPrimary, flex: 1 }}>{r.entity.title}</span>
+                    <span style={{ color: C.textTertiary, fontSize: 13, opacity: 0.7 }}>{r.icon}</span>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textPrimary, flex: 1, fontWeight: 450 }}>{r.entity.title}</span>
                     <Badge label={r.entity.status} color={statusColor(r.entity.status)} />
                   </>
                 )}
@@ -880,13 +1522,21 @@ function CommandPalette({ onClose, setView, decisions, tasks, priorities }) {
           </div>
         )}
         {query && results.length === 0 && (
-          <div style={{ padding: "20px 16px", fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, textAlign: "center" }}>No results for "{query}"</div>
+          <div style={{ padding: "24px 18px", fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, textAlign: "center" }}>No results for "{query}"</div>
         )}
         {!query && (
-          <div style={{ padding: "12px 16px" }}>
-            <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, letterSpacing: "0.05em", marginBottom: 8 }}>SHORTCUTS</div>
-            {["/new decision", "/new task", "/briefing", "/export"].map(cmd => (
-              <div key={cmd} style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textSecondary, padding: "4px 0" }}>{cmd}</div>
+          <div style={{ padding: "14px 18px" }}>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, color: C.textTertiary, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 10 }}>Quick actions</div>
+            {[
+              { cmd: "/new decision", label: "Create a new decision" },
+              { cmd: "/new task", label: "Create a new task" },
+              { cmd: "/briefing", label: "Get your strategic briefing" },
+              { cmd: "/export", label: "Export your data" },
+            ].map(item => (
+              <div key={item.cmd} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 0" }}>
+                <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.gold, fontWeight: 500, minWidth: 110 }}>{item.cmd}</span>
+                <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary }}>{item.label}</span>
+              </div>
             ))}
           </div>
         )}
@@ -899,26 +1549,32 @@ function CommandPalette({ onClose, setView, decisions, tasks, priorities }) {
 function LifecycleBar({ status, onAdvance }) {
   const currentIdx = DECISION_STATUSES.indexOf(status);
   return (
-    <div style={{ display: "flex", gap: 2, marginTop: 10 }}>
+    <div style={{ display: "flex", gap: 3, marginTop: 12, alignItems: "center" }}>
       {DECISION_STATUSES.map((s, i) => {
         const isPast = i < currentIdx;
         const isCurrent = i === currentIdx;
-        const isFuture = i > currentIdx;
+        const isNext = i === currentIdx + 1;
         return (
-          <button
-            key={s}
-            onClick={() => !isCurrent && !isFuture && i === currentIdx + 1 && onAdvance && onAdvance(s)}
-            title={DECISION_STATUS_LABELS[s]}
-            style={{
-              flex: 1,
-              height: 6,
-              borderRadius: 3,
-              border: "none",
-              cursor: i === currentIdx + 1 ? "pointer" : "default",
-              background: isCurrent ? C.gold : isPast ? "rgba(212,168,83,0.3)" : "rgba(255,255,255,0.06)",
-              transition: "background 0.2s",
-            }}
-          />
+          <div key={s} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <button
+              onClick={() => isNext && onAdvance && onAdvance(s)}
+              title={DECISION_STATUS_LABELS[s]}
+              style={{
+                width: "100%",
+                height: 4,
+                borderRadius: 2,
+                border: "none",
+                cursor: isNext ? "pointer" : "default",
+                background: isCurrent
+                  ? `linear-gradient(90deg, ${C.gold}, ${C.goldHover})`
+                  : isPast
+                    ? `${C.gold}50`
+                    : "rgba(255,255,255,0.06)",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                boxShadow: isCurrent ? `0 0 8px ${C.goldGlow}` : "none",
+              }}
+            />
+          </div>
         );
       })}
     </div>
@@ -927,7 +1583,7 @@ function LifecycleBar({ status, onAdvance }) {
 
 // ─── Dashboard View ───────────────────────────────────────────────────────────
 function DashboardView({ decisions, tasks, priorities, projects, onNavigate }) {
-  const CACHE_KEY = "bc-copilot-dashboard";
+  const CACHE_KEY = `bc2-${store._ws}-copilot-dashboard`;
   const [insight, setInsight] = useState(() => {
     try { return JSON.parse(localStorage.getItem(CACHE_KEY)) || null; } catch { return null; }
   });
@@ -1044,23 +1700,39 @@ RULES:
   // ─── Empty State: Meet Your Co-pilot ───
   if (!hasData) {
     return (
-      <div style={{ padding: "60px 40px", maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-        <div style={{ fontSize: 48, color: C.gold, fontWeight: 800, fontFamily: FONT_MONO, marginBottom: 16 }}>✦</div>
-        <h1 style={{ fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700, color: C.textPrimary, margin: "0 0 12px" }}>
-          Meet BC, your co-pilot
+      <div style={{ padding: "80px 40px", maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: 16, margin: "0 auto 24px",
+          background: `linear-gradient(135deg, ${C.goldMuted}, ${C.aiBlueMuted})`,
+          border: `1px solid ${C.gold}20`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: C.gold,
+        }}><Sparkles size={28} /></div>
+        <h1 style={{ fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700, color: C.textPrimary, margin: "0 0 12px", letterSpacing: "-0.03em" }}>
+          Your command center is ready
         </h1>
-        <p style={{ fontFamily: FONT_SANS, fontSize: 15, color: C.textSecondary, lineHeight: 1.7, maxWidth: 500, margin: "0 auto 32px" }}>
-          I'm your decision intelligence partner. I analyze your projects, surface what matters, and tell you exactly what to focus on next. Let's get started — create a project or import a plan, and I'll take it from there.
+        <p style={{ fontFamily: FONT_BODY, fontSize: 15, color: C.textSecondary, lineHeight: 1.7, maxWidth: 460, margin: "0 auto 36px" }}>
+          BC is your decision intelligence partner. Create a project or import a plan, and I'll analyze what matters, surface risks, and tell you exactly where to focus.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
           <button onClick={() => onNavigate("projects")} style={{
-            padding: "12px 28px", borderRadius: 8, border: "none", cursor: "pointer",
-            background: C.gold, color: C.bgPrimary, fontFamily: FONT_MONO, fontSize: 13, fontWeight: 700,
-          }}>Create a Project</button>
+            padding: "12px 28px", borderRadius: 10, border: "none", cursor: "pointer",
+            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`, color: C.bgPrimary,
+            fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, letterSpacing: "-0.01em",
+            boxShadow: `0 4px 16px ${C.goldGlow}`,
+            transition: "all 0.15s ease",
+          }}
+            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
+            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+          >Create a Project</button>
           <button onClick={() => onNavigate("projects")} style={{
-            padding: "12px 28px", borderRadius: 8, border: `1px solid ${C.borderDefault}`, cursor: "pointer",
-            background: "transparent", color: C.textSecondary, fontFamily: FONT_MONO, fontSize: 13,
-          }}>Import a Plan</button>
+            padding: "12px 28px", borderRadius: 10, border: `1px solid ${C.borderDefault}`, cursor: "pointer",
+            background: "transparent", color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500,
+            transition: "all 0.15s ease",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.color = C.textPrimary; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textSecondary; }}
+          >Import a Plan</button>
         </div>
       </div>
     );
@@ -1068,119 +1740,154 @@ RULES:
 
   // ─── Co-pilot Dashboard ───
   return (
-    <div style={{ padding: "32px 40px", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ padding: "32px 40px", maxWidth: 960, margin: "0 auto" }}>
       {/* ── Header ── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
         <div>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 24, fontWeight: 600, color: C.textPrimary }}>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>
             {getGreeting()}, {USER_NAME}
           </div>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary, marginTop: 4 }}>{dateStr}</div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 6, fontWeight: 400 }}>{dateStr}</div>
         </div>
         <button onClick={generateInsights} disabled={loading} style={{
-          display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8,
-          border: `1px solid ${C.borderDefault}`, background: "transparent", cursor: loading ? "wait" : "pointer",
-          fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, transition: "all 0.15s",
-        }}>
-          <span style={{ color: C.gold }}>✦</span>
-          {loading ? "BC is thinking..." : "Refresh insights"}
-          {cachedAgo && !loading && <span style={{ color: C.textTertiary, fontSize: 10 }}>· {cachedAgo}</span>}
+          display: "flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 10,
+          border: `1px solid ${loading ? C.aiBlue + "30" : C.borderDefault}`,
+          background: loading ? C.aiBlueMuted : "transparent",
+          cursor: loading ? "wait" : "pointer",
+          fontFamily: FONT_SANS, fontSize: 13, fontWeight: 500, color: loading ? C.aiBlue : C.textSecondary,
+          transition: "all 0.2s ease",
+        }}
+          onMouseEnter={e => { if (!loading) { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.color = C.textPrimary; } }}
+          onMouseLeave={e => { if (!loading) { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textSecondary; } }}
+        >
+          <span style={{ color: loading ? C.aiBlue : C.gold, animation: loading ? "aiPulse 2s ease-in-out infinite" : "none", display: "flex", alignItems: "center" }}><Sparkles size={14} /></span>
+          {loading ? "Analyzing..." : "Refresh"}
+          {cachedAgo && !loading && <span style={{ color: C.textTertiary, fontSize: 12 }}>· {cachedAgo}</span>}
         </button>
       </div>
 
-      {/* ── Momentum Stats ── */}
+      {/* ── Momentum Stats — Mission Control instrument panel ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 28 }}>
         {[
-          { label: "Done this week", value: completedThisWeek.length, total: activeTasks.length + completedThisWeek.length, color: C.green },
-          { label: "Overdue", value: overdueTasks.length, total: null, color: overdueTasks.length > 0 ? C.red : C.green },
-          { label: "Open decisions", value: openDecisions.length, total: null, color: openDecisions.length > 3 ? C.amber : C.blue },
-          { label: "Active projects", value: activeProjects.length, total: null, color: C.gold },
+          { label: "Completed this week", value: completedThisWeek.length, total: activeTasks.length + completedThisWeek.length, color: C.green, icon: <TrendingUp size={11} /> },
+          { label: "Overdue", value: overdueTasks.length, total: null, color: overdueTasks.length > 0 ? C.red : C.green, icon: overdueTasks.length > 0 ? <AlertTriangle size={11} /> : <Check size={11} /> },
+          { label: "Open decisions", value: openDecisions.length, total: null, color: openDecisions.length > 3 ? C.amber : C.blue, icon: <Diamond size={11} /> },
+          { label: "Active projects", value: activeProjects.length, total: null, color: C.gold, icon: <Grid3X3 size={11} /> },
         ].map((stat, i) => (
           <div key={i} style={{
-            background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: "16px 14px",
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-          }}>
-            <span style={{ fontFamily: FONT_MONO, fontSize: 28, fontWeight: 800, color: stat.color }}>{stat.value}</span>
-            {stat.total !== null && (
-              <div style={{ width: "100%", height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
-                <div style={{ width: `${stat.total > 0 ? (stat.value / stat.total) * 100 : 0}%`, height: "100%", background: stat.color, borderRadius: 2, transition: "width 0.4s" }} />
+            background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 12,
+            padding: "18px 16px",
+            transition: "border-color 0.15s ease",
+          }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = C.borderSubtle}
+            onMouseLeave={e => e.currentTarget.style.borderColor = C.borderDefault}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, fontWeight: 500 }}>{stat.label}</span>
+              <span style={{ fontSize: 11, color: stat.color, opacity: 0.6 }}>{stat.icon}</span>
+            </div>
+            <span style={{ fontFamily: FONT_MONO, fontSize: 32, fontWeight: 700, color: stat.color, letterSpacing: "-0.02em", lineHeight: 1 }}>{stat.value}</span>
+            {stat.total !== null && stat.total > 0 && (
+              <div style={{ marginTop: 10, width: "100%", height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                <div style={{ width: `${(stat.value / stat.total) * 100}%`, height: "100%", background: `linear-gradient(90deg, ${stat.color}, ${stat.color}AA)`, borderRadius: 2, transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} />
               </div>
             )}
-            <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>{stat.label}</span>
           </div>
         ))}
       </div>
 
-      {error && <div style={{ color: C.red, fontFamily: FONT_SANS, fontSize: 13, marginBottom: 16 }}>{error}</div>}
+      {error && <div style={{ color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <AlertTriangle size={14} /> {error}
+      </div>}
 
-      {/* ── BC's Daily Brief ── */}
+      {/* ── BC Intelligence Brief — AI-native central panel ── */}
       <div style={{
-        background: `linear-gradient(135deg, ${C.bgAI} 0%, #0D1525 100%)`,
-        border: `1px solid ${C.borderAI}`, borderRadius: 12, padding: "20px 22px", marginBottom: 28,
+        background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
+        border: `1px solid ${C.borderAI}`, borderLeft: `2px solid ${C.aiBlue}40`,
+        borderRadius: 14, padding: "24px 26px", marginBottom: 28,
         position: "relative", overflow: "hidden",
       }}>
-        <div style={{ position: "absolute", top: 14, right: 18, fontFamily: FONT_MONO, fontSize: 10, color: C.gold, opacity: 0.6 }}>✦ BC</div>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.gold, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700 }}>
-          Strategic Brief
+        {/* Subtle ambient glow */}
+        <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: `radial-gradient(circle, ${C.aiBlueGlow} 0%, transparent 70%)`, pointerEvents: "none" }} />
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, position: "relative" }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 8,
+            background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}25`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Sparkles size={12} color={C.aiBlue} />
+          </div>
+          <div>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>Strategic Brief</span>
+          </div>
+          {cachedAgo && <span style={{ marginLeft: "auto", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{cachedAgo}</span>}
         </div>
+
         {loading && !insight ? (
-          <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textTertiary, lineHeight: 1.7 }}>
-            Analyzing your tasks, decisions, and projects...
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.aiBlue, animation: "aiPulse 2s ease-in-out infinite" }} />
+            <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Analyzing your tasks, decisions, and projects...</span>
           </div>
         ) : insight?.brief ? (
-          <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textSecondary, lineHeight: 1.8 }}>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.8, letterSpacing: "-0.005em" }}>
             {insight.brief}
           </div>
         ) : (
-          <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textTertiary, lineHeight: 1.7 }}>
-            Click "Refresh insights" to get BC's strategic read on your current state.
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, lineHeight: 1.7 }}>
+            Click "Refresh" to get BC's strategic assessment of your current situation.
           </div>
         )}
 
         {/* Momentum narrative */}
         {insight?.momentum && (
-          <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid rgba(255,255,255,0.06)`, fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, lineHeight: 1.6, fontStyle: "italic" }}>
-            {insight.momentum}
+          <div style={{
+            marginTop: 16, paddingTop: 16, borderTop: `1px solid ${C.borderDefault}`,
+            fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.7,
+            display: "flex", alignItems: "flex-start", gap: 10,
+          }}>
+            <TrendingUp size={12} style={{ color: C.gold, marginTop: 2, flexShrink: 0 }} />
+            <span>{insight.momentum}</span>
           </div>
         )}
       </div>
 
-      {/* ── "If I Were You" — Top Moves ── */}
+      {/* ── Recommended Moves — AI-suggested actions ── */}
       {insight?.moves && insight.moves.length > 0 && (
         <div style={{ marginBottom: 28 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
-            <span>If I were you</span>
-            <div style={{ flex: 1, height: 1, background: `${C.gold}30` }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>Recommended moves</span>
+            <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {insight.moves.map((move, i) => (
               <div key={i}
                 onClick={() => move.nav && onNavigate(move.nav)}
                 style={{
-                  background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10,
-                  padding: "16px 18px", cursor: move.nav ? "pointer" : "default",
+                  background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 12,
+                  padding: "16px 20px", cursor: move.nav ? "pointer" : "default",
                   display: "flex", gap: 16, alignItems: "flex-start",
-                  transition: "border-color 0.15s",
+                  transition: "all 0.15s ease",
                 }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = C.gold + "60"}
-                onMouseLeave={e => e.currentTarget.style.borderColor = C.borderDefault}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold + "40"; e.currentTarget.style.background = C.bgCardHover; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.background = C.bgCard; }}
               >
                 <div style={{
-                  width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
-                  background: `${C.gold}15`, border: `1px solid ${C.gold}30`,
+                  width: 32, height: 32, borderRadius: 10, flexShrink: 0,
+                  background: C.goldMuted, border: `1px solid ${C.gold}20`,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: FONT_MONO, fontSize: 14, fontWeight: 800, color: C.gold,
+                  fontFamily: FONT_MONO, fontSize: 13, fontWeight: 700, color: C.gold,
                 }}>{i + 1}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 4 }}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, marginBottom: 4, letterSpacing: "-0.01em" }}>
                     {move.action}
                   </div>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.6 }}>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6 }}>
                     {move.rationale}
                   </div>
                 </div>
                 {move.nav && (
-                  <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, flexShrink: 0, marginTop: 2 }}>→</span>
+                  <ArrowRight size={16} style={{ color: C.textTertiary, flexShrink: 0, marginTop: 2, opacity: 0.5 }} />
                 )}
               </div>
             ))}
@@ -1191,37 +1898,37 @@ RULES:
       {/* ── Project Spotlights ── */}
       {insight?.projectSpotlights && insight.projectSpotlights.length > 0 && (
         <div style={{ marginBottom: 28 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textSecondary, marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
-            <span>Project Spotlight</span>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>Project spotlight</span>
+            <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: insight.projectSpotlights.length === 1 ? "1fr" : "1fr 1fr", gap: 12 }}>
             {insight.projectSpotlights.map((proj, i) => (
               <div key={i}
                 onClick={() => onNavigate("projects")}
                 style={{
-                  background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10,
-                  padding: "18px 20px", cursor: "pointer", transition: "border-color 0.15s",
+                  background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 12,
+                  padding: "20px 22px", cursor: "pointer", transition: "all 0.15s ease",
                 }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = C.borderActive}
-                onMouseLeave={e => e.currentTarget.style.borderColor = C.borderDefault}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.transform = "translateY(0)"; }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{proj.title}</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>{proj.title}</span>
                   {proj.progress !== undefined && (
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 700, color: proj.progress >= 75 ? C.green : proj.progress >= 40 ? C.gold : C.textTertiary }}>{proj.progress}%</span>
+                    <span style={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, color: proj.progress >= 75 ? C.green : proj.progress >= 40 ? C.gold : C.textTertiary }}>{proj.progress}%</span>
                   )}
                 </div>
                 {proj.progress !== undefined && (
-                  <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden", marginBottom: 12 }}>
-                    <div style={{ width: `${proj.progress}%`, height: "100%", background: proj.progress >= 75 ? C.green : proj.progress >= 40 ? C.gold : C.blue, borderRadius: 2, transition: "width 0.4s" }} />
+                  <div style={{ width: "100%", height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden", marginBottom: 14 }}>
+                    <div style={{ width: `${proj.progress}%`, height: "100%", background: `linear-gradient(90deg, ${proj.progress >= 75 ? C.green : proj.progress >= 40 ? C.gold : C.blue}, ${proj.progress >= 75 ? C.green : proj.progress >= 40 ? C.gold : C.blue}AA)`, borderRadius: 2, transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} />
                   </div>
                 )}
-                <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.7 }}>
+                <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.7 }}>
                   {proj.read}
                 </div>
                 {proj.tasksRemaining !== undefined && (
-                  <div style={{ marginTop: 10, fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
+                  <div style={{ marginTop: 12, fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
                     {proj.tasksRemaining} task{proj.tasksRemaining !== 1 ? "s" : ""} remaining
                   </div>
                 )}
@@ -1234,10 +1941,12 @@ RULES:
       {/* ── Loading overlay for refresh ── */}
       {loading && insight && (
         <div style={{
-          textAlign: "center", padding: "12px 0",
-          fontFamily: FONT_MONO, fontSize: 11, color: C.gold, opacity: 0.7,
+          textAlign: "center", padding: "16px 0",
+          fontFamily: FONT_BODY, fontSize: 13, color: C.aiBlue,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
         }}>
-          ✦ BC is refreshing your insights...
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.aiBlue, animation: "aiPulse 2s ease-in-out infinite" }} />
+          BC is refreshing your intelligence...
         </div>
       )}
     </div>
@@ -1247,13 +1956,15 @@ RULES:
 function Section({ title, count, children, onViewAll, action }) {
   return (
     <div style={{ marginBottom: 36 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 500, color: C.textSecondary, letterSpacing: "0.06em", textTransform: "uppercase" }}>{title}</span>
-          {count !== undefined && <Badge label={String(count)} />}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>{title}</span>
+          {count !== undefined && <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary, fontWeight: 500 }}>{count}</span>}
         </div>
-        {onViewAll && <Btn variant="ghost" size="sm" onClick={onViewAll}>View all →</Btn>}
-        {action}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {action}
+          {onViewAll && <Btn variant="ghost" size="sm" onClick={onViewAll}>View all →</Btn>}
+        </div>
       </div>
       {children}
     </div>
@@ -1261,16 +1972,26 @@ function Section({ title, count, children, onViewAll, action }) {
 }
 
 // ─── Decisions View ───────────────────────────────────────────────────────────
-function DecisionsView({ decisions, setDecisions, tasks, setTasks, priorities, projects }) {
+function DecisionsView({ decisions, setDecisions, tasks, setTasks, priorities, projects, ingestSessions, setView, setFocusSessionId }) {
   const [filterStatus, setFilterStatus] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [filterProject, setFilterProject] = useState(null);
+  const [filterSource, setFilterSource] = useState(null);
+  const [sortBy, setSortBy] = useState("newest");
   const linkMap = useProjectLinks(projects);
 
   const projectFiltered = filterByProject(decisions, filterProject, linkMap);
-  const filtered = projectFiltered.filter(d => filterStatus === "all" || d.status === filterStatus);
+  const sourceFiltered = filterSource
+    ? projectFiltered.filter(d => (d.source || "manual") === filterSource)
+    : projectFiltered;
+  const statusFiltered = sourceFiltered.filter(d => filterStatus === "all" || d.status === filterStatus);
+  const filtered = sortBy === "newest"
+    ? [...statusFiltered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    : sortBy === "oldest"
+    ? [...statusFiltered].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    : statusFiltered;
 
   async function createDecision(data) {
     const d = {
@@ -1281,6 +2002,7 @@ function DecisionsView({ decisions, setDecisions, tasks, setTasks, priorities, p
       linkedTasks: [],
       linkedPriorities: [],
       tags: [],
+      source: data.source || "manual",
       createdAt: isoNow(),
       updatedAt: isoNow(),
     };
@@ -1313,10 +2035,10 @@ function DecisionsView({ decisions, setDecisions, tasks, setTasks, priorities, p
 
   return (
     <div style={{ padding: "32px 40px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
         <div>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: C.textPrimary }}>Decisions</div>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary, marginTop: 2 }}>{decisions.length} total</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>Decisions</div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, marginTop: 4 }}>{decisions.length} total</div>
         </div>
         <Btn variant="primary" onClick={() => setShowForm(true)}>＋ New Decision</Btn>
       </div>
@@ -1325,24 +2047,58 @@ function DecisionsView({ decisions, setDecisions, tasks, setTasks, priorities, p
       <ProjectFilterPills projects={projects} filterProject={filterProject} setFilterProject={setFilterProject} />
 
       {/* Status filter bar */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
         {["all", ...DECISION_STATUSES].map(s => (
           <button key={s} onClick={() => setFilterStatus(s)} style={{
-            background: filterStatus === s ? C.goldMuted : "transparent",
-            border: `1px solid ${filterStatus === s ? C.gold : C.borderDefault}`,
-            borderRadius: 6, color: filterStatus === s ? C.gold : C.textTertiary,
-            fontFamily: FONT_MONO, fontSize: 11, padding: "4px 10px", cursor: "pointer",
+            background: filterStatus === s ? "rgba(255,255,255,0.08)" : "transparent",
+            border: `1px solid ${filterStatus === s ? C.borderSubtle : C.borderDefault}`,
+            borderRadius: 8, color: filterStatus === s ? C.textPrimary : C.textSecondary,
+            fontFamily: FONT_SANS, fontSize: 13, fontWeight: filterStatus === s ? 600 : 400, padding: "5px 12px", cursor: "pointer",
+            transition: "all 0.15s ease",
           }}>
             {s === "all" ? "All" : DECISION_STATUS_LABELS[s]}
           </button>
         ))}
       </div>
 
+      {/* Source filter + sort */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22, flexWrap: "wrap", gap: 8 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontWeight: 500, marginRight: 2 }}>Source:</span>
+          {[
+            [null, "All"],
+            ["ingest", "Ingest"],
+            ["project", "Project"],
+            ["manual", "Manual"],
+          ].map(([val, lbl]) => (
+            <button key={lbl} onClick={() => setFilterSource(val)} style={{
+              padding: "4px 10px", borderRadius: 6, cursor: "pointer",
+              border: `1px solid ${filterSource === val ? C.borderSubtle : C.borderDefault}`,
+              background: filterSource === val ? "rgba(255,255,255,0.08)" : "transparent",
+              color: filterSource === val ? C.textPrimary : C.textSecondary,
+              fontSize: 13, fontFamily: FONT_SANS, fontWeight: filterSource === val ? 600 : 400,
+              transition: "all 0.15s ease",
+            }}>{lbl}</button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          {[["default", "Default"], ["newest", "Newest"], ["oldest", "Oldest"]].map(([val, lbl]) => (
+            <button key={val} onClick={() => setSortBy(val)} style={{
+              padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer",
+              background: sortBy === val ? "rgba(255,255,255,0.08)" : "transparent",
+              color: sortBy === val ? C.textPrimary : C.textSecondary,
+              fontSize: 13, fontFamily: FONT_SANS, fontWeight: sortBy === val ? 500 : 400,
+              transition: "all 0.15s ease",
+            }}>{lbl}</button>
+          ))}
+        </div>
+      </div>
+
       {/* Decision cards */}
       {filtered.length === 0 ? (
-        <EmptyState icon="◆" title="No decisions yet" sub="Start by creating your first decision to track." action="＋ New Decision" onAction={() => setShowForm(true)} />
+        <EmptyState icon={<Diamond size={36} />} title="No decisions yet" sub="Start by creating your first decision to track." action="＋ New Decision" onAction={() => setShowForm(true)} />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14 }}>
           {filtered.map(d => (
             <DecisionCard
               key={d.id}
@@ -1356,6 +2112,8 @@ function DecisionsView({ decisions, setDecisions, tasks, setTasks, priorities, p
               setTasks={setTasks}
               setDecisions={setDecisions}
               priorities={priorities}
+              ingestSessions={ingestSessions}
+              onNavigateToIngest={(sessionId) => { setFocusSessionId(sessionId); setView("ingest"); }}
             />
           ))}
         </div>
@@ -1368,7 +2126,7 @@ function DecisionsView({ decisions, setDecisions, tasks, setTasks, priorities, p
   );
 }
 
-function DecisionCard({ decision, expanded, onToggle, onUpdate, onDelete, onAdvanceStatus, tasks, setTasks, setDecisions, priorities }) {
+function DecisionCard({ decision, expanded, onToggle, onUpdate, onDelete, onAdvanceStatus, tasks, setTasks, setDecisions, priorities, ingestSessions, onNavigateToIngest }) {
   const [aiResponse, setAiResponse] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
@@ -1377,12 +2135,14 @@ function DecisionCard({ decision, expanded, onToggle, onUpdate, onDelete, onAdva
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [headerHovered, setHeaderHovered] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
+  const [aiConfigOverride, setAiConfigOverride] = useState(null);
   const [bcAdvice, setBcAdvice] = useState(decision._bcAdvice || null);
   const [adviceLoading, setAdviceLoading] = useState(false);
 
   const linkedTasks = tasks.filter(t => t.sourceDecisionId === decision.id);
   const currentIdx = DECISION_STATUSES.indexOf(decision.status);
   const age = Math.floor((Date.now() - new Date(decision.createdAt).getTime()) / 86400000);
+  const sourceSession = decision.ingestSessionId && ingestSessions ? ingestSessions.find(s => s.id === decision.ingestSessionId) : null;
 
   async function askBC() {
     const q = customPrompt.trim();
@@ -1393,7 +2153,7 @@ function DecisionCard({ decision, expanded, onToggle, onUpdate, onDelete, onAdva
     setAiResponse("");
     try {
       const ctx = `Decision: ${decision.title}\nStatus: ${decision.status}\nContext: ${decision.context || "none"}\nOutcome: ${decision.outcome || "none"}\nRationale: ${decision.rationale || "none"}`;
-      const response = await callAIForEntity("decision", decision.id, `${ctx}\n\nQuestion: ${q}`);
+      const response = await callAIForEntity("decision", decision.id, `${ctx}\n\nQuestion: ${q}`, aiConfigOverride);
       setAiResponse(response);
     } catch (err) { setAiError(err.message); }
     finally { setAiLoading(false); }
@@ -1458,7 +2218,8 @@ RULES:
               const newTask = {
                 id: genId("task"), title: td.title, description: td.description || "",
                 status: "open", priority: td.priority || "medium", dueDate,
-                sourceDecisionId: decision.id, linkedPriorities: [], subtasks: [], tags: [],
+                sourceDecisionId: decision.id, source: "decision",
+                linkedPriorities: [], subtasks: [], tags: [],
                 createdAt: isoNow(), updatedAt: isoNow(),
               };
               await store.save("task", newTask);
@@ -1484,22 +2245,22 @@ RULES:
 
   return (
     <div style={{
-      background: C.bgCard, border: `1px solid ${expanded ? C.borderActive + "60" : C.borderDefault}`,
-      borderRadius: 10, overflow: "hidden", transition: "border-color 0.15s",
+      background: C.bgCard, border: `1px solid ${expanded ? C.gold + "30" : C.borderDefault}`,
+      borderRadius: 12, overflow: "hidden", transition: "all 0.15s ease",
     }}>
       {/* ── Header ── */}
       <div onClick={onToggle} onMouseEnter={() => setHeaderHovered(true)} onMouseLeave={() => setHeaderHovered(false)}
-        style={{ padding: "14px 16px 10px", cursor: "pointer", background: headerHovered ? C.bgCardHover : "transparent", transition: "background 0.15s" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, marginBottom: 6 }}>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, lineHeight: 1.4, flex: 1 }}>
+        style={{ padding: "16px 18px 12px", cursor: "pointer", background: headerHovered ? C.bgCardHover : "transparent", transition: "background 0.12s ease" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, marginBottom: 8 }}>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, lineHeight: 1.45, flex: 1, letterSpacing: "-0.01em" }}>
             {decision.title}
           </div>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: headerHovered ? C.gold : C.textTertiary, flexShrink: 0 }}>
+          <span style={{ fontSize: 11, color: headerHovered ? C.gold : C.textTertiary, flexShrink: 0, transition: "color 0.12s" }}>
             {expanded ? "▴" : "▾"}
           </span>
         </div>
         {decision.context && !expanded && (
-          <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 6, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.5, marginBottom: 8, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
             {decision.context}
           </div>
         )}
@@ -1507,7 +2268,16 @@ RULES:
           <Badge label={DECISION_STATUS_LABELS[decision.status]} color={statusColor(decision.status)} />
           {age > 5 && decision.status === "draft" && <Badge label={`${age}d in draft`} color={C.amber} />}
           {linkedTasks.length > 0 && <Badge label={`${linkedTasks.length} task${linkedTasks.length !== 1 ? "s" : ""}`} />}
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{fmtRelative(decision.updatedAt)}</span>
+          {decision.source && decision.source !== "manual" && (
+            sourceSession && onNavigateToIngest ? (
+              <span onClick={e => { e.stopPropagation(); onNavigateToIngest(sourceSession.id); }} style={{ cursor: "pointer" }} title="View source ingest session">
+                <Badge label="⊕ ingest" color={C.amber} />
+              </span>
+            ) : (
+              <Badge label={decision.source} color={decision.source === "ingest" ? C.amber : C.blue} />
+            )
+          )}
+          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>{fmtRelative(decision.createdAt)}</span>
         </div>
       </div>
 
@@ -1527,7 +2297,7 @@ RULES:
                       flex: 1, padding: "6px 4px", borderRadius: 6, border: "none",
                       background: isCurrent ? `${C.gold}25` : isPast ? `${C.gold}10` : "rgba(255,255,255,0.03)",
                       cursor: isNext || isPast ? "pointer" : "default",
-                      fontFamily: FONT_MONO, fontSize: 9, fontWeight: isCurrent ? 700 : 400,
+                      fontFamily: FONT_MONO, fontSize: 11, fontWeight: isCurrent ? 700 : 400,
                       color: isCurrent ? C.gold : isPast ? C.gold + "90" : C.textTertiary,
                       textTransform: "uppercase", letterSpacing: "0.04em",
                       transition: "all 0.15s",
@@ -1542,21 +2312,23 @@ RULES:
           {/* BC's Advice Panel */}
           <div style={{ padding: "14px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
             {bcAdvice ? (
-              <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, #0D1525 100%)`, border: `1px solid ${C.borderAI}`, borderRadius: 10, padding: "14px 16px", position: "relative" }}>
-                <div style={{ position: "absolute", top: 10, right: 12, fontFamily: FONT_MONO, fontSize: 9, color: C.gold, opacity: 0.5 }}>✦ BC</div>
+              <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.borderAI}`, borderLeft: `2px solid ${C.aiBlue}40`, borderRadius: 10, padding: "14px 16px", position: "relative" }}>
+                <div style={{ position: "absolute", top: 10, right: 12, display: "flex", alignItems: "center", gap: 4, fontFamily: FONT_SANS, fontSize: 11, color: C.aiBlue, opacity: 0.6, fontWeight: 600 }}>
+                  <Sparkles size={8} /> BC
+                </div>
                 {/* Situation */}
-                <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.7, marginBottom: 12 }}>
+                <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.7, marginBottom: 12 }}>
                   {bcAdvice.situation}
                 </div>
                 {/* Recommendation */}
                 <div style={{ background: `${C.gold}08`, border: `1px solid ${C.gold}20`, borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.gold, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4, fontWeight: 700 }}>Recommendation</div>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textPrimary, lineHeight: 1.6 }}>{bcAdvice.recommendation}</div>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4, fontWeight: 700 }}>Recommendation</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textPrimary, lineHeight: 1.6 }}>{bcAdvice.recommendation}</div>
                 </div>
                 {/* Next step */}
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 10 }}>
-                  <span style={{ color: C.gold, fontFamily: FONT_MONO, fontSize: 11, flexShrink: 0, marginTop: 1 }}>→</span>
-                  <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, lineHeight: 1.5 }}>
+                  <ArrowRight size={11} style={{ color: C.gold, flexShrink: 0, marginTop: 1 }} />
+                  <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>
                     <strong style={{ color: C.textPrimary }}>Next:</strong> {bcAdvice.nextStep}
                   </span>
                 </div>
@@ -1565,8 +2337,8 @@ RULES:
                   <div style={{ display: "flex", flexDirection: "column", gap: 3, marginBottom: 8 }}>
                     {bcAdvice.risks.map((r, i) => (
                       <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-                        <span style={{ color: C.amber, fontSize: 10, marginTop: 2 }}>⚠</span>
-                        <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, lineHeight: 1.4 }}>{r}</span>
+                        <AlertTriangle size={10} style={{ color: C.amber, marginTop: 2, flexShrink: 0 }} />
+                        <span style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, lineHeight: 1.4 }}>{r}</span>
                       </div>
                     ))}
                   </div>
@@ -1574,13 +2346,13 @@ RULES:
                 {/* Confidence + refresh */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   {bcAdvice.confidence && (
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: confidenceColor[bcAdvice.confidence] || C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: confidenceColor[bcAdvice.confidence] || C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                       {bcAdvice.confidence} confidence
                     </span>
                   )}
                   <button onClick={getBCAdvice} disabled={adviceLoading} style={{
                     background: "none", border: "none", cursor: adviceLoading ? "wait" : "pointer", padding: 0,
-                    fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary,
+                    fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
                   }}>{adviceLoading ? "thinking..." : "↺ refresh"}</button>
                 </div>
               </div>
@@ -1592,7 +2364,7 @@ RULES:
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 transition: "all 0.15s",
               }}>
-                <span>✦</span> {adviceLoading ? "BC is analyzing..." : "Help me decide"}
+                <Sparkles size={12} /> {adviceLoading ? "BC is analyzing..." : "Help me decide"}
               </button>
             )}
           </div>
@@ -1621,38 +2393,66 @@ RULES:
             <div style={{ padding: "14px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
               {decision.context && (
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.05em" }}>Context</div>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{decision.context}</div>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.05em" }}>Context</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{decision.context}</div>
                 </div>
               )}
               {decision.outcome && (
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.05em" }}>Outcome</div>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.green, lineHeight: 1.6 }}>{decision.outcome}</div>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.05em" }}>Outcome</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.green, lineHeight: 1.6 }}>{decision.outcome}</div>
                 </div>
               )}
               {decision.rationale && (
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.05em" }}>Rationale</div>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, lineHeight: 1.6 }}>{decision.rationale}</div>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.05em" }}>Rationale</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>{decision.rationale}</div>
                 </div>
               )}
               {!decision.context && !decision.outcome && (
-                <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontStyle: "italic" }}>No context added yet — edit to add details.</div>
+                <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, fontStyle: "italic" }}>No context added yet — edit to add details.</div>
               )}
+            </div>
+          )}
+
+          {/* Source ingest provenance */}
+          {sourceSession && onNavigateToIngest && (
+            <div style={{ padding: "10px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Source</div>
+              <button
+                onClick={() => onNavigateToIngest(sourceSession.id)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8, width: "100%",
+                  background: `${C.amber}08`, border: `1px solid ${C.amber}20`, borderRadius: 8,
+                  padding: "8px 12px", cursor: "pointer", textAlign: "left", transition: "all 0.15s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = `${C.amber}14`; e.currentTarget.style.borderColor = `${C.amber}40`; }}
+                onMouseLeave={e => { e.currentTarget.style.background = `${C.amber}08`; e.currentTarget.style.borderColor = `${C.amber}20`; }}
+              >
+                <PlusCircle size={14} style={{ flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.amber, marginBottom: 2 }}>
+                    {sourceSession.mode === "meeting" ? `Meeting: ${sourceSession.meetingTitle || "Untitled"}` : sourceSession.mode === "respond_to" ? "Response Draft" : "Ingest Session"}
+                  </div>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
+                    {fmtRelative(sourceSession.createdAt)} · {(sourceSession.rawContent || "").slice(0, 80).trim()}{(sourceSession.rawContent || "").length > 80 ? "…" : ""}
+                  </div>
+                </div>
+                <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.amber, flexShrink: 0 }}>View →</span>
+              </button>
             </div>
           )}
 
           {/* Linked tasks */}
           {linkedTasks.length > 0 && (
             <div style={{ padding: "10px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 Linked Tasks ({linkedTasks.length})
               </div>
               {linkedTasks.map(t => (
                 <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0" }}>
                   <span style={{ color: priorityColor(t.priority), fontSize: 8 }}>●</span>
-                  <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, flex: 1 }}>{t.title}</span>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, flex: 1 }}>{t.title}</span>
                   <Badge label={TASK_STATUS_LABELS[t.status] || t.status} color={statusColor(t.status)} />
                 </div>
               ))}
@@ -1665,10 +2465,10 @@ RULES:
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
               <Btn variant="ghost" size="sm" onClick={() => setEditing(true)}>Edit</Btn>
               {decision.status === "decided" && (
-                <Btn variant="ghost" size="sm" onClick={() => runAIAction("generate_tasks")}>✦ Generate Tasks</Btn>
+                <Btn variant="ghost" size="sm" onClick={() => runAIAction("generate_tasks")}><Sparkles size={12} style={{ display: "inline" }} /> Generate Tasks</Btn>
               )}
               {["implementing", "evaluating"].includes(decision.status) && (
-                <Btn variant="ghost" size="sm" onClick={() => runAIAction("evaluate_outcome")}>✦ Evaluate</Btn>
+                <Btn variant="ghost" size="sm" onClick={() => runAIAction("evaluate_outcome")}><Sparkles size={12} style={{ display: "inline" }} /> Evaluate</Btn>
               )}
               {confirmDelete ? (
                 <>
@@ -1681,7 +2481,7 @@ RULES:
             </div>
 
             {/* Ask BC */}
-            <div style={{ display: "flex", gap: 8, marginBottom: aiResponse || aiLoading || aiError ? 10 : 0 }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: aiResponse || aiLoading || aiError ? 10 : 0 }}>
               <input
                 value={customPrompt}
                 onChange={e => setCustomPrompt(e.target.value)}
@@ -1694,6 +2494,7 @@ RULES:
                   fontFamily: FONT_SANS, fontSize: 12, outline: "none",
                 }}
               />
+              <AIConfigPicker value={aiConfigOverride} onChange={setAiConfigOverride} />
               <button onClick={askBC} disabled={!customPrompt.trim() || aiLoading} style={{
                 background: customPrompt.trim() && !aiLoading ? C.gold : "transparent",
                 border: `1px solid ${customPrompt.trim() && !aiLoading ? C.gold : C.borderAI}`,
@@ -1701,7 +2502,7 @@ RULES:
                 cursor: customPrompt.trim() && !aiLoading ? "pointer" : "not-allowed",
                 color: customPrompt.trim() && !aiLoading ? C.bgPrimary : C.textTertiary,
                 fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
-              }}>✦</button>
+              }}><Sparkles size={12} /></button>
             </div>
             <AIPanel response={aiResponse} loading={aiLoading} error={aiError} />
           </div>
@@ -1738,9 +2539,9 @@ function DecisionFormModal({ onClose, onCreate }) {
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {Object.entries(DECISION_TEMPLATES).map(([key, t]) => (
             <button key={key} onClick={() => handleTemplateChange(key)} style={{
-              padding: "4px 10px", borderRadius: 6, border: `1px solid ${template === key ? C.gold : C.borderDefault}`,
-              background: template === key ? C.goldMuted : "transparent",
-              color: template === key ? C.gold : C.textTertiary,
+              padding: "4px 10px", borderRadius: 6, border: `1px solid ${template === key ? C.borderSubtle : C.borderDefault}`,
+              background: template === key ? "rgba(255,255,255,0.08)" : "transparent",
+              color: template === key ? C.textPrimary : C.textSecondary,
               fontFamily: FONT_MONO, fontSize: 11, cursor: "pointer",
             }}>{t.label}</button>
           ))}
@@ -1764,16 +2565,18 @@ function DecisionFormModal({ onClose, onCreate }) {
 }
 
 // ─── Tasks View ───────────────────────────────────────────────────────────────
-function TasksView({ tasks, setTasks, decisions, projects }) {
+function TasksView({ tasks, setTasks, decisions, projects, ingestSessions }) {
   const [groupBy, setGroupBy] = useState("status");
   const [showForm, setShowForm] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterProject, setFilterProject] = useState(null);
+  const [sortBy, setSortBy] = useState("newest"); // "default" | "newest" | "oldest"
+  const [filterSource, setFilterSource] = useState(null); // null | "ingest" | "project" | "decision" | "manual"
   const linkMap = useProjectLinks(projects);
 
   async function createTask(data) {
-    const t = { id: genId("task"), ...data, subtasks: [], tags: [], createdAt: isoNow(), updatedAt: isoNow() };
+    const t = { id: genId("task"), ...data, source: data.source || "manual", subtasks: [], tags: [], createdAt: isoNow(), updatedAt: isoNow() };
     await store.save("task", t);
     if (data.sourceDecisionId) await store.link("task", t.id, "decision", data.sourceDecisionId);
     setTasks(prev => [...prev, t]);
@@ -1792,11 +2595,19 @@ function TasksView({ tasks, setTasks, decisions, projects }) {
     if (expandedId === id) setExpandedId(null);
   }
 
-  // Filter by project, then search
+  // Filter by project, source, then search
   const projectFiltered = filterByProject(tasks, filterProject, linkMap);
-  const filtered = searchTerm
-    ? projectFiltered.filter(t => t.title.toLowerCase().includes(searchTerm.toLowerCase()) || (t.description || "").toLowerCase().includes(searchTerm.toLowerCase()))
+  const sourceFiltered = filterSource
+    ? projectFiltered.filter(t => (t.source || "manual") === filterSource)
     : projectFiltered;
+  const searchFiltered = searchTerm
+    ? sourceFiltered.filter(t => t.title.toLowerCase().includes(searchTerm.toLowerCase()) || (t.description || "").toLowerCase().includes(searchTerm.toLowerCase()))
+    : sourceFiltered;
+  const filtered = sortBy === "newest"
+    ? [...searchFiltered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    : sortBy === "oldest"
+    ? [...searchFiltered].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    : searchFiltered;
 
   // Grouping
   function getGroups() {
@@ -1816,46 +2627,107 @@ function TasksView({ tasks, setTasks, decisions, projects }) {
   const groups = getGroups();
   const completedCount = tasks.filter(t => t.status === "complete").length;
 
+  // Build ingest session lookup
+  const sessionMap = {};
+  for (const s of (ingestSessions || [])) sessionMap[s.id] = s;
+
+  // Given a list of tasks, split into renderable items: individual tasks and ingest batches
+  function buildRenderItems(items) {
+    const renderItems = [];
+    const batchMap = {};
+    const seen = new Set();
+    for (const t of items) {
+      if (t.ingestSessionId) {
+        if (!batchMap[t.ingestSessionId]) batchMap[t.ingestSessionId] = [];
+        batchMap[t.ingestSessionId].push(t);
+      }
+    }
+    for (const t of items) {
+      if (t.ingestSessionId && batchMap[t.ingestSessionId] && batchMap[t.ingestSessionId].length > 1) {
+        if (!seen.has(t.ingestSessionId)) {
+          seen.add(t.ingestSessionId);
+          renderItems.push({ type: "batch", sessionId: t.ingestSessionId, tasks: batchMap[t.ingestSessionId] });
+        }
+      } else {
+        renderItems.push({ type: "task", task: t });
+      }
+    }
+    return renderItems;
+  }
+
   return (
-    <div style={{ padding: "32px 40px", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ padding: "32px 40px", maxWidth: 960, margin: "0 auto" }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4 }}>
-        <span style={{ fontSize: 22, fontWeight: 800, color: C.gold, fontFamily: FONT_MONO }}>☐</span>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textPrimary, margin: 0, fontFamily: FONT_SANS }}>Tasks</h1>
-        <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{completedCount}/{tasks.length} done</span>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+        <div>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: C.textPrimary, margin: 0, fontFamily: FONT_SANS, letterSpacing: "-0.03em" }}>Tasks</h1>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, marginTop: 4, display: "block" }}>{completedCount}/{tasks.length} completed</span>
+        </div>
       </div>
 
       {/* Progress bar */}
       {tasks.length > 0 && (
-        <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, marginBottom: 16, overflow: "hidden" }}>
-          <div style={{ width: `${tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0}%`, height: "100%", background: completedCount === tasks.length ? C.green : `linear-gradient(90deg, ${C.blue}, ${C.gold})`, borderRadius: 2, transition: "width 0.3s" }} />
+        <div style={{ height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, marginBottom: 20, overflow: "hidden" }}>
+          <div style={{ width: `${tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0}%`, height: "100%", background: completedCount === tasks.length ? C.green : `linear-gradient(90deg, ${C.blue}, ${C.gold})`, borderRadius: 2, transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} />
         </div>
       )}
 
       {/* Search */}
-      <div style={{ position: "relative", marginBottom: 12 }}>
-        <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.gold, fontSize: 13, fontWeight: 700, fontFamily: FONT_MONO }}>/</span>
+      <div style={{ position: "relative", marginBottom: 14 }}>
+        <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: C.textTertiary, fontSize: 14, opacity: 0.5 }}>⌕</span>
         <input
-          type="text" placeholder="search tasks..."
+          type="text" placeholder="Search tasks..."
           value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-          style={{ width: "100%", padding: "10px 14px 10px 28px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8, color: C.textPrimary, fontSize: 13, fontFamily: FONT_MONO, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
-          onFocus={e => (e.target.style.borderColor = C.gold)} onBlur={e => (e.target.style.borderColor = C.borderDefault)}
+          style={{ width: "100%", padding: "10px 14px 10px 36px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, color: C.textPrimary, fontSize: 14, fontFamily: FONT_SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.15s ease" }}
+          onFocus={e => (e.target.style.borderColor = C.borderSubtle)} onBlur={e => (e.target.style.borderColor = C.borderDefault)}
         />
       </div>
 
       {/* Project filter */}
       <ProjectFilterPills projects={projects} filterProject={filterProject} setFilterProject={setFilterProject} />
 
-      {/* Group pills + new task */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+      {/* Source filter */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontWeight: 500, alignSelf: "center", marginRight: 2 }}>Source:</span>
+        {[
+          [null, "All"],
+          ["ingest", "Ingest"],
+          ["project", "Project"],
+          ["decision", "Decision"],
+          ["manual", "Manual"],
+        ].map(([val, lbl]) => (
+          <button key={lbl} onClick={() => setFilterSource(val)} style={{
+            padding: "4px 10px", borderRadius: 6, cursor: "pointer",
+            border: `1px solid ${filterSource === val ? C.blue + "40" : "transparent"}`,
+            background: filterSource === val ? C.blueMuted : "transparent",
+            color: filterSource === val ? C.blue : C.textTertiary,
+            fontSize: 12, fontFamily: FONT_SANS, fontWeight: filterSource === val ? 600 : 400,
+            transition: "all 0.15s ease",
+          }}>{lbl}</button>
+        ))}
+      </div>
+
+      {/* Group pills + sort + new task */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
           {[["status", "Status"], ["priority", "Priority"], ["source", "Source"]].map(([val, lbl]) => (
             <button key={val} onClick={() => setGroupBy(val)} style={{
-              padding: "5px 12px", borderRadius: 16, border: "none", cursor: "pointer",
-              background: groupBy === val ? C.gold : C.bgCard,
-              color: groupBy === val ? C.bgPrimary : C.textTertiary,
-              fontSize: 11, fontFamily: FONT_MONO, fontWeight: groupBy === val ? 700 : 400,
-              transition: "all 0.2s",
+              padding: "5px 14px", borderRadius: 8, cursor: "pointer",
+              border: `1px solid ${groupBy === val ? C.borderSubtle : C.borderDefault}`,
+              background: groupBy === val ? "rgba(255,255,255,0.08)" : "transparent",
+              color: groupBy === val ? C.textPrimary : C.textSecondary,
+              fontSize: 13, fontFamily: FONT_SANS, fontWeight: groupBy === val ? 600 : 400,
+              transition: "all 0.15s ease",
+            }}>{lbl}</button>
+          ))}
+          <span style={{ width: 1, height: 16, background: C.borderDefault, margin: "0 2px" }} />
+          {[["default", "Default"], ["newest", "Newest"], ["oldest", "Oldest"]].map(([val, lbl]) => (
+            <button key={val} onClick={() => setSortBy(val)} style={{
+              padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer",
+              background: sortBy === val ? "rgba(255,255,255,0.08)" : "transparent",
+              color: sortBy === val ? C.textPrimary : C.textSecondary,
+              fontSize: 13, fontFamily: FONT_SANS, fontWeight: sortBy === val ? 500 : 400,
+              transition: "all 0.15s ease",
             }}>{lbl}</button>
           ))}
         </div>
@@ -1864,22 +2736,36 @@ function TasksView({ tasks, setTasks, decisions, projects }) {
 
       {/* Task groups */}
       {tasks.length === 0 ? (
-        <EmptyState icon="☐" title="No tasks yet" sub="Create tasks to track execution on your decisions." action="+ New Task" onAction={() => setShowForm(true)} />
+        <EmptyState icon={<CheckSquare size={36} />} title="No tasks yet" sub="Create tasks to track execution on your decisions." action="+ New Task" onAction={() => setShowForm(true)} />
       ) : filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: 40, color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 13 }}>No tasks match "{searchTerm}"</div>
+        <div style={{ textAlign: "center", padding: 40, color: C.textTertiary, fontFamily: FONT_BODY, fontSize: 14 }}>No tasks match "{searchTerm}"</div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           {groups.map(group => (
             <div key={group.key}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingBottom: 6, borderBottom: `2px solid ${group.color || C.textTertiary}33` }}>
-                <span style={{ fontSize: 8, color: group.color || C.textTertiary }}>●</span>
-                <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 700, color: group.color || C.textTertiary, textTransform: "uppercase", letterSpacing: 1 }}>{group.label}</span>
-                <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{group.items.length}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 8, borderBottom: `1px solid ${C.borderDefault}` }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: group.color || C.textTertiary, opacity: 0.7 }} />
+                <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>{group.label}</span>
+                <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{group.items.length}</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {group.items.map(t => (
-                  <TaskRow key={t.id} task={t} expanded={expandedId === t.id} onToggle={() => setExpandedId(expandedId === t.id ? null : t.id)} onUpdate={updates => updateTask(t.id, updates)} onDelete={() => deleteTask(t.id)} decisions={decisions} />
-                ))}
+                {buildRenderItems(group.items).map(item =>
+                  item.type === "batch" ? (
+                    <IngestBatchCard
+                      key={`batch-${item.sessionId}`}
+                      sessionId={item.sessionId}
+                      batchTasks={item.tasks}
+                      session={sessionMap[item.sessionId]}
+                      expandedId={expandedId}
+                      setExpandedId={setExpandedId}
+                      onUpdate={updateTask}
+                      onDelete={deleteTask}
+                      decisions={decisions}
+                    />
+                  ) : (
+                    <TaskRow key={item.task.id} task={item.task} expanded={expandedId === item.task.id} onToggle={() => setExpandedId(expandedId === item.task.id ? null : item.task.id)} onUpdate={updates => updateTask(item.task.id, updates)} onDelete={() => deleteTask(item.task.id)} decisions={decisions} />
+                  )
+                )}
               </div>
             </div>
           ))}
@@ -1887,6 +2773,91 @@ function TasksView({ tasks, setTasks, decisions, projects }) {
       )}
 
       {showForm && <TaskFormModal onClose={() => setShowForm(false)} onCreate={createTask} decisions={decisions} />}
+    </div>
+  );
+}
+
+// ─── Ingest Batch Card ────────────────────────────────────────────────────────
+function IngestBatchCard({ sessionId, batchTasks, session, expandedId, setExpandedId, onUpdate, onDelete, decisions }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const done = batchTasks.filter(t => t.status === "complete").length;
+  const total = batchTasks.length;
+  const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+  const allDone = done === total;
+
+  // Derive label from session data
+  const label = session
+    ? (session.meetingTitle || session.rawContent?.slice(0, 50)?.replace(/\n/g, " ")?.trim() || "Ingest")
+    : "Ingest";
+  const dateStr = session ? fmtRelative(session.createdAt) : batchTasks[0] ? fmtRelative(batchTasks[0].createdAt) : "";
+
+  return (
+    <div style={{
+      background: C.bgCard,
+      border: `1px solid ${allDone ? C.green + "44" : C.amber + "44"}`,
+      borderRadius: 10,
+      overflow: "hidden",
+      marginBottom: 4,
+    }}>
+      {/* Batch header */}
+      <div
+        onClick={() => setCollapsed(!collapsed)}
+        style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "12px 16px", cursor: "pointer",
+          background: `linear-gradient(135deg, ${C.amber}08, ${C.gold}06)`,
+          borderBottom: collapsed ? "none" : `1px solid rgba(255,255,255,0.04)`,
+          transition: "all 0.15s",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+          <Zap size={14} style={{ color: C.amber }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.amber, background: `${C.amber}18`, padding: "1px 6px", borderRadius: 4, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Ingest</span>
+              <span style={{
+                fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary,
+                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              }}>{label}{label.length >= 50 ? "..." : ""}</span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, flexShrink: 0 }}>{dateStr}</span>
+            </div>
+            {/* Progress bar */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                <div style={{
+                  width: `${progress}%`, height: "100%",
+                  background: allDone ? C.green : `linear-gradient(90deg, ${C.amber}, ${C.gold})`,
+                  borderRadius: 2, transition: "width 0.3s",
+                }} />
+              </div>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: allDone ? C.green : C.textTertiary, flexShrink: 0 }}>
+                {done}/{total}
+              </span>
+            </div>
+          </div>
+        </div>
+        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: 8 }}>
+          {collapsed ? "▾" : "▴"}
+        </span>
+      </div>
+
+      {/* Task rows inside batch */}
+      {!collapsed && (
+        <div style={{ padding: "4px 0" }}>
+          {batchTasks.map(t => (
+            <div key={t.id} style={{ borderLeft: `3px solid ${C.amber}33`, marginLeft: 12 }}>
+              <TaskRow
+                task={t}
+                expanded={expandedId === t.id}
+                onToggle={() => setExpandedId(expandedId === t.id ? null : t.id)}
+                onUpdate={updates => onUpdate(t.id, updates)}
+                onDelete={() => onDelete(t.id)}
+                decisions={decisions}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1974,16 +2945,18 @@ RULES:
             width: 18, height: 18, borderRadius: 3, flexShrink: 0,
             background: isDone ? C.green : "transparent", border: `2px solid ${isDone ? C.green : "#444"}`,
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#fff", fontSize: 10, fontWeight: 700,
+            color: "#fff", fontSize: 11, fontWeight: 700,
           }}>{isDone ? "✓" : ""}</button>
-          <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 500, color: isDone ? C.textTertiary : C.textPrimary, textDecoration: isDone ? "line-through" : "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{task.title}</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: isDone ? C.textTertiary : C.textPrimary, textDecoration: isDone ? "line-through" : "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{task.title}</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-          {subsTotal > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: subsDone === subsTotal ? C.green : C.textTertiary }}>{subsDone}/{subsTotal}</span>}
-          {guide && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.gold }}>✦</span>}
-          {overdue && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.red, fontWeight: 600 }}>!</span>}
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: priorityColor(task.priority) }}>{task.priority}</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: statusColor(task.status) }}>{TASK_STATUS_LABELS[task.status]}</span>
+          {subsTotal > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: subsDone === subsTotal ? C.green : C.textTertiary }}>{subsDone}/{subsTotal}</span>}
+          {guide && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, display: "flex", alignItems: "center" }}><Sparkles size={10} /></span>}
+          {overdue && <AlertTriangle size={10} style={{ color: C.red }} />}
+          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: priorityColor(task.priority) }}>{task.priority}</span>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: statusColor(task.status) }}>{TASK_STATUS_LABELS[task.status]}</span>
+          {task.source && task.source !== "manual" && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: task.source === "ingest" ? C.amber : task.source === "project" ? C.blue : C.green, background: `${task.source === "ingest" ? C.amber : task.source === "project" ? C.blue : C.green}15`, padding: "1px 5px", borderRadius: 6 }}>{task.source}</span>}
+          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{fmtRelative(task.createdAt)}</span>
         </div>
       </div>
 
@@ -1992,7 +2965,7 @@ RULES:
         <div style={{ padding: "0 14px 10px" }}>
           {/* Description snippet */}
           {task.description && !guideOpen && (
-            <div style={{ padding: "6px 10px", background: "#0D1117", borderRadius: 4, borderLeft: `2px solid ${priorityColor(task.priority)}44`, fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, lineHeight: 1.5, fontStyle: "italic", marginBottom: 8 }}>
+            <div style={{ padding: "6px 10px", background: "#0F1013", borderRadius: 4, borderLeft: `2px solid ${priorityColor(task.priority)}44`, fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5, fontStyle: "italic", marginBottom: 8 }}>
               {task.description.split("\n---\n")[0].split("\n")[0].slice(0, 150)}
             </div>
           )}
@@ -2003,7 +2976,7 @@ RULES:
               {task.subtasks.map(sub => (
                 <div key={sub.id} onClick={() => toggleSubtask(sub.id)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 10px", cursor: "pointer", borderRadius: 3, background: sub.complete ? `${C.green}08` : "transparent" }}>
                   <span style={{ color: sub.complete ? C.green : "#555", fontSize: 11, flexShrink: 0 }}>{sub.complete ? "✓" : "○"}</span>
-                  <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: sub.complete ? C.textTertiary : C.textSecondary, textDecoration: sub.complete ? "line-through" : "none" }}>{sub.title}</span>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: sub.complete ? C.textTertiary : C.textSecondary, textDecoration: sub.complete ? "line-through" : "none" }}>{sub.title}</span>
                 </div>
               ))}
             </div>
@@ -2015,12 +2988,12 @@ RULES:
               {/* Guide header */}
               <div style={{ padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
                 <div>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 700, color: C.gold, textTransform: "uppercase", letterSpacing: "0.06em" }}>✦ Guide</div>
-                  {guide.overview && <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginTop: 3, lineHeight: 1.4 }}>{guide.overview}</div>}
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 700, color: C.gold, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> Guide</div>
+                  {guide.overview && <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, marginTop: 3, lineHeight: 1.4 }}>{guide.overview}</div>}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: guideDone === guideTotal ? C.green : C.textTertiary }}>{guideDone}/{guideTotal}</span>
-                  <button onClick={() => setGuideOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, padding: "2px 0" }}>close</button>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: guideDone === guideTotal ? C.green : C.textTertiary }}>{guideDone}/{guideTotal}</span>
+                  <button onClick={() => setGuideOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, padding: "2px 0" }}>close</button>
                 </div>
               </div>
 
@@ -2048,19 +3021,19 @@ RULES:
                           background: stepDone ? C.green : "transparent",
                           border: `2px solid ${stepDone ? C.green : "#333"}`,
                           cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                          color: "#fff", fontSize: 9, fontWeight: 700,
-                        }}>{stepDone ? "✓" : <span style={{ color: "#555", fontSize: 9 }}>{i + 1}</span>}</button>
-                        <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: stepDone ? C.textTertiary : C.textPrimary, textDecoration: stepDone ? "line-through" : "none", flex: 1, lineHeight: 1.4 }}>{step.action}</span>
-                        <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: isStepExpanded ? C.gold : C.textTertiary, flexShrink: 0 }}>{isStepExpanded ? "▴" : "how?"}</span>
+                          color: "#fff", fontSize: 11, fontWeight: 700,
+                        }}>{stepDone ? "✓" : <span style={{ color: "#555", fontSize: 11 }}>{i + 1}</span>}</button>
+                        <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: stepDone ? C.textTertiary : C.textPrimary, textDecoration: stepDone ? "line-through" : "none", flex: 1, lineHeight: 1.4 }}>{step.action}</span>
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: isStepExpanded ? C.gold : C.textTertiary, flexShrink: 0 }}>{isStepExpanded ? "▴" : "how?"}</span>
                       </div>
 
                       {/* Expanded "how" — the actual value */}
                       {isStepExpanded && (
                         <div style={{ padding: "0 12px 10px 38px" }}>
                           <div style={{ padding: "8px 10px", background: `${C.gold}08`, borderRadius: 4, borderLeft: `2px solid ${C.gold}44` }}>
-                            <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, lineHeight: 1.6 }}>{step.how}</div>
+                            <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>{step.how}</div>
                             {step.done_looks_like && (
-                              <div style={{ marginTop: 6, fontFamily: FONT_MONO, fontSize: 10, color: C.green }}>
+                              <div style={{ marginTop: 6, fontFamily: FONT_MONO, fontSize: 11, color: C.green }}>
                                 Done when: {step.done_looks_like}
                               </div>
                             )}
@@ -2085,8 +3058,8 @@ RULES:
           {/* Guide loading state */}
           {guideOpen && guideLoading && !guide && (
             <div style={{ padding: "16px 12px", background: "#0B1120", borderRadius: 8, border: `1px solid ${C.gold}22`, marginBottom: 8, textAlign: "center" }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold }}>✦ Building your guide...</div>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginTop: 4 }}>BC is figuring out exactly how to do this</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}><Sparkles size={10} /> Building your guide...</div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, marginTop: 4 }}>BC is figuring out exactly how to do this</div>
             </div>
           )}
 
@@ -2096,14 +3069,14 @@ RULES:
             <button onClick={generateGuide} style={{
               padding: "3px 10px", borderRadius: 3, border: "none", cursor: "pointer",
               background: guideOpen ? `${C.gold}22` : `${C.gold}15`,
-              color: C.gold, fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600,
+              color: C.gold, fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
               transition: "all 0.15s",
-            }}>{guideOpen && guide ? "hide guide" : guide ? "show guide" : "✦ guide me"}</button>
+            }}>{guideOpen && guide ? "hide guide" : guide ? "show guide" : <><Sparkles size={10} style={{ display: "inline" }} /> guide me</>}</button>
             {guideOpen && guide && (
               <button onClick={() => { setGuideOpen(false); }} style={{
                 padding: "3px 8px", borderRadius: 3, border: "none", cursor: "pointer",
                 background: "rgba(255,255,255,0.04)", color: C.textTertiary,
-                fontFamily: FONT_MONO, fontSize: 10,
+                fontFamily: FONT_MONO, fontSize: 11,
               }}>just the list</button>
             )}
             <span style={{ color: "rgba(255,255,255,0.06)", margin: "0 2px" }}>|</span>
@@ -2112,19 +3085,19 @@ RULES:
                 padding: "2px 7px", borderRadius: 3, border: "none",
                 background: task.status === s ? `${statusColor(s)}22` : "rgba(255,255,255,0.04)",
                 color: task.status === s ? statusColor(s) : C.textTertiary,
-                fontFamily: FONT_MONO, fontSize: 9, cursor: "pointer",
+                fontFamily: FONT_MONO, fontSize: 11, cursor: "pointer",
               }}>{TASK_STATUS_LABELS[s]}</button>
             ))}
             <span style={{ color: "rgba(255,255,255,0.06)", margin: "0 2px" }}>|</span>
-            {subsTotal === 0 && !aiLoading && <button onClick={breakDown} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 9, color: C.blue, padding: "2px 0" }}>break down</button>}
-            <button onClick={() => setEditing(true)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, padding: "2px 0" }}>edit</button>
+            {subsTotal === 0 && !aiLoading && <button onClick={breakDown} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, color: C.blue, padding: "2px 0" }}>break down</button>}
+            <button onClick={() => setEditing(true)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, padding: "2px 0" }}>edit</button>
             {confirmDelete ? (
               <>
-                <button onClick={onDelete} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 9, color: C.red, padding: "2px 0" }}>confirm</button>
-                <button onClick={() => setConfirmDelete(false)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, padding: "2px 0" }}>cancel</button>
+                <button onClick={onDelete} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, color: C.red, padding: "2px 0" }}>confirm</button>
+                <button onClick={() => setConfirmDelete(false)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, padding: "2px 0" }}>cancel</button>
               </>
             ) : (
-              <button onClick={() => setConfirmDelete(true)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, padding: "2px 0" }}>delete</button>
+              <button onClick={() => setConfirmDelete(true)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, padding: "2px 0" }}>delete</button>
             )}
           </div>
         </div>
@@ -2204,6 +3177,7 @@ function PrioritiesView({ priorities, setPriorities, decisions, tasks, projects 
   const [showForm, setShowForm] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [filterProject, setFilterProject] = useState(null);
+  const [filterSource, setFilterSource] = useState(null);
   const linkMap = useProjectLinks(projects);
 
   async function createPriority(data) {
@@ -2216,6 +3190,7 @@ function PrioritiesView({ priorities, setPriorities, decisions, tasks, projects 
       linkedTasks: [],
       tags: [],
       healthScore: null,
+      source: data.source || "manual",
       createdAt: isoNow(),
       updatedAt: isoNow(),
     };
@@ -2250,22 +3225,45 @@ function PrioritiesView({ priorities, setPriorities, decisions, tasks, projects 
   }
 
   const projectFiltered = filterByProject(priorities, filterProject, linkMap);
-  const sorted = [...projectFiltered].sort((a, b) => a.rank - b.rank);
+  const sourceFiltered = filterSource
+    ? projectFiltered.filter(p => (p.source || "manual") === filterSource)
+    : projectFiltered;
+  const sorted = [...sourceFiltered].sort((a, b) => a.rank - b.rank);
 
   return (
     <div style={{ padding: "32px 40px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <div>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: C.textPrimary }}>Priorities</div>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary, marginTop: 2 }}>{priorities.length} total</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>Priorities</div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, marginTop: 4 }}>{priorities.length} total</div>
         </div>
         <Btn variant="primary" onClick={() => setShowForm(true)}>＋ New Priority</Btn>
       </div>
 
       <ProjectFilterPills projects={projects} filterProject={filterProject} setFilterProject={setFilterProject} />
 
+      {/* Source filter */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 18, alignItems: "center" }}>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontWeight: 500, marginRight: 2 }}>Source:</span>
+        {[
+          [null, "All"],
+          ["ingest", "Ingest"],
+          ["project", "Project"],
+          ["manual", "Manual"],
+        ].map(([val, lbl]) => (
+          <button key={lbl} onClick={() => setFilterSource(val)} style={{
+            padding: "4px 10px", borderRadius: 6, cursor: "pointer",
+            border: `1px solid ${filterSource === val ? C.blue + "40" : "transparent"}`,
+            background: filterSource === val ? C.blueMuted : "transparent",
+            color: filterSource === val ? C.blue : C.textTertiary,
+            fontSize: 12, fontFamily: FONT_SANS, fontWeight: filterSource === val ? 600 : 400,
+            transition: "all 0.15s ease",
+          }}>{lbl}</button>
+        ))}
+      </div>
+
       {sorted.length === 0 ? (
-        <EmptyState icon="▲" title="No priorities defined" sub="Define your strategic priorities to track health and alignment." action="＋ New Priority" onAction={() => setShowForm(true)} />
+        <EmptyState icon={<ChevronUp size={36} />} title="No priorities defined" sub="Define your strategic priorities to track health and alignment." action="＋ New Priority" onAction={() => setShowForm(true)} />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {sorted.map((p, i) => (
@@ -2386,19 +3384,19 @@ function PriorityCard({ priority, rank, total, expanded, onToggle, onUpdate, onD
       >
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
           {/* Rank */}
-          <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 500, color: C.goldMuted, minWidth: 36, lineHeight: 1 }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 500, color: C.gold + "60", minWidth: 36, lineHeight: 1 }}>
             #{rank}
           </div>
 
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, lineHeight: 1.4 }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, lineHeight: 1.4 }}>
                 {priority.title}
               </div>
               <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
                 {/* Move buttons — stopPropagation so they don't trigger toggle */}
-                <button onClick={e => { e.stopPropagation(); onMoveUp(); }} disabled={!canMoveUp} style={{ background: "none", border: "none", cursor: canMoveUp ? "pointer" : "default", color: canMoveUp ? C.textSecondary : "rgba(255,255,255,0.1)", fontSize: 12, padding: "2px 4px" }}>▲</button>
-                <button onClick={e => { e.stopPropagation(); onMoveDown(); }} disabled={!canMoveDown} style={{ background: "none", border: "none", cursor: canMoveDown ? "pointer" : "default", color: canMoveDown ? C.textSecondary : "rgba(255,255,255,0.1)", fontSize: 12, padding: "2px 4px" }}>▼</button>
+                <button onClick={e => { e.stopPropagation(); onMoveUp(); }} disabled={!canMoveUp} style={{ background: "none", border: "none", cursor: canMoveUp ? "pointer" : "default", color: canMoveUp ? C.textSecondary : "rgba(255,255,255,0.1)", fontSize: 12, padding: "2px 4px", display: "flex", alignItems: "center" }}><ChevronUp size={12} /></button>
+                <button onClick={e => { e.stopPropagation(); onMoveDown(); }} disabled={!canMoveDown} style={{ background: "none", border: "none", cursor: canMoveDown ? "pointer" : "default", color: canMoveDown ? C.textSecondary : "rgba(255,255,255,0.1)", fontSize: 12, padding: "2px 4px", display: "flex", alignItems: "center" }}><ChevronDown size={12} /></button>
                 <div style={{
                   display: "flex", alignItems: "center", gap: 4,
                   fontFamily: FONT_MONO, fontSize: 11,
@@ -2412,11 +3410,13 @@ function PriorityCard({ priority, rank, total, expanded, onToggle, onUpdate, onD
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8, marginBottom: 10 }}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8, marginBottom: 10, alignItems: "center" }}>
               <Badge label={PRIORITY_STATUS_LABELS[priority.status] || priority.status} color={statusColor(priority.status)} />
               <Badge label={PRIORITY_TIMEFRAME_LABELS[priority.timeframe] || priority.timeframe} />
               {linkedTasks.length > 0 && <Badge label={`${linkedTasks.length} tasks`} />}
               {linkedDecisions.length > 0 && <Badge label={`${linkedDecisions.length} decisions`} />}
+              {priority.source && priority.source !== "manual" && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: priority.source === "ingest" ? C.amber : C.blue, background: `${priority.source === "ingest" ? C.amber : C.blue}15`, padding: "1px 5px", borderRadius: 6 }}>{priority.source}</span>}
+              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{fmtRelative(priority.createdAt)}</span>
             </div>
 
             {/* Health bar */}
@@ -2456,16 +3456,16 @@ function PriorityCard({ priority, rank, total, expanded, onToggle, onUpdate, onD
           ) : (
             <div>
               {priority.description && (
-                <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 14 }}>
+                <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 14 }}>
                   {priority.description}
                 </div>
               )}
 
               {(priority.successMetrics || []).length > 0 && (
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Success Metrics</div>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Success Metrics</div>
                   {priority.successMetrics.map((m, i) => (
-                    <div key={i} style={{ display: "flex", gap: 8, padding: "3px 0", fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary }}>
+                    <div key={i} style={{ display: "flex", gap: 8, padding: "3px 0", fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary }}>
                       <span style={{ color: C.gold }}>•</span>{m}
                     </div>
                   ))}
@@ -2475,7 +3475,7 @@ function PriorityCard({ priority, rank, total, expanded, onToggle, onUpdate, onD
               {/* AI Actions */}
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
                 <Btn variant="ghost" size="sm" onClick={runAssessHealth} disabled={aiLoading}>
-                  {aiLoading ? "Assessing..." : "✦ Assess Health"}
+                  {aiLoading ? "Assessing..." : <><Sparkles size={12} style={{ display: "inline" }} /> Assess Health</>}
                 </Btn>
                 <Btn variant="ghost" size="sm" onClick={() => setEditing(true)}>Edit</Btn>
                 {confirmDelete ? (
@@ -2512,7 +3512,7 @@ function PriorityCard({ priority, rank, total, expanded, onToggle, onUpdate, onD
                     color: customPrompt.trim() && !aiLoading ? C.bgPrimary : C.textTertiary,
                     fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
                   }}
-                >✦</button>
+                ><Sparkles size={12} /></button>
               </div>
 
               <AIPanel response={aiResponse} loading={aiLoading} error={aiError} />
@@ -2522,11 +3522,11 @@ function PriorityCard({ priority, rank, total, expanded, onToggle, onUpdate, onD
                 <div style={{ marginTop: 14 }}>
                   {linkedTasks.length > 0 && (
                     <div style={{ marginBottom: 10 }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Linked Tasks</div>
+                      <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Linked Tasks</div>
                       {linkedTasks.map(t => (
                         <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0" }}>
                           <span style={{ color: priorityColor(t.priority), fontSize: 8 }}>●</span>
-                          <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary }}>{t.title}</span>
+                          <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary }}>{t.title}</span>
                           <Badge label={TASK_STATUS_LABELS[t.status] || t.status} color={statusColor(t.status)} />
                         </div>
                       ))}
@@ -2534,11 +3534,11 @@ function PriorityCard({ priority, rank, total, expanded, onToggle, onUpdate, onD
                   )}
                   {linkedDecisions.length > 0 && (
                     <div>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Linked Decisions</div>
+                      <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Linked Decisions</div>
                       {linkedDecisions.map(d => (
                         <div key={d.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0" }}>
-                          <span style={{ color: C.gold, fontSize: 10 }}>◆</span>
-                          <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary }}>{d.title}</span>
+                          <Diamond size={10} style={{ color: C.gold }} />
+                          <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary }}>{d.title}</span>
                           <Badge label={DECISION_STATUS_LABELS[d.status]} color={statusColor(d.status)} />
                         </div>
                       ))}
@@ -2601,7 +3601,7 @@ function PriorityFormModal({ onClose, onCreate }) {
 
 // ─── Ingest History ───────────────────────────────────────────────────────────
 const MODE_META = {
-  general:    { label: "General",    icon: "⊕", color: C.blue  },
+  general:    { label: "General",    icon: <PlusCircle size={12} />, color: C.blue  },
   meeting:    { label: "Meeting",    icon: "◎", color: C.textSecondary },
   respond_to: { label: "Respond To", icon: "↩", color: C.gold  },
 };
@@ -2674,7 +3674,7 @@ function IngestSessionCard({ session, expanded, onToggle }) {
           </div>
         </div>
 
-        <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.4, marginBottom: 6 }}>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.4, marginBottom: 6 }}>
           {preview}
         </div>
 
@@ -2705,7 +3705,7 @@ function IngestSessionCard({ session, expanded, onToggle }) {
           {session.mode === "respond_to" && session.draftedResponse && (
             <div style={{ marginBottom: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.gold, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Drafted Response — {session.responseStyle} · {session.responseTone}
                 </div>
                 <button
@@ -2715,11 +3715,11 @@ function IngestSessionCard({ session, expanded, onToggle }) {
                   {copied ? "✓ Copied" : "Copy"}
                 </button>
               </div>
-              <div style={{ background: C.bgCard, border: `1px solid ${C.borderActive}`, borderRadius: 8, padding: "14px 16px", fontFamily: FONT_SANS, fontSize: 13, color: C.textPrimary, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>
+              <div style={{ background: C.bgCard, border: `1px solid ${C.borderActive}`, borderRadius: 8, padding: "14px 16px", fontFamily: FONT_BODY, fontSize: 13, color: C.textPrimary, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>
                 {session.draftedResponse}
               </div>
               {session.responseNotes && (
-                <div style={{ marginTop: 8, fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontStyle: "italic" }}>✦ {session.responseNotes}</div>
+                <div style={{ marginTop: 8, fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, fontStyle: "italic", display: "flex", alignItems: "flex-start", gap: 4 }}><Sparkles size={12} style={{ flexShrink: 0, marginTop: 2 }} /> {session.responseNotes}</div>
               )}
             </div>
           )}
@@ -2727,8 +3727,8 @@ function IngestSessionCard({ session, expanded, onToggle }) {
           {/* General/Meeting: show BC response */}
           {session.mode !== "respond_to" && session.bcResponse && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>BC Analysis</div>
-              <div style={{ background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "12px 14px", fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.7 }}
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>BC Analysis</div>
+              <div style={{ background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "12px 14px", fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.7 }}
                 dangerouslySetInnerHTML={{ __html: inlineMarkdown(session.bcResponse) }} />
             </div>
           )}
@@ -2736,15 +3736,15 @@ function IngestSessionCard({ session, expanded, onToggle }) {
           {/* Extracted items summary */}
           {session.allItems?.length > 0 && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Extracted Items</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Extracted Items</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {session.allItems.map((item, i) => {
-                  const im = { task: { color: C.blue, icon: "☐" }, decision: { color: C.gold, icon: "◆" }, priority: { color: C.amber, icon: "▲" } }[item.type] || { color: C.textTertiary, icon: "·" };
+                  const im = { task: { color: C.blue, icon: <CheckSquare size={11} /> }, decision: { color: C.gold, icon: <Diamond size={11} /> }, priority: { color: C.amber, icon: <ChevronUp size={11} /> } }[item.type] || { color: C.textTertiary, icon: "·" };
                   return (
                     <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
                       <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: im.color }}>{im.icon}</span>
                       <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary }}>{item.title}</span>
-                      {item.priority && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{item.priority}</span>}
+                      {item.priority && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{item.priority}</span>}
                     </div>
                   );
                 })}
@@ -2759,7 +3759,7 @@ function IngestSessionCard({ session, expanded, onToggle }) {
                 {showRaw ? "Hide original" : "Show original content"}
               </button>
               {showRaw && (
-                <div style={{ marginTop: 8, fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.6, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "10px 14px", maxHeight: 200, overflowY: "auto", whiteSpace: "pre-wrap" }}>
+                <div style={{ marginTop: 8, fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "10px 14px", maxHeight: 200, overflowY: "auto", whiteSpace: "pre-wrap" }}>
                   {session.rawContent}
                 </div>
               )}
@@ -2767,7 +3767,7 @@ function IngestSessionCard({ session, expanded, onToggle }) {
           )}
 
           {/* Ask BC — continue the conversation */}
-          <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Continue with BC</div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Continue with BC</div>
           <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
             <input
               value={customPrompt}
@@ -2788,7 +3788,7 @@ function IngestSessionCard({ session, expanded, onToggle }) {
                 color: customPrompt.trim() && !aiLoading ? C.bgPrimary : C.textTertiary,
                 fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
               }}
-            >✦</button>
+            ><Sparkles size={12} /></button>
           </div>
           <AIPanel response={aiResponse} loading={aiLoading} error={aiError} />
         </div>
@@ -2797,9 +3797,17 @@ function IngestSessionCard({ session, expanded, onToggle }) {
   );
 }
 
-function IngestHistory({ sessions, setIngestSessions }) {
-  const [expandedId, setExpandedId] = useState(null);
+function IngestHistory({ sessions, setIngestSessions, focusSessionId, setFocusSessionId }) {
+  const [expandedId, setExpandedId] = useState(focusSessionId || null);
   const [search, setSearch] = useState("");
+
+  // When focusSessionId changes, expand that session and clear the focus
+  useEffect(() => {
+    if (focusSessionId) {
+      setExpandedId(focusSessionId);
+      if (setFocusSessionId) setFocusSessionId(null);
+    }
+  }, [focusSessionId]);
 
   const sorted = [...sessions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 50);
   const filtered = search.trim()
@@ -2815,9 +3823,9 @@ function IngestHistory({ sessions, setIngestSessions }) {
   if (sessions.length === 0) {
     return (
       <div style={{ textAlign: "center", padding: "80px 0" }}>
-        <div style={{ fontSize: 32, color: C.borderDefault, marginBottom: 16 }}>⊕</div>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 14, color: C.textSecondary, marginBottom: 8 }}>No sessions yet</div>
-        <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary }}>Sessions are saved automatically when you process content.</div>
+        <div style={{ color: C.borderDefault, marginBottom: 16 }}><PlusCircle size={32} /></div>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 700, color: C.textSecondary, marginBottom: 8 }}>No sessions yet</div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary }}>Sessions are saved automatically when you process content.</div>
       </div>
     );
   }
@@ -2833,7 +3841,7 @@ function IngestHistory({ sessions, setIngestSessions }) {
         />
       </div>
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px 0", fontFamily: FONT_SANS, fontSize: 14, color: C.textTertiary }}>No sessions match "{search}"</div>
+        <div style={{ textAlign: "center", padding: "40px 0", fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>No sessions match "{search}"</div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {filtered.map(s => (
@@ -2929,8 +3937,8 @@ EXTRACTION RULES:
 - Extract ALL actionable items — cast a wide net. It's better to extract too many than too few.
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
-function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingestSessions, setIngestSessions }) {
-  const [ingestTab, setIngestTab] = useState("new"); // "new" | "history"
+function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingestSessions, setIngestSessions, focusSessionId, setFocusSessionId }) {
+  const [ingestTab, setIngestTab] = useState(focusSessionId ? "history" : "new"); // "new" | "history"
   const [sourceType, setSourceType] = useState("general"); // "general" | "meeting" | "respond_to"
   const [meetingTitle, setMeetingTitle] = useState("");
   const [meetingDate, setMeetingDate] = useState(new Date().toISOString().split("T")[0]);
@@ -2946,6 +3954,25 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState(null);
   const [error, setError] = useState(null);
+  // Email scan state
+  const [emailTimeframe, setEmailTimeframe] = useState("24h");
+  const [emailScanning, setEmailScanning] = useState(false);
+  const [ingestAiConfig, setIngestAiConfig] = useState(null);
+  const [emailGmailStatus, setEmailGmailStatus] = useState(null);
+  const [emailOutlookStatus, setEmailOutlookStatus] = useState(null);
+
+  // Email connectors not available in local-first mode
+  useEffect(() => {
+    if (sourceType === "email") {
+      setEmailGmailStatus({ connected: false, reason: "local_first" });
+      setEmailOutlookStatus({ connected: false, reason: "local_first" });
+    }
+  }, [sourceType]);
+
+  // Switch to history tab when navigating from a decision's ingest link
+  useEffect(() => {
+    if (focusSessionId) setIngestTab("history");
+  }, [focusSessionId]);
 
   const process = async () => {
     if (!input.trim() || processing) return;
@@ -2963,7 +3990,9 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
         : INGEST_PROMPT(input.trim(), context);
       const raw = await callAI(
         [{ role: "user", content: promptContent }],
-        "You are a precise data extraction system. Return only valid JSON as instructed."
+        "You are a precise data extraction system. Return only valid JSON as instructed.",
+        undefined,
+        ingestAiConfig
       );
       const cleaned = raw.replace(/```json|```/g, "").trim();
       const parsed = JSON.parse(cleaned);
@@ -3017,6 +4046,7 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
           id, title: item.title, description: item.description || "",
           status: "open", priority: item.priority || "medium",
           dueDate: item.dueDate || null, sourceDecisionId: null,
+          source: "ingest", ingestSessionId: currentSessionId,
           linkedPriorities: [], subtasks: [], tags: [], createdAt: ts, updatedAt: ts,
         };
         await store.save("task", task);
@@ -3026,7 +4056,7 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
           id, title: item.title, context: item.context || item.description || "",
           status: "draft", options: [], outcome: "", rationale: "", risks: "",
           linkedTasks: [], linkedPriorities: [], tags: [],
-          templateType: "blank", createdAt: ts, updatedAt: ts,
+          templateType: "blank", source: "ingest", ingestSessionId: currentSessionId, createdAt: ts, updatedAt: ts,
         };
         await store.save("decision", decision);
         counts.decisions++;
@@ -3037,7 +4067,7 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
           rank: existing.length + 1,
           timeframe: item.timeframe || "this_quarter",
           status: "active", successMetrics: [], healthScore: null,
-          linkedDecisions: [], linkedTasks: [], tags: [], createdAt: ts, updatedAt: ts,
+          linkedDecisions: [], linkedTasks: [], tags: [], source: "ingest", ingestSessionId: currentSessionId, createdAt: ts, updatedAt: ts,
         };
         await store.save("priority", priority);
         counts.priorities++;
@@ -3104,9 +4134,9 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
   };
 
   const TYPE_META = {
-    task:     { label: "Task",     color: C.blue,  icon: "☐" },
-    decision: { label: "Decision", color: C.gold,  icon: "◆" },
-    priority: { label: "Priority", color: C.amber, icon: "▲" },
+    task:     { label: "Task",     color: C.blue,  icon: <CheckSquare size={11} /> },
+    decision: { label: "Decision", color: C.gold,  icon: <Diamond size={11} /> },
+    priority: { label: "Priority", color: C.amber, icon: <ChevronUp size={11} /> },
   };
 
   return (
@@ -3114,8 +4144,8 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <h1 style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: C.textPrimary, margin: "0 0 6px" }}>Ingest</h1>
-            <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_SANS }}>
+            <h1 style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 6px" }}>Ingest</h1>
+            <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_BODY }}>
               Paste any content — BC extracts what matters and drafts responses.
             </p>
           </div>
@@ -3127,9 +4157,9 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
             ].map(tab => (
               <button key={tab.id} onClick={() => setIngestTab(tab.id)} style={{
                 padding: "5px 14px", borderRadius: 6, cursor: "pointer",
-                fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, border: "none",
-                background: ingestTab === tab.id ? C.gold : "transparent",
-                color: ingestTab === tab.id ? C.bgPrimary : C.textTertiary,
+                fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, border: "none",
+                background: ingestTab === tab.id ? "rgba(255,255,255,0.08)" : "transparent",
+                color: ingestTab === tab.id ? C.textPrimary : C.textSecondary,
                 transition: "all 0.15s",
               }}>{tab.label}</button>
             ))}
@@ -3139,7 +4169,7 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
 
       {/* History tab */}
       {ingestTab === "history" && (
-        <IngestHistory sessions={ingestSessions} setIngestSessions={setIngestSessions} />
+        <IngestHistory sessions={ingestSessions} setIngestSessions={setIngestSessions} focusSessionId={focusSessionId} setFocusSessionId={setFocusSessionId} />
       )}
 
       {/* New tab */}
@@ -3151,16 +4181,17 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
               { id: "general",    label: "⊕ General" },
               { id: "meeting",    label: "◎ Meeting" },
               { id: "respond_to", label: "↩ Respond To" },
+              { id: "email",      label: "✉ Email Scan" },
             ].map(({ id, label }) => (
               <button
                 key={id}
                 onClick={() => setSourceType(id)}
                 style={{
                   padding: "6px 16px", borderRadius: 6, cursor: "pointer",
-                  fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
-                  border: `1px solid ${sourceType === id ? C.gold : C.borderDefault}`,
-                  background: sourceType === id ? C.goldMuted : "transparent",
-                  color: sourceType === id ? C.gold : C.textTertiary,
+                  fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600,
+                  border: `1px solid ${sourceType === id ? C.borderSubtle : C.borderDefault}`,
+                  background: sourceType === id ? "rgba(255,255,255,0.08)" : "transparent",
+                  color: sourceType === id ? C.textPrimary : C.textSecondary,
                   transition: "all 0.15s",
                 }}
               >
@@ -3179,9 +4210,9 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
                     <button key={s} onClick={() => setResponseStyle(s)} style={{
                       padding: "5px 12px", borderRadius: 6, cursor: "pointer",
                       fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
-                      border: `1px solid ${responseStyle === s ? C.gold : C.borderDefault}`,
-                      background: responseStyle === s ? C.goldMuted : "transparent",
-                      color: responseStyle === s ? C.gold : C.textTertiary,
+                      border: `1px solid ${responseStyle === s ? C.borderSubtle : C.borderDefault}`,
+                      background: responseStyle === s ? "rgba(255,255,255,0.08)" : "transparent",
+                      color: responseStyle === s ? C.textPrimary : C.textSecondary,
                       transition: "all 0.15s",
                     }}>{s}</button>
                   ))}
@@ -3194,9 +4225,9 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
                     <button key={t} onClick={() => setResponseTone(t)} style={{
                       padding: "5px 12px", borderRadius: 6, cursor: "pointer",
                       fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
-                      border: `1px solid ${responseTone === t ? C.gold : C.borderDefault}`,
-                      background: responseTone === t ? C.goldMuted : "transparent",
-                      color: responseTone === t ? C.gold : C.textTertiary,
+                      border: `1px solid ${responseTone === t ? C.borderSubtle : C.borderDefault}`,
+                      background: responseTone === t ? "rgba(255,255,255,0.08)" : "transparent",
+                      color: responseTone === t ? C.textPrimary : C.textSecondary,
                       transition: "all 0.15s",
                     }}>{t}</button>
                   ))}
@@ -3242,43 +4273,202 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
             </div>
           )}
 
-          <textarea
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            placeholder={
-              sourceType === "meeting"    ? "Paste meeting notes, transcript, or summary...\n\nBC will extract tasks, decisions, and priorities, and save a meeting record." :
-              sourceType === "respond_to" ? "Paste the message, email, Slack thread, or situation you need to respond to...\n\nBC will draft a response in your selected style and flag any follow-up items." :
-              "Paste meeting notes, Slack threads, email chains, voice memo transcripts...\n\nBC will extract what matters and create it for you."
-            }
-            style={{
-              width: "100%", minHeight: 280,
-              background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-              borderRadius: 8, padding: 16, resize: "vertical",
-              color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 14,
-              lineHeight: 1.6, outline: "none",
-            }}
-            onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") process(); }}
-          />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
-            <span style={{ fontSize: 12, color: C.textTertiary, fontFamily: FONT_MONO }}>
-              {input.length > 0 ? `${input.length} characters` : "⌘↵ to process"}
-            </span>
-            <button
-              onClick={process}
-              disabled={!input.trim() || processing}
-              style={{
-                background: input.trim() && !processing ? C.gold : "rgba(212,168,83,0.2)",
-                color: input.trim() && !processing ? C.bgPrimary : C.textTertiary,
-                border: "none", borderRadius: 6, padding: "9px 20px",
-                fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600,
-                cursor: input.trim() && !processing ? "pointer" : "not-allowed",
-              }}
-            >
-              {processing ? "✦ Processing..." : "✦ Process"}
-            </button>
-          </div>
+          {/* Email scan panel */}
+          {sourceType === "email" && (
+            <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8, padding: 20, marginBottom: 12 }}>
+              {/* Connected providers */}
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>Connected Accounts</div>
+              {emailGmailStatus === null && emailOutlookStatus === null ? (
+                <div style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary, padding: "8px 0" }}>Checking connections...</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                  {[
+                    { key: "gmail", label: "Gmail", icon: "✉", status: emailGmailStatus },
+                    { key: "outlook", label: "Outlook", icon: "📧", status: emailOutlookStatus },
+                  ].map(({ key, label, icon, status }) => (
+                    <div key={key} style={{
+                      display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
+                      background: status?.connected ? `${C.green}08` : `${C.red}08`,
+                      border: `1px solid ${status?.connected ? C.green + "30" : C.borderDefault}`,
+                      borderRadius: 6,
+                    }}>
+                      <span style={{ fontSize: 16 }}>{icon}</span>
+                      <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textPrimary, flex: 1 }}>{label}</span>
+                      {status?.connected ? (
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.green }}>{status.email || "Connected"}</span>
+                      ) : (
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Requires backend</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Timeframe selector */}
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Timeframe</div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+                {[
+                  { id: "24h", label: "Last 24 hours" },
+                  { id: "3d",  label: "Last 3 days" },
+                  { id: "7d",  label: "Last 7 days" },
+                ].map(({ id, label }) => (
+                  <button key={id} onClick={() => setEmailTimeframe(id)} style={{
+                    padding: "5px 14px", borderRadius: 6, cursor: "pointer",
+                    fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+                    border: `1px solid ${emailTimeframe === id ? C.borderSubtle : C.borderDefault}`,
+                    background: emailTimeframe === id ? "rgba(255,255,255,0.08)" : "transparent",
+                    color: emailTimeframe === id ? C.textPrimary : C.textSecondary,
+                    transition: "all 0.15s",
+                  }}>{label}</button>
+                ))}
+              </div>
+
+              {/* Scan button */}
+              {(emailGmailStatus?.connected || emailOutlookStatus?.connected) ? (
+                <button
+                  onClick={async () => {
+                    setEmailScanning(true);
+                    setError(null);
+                    setResult(null);
+                    setCreated(null);
+                    try {
+                      const userId = getOrCreateUserId();
+                      const existingHashes = JSON.parse(localStorage.getItem(`bc2-${store._ws}-connector:scanned-hashes`) || "[]");
+                      const scanRes = await fetch("/api/connectors/scan", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          userId,
+                          provider: "all",
+                          timeframe: emailTimeframe,
+                          existingHashes,
+                        }),
+                      });
+                      const data = await scanRes.json();
+                      if (!scanRes.ok) throw new Error(data.error || "Scan failed");
+
+                      // Store new hashes (cap at 1000)
+                      if (data.newHashes?.length) {
+                        const updated = [...existingHashes, ...data.newHashes].slice(-1000);
+                        localStorage.setItem(`bc2-${store._ws}-connector:scanned-hashes`, JSON.stringify(updated));
+                      }
+
+                      if (!data.items?.length) {
+                        setError("No actionable items found in your recent emails.");
+                        setEmailScanning(false);
+                        return;
+                      }
+
+                      // Dedup against existing items — fuzzy title matching
+                      const existingTitles = [
+                        ...(await store.list("task")).map(t => ({ type: "task", title: t.title })),
+                        ...(await store.list("decision")).map(d => ({ type: "decision", title: d.title })),
+                        ...(await store.list("priority")).map(p => ({ type: "priority", title: p.title })),
+                      ];
+
+                      const normalize = s => (s || "").toLowerCase().replace(/[^\w\s]/g, "").replace(/\s+/g, " ").trim();
+
+                      const itemsWithDedup = data.items.map(item => {
+                        const normTitle = normalize(item.title);
+                        const isDuplicate = existingTitles.some(e =>
+                          e.type === item.type && similarity(normalize(e.title), normTitle) > 0.8
+                        );
+                        return { ...item, _likelyDuplicate: isDuplicate };
+                      });
+
+                      // Format as ingest result
+                      const parsedResult = {
+                        items: itemsWithDedup,
+                        bc_response: data.summary || `Scanned ${data.emailCount} emails. Found ${data.items.length} actionable items.`,
+                      };
+                      setResult(parsedResult);
+                      const sel = {};
+                      parsedResult.items.forEach((item, i) => { sel[i] = !item._likelyDuplicate; });
+                      setSelected(sel);
+
+                      // Save as ingest session
+                      const sessionId = `ingest_${Date.now()}`;
+                      setCurrentSessionId(sessionId);
+                      const session = {
+                        id: sessionId,
+                        mode: "email",
+                        rawContent: `Email scan: ${emailTimeframe} timeframe, ${data.emailCount} emails scanned`,
+                        bcResponse: data.summary || null,
+                        allItems: parsedResult.items,
+                        committedCounts: null,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                      };
+                      await store.save("ingest", session);
+                      const updatedSessions = await store.list("ingest");
+                      setIngestSessions(updatedSessions);
+                    } catch (e) {
+                      setError(e.message || "Email scan failed");
+                    }
+                    setEmailScanning(false);
+                  }}
+                  disabled={emailScanning}
+                  style={{
+                    width: "100%", padding: "12px 20px", borderRadius: 8, cursor: emailScanning ? "not-allowed" : "pointer",
+                    background: emailScanning ? C.goldMuted : C.gold, color: emailScanning ? C.textTertiary : C.bgPrimary,
+                    border: "none", fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, transition: "all 0.15s",
+                  }}
+                >
+                  {emailScanning ? <><Sparkles size={12} style={{ display: "inline" }} /> Scanning emails...</> : <><Sparkles size={12} style={{ display: "inline" }} /> Scan Emails</>}
+                </button>
+              ) : (
+                <div style={{ textAlign: "center", padding: "12px 0", fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary }}>
+                  Connect at least one email account in Settings to start scanning.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Text input for non-email modes */}
+          {sourceType !== "email" && (
+            <>
+              <textarea
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                placeholder={
+                  sourceType === "meeting"    ? "Paste meeting notes, transcript, or summary...\n\nBC will extract tasks, decisions, and priorities, and save a meeting record." :
+                  sourceType === "respond_to" ? "Paste the message, email, Slack thread, or situation you need to respond to...\n\nBC will draft a response in your selected style and flag any follow-up items." :
+                  "Paste meeting notes, Slack threads, email chains, voice memo transcripts...\n\nBC will extract what matters and create it for you."
+                }
+                style={{
+                  width: "100%", minHeight: 280,
+                  background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+                  borderRadius: 8, padding: 16, resize: "vertical",
+                  color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 14,
+                  lineHeight: 1.6, outline: "none",
+                }}
+                onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") process(); }}
+              />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 12, color: C.textTertiary, fontFamily: FONT_MONO }}>
+                    {input.length > 0 ? `${input.length} characters` : "⌘↵ to process"}
+                  </span>
+                  <AIConfigPicker value={ingestAiConfig} onChange={setIngestAiConfig} />
+                </div>
+                <button
+                  onClick={process}
+                  disabled={!input.trim() || processing}
+                  style={{
+                    background: input.trim() && !processing ? C.gold : C.goldMuted,
+                    color: input.trim() && !processing ? C.bgPrimary : C.textTertiary,
+                    border: "none", borderRadius: 6, padding: "9px 20px",
+                    fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600,
+                    cursor: input.trim() && !processing ? "pointer" : "not-allowed",
+                  }}
+                >
+                  {processing ? <><Sparkles size={12} style={{ display: "inline" }} /> Processing...</> : <><Sparkles size={12} style={{ display: "inline" }} /> Process</>}
+                </button>
+              </div>
+            </>
+          )}
           {error && (
-            <div style={{ marginTop: 12, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_SANS }}>
+            <div style={{ marginTop: 12, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_BODY }}>
               {error}
             </div>
           )}
@@ -3311,14 +4501,14 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
               <div style={{
                 background: C.bgCard, border: `1px solid ${C.borderActive}`,
                 borderRadius: 8, padding: "18px 20px",
-                fontFamily: FONT_SANS, fontSize: 14, color: C.textPrimary, lineHeight: 1.75,
+                fontFamily: FONT_BODY, fontSize: 14, color: C.textPrimary, lineHeight: 1.75,
                 whiteSpace: "pre-wrap",
               }}>
                 {result.drafted_response}
               </div>
               {result.response_notes && (
-                <div style={{ marginTop: 10, fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontStyle: "italic", lineHeight: 1.5 }}>
-                  ✦ {result.response_notes}
+                <div style={{ marginTop: 10, fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, fontStyle: "italic", lineHeight: 1.5 }}>
+                  <Sparkles size={12} style={{ display: "inline" }} /> {result.response_notes}
                 </div>
               )}
             </div>
@@ -3330,8 +4520,8 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
               background: C.bgAI, border: `1px solid ${C.borderAI}`,
               borderRadius: 8, padding: "14px 18px", marginBottom: 24,
             }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 8, letterSpacing: "0.06em" }}>✦ BASE COMMAND</div>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textPrimary, lineHeight: 1.6 }}
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 8, letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> BASE COMMAND</div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textPrimary, lineHeight: 1.6 }}
                 dangerouslySetInnerHTML={{ __html: inlineMarkdown(result.bc_response) }} />
             </div>
           )}
@@ -3406,13 +4596,27 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
                           {PRIORITY_TIMEFRAME_LABELS[item.timeframe] || item.timeframe}
                         </span>
                       )}
+                      {item._likelyDuplicate && (
+                        <span style={{
+                          fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+                          color: C.amber, background: C.amberMuted,
+                          padding: "2px 6px", borderRadius: 4,
+                        }}>
+                          Likely duplicate
+                        </span>
+                      )}
                     </div>
-                    <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginBottom: item.description ? 4 : 0 }}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginBottom: (item.description || item.source_email) ? 4 : 0 }}>
                       {item.title}
                     </div>
                     {item.description && (
-                      <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>
                         {item.description}
+                      </div>
+                    )}
+                    {item.source_email && (
+                      <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginTop: 3 }}>
+                        via {item.source_email}{item.source_subject ? ` — "${item.source_subject}"` : ""}
                       </div>
                     )}
                   </div>
@@ -3453,7 +4657,7 @@ function IngestView({ setDecisions, setTasks, setPriorities, setMeetings, ingest
           <div style={{ fontFamily: FONT_MONO, fontSize: 16, color: C.textPrimary, marginBottom: 8 }}>
             {sourceType === "meeting" ? "Meeting Logged" : sourceType === "respond_to" ? "Done" : "Items Created"}
           </div>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textSecondary, marginBottom: 28, lineHeight: 1.8 }}>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, marginBottom: 28, lineHeight: 1.8 }}>
             {sourceType === "meeting" && <span>Meeting record saved to log<br/></span>}
             {created.decisions > 0 && <span>{created.decisions} decision{created.decisions !== 1 ? "s" : ""} created<br/></span>}
             {created.tasks > 0 && <span>{created.tasks} task{created.tasks !== 1 ? "s" : ""} created<br/></span>}
@@ -3509,7 +4713,7 @@ function MeetingCard({ meeting, expanded, onToggle }) {
         style={{ padding: "16px 18px", cursor: "pointer", background: headerHovered ? C.bgCardHover : "transparent", transition: "background 0.15s" }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, lineHeight: 1.4, flex: 1 }}>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, lineHeight: 1.4, flex: 1 }}>
             {meeting.title}
           </div>
           <div style={{
@@ -3546,9 +4750,9 @@ function MeetingCard({ meeting, expanded, onToggle }) {
           {/* Summary */}
           {meeting.summary && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>BC Summary</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>BC Summary</div>
               <div
-                style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.7, background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "12px 14px" }}
+                style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.7, background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "12px 14px" }}
                 dangerouslySetInnerHTML={{ __html: inlineMarkdown(meeting.summary) }}
               />
             </div>
@@ -3557,9 +4761,9 @@ function MeetingCard({ meeting, expanded, onToggle }) {
           {/* Extracted item counts */}
           {totalExtracted > 0 && (
             <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-              {ec.tasks > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, background: `${C.blue}18`, padding: "3px 10px", borderRadius: 4 }}>☐ {ec.tasks} task{ec.tasks !== 1 ? "s" : ""}</span>}
-              {ec.decisions > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, background: `${C.gold}18`, padding: "3px 10px", borderRadius: 4 }}>◆ {ec.decisions} decision{ec.decisions !== 1 ? "s" : ""}</span>}
-              {ec.priorities > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.amber, background: `${C.amber}18`, padding: "3px 10px", borderRadius: 4 }}>▲ {ec.priorities} priorit{ec.priorities !== 1 ? "ies" : "y"}</span>}
+              {ec.tasks > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, background: `${C.blue}18`, padding: "3px 10px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><CheckSquare size={11} /> {ec.tasks} task{ec.tasks !== 1 ? "s" : ""}</span>}
+              {ec.decisions > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, background: `${C.gold}18`, padding: "3px 10px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><Diamond size={11} /> {ec.decisions} decision{ec.decisions !== 1 ? "s" : ""}</span>}
+              {ec.priorities > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.amber, background: `${C.amber}18`, padding: "3px 10px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><ChevronUp size={11} /> {ec.priorities} priorit{ec.priorities !== 1 ? "ies" : "y"}</span>}
             </div>
           )}
 
@@ -3573,7 +4777,7 @@ function MeetingCard({ meeting, expanded, onToggle }) {
                 {showRaw ? "Hide original" : "Show original content"}
               </button>
               {showRaw && (
-                <div style={{ marginTop: 8, fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.6, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "10px 14px", maxHeight: 200, overflowY: "auto", whiteSpace: "pre-wrap" }}>
+                <div style={{ marginTop: 8, fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "10px 14px", maxHeight: 200, overflowY: "auto", whiteSpace: "pre-wrap" }}>
                   {meeting.rawContent}
                 </div>
               )}
@@ -3581,7 +4785,7 @@ function MeetingCard({ meeting, expanded, onToggle }) {
           )}
 
           {/* Ask BC */}
-          <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ask BC</div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ask BC</div>
           <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
             <input
               value={customPrompt}
@@ -3602,7 +4806,7 @@ function MeetingCard({ meeting, expanded, onToggle }) {
                 color: customPrompt.trim() && !aiLoading ? C.bgPrimary : C.textTertiary,
                 fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
               }}
-            >✦</button>
+            ><Sparkles size={12} /></button>
           </div>
           <AIPanel response={aiResponse} loading={aiLoading} error={aiError} />
         </div>
@@ -3629,8 +4833,8 @@ function MeetingsView({ meetings }) {
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <h1 style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: C.textPrimary, margin: "0 0 6px" }}>Meetings</h1>
-            <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_SANS }}>
+            <h1 style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 6px" }}>Meetings</h1>
+            <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_BODY }}>
               A log of meetings you've ingested. Ask BC anything about any of them.
             </p>
           </div>
@@ -3653,13 +4857,13 @@ function MeetingsView({ meetings }) {
         meetings.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
             <div style={{ fontSize: 32, color: C.borderDefault, marginBottom: 16 }}>◎</div>
-            <div style={{ fontFamily: FONT_MONO, fontSize: 14, color: C.textSecondary, marginBottom: 8 }}>No meetings logged yet</div>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, maxWidth: 340, margin: "0 auto" }}>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 700, color: C.textSecondary, marginBottom: 8 }}>No meetings logged yet</div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, maxWidth: 340, margin: "0 auto" }}>
               Go to Ingest, switch to <strong style={{ color: C.textSecondary }}>Meeting</strong> mode, and paste your notes. BC will summarize and extract action items.
             </div>
           </div>
         ) : (
-          <div style={{ textAlign: "center", padding: "40px 0", fontFamily: FONT_SANS, fontSize: 14, color: C.textTertiary }}>
+          <div style={{ textAlign: "center", padding: "40px 0", fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>
             No meetings match "{search}"
           </div>
         )
@@ -3689,7 +4893,7 @@ function TaskGuideRenderer({ guideData }) {
   // Parse guideData — handle both structured JSON and legacy markdown
   let guide;
   if (typeof guideData === "string") {
-    try { guide = JSON.parse(guideData); } catch { return <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{guideData}</div>; }
+    try { guide = JSON.parse(guideData); } catch { return <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{guideData}</div>; }
   } else {
     guide = guideData;
   }
@@ -3737,14 +4941,14 @@ function TaskGuideRenderer({ guideData }) {
             padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer",
             background: activeTask === null ? C.gold : "rgba(255,255,255,0.04)",
             color: activeTask === null ? C.bgPrimary : C.textTertiary,
-            fontFamily: FONT_MONO, fontSize: 10, fontWeight: activeTask === null ? 700 : 400,
+            fontFamily: FONT_MONO, fontSize: 11, fontWeight: activeTask === null ? 700 : 400,
           }}>All</button>
           {guide.tasks.map((t, i) => (
             <button key={i} onClick={() => setActiveTask(activeTask === i ? null : i)} style={{
               padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer",
               background: activeTask === i ? sectionColors[i % sectionColors.length].pill : "rgba(255,255,255,0.04)",
               color: activeTask === i ? "#fff" : C.textTertiary,
-              fontFamily: FONT_MONO, fontSize: 10, fontWeight: activeTask === i ? 700 : 400,
+              fontFamily: FONT_MONO, fontSize: 11, fontWeight: activeTask === i ? 700 : 400,
               maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>{t.title}</button>
           ))}
@@ -3761,7 +4965,7 @@ function TaskGuideRenderer({ guideData }) {
               <h3 style={{ fontSize: 13, fontWeight: 700, color: colors.accent, margin: 0, fontFamily: FONT_MONO, textTransform: "uppercase", letterSpacing: 1 }}>{task.title}</h3>
             </div>
             {task.description && (
-              <div style={{ fontSize: 11, color: C.textTertiary, marginBottom: 8, fontFamily: FONT_SANS, lineHeight: 1.5 }}>{task.description}</div>
+              <div style={{ fontSize: 11, color: C.textTertiary, marginBottom: 8, fontFamily: FONT_BODY, lineHeight: 1.5 }}>{task.description}</div>
             )}
 
             {/* Steps — clickable rows */}
@@ -3785,12 +4989,12 @@ function TaskGuideRenderer({ guideData }) {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ color: colors.accent, fontSize: 11, fontWeight: 700, fontFamily: FONT_MONO, flexShrink: 0, width: 18 }}>{si + 1}.</span>
-                          <span style={{ color: C.textPrimary, fontSize: 12, fontFamily: FONT_SANS }}>{stepText}</span>
+                          <span style={{ color: C.textPrimary, fontSize: 13, fontFamily: FONT_BODY }}>{stepText}</span>
                         </div>
-                        {detail && <span style={{ color: C.textTertiary, fontSize: 10, fontFamily: FONT_MONO, flexShrink: 0 }}>{isOpen ? "▴" : "how?"}</span>}
+                        {detail && <span style={{ color: C.textTertiary, fontSize: 11, fontFamily: FONT_MONO, flexShrink: 0 }}>{isOpen ? "▴" : "how?"}</span>}
                       </div>
                       {isOpen && detail && (
-                        <div style={{ marginTop: 6, marginLeft: 26, padding: "6px 10px", background: C.bgCard, borderRadius: 4, fontSize: 11, color: colors.accent, fontFamily: FONT_SANS, lineHeight: 1.5, borderLeft: `2px solid ${colors.accent}44` }}>
+                        <div style={{ marginTop: 6, marginLeft: 26, padding: "6px 10px", background: C.bgCard, borderRadius: 4, fontSize: 11, color: colors.accent, fontFamily: FONT_BODY, lineHeight: 1.5, borderLeft: `2px solid ${colors.accent}44` }}>
                           {detail}
                         </div>
                       )}
@@ -3803,7 +5007,7 @@ function TaskGuideRenderer({ guideData }) {
             {/* Exercises — checkable */}
             {task.exercises && task.exercises.length > 0 && (
               <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 10, color: C.textTertiary, fontFamily: FONT_MONO, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Exercises</div>
+                <div style={{ fontSize: 11, color: C.textTertiary, fontFamily: FONT_MONO, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Exercises</div>
                 {task.exercises.map((ex, ei) => {
                   const exKey = `${task._idx}-ex-${ei}`;
                   const exText = typeof ex === "string" ? ex : ex.task;
@@ -3813,11 +5017,11 @@ function TaskGuideRenderer({ guideData }) {
                     <div key={ei} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "4px 0" }}>
                       <div onClick={() => toggleExercise(exKey)}
                         style={{ width: 14, height: 14, borderRadius: 3, border: `1px solid ${checked ? colors.accent : C.borderDefault}`, background: checked ? colors.accent : "transparent", cursor: "pointer", flexShrink: 0, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {checked && <span style={{ fontSize: 9, color: C.bgPrimary }}>✓</span>}
+                        {checked && <span style={{ fontSize: 11, color: C.bgPrimary }}>✓</span>}
                       </div>
                       <div>
-                        <span style={{ fontSize: 12, color: checked ? C.textTertiary : C.textPrimary, fontFamily: FONT_SANS, textDecoration: checked ? "line-through" : "none" }}>{exText}</span>
-                        {hint && <div style={{ fontSize: 10, color: C.textTertiary, fontStyle: "italic", marginTop: 2 }}>Hint: {hint}</div>}
+                        <span style={{ fontSize: 13, color: checked ? C.textTertiary : C.textPrimary, fontFamily: FONT_BODY, textDecoration: checked ? "line-through" : "none" }}>{exText}</span>
+                        {hint && <div style={{ fontSize: 11, color: C.textTertiary, fontStyle: "italic", marginTop: 2 }}>Hint: {hint}</div>}
                       </div>
                     </div>
                   );
@@ -3828,13 +5032,13 @@ function TaskGuideRenderer({ guideData }) {
             {/* Resources */}
             {task.resources && task.resources.length > 0 && (
               <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 10, color: C.textTertiary, fontFamily: FONT_MONO, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Resources</div>
+                <div style={{ fontSize: 11, color: C.textTertiary, fontFamily: FONT_MONO, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Resources</div>
                 {task.resources.map((r, ri) => {
                   const name = typeof r === "string" ? r : r.name;
                   const url = typeof r === "string" ? null : r.url;
                   const why = typeof r === "string" ? null : r.why;
                   return (
-                    <div key={ri} style={{ padding: "3px 0", fontSize: 12, fontFamily: FONT_SANS }}>
+                    <div key={ri} style={{ padding: "3px 0", fontSize: 13, fontFamily: FONT_BODY }}>
                       {url ? (
                         <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: colors.accent, fontWeight: 600, textDecoration: "none", borderBottom: `1px solid ${colors.accent}44` }}
                           onMouseEnter={e => e.target.style.borderBottomColor = colors.accent}
@@ -3853,10 +5057,10 @@ function TaskGuideRenderer({ guideData }) {
             {/* Tips */}
             {task.tips && task.tips.length > 0 && (
               <div>
-                <div style={{ fontSize: 10, color: C.textTertiary, fontFamily: FONT_MONO, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Tips</div>
+                <div style={{ fontSize: 11, color: C.textTertiary, fontFamily: FONT_MONO, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Tips</div>
                 {task.tips.map((tip, ti) => (
-                  <div key={ti} style={{ padding: "3px 0", fontSize: 11, color: C.gold, fontFamily: FONT_SANS }}>
-                    ⚠ {typeof tip === "string" ? tip : tip.text || tip}
+                  <div key={ti} style={{ padding: "3px 0", fontSize: 11, color: C.gold, fontFamily: FONT_BODY, display: "flex", alignItems: "center", gap: 4 }}>
+                    <AlertTriangle size={11} /> {typeof tip === "string" ? tip : tip.text || tip}
                   </div>
                 ))}
               </div>
@@ -3866,7 +5070,7 @@ function TaskGuideRenderer({ guideData }) {
       })}
 
       {displayed.length === 0 && (
-        <div style={{ textAlign: "center", padding: 20, color: C.textTertiary, fontSize: 12 }}>
+        <div style={{ textAlign: "center", padding: 20, color: C.textTertiary, fontSize: 13 }}>
           No tasks match "{search}"
         </div>
       )}
@@ -3912,8 +5116,8 @@ function DocumentCard({ doc, expanded, onToggle, onDelete }) {
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, marginBottom: 6 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-            <span style={{ fontSize: 16, flexShrink: 0, color: doc.fileType === "guide" ? C.gold : "inherit" }}>{doc.fileType === "guide" ? "✦" : "📄"}</span>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: 16, flexShrink: 0, color: doc.fileType === "guide" ? C.gold : "inherit" }}>{doc.fileType === "guide" ? <Sparkles size={16} /> : <FileText size={16} />}</span>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {doc.title}
             </div>
           </div>
@@ -3930,10 +5134,11 @@ function DocumentCard({ doc, expanded, onToggle, onDelete }) {
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <Badge label={doc.fileType} />
           <Badge label={sizeLabel} />
+          {doc.source && doc.source !== "upload" && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, background: `${C.blue}15`, padding: "1px 5px", borderRadius: 6 }}>{doc.source}</span>}
           <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{fmtRelative(doc.createdAt)}</span>
         </div>
         {doc.summary && !expanded && (
-          <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginTop: 8, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.5, marginTop: 8, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
             {doc.summary}
           </div>
         )}
@@ -3943,7 +5148,7 @@ function DocumentCard({ doc, expanded, onToggle, onDelete }) {
         <div style={{ borderTop: `1px solid ${C.borderDefault}`, padding: "16px 18px" }}>
           {doc.summary && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>AI Summary</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>AI Summary</div>
               <div style={{ background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "12px 14px" }}>
                 {renderMarkdown(doc.summary)}
               </div>
@@ -3962,7 +5167,7 @@ function DocumentCard({ doc, expanded, onToggle, onDelete }) {
                 {showContent ? "Hide document content" : "Show document content"}
               </button>
               {showContent && (
-                <div style={{ marginTop: 8, fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.6, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "10px 14px", maxHeight: 300, overflowY: "auto", whiteSpace: "pre-wrap" }}>
+                <div style={{ marginTop: 8, fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "10px 14px", maxHeight: 300, overflowY: "auto", whiteSpace: "pre-wrap" }}>
                   {doc.content}
                 </div>
               )}
@@ -3980,7 +5185,7 @@ function DocumentCard({ doc, expanded, onToggle, onDelete }) {
             )}
           </div>
 
-          <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ask BC about this document</div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ask BC about this document</div>
           <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
             <input
               value={customPrompt}
@@ -4001,7 +5206,7 @@ function DocumentCard({ doc, expanded, onToggle, onDelete }) {
                 color: customPrompt.trim() && !aiLoading ? C.bgPrimary : C.textTertiary,
                 fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
               }}
-            >✦</button>
+            ><Sparkles size={12} /></button>
           </div>
           <AIPanel response={aiResponse} loading={aiLoading} error={aiError} />
         </div>
@@ -4016,21 +5221,27 @@ function LibraryView({ documents, setDocuments, projects }) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [filterProject, setFilterProject] = useState(null);
+  const [filterSource, setFilterSource] = useState(null);
+  const [sortBy, setSortBy] = useState("newest");
   const fileInputRef = useRef(null);
   const linkMap = useProjectLinks(projects);
 
-  const sorted = [...documents].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  // Filter by project: check both direct projectId field and link-based association
+  const dateSorted = sortBy === "oldest"
+    ? [...documents].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    : [...documents].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   const projectFiltered = filterProject
-    ? sorted.filter(d => d.projectId === filterProject || (linkMap[filterProject] && linkMap[filterProject].has(d.id)))
-    : sorted;
+    ? dateSorted.filter(d => d.projectId === filterProject || (linkMap[filterProject] && linkMap[filterProject].has(d.id)))
+    : dateSorted;
+  const sourceFiltered = filterSource
+    ? projectFiltered.filter(d => (d.source || "upload") === filterSource)
+    : projectFiltered;
   const filtered = search.trim()
-    ? projectFiltered.filter(d =>
+    ? sourceFiltered.filter(d =>
         d.title.toLowerCase().includes(search.toLowerCase()) ||
         (d.summary || "").toLowerCase().includes(search.toLowerCase()) ||
         (d.content || "").toLowerCase().includes(search.toLowerCase())
       )
-    : projectFiltered;
+    : sourceFiltered;
 
   // Group by project
   const projectDocs = {};
@@ -4076,6 +5287,7 @@ function LibraryView({ documents, setDocuments, projects }) {
           content,
           summary: null,
           fileSize: file.size,
+          source: "upload",
           createdAt: isoNow(),
           updatedAt: isoNow(),
         };
@@ -4111,8 +5323,8 @@ function LibraryView({ documents, setDocuments, projects }) {
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 40px 80px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
         <div>
-          <h1 style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: C.textPrimary, margin: "0 0 6px" }}>Library</h1>
-          <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_SANS }}>
+          <h1 style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 6px" }}>Library</h1>
+          <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_BODY }}>
             Upload documents and interact with them through BC.
           </p>
         </div>
@@ -4126,7 +5338,7 @@ function LibraryView({ documents, setDocuments, projects }) {
       </div>
 
       {uploadError && (
-        <div style={{ marginBottom: 16, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_SANS }}>
+        <div style={{ marginBottom: 16, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_BODY }}>
           {uploadError}
         </div>
       )}
@@ -4136,6 +5348,35 @@ function LibraryView({ documents, setDocuments, projects }) {
       </div>
 
       <ProjectFilterPills projects={projects} filterProject={filterProject} setFilterProject={setFilterProject} />
+
+      {/* Source filter + sort */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }}>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>Source:</span>
+          {[
+            [null, "All"],
+            ["upload", "Upload"],
+            ["project", "Project"],
+          ].map(([val, lbl]) => (
+            <button key={lbl} onClick={() => setFilterSource(val)} style={{
+              padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer",
+              background: filterSource === val ? C.blue : "rgba(255,255,255,0.04)",
+              color: filterSource === val ? "#fff" : C.textTertiary,
+              fontSize: 11, fontFamily: FONT_MONO, fontWeight: filterSource === val ? 700 : 400,
+            }}>{lbl}</button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          {[["newest", "Newest"], ["oldest", "Oldest"]].map(([val, lbl]) => (
+            <button key={val} onClick={() => setSortBy(val)} style={{
+              padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer",
+              background: sortBy === val ? "rgba(255,255,255,0.08)" : "transparent",
+              color: sortBy === val ? C.textPrimary : C.textSecondary,
+              fontSize: 11, fontFamily: FONT_MONO, fontWeight: sortBy === val ? 600 : 400,
+            }}>{lbl}</button>
+          ))}
+        </div>
+      </div>
 
       {documents.length > 0 && (
         <div style={{ marginBottom: 20 }}>
@@ -4152,7 +5393,7 @@ function LibraryView({ documents, setDocuments, projects }) {
         documents.length === 0 ? (
           <EmptyState icon="▤" title="No documents yet" sub="Upload .txt, .md, or .docx files to get started. BC will auto-summarize and let you interact with them." action="＋ Upload" onAction={() => fileInputRef.current?.click()} />
         ) : (
-          <div style={{ textAlign: "center", padding: "40px 0", fontFamily: FONT_SANS, fontSize: 14, color: C.textTertiary }}>No documents match "{search}"</div>
+          <div style={{ textAlign: "center", padding: "40px 0", fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>No documents match "{search}"</div>
         )
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -4165,7 +5406,7 @@ function LibraryView({ documents, setDocuments, projects }) {
                 marginBottom: 8, paddingBottom: 6,
                 borderBottom: `1px solid ${C.gold}20`,
               }}>
-                <span>▣</span>
+                <Grid3X3 size={11} />
                 <span style={{ fontWeight: 600, letterSpacing: "0.04em" }}>{group.projectTitle}</span>
                 <span style={{ color: C.textTertiary, fontWeight: 400 }}>({group.docs.length})</span>
               </div>
@@ -4234,14 +5475,14 @@ function GuidancePanel({ guidance, type, autoExpand }) {
     // Fallback: render old string-based guidance
     const sections = type === "task"
       ? [
-          { key: "instructions", label: "How To Do This", icon: "→", color: C.blue },
-          { key: "exercises", label: "Exercises", icon: "⚡", color: C.amber },
+          { key: "instructions", label: "How To Do This", icon: <ArrowRight size={10} />, color: C.blue },
+          { key: "exercises", label: "Exercises", icon: <Zap size={10} />, color: C.amber },
           { key: "resources", label: "Resources", icon: "📚", color: C.green },
-          { key: "tips", label: "Tips", icon: "💡", color: C.gold },
+          { key: "tips", label: "Tips", icon: <Lightbulb size={10} />, color: C.gold },
         ]
       : [
           { key: "considerations", label: "Considerations", icon: "⚖", color: C.gold },
-          { key: "recommended_approach", label: "Approach", icon: "→", color: C.blue },
+          { key: "recommended_approach", label: "Approach", icon: <ArrowRight size={10} />, color: C.blue },
           { key: "resources", label: "Resources", icon: "📚", color: C.green },
         ];
     const hasSections = sections.some(s => guidance[s.key]);
@@ -4250,7 +5491,7 @@ function GuidancePanel({ guidance, type, autoExpand }) {
       <div style={{ marginTop: 8 }}>
         <button onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }} style={{
           background: "none", border: "none", cursor: "pointer", padding: 0,
-          fontFamily: FONT_MONO, fontSize: 10, color: C.gold, letterSpacing: "0.05em",
+          fontFamily: FONT_MONO, fontSize: 11, color: C.gold, letterSpacing: "0.05em",
         }}>
           {expanded ? "▴ Hide Guidance" : "▾ Show Guidance"}
         </button>
@@ -4260,10 +5501,10 @@ function GuidancePanel({ guidance, type, autoExpand }) {
               if (!guidance[s.key]) return null;
               return (
                 <div key={s.key} style={{ background: `${s.color}08`, border: `1px solid ${s.color}20`, borderRadius: 6, padding: "10px 12px" }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: s.color, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: s.color, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     {s.icon} {s.label}
                   </div>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
                     {guidance[s.key]}
                   </div>
                 </div>
@@ -4304,7 +5545,7 @@ function GuidancePanel({ guidance, type, autoExpand }) {
           <span style={{
             background: doneSteps === totalSteps && totalSteps > 0 ? `${C.green}30` : "rgba(255,255,255,0.08)",
             color: doneSteps === totalSteps && totalSteps > 0 ? C.green : C.textTertiary,
-            padding: "1px 7px", borderRadius: 10, fontSize: 10, fontWeight: 600,
+            padding: "1px 7px", borderRadius: 10, fontSize: 11, fontWeight: 600,
           }}>
             {doneSteps}/{totalSteps}
           </span>
@@ -4328,7 +5569,7 @@ function GuidancePanel({ guidance, type, autoExpand }) {
           {/* Considerations (decisions only) */}
           {considerations.length > 0 && (
             <div style={{ padding: "14px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.gold, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                 ⚖ Key Considerations
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -4337,7 +5578,7 @@ function GuidancePanel({ guidance, type, autoExpand }) {
                   return (
                     <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 10px", background: `${C.gold}08`, borderRadius: 6, border: `1px solid ${C.gold}15` }}>
                       <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, flexShrink: 0, marginTop: 1 }}>⚖</span>
-                      <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{text}</span>
+                      <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{text}</span>
                     </div>
                   );
                 })}
@@ -4348,8 +5589,8 @@ function GuidancePanel({ guidance, type, autoExpand }) {
           {/* Instructions / Steps */}
           {instructions.length > 0 && (
             <div style={{ padding: "14px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.blue, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                → {type === "task" ? "Steps" : "Approach"} ({doneSteps}/{totalSteps} complete)
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.blue, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <ArrowRight size={10} style={{ display: "inline", verticalAlign: "middle" }} /> {type === "task" ? "Steps" : "Approach"} ({doneSteps}/{totalSteps} complete)
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {instructions.map((inst, i) => {
@@ -4372,17 +5613,17 @@ function GuidancePanel({ guidance, type, autoExpand }) {
                           cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
                           color: "#fff", fontSize: 11, fontWeight: 700, transition: "all 0.15s",
                         }}>
-                          {isDone ? "✓" : <span style={{ color: "#666", fontSize: 10, fontWeight: 600 }}>{i + 1}</span>}
+                          {isDone ? "✓" : <span style={{ color: "#666", fontSize: 11, fontWeight: 600 }}>{i + 1}</span>}
                         </button>
                         <div style={{ flex: 1 }}>
                           <span style={{
-                            fontFamily: FONT_SANS, fontSize: 13, color: isDone ? C.textTertiary : "#E0E0E0",
+                            fontFamily: FONT_BODY, fontSize: 13, color: isDone ? C.textTertiary : "#E0E0E0",
                             textDecoration: isDone ? "line-through" : "none", lineHeight: 1.5,
                           }}>{step}</span>
                           {detail && (
                             <button onClick={() => setExpandedDetails(p => ({ ...p, [`step_${i}`]: !p[`step_${i}`] }))} style={{
                               background: "none", border: "none", cursor: "pointer", padding: "2px 0", marginLeft: 6,
-                              fontFamily: FONT_MONO, fontSize: 10, color: C.blue,
+                              fontFamily: FONT_MONO, fontSize: 11, color: C.blue,
                             }}>
                               {isDetailOpen ? "hide ▴" : "why? ▾"}
                             </button>
@@ -4390,8 +5631,8 @@ function GuidancePanel({ guidance, type, autoExpand }) {
                           {isDetailOpen && detail && (
                             <div style={{
                               marginTop: 6, padding: "8px 10px", background: "rgba(58,124,165,0.06)",
-                              borderRadius: 4, fontSize: 12, color: C.textTertiary, lineHeight: 1.5,
-                              fontFamily: FONT_SANS, fontStyle: "italic",
+                              borderRadius: 4, fontSize: 13, color: C.textTertiary, lineHeight: 1.5,
+                              fontFamily: FONT_BODY, fontStyle: "italic",
                             }}>
                               {detail}
                             </div>
@@ -4408,8 +5649,8 @@ function GuidancePanel({ guidance, type, autoExpand }) {
           {/* Exercises */}
           {exercises.length > 0 && (
             <div style={{ padding: "14px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.amber, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                ⚡ Exercises ({doneExercises}/{totalExercises})
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.amber, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <Zap size={10} style={{ display: "inline", verticalAlign: "middle" }} /> Exercises ({doneExercises}/{totalExercises})
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {exercises.map((ex, i) => {
@@ -4435,24 +5676,24 @@ function GuidancePanel({ guidance, type, autoExpand }) {
                         </button>
                         <div style={{ flex: 1 }}>
                           <span style={{
-                            fontFamily: FONT_SANS, fontSize: 13, color: isDone ? C.textTertiary : "#E0E0E0",
+                            fontFamily: FONT_BODY, fontSize: 13, color: isDone ? C.textTertiary : "#E0E0E0",
                             lineHeight: 1.5,
                           }}>{task}</span>
                           {hint && (
                             <>
                               <button onClick={() => setExpandedHints(p => ({ ...p, [`ex_${i}`]: !p[`ex_${i}`] }))} style={{
                                 background: "none", border: "none", cursor: "pointer", padding: "2px 0", display: "block",
-                                fontFamily: FONT_MONO, fontSize: 10, color: C.amber, marginTop: 4,
+                                fontFamily: FONT_MONO, fontSize: 11, color: C.amber, marginTop: 4,
                               }}>
                                 {isHintOpen ? "hide hint ▴" : "need a hint? ▾"}
                               </button>
                               {isHintOpen && (
                                 <div style={{
                                   marginTop: 4, padding: "6px 10px", background: `${C.amber}08`,
-                                  borderRadius: 4, fontSize: 12, color: C.textTertiary, fontStyle: "italic",
-                                  fontFamily: FONT_SANS,
+                                  borderRadius: 4, fontSize: 13, color: C.textTertiary, fontStyle: "italic",
+                                  fontFamily: FONT_BODY,
                                 }}>
-                                  💡 {hint}
+                                  <Lightbulb size={12} style={{ display: "inline", verticalAlign: "middle" }} /> {hint}
                                 </div>
                               )}
                             </>
@@ -4469,7 +5710,7 @@ function GuidancePanel({ guidance, type, autoExpand }) {
           {/* Resources */}
           {resources.length > 0 && (
             <div style={{ padding: "14px 16px", borderBottom: tips.length > 0 ? `1px solid rgba(255,255,255,0.04)` : "none" }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.green, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.green, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                 📚 Resources
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -4479,14 +5720,14 @@ function GuidancePanel({ guidance, type, autoExpand }) {
                   const why = typeof res === "string" ? null : res.why;
                   return (
                     <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 10px", background: `${C.green}06`, borderRadius: 6 }}>
-                      <span style={{ color: C.green, fontSize: 12, flexShrink: 0, marginTop: 1 }}>→</span>
+                      <ArrowRight size={12} style={{ color: C.green, flexShrink: 0, marginTop: 1 }} />
                       <div>
                         {url ? (
                           <a href={url} target="_blank" rel="noopener noreferrer" style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.green, fontWeight: 600, textDecoration: "none", borderBottom: `1px solid ${C.green}44` }}>{name}</a>
                         ) : (
                           <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.green, fontWeight: 600 }}>{name}</span>
                         )}
-                        {why && <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, marginTop: 2, lineHeight: 1.4 }}>{why}</div>}
+                        {why && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 2, lineHeight: 1.4 }}>{why}</div>}
                       </div>
                     </div>
                   );
@@ -4498,14 +5739,14 @@ function GuidancePanel({ guidance, type, autoExpand }) {
           {/* Tips */}
           {tips.length > 0 && (
             <div style={{ padding: "14px 16px" }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.gold, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                💡 Tips
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <Lightbulb size={10} style={{ display: "inline", verticalAlign: "middle" }} /> Tips
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {tips.map((tip, i) => (
                   <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", padding: "8px 10px", background: `${C.gold}08`, borderRadius: 6, border: `1px solid ${C.gold}12` }}>
-                    <span style={{ color: C.gold, fontSize: 11, flexShrink: 0 }}>⚠</span>
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, lineHeight: 1.5 }}>{typeof tip === "string" ? tip : tip.text || tip}</span>
+                    <AlertTriangle size={11} style={{ color: C.gold, flexShrink: 0 }} />
+                    <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{typeof tip === "string" ? tip : tip.text || tip}</span>
                   </div>
                 ))}
               </div>
@@ -4529,12 +5770,12 @@ function RankBadge({ xp }) {
       boxShadow: `0 0 8px ${rank.color}15`,
     }}>
       <span style={{
-        fontFamily: FONT_MONO, fontSize: 11, fontWeight: 700,
+        fontFamily: FONT_SANS, fontSize: 11, fontWeight: 700,
         color: rank.color,
         letterSpacing: "0.04em",
         textShadow: `0 0 10px ${rank.color}40`,
       }}>
-        ✦ {rank.name}
+        <Sparkles size={11} style={{ display: "inline" }} /> {rank.name}
       </span>
       {rank.next && (
         <div style={{ display: "flex", alignItems: "center", gap: 5, marginLeft: 8 }}>
@@ -4546,11 +5787,11 @@ function RankBadge({ xp }) {
               boxShadow: `0 0 4px ${rank.color}60`,
             }} />
           </div>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: `${rank.color}AA` }}>{rank.xp}</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: `${rank.color}AA` }}>{rank.xp}</span>
         </div>
       )}
       {!rank.next && (
-        <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: rank.color, marginLeft: 6, opacity: 0.8 }}>MAX</span>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: rank.color, marginLeft: 6, opacity: 0.8 }}>MAX</span>
       )}
     </div>
   );
@@ -4562,7 +5803,7 @@ function TasksTab({ linkedTasks, setTasks }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   if (linkedTasks.length === 0) {
-    return <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, padding: "20px 0", textAlign: "center" }}>No tasks linked yet.</div>;
+    return <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, padding: "20px 0", textAlign: "center" }}>No tasks linked yet.</div>;
   }
 
   // Group by phase
@@ -4662,14 +5903,14 @@ function TasksTab({ linkedTasks, setTasks }) {
       </div>
 
       {phaseTasks.length === 0 && searchTerm && (
-        <div style={{ textAlign: "center", padding: 20, color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 12 }}>No tasks match "{searchTerm}"</div>
+        <div style={{ textAlign: "center", padding: 20, color: C.textTertiary, fontFamily: FONT_BODY, fontSize: 13 }}>No tasks match "{searchTerm}"</div>
       )}
 
       {/* Completion */}
       {completedCount === totalTasks && totalTasks > 0 && (
         <div style={{ marginTop: 16, padding: "14px 18px", background: `${C.green}10`, borderRadius: 8, border: `1px solid ${C.green}30`, textAlign: "center" }}>
           <div style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 700, color: C.green }}>All tasks complete!</div>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginTop: 4 }}>Time to review decisions and close out.</div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, marginTop: 4 }}>Time to review decisions and close out.</div>
         </div>
       )}
     </div>
@@ -4778,6 +6019,8 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
               <Badge label={PROJECT_STATUS_LABELS[project.status] || project.status} color={statusColor(project.status)} />
               <RankBadge xp={project.xp} />
+              {project.source && project.source !== "manual" && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: project.source === "builder" ? C.gold : C.blue, background: `${project.source === "builder" ? C.gold : C.blue}15`, padding: "1px 5px", borderRadius: 6 }}>{project.source === "builder" ? "AI built" : "imported"}</span>}
+              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{fmtRelative(project.createdAt)}</span>
             </div>
           </div>
           <div style={{
@@ -4800,7 +6043,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
         </div>
 
         {!expanded && project.description && (
-          <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginTop: 8, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.5, marginTop: 8, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
             {project.description}
           </div>
         )}
@@ -4841,7 +6084,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
                 ) : (
                   <div>
                     {project.description && (
-                      <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 14 }}>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 14 }}>
                         {project.description}
                       </div>
                     )}
@@ -4850,19 +6093,19 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
                     <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 16 }}>
                       <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 8, padding: "10px 16px", flex: "1 1 100px", textAlign: "center" }}>
                         <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: C.textPrimary }}>{completeTasks}/{totalTasks}</div>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase" }}>Tasks Done</div>
+                        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase" }}>Tasks Done</div>
                       </div>
                       <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 8, padding: "10px 16px", flex: "1 1 100px", textAlign: "center" }}>
                         <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: C.textPrimary }}>{resolvedDecisions}/{linkedDecisions.length}</div>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase" }}>Decided</div>
+                        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase" }}>Decided</div>
                       </div>
                       <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 8, padding: "10px 16px", flex: "1 1 100px", textAlign: "center" }}>
                         <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: C.textPrimary }}>{linkedDocs.length}</div>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase" }}>Documents</div>
+                        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase" }}>Documents</div>
                       </div>
                       <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 8, padding: "10px 16px", flex: "1 1 100px", textAlign: "center" }}>
                         <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: rank.color }}>{project.xp || 0}</div>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase" }}>XP</div>
+                        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase" }}>XP</div>
                       </div>
                     </div>
 
@@ -4879,12 +6122,12 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
                         <span style={{
                           fontSize: 28, lineHeight: 1,
                           textShadow: `0 0 20px ${rank.color}60`,
-                        }}>✦</span>
+                        }}><Sparkles size={28} /></span>
                         <div>
                           <div style={{ fontFamily: FONT_MONO, fontSize: 16, fontWeight: 700, color: rank.color, letterSpacing: "0.06em", textShadow: `0 0 12px ${rank.color}40` }}>
                             {rank.name}
                           </div>
-                          <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontStyle: "italic", marginTop: 2 }}>
+                          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, fontStyle: "italic", marginTop: 2 }}>
                             "{rank.flavor}"
                           </div>
                         </div>
@@ -4895,8 +6138,8 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
                       {rank.next && (
                         <div>
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                            <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>Progress to {rank.next.name}</span>
-                            <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: `${rank.next.color}AA` }}>{rank.next.threshold - (project.xp || 0)} XP to go</span>
+                            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Progress to {rank.next.name}</span>
+                            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: `${rank.next.color}AA` }}>{rank.next.threshold - (project.xp || 0)} XP to go</span>
                           </div>
                           <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
                             <div style={{
@@ -4914,7 +6157,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
                               return (
                                 <div key={i} style={{ textAlign: "center", opacity: isPast ? 0.4 : isActive ? 1 : 0.25 }}>
                                   <div style={{
-                                    fontFamily: FONT_MONO, fontSize: 9, fontWeight: isActive ? 700 : 500,
+                                    fontFamily: FONT_MONO, fontSize: 11, fontWeight: isActive ? 700 : 500,
                                     color: isActive ? r.color : C.textTertiary,
                                     textShadow: isActive ? `0 0 8px ${r.color}60` : "none",
                                   }}>{r.name}</div>
@@ -4934,7 +6177,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
 
                     {/* Link entity */}
                     <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "12px 14px", marginBottom: 14 }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Link to Project</div>
+                      <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Link to Project</div>
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                         <Select value={linkType} onChange={setLinkType} options={[
                           { value: "task", label: "Task" },
@@ -4960,7 +6203,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
                       {confirmDelete ? (
                         <div style={{ width: "100%", background: `${C.red}10`, border: `1px solid ${C.red}33`, borderRadius: 8, padding: "12px 14px", marginTop: 4 }}>
                           <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.red, fontWeight: 600, marginBottom: 6 }}>Delete this project and all linked items?</div>
-                          <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, marginBottom: 10, lineHeight: 1.5 }}>
+                          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, marginBottom: 10, lineHeight: 1.5 }}>
                             This will permanently remove:
                             {linkedTasks.length > 0 && <span style={{ display: "block" }}>• {linkedTasks.length} task{linkedTasks.length !== 1 ? "s" : ""}</span>}
                             {linkedDecisions.length > 0 && <span style={{ display: "block" }}>• {linkedDecisions.length} decision{linkedDecisions.length !== 1 ? "s" : ""}</span>}
@@ -4991,12 +6234,12 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
             {activeTab === "decisions" && (
               <div>
                 {linkedDecisions.length === 0 ? (
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, padding: "20px 0", textAlign: "center" }}>No decisions linked yet. Use the Overview tab to link decisions.</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, padding: "20px 0", textAlign: "center" }}>No decisions linked yet. Use the Overview tab to link decisions.</div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {linkedDecisions.map(d => (
                       <div key={d.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 6 }}>
-                        <span style={{ color: C.gold, fontSize: 10 }}>◆</span>
+                        <Diamond size={10} style={{ color: C.gold }} />
                         <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textPrimary, flex: 1 }}>{d.title}</span>
                         <Badge label={DECISION_STATUS_LABELS[d.status]} color={statusColor(d.status)} />
                       </div>
@@ -5010,12 +6253,12 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
             {activeTab === "docs" && (
               <div>
                 {linkedDocs.length === 0 ? (
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, padding: "20px 0", textAlign: "center" }}>No documents linked yet. Upload docs in Library, then link them here.</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, padding: "20px 0", textAlign: "center" }}>No documents linked yet. Upload docs in Library, then link them here.</div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {linkedDocs.map(d => (
                       <div key={d.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 6 }}>
-                        <span style={{ fontSize: 14 }}>📄</span>
+                        <FileText size={14} />
                         <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textPrimary, flex: 1 }}>{d.title}</span>
                         <Badge label={d.fileType} />
                       </div>
@@ -5030,8 +6273,8 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
               <div>
                 {project.originalPlan.bc_analysis && (
                   <div style={{ background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "14px 18px", marginBottom: 16 }}>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 8, letterSpacing: "0.06em" }}>✦ ORIGINAL BC ANALYSIS</div>
-                    <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>
+                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 8, letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> ORIGINAL BC ANALYSIS</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>
                       {renderMarkdown(project.originalPlan.bc_analysis)}
                     </div>
                   </div>
@@ -5039,12 +6282,12 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
 
                 {(project.originalPlan.milestones || []).length > 0 && (
                   <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Milestones</div>
+                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Milestones</div>
                     <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
                       {project.originalPlan.milestones.map((m, i) => (
                         <div key={i} style={{ minWidth: 170, background: "rgba(255,255,255,0.02)", border: `1px solid ${C.borderDefault}`, borderRadius: 8, padding: "10px 12px", flexShrink: 0 }}>
-                          <div style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: C.textPrimary, marginBottom: 3 }}>{m.title}</div>
-                          <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, lineHeight: 1.4 }}>{m.description}</div>
+                          <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 3 }}>{m.title}</div>
+                          <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, lineHeight: 1.4 }}>{m.description}</div>
                           {m.phase && <Badge label={m.phase} />}
                         </div>
                       ))}
@@ -5054,11 +6297,11 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
 
                 {(project.originalPlan.tasks || []).length > 0 && (
                   <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Original Tasks ({project.originalPlan.tasks.length})</div>
+                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Original Tasks ({project.originalPlan.tasks.length})</div>
                     {project.originalPlan.tasks.map((t, i) => (
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
-                        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue }}>☐</span>
-                        <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, flex: 1 }}>{t.title}</span>
+                        <CheckSquare size={11} style={{ color: C.blue }} />
+                        <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, flex: 1 }}>{t.title}</span>
                         <Badge label={t.priority || "medium"} color={priorityColor(t.priority)} />
                         {t.phase && <Badge label={t.phase} />}
                       </div>
@@ -5068,14 +6311,14 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
 
                 {(project.originalPlan.decisions || []).length > 0 && (
                   <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Original Decisions ({project.originalPlan.decisions.length})</div>
+                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Original Decisions ({project.originalPlan.decisions.length})</div>
                     {project.originalPlan.decisions.map((d, i) => (
                       <div key={i} style={{ padding: "6px 0", borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold }}>◆</span>
-                          <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary }}>{d.title}</span>
+                          <Diamond size={11} style={{ color: C.gold }} />
+                          <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary }}>{d.title}</span>
                         </div>
-                        {d.context && <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginLeft: 22, marginTop: 2 }}>{d.context}</div>}
+                        {d.context && <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, marginLeft: 22, marginTop: 2 }}>{d.context}</div>}
                       </div>
                     ))}
                   </div>
@@ -5083,18 +6326,18 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
 
                 {(project.originalPlan.priorities || []).length > 0 && (
                   <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Original Priorities ({project.originalPlan.priorities.length})</div>
+                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Original Priorities ({project.originalPlan.priorities.length})</div>
                     {project.originalPlan.priorities.map((p, i) => (
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
-                        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.amber }}>▲</span>
-                        <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary, flex: 1 }}>{p.title}</span>
+                        <ChevronUp size={11} style={{ color: C.amber }} />
+                        <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, flex: 1 }}>{p.title}</span>
                         {p.timeframe && <Badge label={PRIORITY_TIMEFRAME_LABELS[p.timeframe] || p.timeframe} />}
                       </div>
                     ))}
                   </div>
                 )}
 
-                <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginTop: 8 }}>
+                <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginTop: 8 }}>
                   Plan generated {fmtRelative(project.createdAt)}
                 </div>
               </div>
@@ -5102,7 +6345,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
 
             {/* Ask BC — always visible */}
             <div style={{ marginTop: 16 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ask BC about this project</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ask BC about this project</div>
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 <input
                   value={customPrompt}
@@ -5123,7 +6366,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
                     color: customPrompt.trim() && !aiLoading ? C.bgPrimary : C.textTertiary,
                     fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
                   }}
-                >✦</button>
+                ><Sparkles size={12} /></button>
               </div>
               <AIPanel response={aiResponse} loading={aiLoading} error={aiError} />
             </div>
@@ -5347,6 +6590,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
       xp: 0,
       milestones: plan.milestones || [],
       originalPlan: plan,
+      source: "builder",
       createdAt: ts,
       updatedAt: ts,
     };
@@ -5378,6 +6622,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
         priority: task.priority || "medium",
         dueDate,
         sourceDecisionId: null,
+        source: "project",
         linkedPriorities: [],
         subtasks: [],
         tags: task.phase ? [task.phase] : [],
@@ -5417,6 +6662,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
         tags: [],
         templateType: "blank",
         guidance: dec.guidance || null,
+        source: "project",
         createdAt: ts,
         updatedAt: ts,
       };
@@ -5442,6 +6688,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
         linkedDecisions: [],
         linkedTasks: [],
         tags: [],
+        source: "project",
         createdAt: ts,
         updatedAt: ts,
       };
@@ -5482,6 +6729,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
       summary: `Project roadmap for "${plan.title}". ${(plan.milestones || []).length} milestones, ${createdTasks.length} tasks, ${createdDecisions.length} decisions.`,
       fileSize: new Blob([roadmapContent]).size,
       projectId: project.id,
+      source: "project",
       createdAt: ts,
       updatedAt: ts,
     };
@@ -5527,6 +6775,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
         summary: `Interactive task guide with step-by-step instructions for ${guidedTasks.length} tasks in "${plan.title}".`,
         fileSize: new Blob([guideContent]).size,
         projectId: project.id,
+        source: "project",
         createdAt: ts,
         updatedAt: ts,
       };
@@ -5550,9 +6799,9 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
   }
 
   const TYPE_META = {
-    task: { label: "Task", color: C.blue, icon: "☐" },
-    decision: { label: "Decision", color: C.gold, icon: "◆" },
-    priority: { label: "Priority", color: C.amber, icon: "▲" },
+    task: { label: "Task", color: C.blue, icon: <CheckSquare size={11} /> },
+    decision: { label: "Decision", color: C.gold, icon: <Diamond size={11} /> },
+    priority: { label: "Priority", color: C.amber, icon: <ChevronUp size={11} /> },
   };
 
   const totalSelected = Object.values(selected).filter(Boolean).length;
@@ -5578,8 +6827,8 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
       {!plan && (
         <div>
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>✦ Describe Your Project</div>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, marginBottom: 16 }}>
+            <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> Describe Your Project</div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginBottom: 16 }}>
               Tell BC what you're working on. Be as detailed or brief as you want — BC will build out a full project plan with tasks, decisions, and milestones.
             </div>
           </div>
@@ -5614,11 +6863,11 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
                 cursor: input.trim() && !processing ? "pointer" : "not-allowed",
               }}
             >
-              {processing ? "✦ Building Plan..." : "✦ Build Project Plan"}
+              {processing ? <><Sparkles size={12} style={{ display: "inline" }} /> Building Plan...</> : <><Sparkles size={12} style={{ display: "inline" }} /> Build Project Plan</>}
             </button>
           </div>
           {error && (
-            <div style={{ marginTop: 12, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_SANS }}>
+            <div style={{ marginTop: 12, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_BODY }}>
               {error}
             </div>
           )}
@@ -5633,7 +6882,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
             <div style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>
               {plan.title}
             </div>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textSecondary, lineHeight: 1.6 }}>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.6 }}>
               {plan.description}
             </div>
           </div>
@@ -5644,8 +6893,8 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
               background: C.bgAI, border: `1px solid ${C.borderAI}`,
               borderRadius: 8, padding: "14px 18px", marginBottom: 24,
             }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 8, letterSpacing: "0.06em" }}>✦ BASE COMMAND</div>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textPrimary, lineHeight: 1.6 }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 8, letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> BASE COMMAND</div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textPrimary, lineHeight: 1.6 }}>
                 {renderMarkdown(plan.bc_analysis)}
               </div>
             </div>
@@ -5662,7 +6911,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
                     borderRadius: 8, padding: "12px 14px", flexShrink: 0,
                   }}>
                     <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 4 }}>{m.title}</div>
-                    <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.4 }}>{m.description}</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.4 }}>{m.description}</div>
                     {m.phase && <Badge label={m.phase} color={C.textTertiary} bg="rgba(255,255,255,0.04)" />}
                   </div>
                 ))}
@@ -5684,7 +6933,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
               </div>
               {groupTasksByPhase(plan.tasks).map((phase, pi) => (
                 <div key={pi} style={{ marginBottom: 12 }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.blue, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>{phase.label}</div>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>{phase.label}</div>
                   {phase.items.map(task => {
                     const i = task._index;
                     const key = `task_${i}`;
@@ -5723,13 +6972,13 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
                           ) : (
                             <div>
                               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3, flexWrap: "wrap" }}>
-                                <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.blue, background: `${C.blue}18`, padding: "2px 8px", borderRadius: 4 }}>☐ Task</span>
+                                <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.blue, background: `${C.blue}18`, padding: "2px 8px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><CheckSquare size={11} /> Task</span>
                                 <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: priorityColor(task.priority) }}>{task.priority}</span>
                                 {task.dueOffset && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>+{task.dueOffset}d</span>}
-                                <button onClick={() => startEdit("task", i, task)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: "auto", padding: "2px 6px" }}>edit</button>
+                                <button onClick={() => startEdit("task", i, task)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto", padding: "2px 6px" }}>edit</button>
                               </div>
                               <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginBottom: task.description ? 3 : 0 }}>{task.title}</div>
-                              {task.description && <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{task.description}</div>}
+                              {task.description && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{task.description}</div>}
                               {task.guidance && (
                                 <GuidancePanel guidance={task.guidance} type="task" />
                               )}
@@ -5784,11 +7033,11 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
                       ) : (
                         <div>
                           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                            <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, background: `${C.gold}18`, padding: "2px 8px", borderRadius: 4 }}>◆ Decision</span>
-                            <button onClick={() => startEdit("decision", i, dec)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: "auto", padding: "2px 6px" }}>edit</button>
+                            <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, background: `${C.gold}18`, padding: "2px 8px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><Diamond size={11} /> Decision</span>
+                            <button onClick={() => startEdit("decision", i, dec)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto", padding: "2px 6px" }}>edit</button>
                           </div>
                           <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginBottom: dec.context ? 3 : 0 }}>{dec.title}</div>
-                          {dec.context && <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{dec.context}</div>}
+                          {dec.context && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{dec.context}</div>}
                           {dec.guidance && (
                             <GuidancePanel guidance={dec.guidance} type="decision" />
                           )}
@@ -5841,12 +7090,12 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
                       ) : (
                         <div>
                           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                            <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.amber, background: `${C.amber}18`, padding: "2px 8px", borderRadius: 4 }}>▲ Priority</span>
+                            <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.amber, background: `${C.amber}18`, padding: "2px 8px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><ChevronUp size={11} /> Priority</span>
                             {pri.timeframe && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{PRIORITY_TIMEFRAME_LABELS[pri.timeframe] || pri.timeframe}</span>}
-                            <button onClick={() => startEdit("priority", i, pri)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: "auto", padding: "2px 6px" }}>edit</button>
+                            <button onClick={() => startEdit("priority", i, pri)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto", padding: "2px 6px" }}>edit</button>
                           </div>
                           <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginBottom: pri.description ? 3 : 0 }}>{pri.title}</div>
-                          {pri.description && <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{pri.description}</div>}
+                          {pri.description && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{pri.description}</div>}
                         </div>
                       )}
                     </div>
@@ -5858,7 +7107,7 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
 
           {/* Refine with BC */}
           <div style={{ marginBottom: 20, background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "12px 14px" }}>
-            <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Refine with BC</div>
+            <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Refine with BC</div>
             <div style={{ display: "flex", gap: 8 }}>
               <input
                 value={refinePrompt}
@@ -5879,12 +7128,12 @@ function ProjectBuilder({ onCommit, onCancel, setDocuments }) {
                   color: refinePrompt.trim() && !refining ? C.bgPrimary : C.textTertiary,
                   fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
                 }}
-              >{refining ? "..." : "✦"}</button>
+              >{refining ? "..." : <Sparkles size={12} />}</button>
             </div>
           </div>
 
           {error && (
-            <div style={{ marginBottom: 12, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_SANS }}>
+            <div style={{ marginBottom: 12, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_BODY }}>
               {error}
             </div>
           )}
@@ -5959,7 +7208,7 @@ function ProjectModePicker({ onSelect, onCancel }) {
     },
     {
       id: "scratch",
-      icon: "☐",
+      icon: <CheckSquare size={24} />,
       title: "Start from Scratch",
       desc: "Create a blank project and add tasks, decisions, and documents manually as you go.",
       note: "No AI needed",
@@ -5989,9 +7238,9 @@ function ProjectModePicker({ onSelect, onCancel }) {
               }}
             >
               <div style={{ fontSize: 24, marginBottom: 10, color: m.color, textShadow: isHov ? `0 0 12px ${m.color}40` : "none" }}>{m.icon}</div>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>{m.title}</div>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 10 }}>{m.desc}</div>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: m.color, opacity: 0.8 }}>{m.note}</div>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>{m.title}</div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.5, marginBottom: 10 }}>{m.desc}</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: m.color, opacity: 0.8 }}>{m.note}</div>
             </button>
           );
         })}
@@ -6160,6 +7409,7 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
       milestones: plan.milestones || [],
       originalPlan: plan,
       importedFrom: file ? file.name : "pasted content",
+      source: "import",
       createdAt: ts,
       updatedAt: ts,
     };
@@ -6181,7 +7431,7 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
         if (g.tips) parts.push(`## Tips\n${Array.isArray(g.tips) ? g.tips.join("\n") : g.tips}`);
         if (parts.length > 0) fullDesc += (fullDesc ? "\n\n---\n\n" : "") + parts.join("\n\n");
       }
-      const t = { id: genId("task"), title: task.title, description: fullDesc, status: "open", priority: task.priority || "medium", dueDate, sourceDecisionId: null, linkedPriorities: [], subtasks: [], tags: task.phase ? [task.phase] : [], guidance: task.guidance || null, createdAt: ts, updatedAt: ts };
+      const t = { id: genId("task"), title: task.title, description: fullDesc, status: "open", priority: task.priority || "medium", dueDate, sourceDecisionId: null, source: "project", linkedPriorities: [], subtasks: [], tags: task.phase ? [task.phase] : [], guidance: task.guidance || null, createdAt: ts, updatedAt: ts };
       await store.save("task", t);
       await store.link("project", project.id, "task", t.id);
       createdTaskCount++;
@@ -6197,7 +7447,7 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
         if (g.resources) parts.push(`## Resources\n${g.resources}`);
         if (parts.length > 0) fullContext += (fullContext ? "\n\n---\n\n" : "") + parts.join("\n\n");
       }
-      const d = { id: genId("dec"), title: dec.title, context: fullContext, status: "draft", options: [], outcome: "", rationale: "", risks: "", linkedTasks: [], linkedPriorities: [], tags: [], templateType: "blank", guidance: dec.guidance || null, createdAt: ts, updatedAt: ts };
+      const d = { id: genId("dec"), title: dec.title, context: fullContext, status: "draft", options: [], outcome: "", rationale: "", risks: "", linkedTasks: [], linkedPriorities: [], tags: [], templateType: "blank", guidance: dec.guidance || null, source: "project", createdAt: ts, updatedAt: ts };
       await store.save("decision", d);
       await store.link("project", project.id, "decision", d.id);
     }
@@ -6206,7 +7456,7 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
     let priCount = 0;
     for (const [i, pri] of (plan.priorities || []).entries()) {
       if (!selected[`priority_${i}`]) continue;
-      const p = { id: genId("pri"), title: pri.title, description: pri.description || "", rank: existingPriorities.length + priCount + 1, timeframe: pri.timeframe || "this_quarter", status: "active", successMetrics: [], healthScore: null, linkedDecisions: [], linkedTasks: [], tags: [], createdAt: ts, updatedAt: ts };
+      const p = { id: genId("pri"), title: pri.title, description: pri.description || "", rank: existingPriorities.length + priCount + 1, timeframe: pri.timeframe || "this_quarter", status: "active", successMetrics: [], healthScore: null, linkedDecisions: [], linkedTasks: [], tags: [], source: "project", createdAt: ts, updatedAt: ts };
       await store.save("priority", p);
       await store.link("project", project.id, "priority", p.id);
       priCount++;
@@ -6229,7 +7479,7 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
       fileType: "md", content: roadmapContent,
       summary: `Project roadmap for "${plan.title}" (imported).`,
       fileSize: new Blob([roadmapContent]).size,
-      projectId: project.id, createdAt: ts, updatedAt: ts,
+      projectId: project.id, source: "project", createdAt: ts, updatedAt: ts,
     };
     await store.save("document", roadmapDoc);
     await store.link("project", project.id, "document", roadmapDoc.id);
@@ -6246,7 +7496,7 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
         <div>
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>↑ Import a Plan</div>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, marginBottom: 16, lineHeight: 1.5 }}>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginBottom: 16, lineHeight: 1.5 }}>
               Upload a file or paste a project plan you built in Claude, Google Docs, Notes, or anywhere else. BC will parse it into tasks, decisions, and priorities.
             </div>
           </div>
@@ -6293,7 +7543,7 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
             </button>
           </div>
           {error && (
-            <div style={{ marginTop: 12, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_SANS }}>{error}</div>
+            <div style={{ marginTop: 12, padding: "10px 14px", background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 6, fontSize: 13, color: C.red, fontFamily: FONT_BODY }}>{error}</div>
           )}
         </div>
       )}
@@ -6303,7 +7553,7 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
         <div>
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>{plan.title}</div>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textSecondary, lineHeight: 1.6 }}>{plan.description}</div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.6 }}>{plan.description}</div>
             {plan.importedFrom && <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginTop: 4 }}>Imported from: {file?.name || "pasted content"}</div>}
           </div>
 
@@ -6318,8 +7568,8 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
 
           {plan.bc_analysis && (
             <div style={{ background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "14px 18px", marginBottom: 24 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 8, letterSpacing: "0.06em" }}>✦ BC ASSESSMENT</div>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textPrimary, lineHeight: 1.6 }}>{renderMarkdown(plan.bc_analysis)}</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 8, letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> BC ASSESSMENT</div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textPrimary, lineHeight: 1.6 }}>{renderMarkdown(plan.bc_analysis)}</div>
             </div>
           )}
 
@@ -6343,12 +7593,12 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3, flexWrap: "wrap" }}>
-                        <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.blue, background: `${C.blue}18`, padding: "2px 8px", borderRadius: 4 }}>☐ Task</span>
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.blue, background: `${C.blue}18`, padding: "2px 8px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><CheckSquare size={11} /> Task</span>
                         <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: priorityColor(task.priority) }}>{task.priority}</span>
                         {task.phase && <Badge label={task.phase} />}
                       </div>
                       <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginBottom: task.description ? 3 : 0 }}>{task.title}</div>
-                      {task.description && <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{task.description}</div>}
+                      {task.description && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{task.description}</div>}
                     </div>
                   </div>
                 );
@@ -6369,9 +7619,9 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
                       {isSelected && <span style={{ color: C.bgPrimary, fontSize: 11, fontWeight: 700 }}>✓</span>}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, background: `${C.gold}18`, padding: "2px 8px", borderRadius: 4 }}>◆ Decision</span>
+                      <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, background: `${C.gold}18`, padding: "2px 8px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><Diamond size={11} /> Decision</span>
                       <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginTop: 4, marginBottom: dec.context ? 3 : 0 }}>{dec.title}</div>
-                      {dec.context && <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{dec.context}</div>}
+                      {dec.context && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{dec.context}</div>}
                     </div>
                   </div>
                 );
@@ -6392,9 +7642,9 @@ function ProjectImporter({ onCommit, onCancel, setDocuments }) {
                       {isSelected && <span style={{ color: C.bgPrimary, fontSize: 11, fontWeight: 700 }}>✓</span>}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.amber, background: `${C.amber}18`, padding: "2px 8px", borderRadius: 4 }}>▲ Priority</span>
+                      <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.amber, background: `${C.amber}18`, padding: "2px 8px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><ChevronUp size={11} /> Priority</span>
                       <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginTop: 4, marginBottom: pri.description ? 3 : 0 }}>{pri.title}</div>
-                      {pri.description && <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{pri.description}</div>}
+                      {pri.description && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{pri.description}</div>}
                     </div>
                   </div>
                 );
@@ -6435,6 +7685,7 @@ function ProjectScratchForm({ onCommit, onCancel }) {
       status: "active",
       xp: 0,
       milestones: [],
+      source: "manual",
       createdAt: ts,
       updatedAt: ts,
     };
@@ -6462,6 +7713,8 @@ function ProjectScratchForm({ onCommit, onCancel }) {
 function ProjectsView({ projects, setProjects, tasks, decisions, priorities, documents, setTasks, setDecisions, setPriorities, setDocuments }) {
   const [expandedId, setExpandedId] = useState(null);
   const [createMode, setCreateMode] = useState(null); // null | "pick" | "ai" | "import" | "scratch"
+  const [filterSource, setFilterSource] = useState(null);
+  const [sortBy, setSortBy] = useState("newest");
 
   async function handleCommit({ project }) {
     const [d, t, p, projs, docs] = await Promise.all([
@@ -6511,8 +7764,16 @@ function ProjectsView({ projects, setProjects, tasks, decisions, priorities, doc
     if (expandedId === id) setExpandedId(null);
   }
 
-  const active = projects.filter(p => p.status === "active");
-  const other = projects.filter(p => p.status !== "active");
+  const sourceFiltered = filterSource
+    ? projects.filter(p => (p.source || "manual") === filterSource)
+    : projects;
+  const sortedProjects = sortBy === "newest"
+    ? [...sourceFiltered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    : sortBy === "oldest"
+    ? [...sourceFiltered].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    : sourceFiltered;
+  const active = sortedProjects.filter(p => p.status === "active");
+  const other = sortedProjects.filter(p => p.status !== "active");
 
   const modeSubtitle = {
     pick: "Choose how you'd like to create your project.",
@@ -6525,13 +7786,44 @@ function ProjectsView({ projects, setProjects, tasks, decisions, priorities, doc
     <div style={{ maxWidth: 800, margin: "0 auto", padding: "40px 40px 80px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
         <div>
-          <h1 style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: C.textPrimary, margin: "0 0 6px" }}>Projects</h1>
-          <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_SANS }}>
+          <h1 style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 6px" }}>Projects</h1>
+          <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_BODY }}>
             {createMode ? modeSubtitle[createMode] : "Your mission workstations. Link tasks, decisions, and documents to track progress."}
           </p>
         </div>
-        {!createMode && <Btn variant="primary" onClick={() => setCreateMode("pick")}>✦ New Project</Btn>}
+        {!createMode && <Btn variant="primary" onClick={() => setCreateMode("pick")}><Sparkles size={12} style={{ display: "inline" }} /> New Project</Btn>}
       </div>
+
+      {!createMode && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 8 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }}>
+            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>Source:</span>
+            {[
+              [null, "All"],
+              ["builder", "AI Builder"],
+              ["import", "Import"],
+              ["manual", "Manual"],
+            ].map(([val, lbl]) => (
+              <button key={lbl} onClick={() => setFilterSource(val)} style={{
+                padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer",
+                background: filterSource === val ? "rgba(255,255,255,0.08)" : "transparent",
+                color: filterSource === val ? C.textPrimary : C.textSecondary,
+                fontSize: 11, fontFamily: FONT_MONO, fontWeight: filterSource === val ? 700 : 400,
+              }}>{lbl}</button>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            {[["default", "Default"], ["newest", "Newest"], ["oldest", "Oldest"]].map(([val, lbl]) => (
+              <button key={val} onClick={() => setSortBy(val)} style={{
+                padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer",
+                background: sortBy === val ? "rgba(255,255,255,0.08)" : "transparent",
+                color: sortBy === val ? C.textPrimary : C.textSecondary,
+                fontSize: 11, fontFamily: FONT_MONO, fontWeight: sortBy === val ? 600 : 400,
+              }}>{lbl}</button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {createMode === "pick" && (
         <ProjectModePicker onSelect={setCreateMode} onCancel={() => setCreateMode(null)} />
@@ -6549,7 +7841,7 @@ function ProjectsView({ projects, setProjects, tasks, decisions, priorities, doc
       {!createMode && (
         <>
           {projects.length === 0 ? (
-            <EmptyState icon="▣" title="No projects yet" sub="Create a project to organize tasks, decisions, and documents." action="✦ New Project" onAction={() => setCreateMode("pick")} />
+            <EmptyState icon={<Grid3X3 size={36} />} title="No projects yet" sub="Create a project to organize tasks, decisions, and documents." action="✦ New Project" onAction={() => setCreateMode("pick")} />
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {active.length > 0 && (
@@ -6611,10 +7903,95 @@ function ProjectsView({ projects, setProjects, tasks, decisions, priorities, doc
 }
 
 // ─── Settings View ────────────────────────────────────────────────────────────
+// ─── Connector helpers ─────────────────────────────────────────────────────────
+function getOrCreateUserId() {
+  let id = localStorage.getItem("bc2-user-id");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("bc2-user-id", id);
+  }
+  return id;
+}
+
+function ConnectorRow({ provider, label, icon, status, onConnect, onDisconnect }) {
+  const [disconnecting, setDisconnecting] = useState(false);
+
+  const handleDisconnect = async () => {
+    setDisconnecting(true);
+    await onDisconnect();
+    setDisconnecting(false);
+  };
+
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "14px 16px", background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+      borderRadius: 10, marginBottom: 8, transition: "border-color 0.15s",
+      ...(status.connected ? { borderColor: `${C.green}40` } : {}),
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ fontSize: 20, width: 28, textAlign: "center" }}>{icon}</span>
+        <div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>{label}</div>
+          {status.connected ? (
+            <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.green, marginTop: 2 }}>
+              Connected{status.email ? ` — ${status.email}` : ""}
+            </div>
+          ) : (
+            <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginTop: 2 }}>Not connected</div>
+          )}
+        </div>
+      </div>
+      <div>
+        {status.connected ? (
+          <Btn variant="ghost" size="sm" onClick={handleDisconnect} disabled={disconnecting}>
+            {disconnecting ? "Disconnecting..." : "Disconnect"}
+          </Btn>
+        ) : (
+          <Btn variant="outline" size="sm" onClick={onConnect}>Connect</Btn>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SettingsView({ sidebarCollapsed, setSidebarCollapsed }) {
   const [testStatus, setTestStatus] = useState("");
   const [clearConfirm, setClearConfirm] = useState(false);
+  const [gmailStatus, setGmailStatus] = useState({ connected: false });
+  const [outlookStatus, setOutlookStatus] = useState({ connected: false });
+  const [connectorLoading, setConnectorLoading] = useState(true);
+  // AI config state
+  const [apiKeys, setApiKeys] = useState([]);
+  const [aiConfigs, setAiConfigs] = useState([]);
+  const [activeConfigId, setActiveConfigIdLocal] = useState(() => localStorage.getItem(`bc2-${store._ws}-ai-active-config`) || "");
+  const [showAddKey, setShowAddKey] = useState(false);
+  const [newKeyProvider, setNewKeyProvider] = useState("anthropic");
+  const [newKeyLabel, setNewKeyLabel] = useState("");
+  const [newKeyValue, setNewKeyValue] = useState("");
+  const [newKeyLoading, setNewKeyLoading] = useState(false);
+  const [newKeyError, setNewKeyError] = useState("");
+  const [showAddConfig, setShowAddConfig] = useState(false);
+  const [configForm, setConfigForm] = useState({ name: "", provider: "anthropic", keyId: "", model: "" });
   const schemaVersion = localStorage.getItem("bc2-meta:schema-version") || "—";
+  const userId = getOrCreateUserId();
+
+  // Load AI keys + configs from localStorage on mount
+  useEffect(() => {
+    store.list("ai-key").then(setApiKeys);
+    store.list("ai-config").then(setAiConfigs);
+  }, []);
+
+  // Connectors require an approved backend — show as unavailable for now
+  useEffect(() => {
+    setConnectorLoading(false);
+  }, []);
+
+  async function disconnectProvider(provider) {
+    // Connectors not available in local-first mode
+    if (provider === "gmail") setGmailStatus({ connected: false });
+    else setOutlookStatus({ connected: false });
+  }
 
   async function testConnection() {
     setTestStatus("Testing...");
@@ -6663,22 +8040,296 @@ function SettingsView({ sidebarCollapsed, setSidebarCollapsed }) {
 
   return (
     <div style={{ padding: "32px 40px", maxWidth: 640 }}>
-      <div style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: C.textPrimary, marginBottom: 32 }}>Settings</div>
+      <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", marginBottom: 32 }}>Settings</div>
 
-      <SettingsSection title="API Configuration">
-        <SettingsRow label="Model" value="claude-sonnet-4-20250514" />
-        <SettingsRow label="Endpoint" value="/api/claude (proxied)" />
-        <div style={{ marginTop: 12 }}>
-          <Btn variant="outline" onClick={testConnection}>Test Connection</Btn>
+      <SettingsSection title="AI Configuration">
+        {/* Active config display */}
+        {(() => {
+          const active = aiConfigs.find(c => c.id === activeConfigId);
+          return active ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, padding: "8px 12px", background: C.goldMuted, border: `1px solid ${C.gold}30`, borderRadius: 6 }}>
+              <span style={{ fontSize: 12, color: C.gold }}>●</span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>
+                {active.name}
+              </span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
+                {AI_PROVIDERS[active.provider]?.label} · {getModelLabel(active.provider, active.model)}
+              </span>
+            </div>
+          ) : (
+            <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginBottom: 16 }}>
+              No AI config set — add an API key below to get started.
+            </div>
+          );
+        })()}
+
+        {/* API Keys */}
+        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>API Keys</div>
+        {apiKeys.length === 0 && !showAddKey && (
+          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginBottom: 8 }}>
+            No API keys added yet. Keys are stored locally on your machine — never sent to any server.
+          </div>
+        )}
+        {apiKeys.map(k => (
+          <div key={k.keyId} style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "8px 12px", background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+            borderRadius: 6, marginBottom: 6,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{
+                fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, padding: "2px 6px",
+                borderRadius: 4, background: k.provider === "anthropic" ? C.goldMuted : C.aiBlueMuted,
+                color: k.provider === "anthropic" ? C.gold : C.aiBlue,
+              }}>
+                {AI_PROVIDERS[k.provider]?.label || k.provider}
+              </span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textPrimary }}>{k.label}</span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>...{k.lastFour}</span>
+            </div>
+            <button
+              onClick={async () => {
+                await store.delete("ai-key", k.id);
+                setApiKeys(prev => prev.filter(x => x.id !== k.id));
+                // Remove any configs using this key
+                for (const cfg of aiConfigs.filter(c => c.keyId === k.keyId)) {
+                  await store.delete("ai-config", cfg.id);
+                }
+                setAiConfigs(prev => prev.filter(c => c.keyId !== k.keyId));
+              }}
+              style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 11, fontFamily: FONT_MONO }}
+            >Remove</button>
+          </div>
+        ))}
+
+        {showAddKey ? (
+          <div style={{ padding: 14, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8, marginBottom: 12 }}>
+            <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+              {Object.entries(AI_PROVIDERS).map(([pid, p]) => (
+                <button key={pid} onClick={() => setNewKeyProvider(pid)} style={{
+                  padding: "4px 12px", borderRadius: 5, cursor: "pointer",
+                  fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+                  border: `1px solid ${newKeyProvider === pid ? C.borderSubtle : C.borderDefault}`,
+                  background: newKeyProvider === pid ? "rgba(255,255,255,0.08)" : "transparent",
+                  color: newKeyProvider === pid ? C.textPrimary : C.textSecondary,
+                }}>{p.label}</button>
+              ))}
+            </div>
+            <input
+              value={newKeyLabel}
+              onChange={e => setNewKeyLabel(e.target.value)}
+              placeholder="Label (e.g. Work key, Personal key)"
+              style={{ width: "100%", marginBottom: 8, background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "7px 10px", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 13, outline: "none" }}
+            />
+            <input
+              type="password"
+              value={newKeyValue}
+              onChange={e => setNewKeyValue(e.target.value)}
+              placeholder={AI_PROVIDERS[newKeyProvider]?.keyPlaceholder || "API key"}
+              style={{ width: "100%", marginBottom: 10, background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "7px 10px", color: C.textPrimary, fontFamily: FONT_MONO, fontSize: 12, outline: "none" }}
+            />
+            {newKeyError && <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.red, marginBottom: 8 }}>{newKeyError}</div>}
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <Btn variant="ghost" size="sm" onClick={() => { setShowAddKey(false); setNewKeyValue(""); setNewKeyLabel(""); setNewKeyError(""); }}>Cancel</Btn>
+              <Btn variant="primary" size="sm" disabled={newKeyLoading || !newKeyValue.trim()} onClick={async () => {
+                setNewKeyLoading(true);
+                setNewKeyError("");
+                try {
+                  const keyVal = newKeyValue.trim();
+                  const prov = newKeyProvider;
+                  // Validate key format
+                  if (prov === "anthropic" && !keyVal.startsWith("sk-ant-")) throw new Error("Anthropic keys start with sk-ant-");
+                  if (prov === "openai" && !keyVal.startsWith("sk-")) throw new Error("OpenAI keys start with sk-");
+                  // Quick validation: make a lightweight API call
+                  if (prov === "anthropic") {
+                    const testRes = await fetch("https://api.anthropic.com/v1/messages", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json", "x-api-key": keyVal, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+                      body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 10, messages: [{ role: "user", content: "hi" }] }),
+                    });
+                    if (!testRes.ok) { const e = await testRes.json(); throw new Error(e.error?.message || "Key validation failed"); }
+                  } else if (prov === "openai") {
+                    const testRes = await fetch("https://api.openai.com/v1/models", {
+                      headers: { Authorization: `Bearer ${keyVal}` },
+                    });
+                    if (!testRes.ok) throw new Error("OpenAI key validation failed");
+                  }
+                  // Save locally
+                  const keyObj = {
+                    id: `aikey_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                    keyId: `aikey_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                    provider: prov,
+                    label: newKeyLabel.trim() || `${AI_PROVIDERS[prov]?.label} Key`,
+                    lastFour: keyVal.slice(-4),
+                    apiKey: keyVal,
+                    createdAt: new Date().toISOString(),
+                  };
+                  await store.save("ai-key", keyObj);
+                  setApiKeys(prev => [...prev, keyObj]);
+                  setShowAddKey(false);
+                  setNewKeyValue("");
+                  setNewKeyLabel("");
+                } catch (e) {
+                  setNewKeyError(e.message);
+                }
+                setNewKeyLoading(false);
+              }}>{newKeyLoading ? "Validating..." : "Save Key"}</Btn>
+            </div>
+          </div>
+        ) : (
+          <Btn variant="outline" size="sm" onClick={() => setShowAddKey(true)} style={{ marginBottom: 16 }}>+ Add API Key</Btn>
+        )}
+
+        {/* Model Configurations */}
+        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, marginTop: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Model Configurations</div>
+        {aiConfigs.length === 0 && !showAddConfig && (
+          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginBottom: 8 }}>
+            No configs yet. Add an API key above, then create a named configuration.
+          </div>
+        )}
+        {aiConfigs.map(cfg => {
+          const isActive = cfg.id === activeConfigId;
+          return (
+            <div key={cfg.id} style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "10px 12px", background: isActive ? C.goldMuted : C.bgCard,
+              border: `1px solid ${isActive ? C.gold + "40" : C.borderDefault}`,
+              borderRadius: 6, marginBottom: 6, cursor: "pointer",
+            }}
+              onClick={() => { setActiveAIConfig(cfg.id); setActiveConfigIdLocal(cfg.id); }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
+                <span style={{
+                  width: 14, height: 14, borderRadius: "50%", border: `2px solid ${isActive ? C.gold : C.borderDefault}`,
+                  background: isActive ? C.gold : "transparent", flexShrink: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  {isActive && <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.bgPrimary }} />}
+                </span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>{cfg.name}</div>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
+                    {AI_PROVIDERS[cfg.provider]?.label} · {getModelLabel(cfg.provider, cfg.model)} · ...{cfg.keyLastFour || "env"}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await store.delete("ai-config", cfg.id);
+                  setAiConfigs(prev => prev.filter(c => c.id !== cfg.id));
+                  if (activeConfigId === cfg.id) { setActiveAIConfig(""); setActiveConfigIdLocal(""); }
+                }}
+                style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 11, fontFamily: FONT_MONO, flexShrink: 0 }}
+              >Remove</button>
+            </div>
+          );
+        })}
+
+        {showAddConfig ? (
+          <div style={{ padding: 14, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8, marginBottom: 12 }}>
+            <input
+              value={configForm.name}
+              onChange={e => setConfigForm(f => ({ ...f, name: e.target.value }))}
+              placeholder="Config name (e.g. Work Opus, Fast Haiku)"
+              style={{ width: "100%", marginBottom: 10, background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "7px 10px", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 13, outline: "none" }}
+            />
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+              {/* Provider */}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 4, textTransform: "uppercase" }}>Provider</div>
+                <select value={configForm.provider} onChange={e => setConfigForm(f => ({ ...f, provider: e.target.value, keyId: "", model: "" }))} style={{
+                  width: "100%", background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 6,
+                  padding: "7px 10px", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 13, outline: "none",
+                }}>
+                  {Object.entries(AI_PROVIDERS).map(([pid, p]) => (
+                    <option key={pid} value={pid}>{p.label}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Key */}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 4, textTransform: "uppercase" }}>API Key</div>
+                <select value={configForm.keyId} onChange={e => setConfigForm(f => ({ ...f, keyId: e.target.value }))} style={{
+                  width: "100%", background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 6,
+                  padding: "7px 10px", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 13, outline: "none",
+                }}>
+                  <option value="">Select a key...</option>
+                  {apiKeys.filter(k => k.provider === configForm.provider).map(k => (
+                    <option key={k.keyId} value={k.keyId}>{k.label} (...{k.lastFour})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {/* Model */}
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 4, textTransform: "uppercase" }}>Model</div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {(AI_PROVIDERS[configForm.provider]?.models || []).map(m => (
+                  <button key={m.id} onClick={() => setConfigForm(f => ({ ...f, model: m.id }))} style={{
+                    padding: "5px 12px", borderRadius: 5, cursor: "pointer",
+                    fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+                    border: `1px solid ${configForm.model === m.id ? C.borderSubtle : C.borderDefault}`,
+                    background: configForm.model === m.id ? "rgba(255,255,255,0.08)" : "transparent",
+                    color: configForm.model === m.id ? C.textPrimary : C.textSecondary,
+                  }}>
+                    {m.label}
+                    <span style={{ fontSize: 11, color: C.textTertiary, marginLeft: 4 }}>({m.tier})</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <Btn variant="ghost" size="sm" onClick={() => { setShowAddConfig(false); setConfigForm({ name: "", provider: "anthropic", keyId: "", model: "" }); }}>Cancel</Btn>
+              <Btn variant="primary" size="sm" disabled={!configForm.name.trim() || !configForm.model || !configForm.keyId} onClick={async () => {
+                const keyMeta = apiKeys.find(k => k.keyId === configForm.keyId);
+                const cfg = {
+                  id: `aiconf_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                  name: configForm.name.trim(),
+                  provider: configForm.provider,
+                  keyId: configForm.keyId,
+                  keyLastFour: keyMeta?.lastFour || "???",
+                  model: configForm.model,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                };
+                await store.save("ai-config", cfg);
+                setAiConfigs(prev => [...prev, cfg]);
+                // Auto-set as active if first config
+                if (!activeConfigId) { setActiveAIConfig(cfg.id); setActiveConfigIdLocal(cfg.id); }
+                setShowAddConfig(false);
+                setConfigForm({ name: "", provider: "anthropic", keyId: "", model: "" });
+              }}>Create Config</Btn>
+            </div>
+          </div>
+        ) : (
+          <Btn variant="outline" size="sm" onClick={() => setShowAddConfig(true)}>+ Add Configuration</Btn>
+        )}
+
+        {/* Test connection */}
+        <div style={{ marginTop: 16, paddingTop: 12, borderTop: `1px solid ${C.borderDefault}` }}>
+          <Btn variant="outline" size="sm" onClick={testConnection}>Test Active Config</Btn>
           {testStatus && (
             <span style={{ marginLeft: 12, fontFamily: FONT_MONO, fontSize: 12, color: testStatus.startsWith("Error") ? C.red : C.green }}>{testStatus}</span>
           )}
         </div>
       </SettingsSection>
 
+      <SettingsSection title="Connectors">
+        <div style={{ padding: "12px 14px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <AlertTriangle size={14} style={{ color: C.amber, flexShrink: 0 }} />
+            <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>Requires approved backend</span>
+          </div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6 }}>
+            Email connectors (Gmail, Outlook) require a server-side backend for OAuth authentication. This feature will be available once Base Command is deployed to an approved backend environment. All AI processing already happens directly between your browser and the AI provider — no data transits through third-party servers.
+          </div>
+        </div>
+      </SettingsSection>
+
       <SettingsSection title="Display Preferences">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textSecondary }}>Sidebar collapsed by default</span>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary }}>Sidebar collapsed by default</span>
           <button
             onClick={() => {
               const newVal = !sidebarCollapsed;
@@ -6706,7 +8357,7 @@ function SettingsView({ sidebarCollapsed, setSidebarCollapsed }) {
           <Btn variant="outline" onClick={importData}>Import JSON</Btn>
           {clearConfirm ? (
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.red }}>This will delete all data.</span>
+              <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.red }}>This will delete all data.</span>
               <Btn variant="danger" onClick={clearData}>Confirm Clear</Btn>
               <Btn variant="ghost" onClick={() => setClearConfirm(false)}>Cancel</Btn>
             </div>
@@ -6719,7 +8370,8 @@ function SettingsView({ sidebarCollapsed, setSidebarCollapsed }) {
       <SettingsSection title="About">
         <SettingsRow label="Schema Version" value={schemaVersion} />
         <SettingsRow label="Storage" value="localStorage" />
-        <SettingsRow label="App" value="Base Command v2.0" />
+        <SettingsRow label="Workspace" value={(() => { const ws = getWorkspaces().find(w => w.id === getActiveWorkspaceId()); return ws ? ws.name : "Default"; })()} />
+        <SettingsRow label="App" value="Base Command v3.0" />
       </SettingsSection>
     </div>
   );
@@ -6728,7 +8380,7 @@ function SettingsView({ sidebarCollapsed, setSidebarCollapsed }) {
 function SettingsSection({ title, children }) {
   return (
     <div style={{ marginBottom: 32 }}>
-      <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 14, paddingBottom: 8, borderBottom: `1px solid ${C.borderDefault}` }}>{title}</div>
+      <div style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textTertiary, letterSpacing: "-0.01em", marginBottom: 14, paddingBottom: 8, borderBottom: `1px solid ${C.borderDefault}` }}>{title}</div>
       {children}
     </div>
   );
@@ -6746,6 +8398,7 @@ function SettingsRow({ label, value }) {
 // ─── Root App ─────────────────────────────────────────────────────────────────
 export default function BaseCommand() {
   const [view, setView] = useState("dashboard");
+  const [focusSessionId, setFocusSessionId] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     return localStorage.getItem("bc2-ui:sidebar-collapsed") === "true";
   });
@@ -6758,10 +8411,38 @@ export default function BaseCommand() {
   const [documents, setDocuments] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeWsId, setActiveWsId] = useState(() => getActiveWorkspaceId());
+  const [workspaces, setWorkspaceList] = useState(() => getWorkspaces());
 
-  // Init: migrate + load all data
+  function switchWorkspace(wsId) {
+    store.setWorkspace(wsId);
+    setActiveWsId(wsId);
+    setView("dashboard");
+    setLoading(true);
+  }
+
+  function handleCreateWorkspace(name, icon) {
+    const ws = createWorkspace(name, icon);
+    setWorkspaceList(getWorkspaces());
+    switchWorkspace(ws.id);
+    return ws;
+  }
+
+  function handleRenameWorkspace(wsId, newName) {
+    renameWorkspace(wsId, newName);
+    setWorkspaceList(getWorkspaces());
+  }
+
+  function handleDeleteWorkspace(wsId) {
+    deleteWorkspace(wsId);
+    setWorkspaceList(getWorkspaces());
+    if (activeWsId === wsId) switchWorkspace(WS_DEFAULT_ID);
+  }
+
+  // Init: migrate + load all data (re-runs on workspace switch)
   useEffect(() => {
     async function init() {
+      store._ws = activeWsId;
       await store.checkAndMigrate();
       const [d, t, p, m, s, docs, projs] = await Promise.all([
         store.list("decision"),
@@ -6782,7 +8463,7 @@ export default function BaseCommand() {
       setLoading(false);
     }
     init();
-  }, []);
+  }, [activeWsId]);
 
   // Command palette keyboard shortcut
   useEffect(() => {
@@ -6798,41 +8479,65 @@ export default function BaseCommand() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: C.bgPrimary }}>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 13, color: C.textTertiary }}>Loading Base Command...</div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", background: C.bgPrimary, gap: 16 }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 12,
+          background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 18, fontWeight: 700, color: C.bgPrimary,
+          fontFamily: FONT_MONO, animation: "aiPulse 2s ease-in-out infinite",
+        }}>B</div>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textTertiary, fontWeight: 500 }}>Loading Base Command...</div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: C.bgPrimary, color: C.textPrimary, fontFamily: FONT_SANS, overflow: "hidden" }}>
+    <div style={{ display: "flex", height: "100vh", background: C.bgPrimary, color: C.textPrimary, fontFamily: FONT_SANS, overflow: "hidden", letterSpacing: "-0.01em" }}>
       <Sidebar
         activeView={view}
         setView={setView}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         aiNotifications={{}}
+        workspaces={workspaces}
+        activeWsId={activeWsId}
+        onSwitchWorkspace={switchWorkspace}
+        onCreateWorkspace={handleCreateWorkspace}
+        onRenameWorkspace={handleRenameWorkspace}
+        onDeleteWorkspace={handleDeleteWorkspace}
       />
 
       <main style={{ flex: 1, overflow: "auto", position: "relative" }}>
-        {/* Top bar */}
+        {/* Top status bar — Mission Control instrument strip */}
         <div style={{
           position: "sticky", top: 0, zIndex: 50,
-          background: C.bgPrimary, borderBottom: `1px solid ${C.borderDefault}`,
-          padding: "0 40px", height: 48,
-          display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 12,
+          background: `${C.bgPrimary}F2`, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          borderBottom: `1px solid ${C.borderDefault}`,
+          padding: "0 32px", height: 48,
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
         }}>
+          {/* View title */}
+          <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em", textTransform: "capitalize" }}>
+            {view === "dashboard" ? "Command Center" : view}
+          </div>
+
+          {/* Command palette trigger */}
           <button
             onClick={() => setShowCommandPalette(true)}
             style={{
-              display: "flex", alignItems: "center", gap: 8,
+              display: "flex", alignItems: "center", gap: 10,
               background: "rgba(255,255,255,0.04)", border: `1px solid ${C.borderDefault}`,
-              borderRadius: 6, padding: "5px 12px", cursor: "pointer",
-              color: C.textTertiary, fontFamily: FONT_MONO, fontSize: 12,
+              borderRadius: 8, padding: "6px 14px", cursor: "pointer",
+              color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 13,
+              transition: "all 0.15s ease", minWidth: 200,
             }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
           >
+            <span style={{ opacity: 0.5 }}>⌕</span>
             <span>Search...</span>
-            <kbd style={{ background: "rgba(255,255,255,0.06)", padding: "1px 5px", borderRadius: 3, fontSize: 11 }}>⌘K</kbd>
+            <kbd style={{ marginLeft: "auto", fontFamily: FONT_MONO, background: "rgba(255,255,255,0.06)", padding: "2px 7px", borderRadius: 5, fontSize: 11, border: "1px solid rgba(255,255,255,0.06)" }}>⌘K</kbd>
           </button>
         </div>
 
@@ -6842,16 +8547,16 @@ export default function BaseCommand() {
             <DashboardView decisions={decisions} tasks={tasks} priorities={priorities} projects={projects} onNavigate={setView} />
           )}
           {view === "ingest" && (
-            <IngestView setDecisions={setDecisions} setTasks={setTasks} setPriorities={setPriorities} setMeetings={setMeetings} ingestSessions={ingestSessions} setIngestSessions={setIngestSessions} />
+            <IngestView setDecisions={setDecisions} setTasks={setTasks} setPriorities={setPriorities} setMeetings={setMeetings} ingestSessions={ingestSessions} setIngestSessions={setIngestSessions} focusSessionId={focusSessionId} setFocusSessionId={setFocusSessionId} />
           )}
           {view === "meetings" && (
             <MeetingsView meetings={meetings} />
           )}
           {view === "decisions" && (
-            <DecisionsView decisions={decisions} setDecisions={setDecisions} tasks={tasks} setTasks={setTasks} priorities={priorities} projects={projects} />
+            <DecisionsView decisions={decisions} setDecisions={setDecisions} tasks={tasks} setTasks={setTasks} priorities={priorities} projects={projects} ingestSessions={ingestSessions} setView={setView} setFocusSessionId={setFocusSessionId} />
           )}
           {view === "tasks" && (
-            <TasksView tasks={tasks} setTasks={setTasks} decisions={decisions} projects={projects} />
+            <TasksView tasks={tasks} setTasks={setTasks} decisions={decisions} projects={projects} ingestSessions={ingestSessions} />
           )}
           {view === "priorities" && (
             <PrioritiesView priorities={priorities} setPriorities={setPriorities} decisions={decisions} tasks={tasks} projects={projects} />
@@ -6880,14 +8585,32 @@ export default function BaseCommand() {
 
       <style>{`
         * { box-sizing: border-box; }
-        body { margin: 0; }
+        body { margin: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #2D3F55; }
+        ::-webkit-scrollbar-thumb { background: ${C.borderDefault}; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: ${C.borderSubtle}; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        input::placeholder, textarea::placeholder { color: #64748B; }
-        select option { background: #111827; color: #E2E8F0; }
+        @keyframes aiPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.95); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        input::placeholder, textarea::placeholder { color: ${C.textTertiary}; }
+        select option { background: ${C.bgCard}; color: ${C.textPrimary}; }
+        .skeleton {
+          background: linear-gradient(90deg, ${C.bgCard} 25%, ${C.bgCardHover} 50%, ${C.bgCard} 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s ease-in-out infinite;
+          border-radius: 6px;
+        }
       `}</style>
     </div>
   );

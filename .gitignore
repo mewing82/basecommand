@@ -35,6 +35,9 @@ docs/
 BaseCommand.jsx
 terminal-cheat-sheet.jsx
 terminal-exercises.jsx
+BASECOMMAND_INSTRUCTIONS.md
+BaseCommand_ProjectDoc.md
+BUILD_GUIDE.md
 
 # Claude Code
 .claude/
