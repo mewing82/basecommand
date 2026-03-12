@@ -31,13 +31,11 @@ keys/
 # Dev artifacts & reference files
 screenshots/
 docs/
+.prompts/
 *.jpg
 BaseCommand.jsx
 terminal-cheat-sheet.jsx
 terminal-exercises.jsx
-BASECOMMAND_INSTRUCTIONS.md
-BaseCommand_ProjectDoc.md
-BUILD_GUIDE.md
 
 # Claude Code
 .claude/
