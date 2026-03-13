@@ -1,85 +1,110 @@
-import { useState } from 'react'
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { useAppStore } from "./store/appStore";
+import { useEntityStore } from "./store/entityStore";
+import { C, FONT_SANS, FONT_MONO } from "./lib/tokens";
+import Sidebar from "./components/layout/Sidebar";
+import TopBar from "./components/layout/TopBar";
+import CommandPalette from "./components/layout/CommandPalette";
+import Dashboard from "./pages/Dashboard";
+import Decisions from "./pages/Decisions";
+import Tasks from "./pages/Tasks";
+import Priorities from "./pages/Priorities";
+import Intel from "./pages/Intel";
+import Meetings from "./pages/Meetings";
+import Library from "./pages/Library";
+import Projects from "./pages/Projects";
+import Settings from "./pages/Settings";
+import Renewals from "./pages/Renewals";
 
-const NAV_ITEMS = [
-  { path: '/', label: 'Decisions' },
-  { path: '/tasks', label: 'Tasks' },
-  { path: '/priorities', label: 'Priorities' },
-  { path: '/renewals', label: 'Renewals' },
-]
+// ─── App Layout ──────────────────────────────────────────────────────────────
+function AppLayout() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { sidebarCollapsed, loading, setLoading } = useAppStore();
+  const { loadAll } = useEntityStore();
+  const [showPalette, setShowPalette] = useState(false);
 
-function Placeholder({ title }) {
+  // Derive current view from pathname for sidebar active state
+  const currentView = location.pathname === "/" ? "dashboard" : location.pathname.slice(1);
+
+  useEffect(() => {
+    loadAll().then(() => setLoading(false));
+  }, []);
+
+  // ⌘K / Ctrl+K to toggle command palette
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setShowPalette(prev => !prev);
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{
+        height: "100vh", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", gap: 16,
+        background: C.bgPrimary,
+      }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 12,
+          background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 18, fontWeight: 700, color: C.bgPrimary,
+          fontFamily: FONT_MONO, animation: "aiPulse 2s ease-in-out infinite",
+        }}>B</div>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textTertiary, fontWeight: 500 }}>
+          Loading Base Command...
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ padding: '2rem', color: '#e2e8f0' }}>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 600 }}>{title}</h2>
-      <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Coming soon.</p>
+    <div style={{
+      display: "flex", height: "100vh", background: C.bgPrimary,
+      color: C.textPrimary, fontFamily: FONT_SANS, overflow: "hidden",
+      letterSpacing: "-0.01em",
+    }}>
+      <Sidebar
+        activeView={currentView}
+        onNavigate={(view) => navigate(view === "dashboard" ? "/" : `/${view}`)}
+      />
+
+      <main style={{ flex: 1, overflow: "auto", position: "relative" }}>
+        <TopBar currentView={currentView} onCommandPalette={() => setShowPalette(true)} />
+
+        <div style={{ minHeight: "calc(100vh - 48px)" }}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/intel" element={<Intel />} />
+            <Route path="/decisions" element={<Decisions />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/priorities" element={<Priorities />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/meetings" element={<Meetings />} />
+            <Route path="/library" element={<Library />} />
+            <Route path="/renewals" element={<Renewals />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </div>
+      </main>
+
+      {showPalette && <CommandPalette onClose={() => setShowPalette(false)} />}
     </div>
-  )
+  );
 }
 
+// ─── Root App ────────────────────────────────────────────────────────────────
 export default function App() {
   return (
     <BrowserRouter>
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#0a0f1e',
-        fontFamily: 'DM Sans, sans-serif',
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
-
-        {/* Header */}
-        <div style={{
-          borderBottom: '1px solid #1e293b',
-          padding: '1rem 2rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '2rem',
-        }}>
-          <span style={{
-            fontFamily: 'DM Mono, monospace',
-            fontSize: '1rem',
-            fontWeight: 700,
-            color: '#38bdf8',
-            letterSpacing: '0.1em',
-          }}>
-            BASE COMMAND
-          </span>
-
-          <nav style={{ display: 'flex', gap: '0.25rem' }}>
-            {NAV_ITEMS.map(({ path, label }) => (
-              <NavLink
-                key={path}
-                to={path}
-                end={path === '/'}
-                style={({ isActive }) => ({
-                  padding: '0.4rem 1rem',
-                  borderRadius: '6px',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  color: isActive ? '#38bdf8' : '#64748b',
-                  backgroundColor: isActive ? '#0f172a' : 'transparent',
-                  transition: 'all 0.15s',
-                })}
-              >
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
-
-        {/* Main content */}
-        <div style={{ flex: 1, padding: '2rem' }}>
-          <Routes>
-            <Route path="/" element={<Placeholder title="Decisions" />} />
-            <Route path="/tasks" element={<Placeholder title="Tasks" />} />
-            <Route path="/priorities" element={<Placeholder title="Priorities" />} />
-            <Route path="/renewals" element={<Placeholder title="Renewals" />} />
-          </Routes>
-        </div>
-
-      </div>
+      <AppLayout />
     </BrowserRouter>
-  )
+  );
 }
