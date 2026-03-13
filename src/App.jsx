@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useAppStore } from "./store/appStore";
 import { useEntityStore } from "./store/entityStore";
+import { useAuthStore } from "./store/authStore";
 import { C, FONT_SANS, FONT_MONO } from "./lib/tokens";
 import Sidebar from "./components/layout/Sidebar";
 import TopBar from "./components/layout/TopBar";
 import CommandPalette from "./components/layout/CommandPalette";
+import AuthGate from "./components/auth/AuthGate";
+import MarketingLayout from "./components/layout/MarketingLayout";
 import Dashboard from "./pages/Dashboard";
 import Decisions from "./pages/Decisions";
 import Tasks from "./pages/Tasks";
@@ -16,17 +19,22 @@ import Library from "./pages/Library";
 import Projects from "./pages/Projects";
 import Settings from "./pages/Settings";
 import Renewals from "./pages/Renewals";
+import Landing from "./pages/marketing/Landing";
+import Pricing from "./pages/marketing/Pricing";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
 
-// ─── App Layout ──────────────────────────────────────────────────────────────
+// ─── App Layout (authenticated) ─────────────────────────────────────────────
 function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { sidebarCollapsed, loading, setLoading } = useAppStore();
+  const { loading, setLoading } = useAppStore();
   const { loadAll } = useEntityStore();
   const [showPalette, setShowPalette] = useState(false);
 
-  // Derive current view from pathname for sidebar active state
-  const currentView = location.pathname === "/" ? "dashboard" : location.pathname.slice(1);
+  // Derive current view from /app/... pathname
+  const pathAfterApp = location.pathname.replace(/^\/app\/?/, "") || "dashboard";
+  const currentView = pathAfterApp;
 
   useEffect(() => {
     loadAll().then(() => setLoading(false));
@@ -73,7 +81,7 @@ function AppLayout() {
     }}>
       <Sidebar
         activeView={currentView}
-        onNavigate={(view) => navigate(view === "dashboard" ? "/" : `/${view}`)}
+        onNavigate={(view) => navigate(view === "dashboard" ? "/app" : `/app/${view}`)}
       />
 
       <main style={{ flex: 1, overflow: "auto", position: "relative" }}>
@@ -81,16 +89,16 @@ function AppLayout() {
 
         <div style={{ minHeight: "calc(100vh - 48px)" }}>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/intel" element={<Intel />} />
-            <Route path="/decisions" element={<Decisions />} />
-            <Route path="/tasks" element={<Tasks />} />
-            <Route path="/priorities" element={<Priorities />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/meetings" element={<Meetings />} />
-            <Route path="/library" element={<Library />} />
-            <Route path="/renewals" element={<Renewals />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route index element={<Dashboard />} />
+            <Route path="intel" element={<Intel />} />
+            <Route path="decisions" element={<Decisions />} />
+            <Route path="tasks" element={<Tasks />} />
+            <Route path="priorities" element={<Priorities />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="meetings" element={<Meetings />} />
+            <Route path="library" element={<Library />} />
+            <Route path="renewals" element={<Renewals />} />
+            <Route path="settings" element={<Settings />} />
           </Routes>
         </div>
       </main>
@@ -102,9 +110,35 @@ function AppLayout() {
 
 // ─── Root App ────────────────────────────────────────────────────────────────
 export default function App() {
+  const { initialize } = useAuthStore();
+
+  useEffect(() => {
+    initialize();
+  }, []);
+
   return (
     <BrowserRouter>
-      <AppLayout />
+      <Routes>
+        {/* Public marketing routes */}
+        <Route element={<MarketingLayout />}>
+          <Route path="/" element={<Landing />} />
+          <Route path="/pricing" element={<Pricing />} />
+        </Route>
+
+        {/* Auth routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* Authenticated app routes */}
+        <Route path="/app/*" element={
+          <AuthGate>
+            <AppLayout />
+          </AuthGate>
+        } />
+
+        {/* Catch-all: redirect to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   );
 }

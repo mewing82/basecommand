@@ -28,15 +28,15 @@ export default function CommandPalette({ onClose }) {
       // Action shortcuts
       if (q.startsWith("/")) {
         const actions = [
-          { type: "action", label: "Intel", cmd: "/intel", action: () => nav("/intel") },
-          { type: "action", label: "Meeting Log", cmd: "/meetings", action: () => nav("/meetings") },
-          { type: "action", label: "New Decision", cmd: "/new decision", action: () => nav("/decisions") },
-          { type: "action", label: "New Task", cmd: "/new task", action: () => nav("/tasks") },
-          { type: "action", label: "Projects", cmd: "/projects", action: () => nav("/projects") },
-          { type: "action", label: "Library", cmd: "/library", action: () => nav("/library") },
-          { type: "action", label: "Renewals", cmd: "/renewals", action: () => nav("/renewals") },
-          { type: "action", label: "Weekly Briefing", cmd: "/briefing", action: () => nav("/") },
-          { type: "action", label: "Export Data", cmd: "/export", action: () => nav("/settings") },
+          { type: "action", label: "Intel", cmd: "/intel", action: () => nav("/app/intel") },
+          { type: "action", label: "Meeting Log", cmd: "/meetings", action: () => nav("/app/meetings") },
+          { type: "action", label: "New Decision", cmd: "/new decision", action: () => nav("/app/decisions") },
+          { type: "action", label: "New Task", cmd: "/new task", action: () => nav("/app/tasks") },
+          { type: "action", label: "Projects", cmd: "/projects", action: () => nav("/app/projects") },
+          { type: "action", label: "Library", cmd: "/library", action: () => nav("/app/library") },
+          { type: "action", label: "Renewals", cmd: "/renewals", action: () => nav("/app/renewals") },
+          { type: "action", label: "Weekly Briefing", cmd: "/briefing", action: () => nav("/app") },
+          { type: "action", label: "Export Data", cmd: "/export", action: () => nav("/app/settings") },
         ].filter(a => a.cmd.includes(q));
         setResults(actions);
         setSelectedIdx(0);
@@ -46,22 +46,22 @@ export default function CommandPalette({ onClose }) {
       const hits = [];
       decisions.forEach(d => {
         if (d.title?.toLowerCase().includes(q) || (d.tags || []).some(t => t.toLowerCase().includes(q))) {
-          hits.push({ type: "decision", icon: <Diamond size={13} />, entity: d, action: () => nav("/decisions") });
+          hits.push({ type: "decision", icon: <Diamond size={13} />, entity: d, action: () => nav("/app/decisions") });
         }
       });
       tasks.forEach(t => {
         if (t.title?.toLowerCase().includes(q) || (t.tags || []).some(tag => tag.toLowerCase().includes(q))) {
-          hits.push({ type: "task", icon: <CheckSquare size={13} />, entity: t, action: () => nav("/tasks") });
+          hits.push({ type: "task", icon: <CheckSquare size={13} />, entity: t, action: () => nav("/app/tasks") });
         }
       });
       priorities.forEach(p => {
         if (p.title?.toLowerCase().includes(q) || (p.tags || []).some(t => t.toLowerCase().includes(q))) {
-          hits.push({ type: "priority", icon: <ChevronUp size={13} />, entity: p, action: () => nav("/priorities") });
+          hits.push({ type: "priority", icon: <ChevronUp size={13} />, entity: p, action: () => nav("/app/priorities") });
         }
       });
       projects.forEach(p => {
         if (p.title?.toLowerCase().includes(q)) {
-          hits.push({ type: "project", icon: <Diamond size={13} />, entity: p, action: () => nav("/projects") });
+          hits.push({ type: "project", icon: <Diamond size={13} />, entity: p, action: () => nav("/app/projects") });
         }
       });
       setResults(hits.slice(0, 12));

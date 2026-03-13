@@ -6,12 +6,13 @@ import { callAI } from "../lib/ai";
 import { store } from "../lib/storage";
 import { getGreeting, isOverdue } from "../lib/utils";
 import { useEntityStore } from "../store/entityStore";
-
-const USER_NAME = "Michael";
+import { useAuthStore } from "../store/authStore";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { decisions, tasks, priorities, projects } = useEntityStore();
+  const { user } = useAuthStore();
+  const userName = user?.user_metadata?.name || "Commander";
 
   const CACHE_KEY = `bc2-${store._ws}-copilot-dashboard`;
   const [insight, setInsight] = useState(() => {
@@ -92,7 +93,7 @@ RULES:
     ? (() => { const m = Math.floor((Date.now() - insight._generatedAt) / 60000); return m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`; })()
     : null;
 
-  const onNavigate = (view) => navigate(view === "dashboard" ? "/" : `/${view}`);
+  const onNavigate = (view) => navigate(view === "dashboard" ? "/app" : `/app/${view}`);
 
   // ─── Empty State ───
   if (!hasData) {
@@ -111,7 +112,7 @@ RULES:
           BC is your decision intelligence partner. Create a project or import a plan, and I'll analyze what matters, surface risks, and tell you exactly where to focus.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-          <button onClick={() => navigate("/projects")} style={{
+          <button onClick={() => navigate("/app/projects")} style={{
             padding: "12px 28px", borderRadius: 10, border: "none", cursor: "pointer",
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`, color: C.bgPrimary,
             fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, boxShadow: `0 4px 16px ${C.goldGlow}`,
@@ -120,7 +121,7 @@ RULES:
             onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
             onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
           >Create a Project</button>
-          <button onClick={() => navigate("/projects")} style={{
+          <button onClick={() => navigate("/app/projects")} style={{
             padding: "12px 28px", borderRadius: 10, border: `1px solid ${C.borderDefault}`, cursor: "pointer",
             background: "transparent", color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500,
             transition: "all 0.15s ease",
@@ -140,7 +141,7 @@ RULES:
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
         <div>
           <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>
-            {getGreeting()}, {USER_NAME}
+            {getGreeting()}, {userName}
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 6, fontWeight: 400 }}>{dateStr}</div>
         </div>
@@ -269,7 +270,7 @@ RULES:
           </div>
           <div style={{ display: "grid", gridTemplateColumns: insight.projectSpotlights.length === 1 ? "1fr" : "1fr 1fr", gap: 12 }}>
             {insight.projectSpotlights.map((proj, i) => (
-              <div key={i} onClick={() => navigate("/projects")} style={{
+              <div key={i} onClick={() => navigate("/app/projects")} style={{
                 background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 12,
                 padding: "20px 22px", cursor: "pointer", transition: "all 0.15s ease",
               }}
