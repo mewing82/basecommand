@@ -1,37 +1,37 @@
 import { Link } from "react-router-dom";
-import { Diamond, CheckSquare, TrendingUp, Sparkles, Radio, FolderKanban } from "lucide-react";
+import { RefreshCw, Shield, TrendingUp, Sparkles, BarChart3, Zap } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 
 const FEATURES = [
   {
-    icon: Diamond,
-    title: "Decision Intelligence",
-    description: "Structure complex decisions with AI analysis. Get frameworks, trade-offs, and recommendations when the stakes are high.",
+    icon: RefreshCw,
+    title: "Renewal Command Center",
+    description: "See every renewal in your portfolio at a glance. AI surfaces risk signals, flags at-risk accounts, and recommends next actions.",
   },
   {
-    icon: CheckSquare,
-    title: "Task Command",
-    description: "Track what matters with priority-aware task management. AI helps you focus on what moves the needle.",
+    icon: Shield,
+    title: "Churn Prevention",
+    description: "Identify at-risk accounts before it's too late. AI analyzes engagement patterns, support tickets, and usage trends to predict churn.",
   },
   {
     icon: TrendingUp,
-    title: "Strategic Priorities",
-    description: "Set quarterly goals and track health scores. Know at a glance if you're on track or drifting.",
+    title: "Expansion Intelligence",
+    description: "Spot upsell and cross-sell opportunities across your book of business. AI identifies accounts primed for growth.",
   },
   {
-    icon: Radio,
-    title: "Intel Hub",
-    description: "Connect your inbox. AI scans emails and surfaces actionable items so nothing slips through.",
+    icon: BarChart3,
+    title: "Portfolio Analytics",
+    description: "Track GRR, NRR, and renewal rates in real time. Get AI-powered forecasts and health scores for every account.",
   },
   {
-    icon: FolderKanban,
-    title: "Project Oversight",
-    description: "One view across all active initiatives. Link tasks, decisions, and priorities to see the full picture.",
+    icon: Zap,
+    title: "Automated Workflows",
+    description: "Auto-generate renewal playbooks, stakeholder briefs, and risk assessments. Spend less time on admin, more on relationships.",
   },
   {
     icon: Sparkles,
     title: "AI Co-pilot",
-    description: "Built on Claude and GPT-4. Every view has an AI partner that understands your full context.",
+    description: "Built on Claude and GPT-4. Every view has an AI partner that understands your full portfolio context.",
   },
 ];
 
@@ -47,7 +47,7 @@ export default function Landing() {
           background: C.goldMuted, border: `1px solid ${C.gold}20`,
           fontSize: 13, fontWeight: 500, color: C.gold, fontFamily: FONT_SANS,
         }}>
-          AI-powered decision support for leaders
+          AI-powered renewal operations platform
         </div>
 
         <h1 style={{
@@ -55,19 +55,19 @@ export default function Landing() {
           color: C.textPrimary, letterSpacing: "-0.04em", lineHeight: 1.1,
           margin: "0 auto 20px", maxWidth: 700,
         }}>
-          Your executive
+          Never lose a
           <br />
           <span style={{
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover}, ${C.aiBlue})`,
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          }}>command center</span>
+          }}>renewal again</span>
         </h1>
 
         <p style={{
           fontFamily: FONT_BODY, fontSize: 18, color: C.textTertiary, lineHeight: 1.7,
           maxWidth: 520, margin: "0 auto 40px",
         }}>
-          Base Command gives you AI-powered clarity across decisions, tasks, priorities, and projects. Stop reacting. Start commanding.
+          Base Command gives renewal teams AI-powered visibility across their entire portfolio. Predict churn, drive expansion, and hit your retention targets.
         </p>
 
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
@@ -99,10 +99,10 @@ export default function Landing() {
             fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
-            Everything you need to lead
+            Everything you need to protect and grow revenue
           </h2>
           <p style={{ fontFamily: FONT_BODY, fontSize: 16, color: C.textTertiary, lineHeight: 1.6 }}>
-            Six integrated modules. One unified intelligence layer.
+            Six integrated modules. One AI-powered renewal operations platform.
           </p>
         </div>
 
@@ -153,7 +153,7 @@ export default function Landing() {
             fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
-            Ready to take command?
+            Ready to protect your revenue?
           </h2>
           <p style={{
             fontFamily: FONT_BODY, fontSize: 15, color: C.textTertiary, marginBottom: 28, lineHeight: 1.6,

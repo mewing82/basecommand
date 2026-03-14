@@ -9,10 +9,10 @@ const TIERS = [
     period: "forever",
     description: "Get started with your own AI keys",
     features: [
-      "All core modules (Decisions, Tasks, Priorities, Projects)",
+      "Full renewal operations platform",
       "AI co-pilot powered by your own API keys",
       "Email connector (Gmail & Outlook)",
-      "Unlimited workspaces",
+      "Portfolio analytics & health scores",
       "Local data storage",
     ],
     cta: "Get Started",
