@@ -152,3 +152,137 @@ Return ONLY valid JSON in this exact format:
 }
 
 Return ONLY the JSON. No markdown fences.`;
+
+// ─── Renewal Import Prompt ─────────────────────────────────────────────────
+export const RENEWAL_IMPORT_PROMPT = (rawData, source) => `You are Base Command (BC), parsing raw unstructured data to extract renewal accounts.
+
+The user has pasted data from ${source || "an unknown source"}. This data may be messy — CRM exports, spreadsheets, call notes, emails, or any combination. Your job is to extract every distinct customer account you can identify.
+
+RAW DATA:
+${rawData}
+
+Return ONLY valid JSON:
+{
+  "accounts": [
+    {
+      "name": "Company name (clean it up if abbreviated or messy)",
+      "arr": 0,
+      "renewalDate": "YYYY-MM-DD or null",
+      "riskLevel": "low|medium|high",
+      "contacts": [{"name": "Person Name", "role": "Title/Role", "email": "email or null"}],
+      "notes": "Key context extracted about this account — health signals, recent activity, open issues, anything relevant to renewal",
+      "confidence": "high|medium|low"
+    }
+  ],
+  "summary": "2-3 sentences: how many accounts found, data quality assessment, anything notable or missing",
+  "warnings": ["Any data quality issues, ambiguities, or accounts that might be duplicates"]
+}
+
+EXTRACTION RULES:
+- Extract ALL distinct customer/account names you can find.
+- ARR: Look for revenue, contract value, MRR (multiply by 12), ACV, or subscription amount. Default to 0 if not found.
+- Renewal date: Look for contract end dates, renewal dates, expiry dates. Use YYYY-MM-DD format. null if not found.
+- Risk level: Infer from context — churn signals, support tickets, low usage = high risk. Happy customer, growing usage = low. Default to medium.
+- Contacts: Extract any associated people with roles/titles if available.
+- Notes: Capture everything relevant that doesn't fit structured fields — this is critical context for the co-pilot.
+- Confidence: high = clear structured data, medium = some inference required, low = significant guesswork.
+- Deduplicate: If the same company appears multiple times, merge into one entry with combined notes.
+- Handle messy formatting: CSV with inconsistent delimiters, tabs, mixed formats — do your best.
+- Return ONLY the JSON. No markdown fences. No preamble.`;
+
+// ─── Renewal Autopilot Prompt ──────────────────────────────────────────────
+export const RENEWAL_AUTOPILOT_PROMPT = (portfolioData, today) => `You are the Base Command Autopilot Agent. You manage a portfolio of renewal accounts and generate specific actions for each account that needs attention.
+
+Your role: Take renewal work OFF the AE's plate. Generate ready-to-use drafts and assessments. The AE should only need to review and approve, not think through what to do.
+
+PORTFOLIO:
+${JSON.stringify(portfolioData)}
+
+TODAY: ${today}
+
+Return ONLY valid JSON:
+{
+  "status": {
+    "managing": 0,
+    "pendingActions": 0,
+    "expansionSignals": 0,
+    "summary": "1-2 sentence status — be specific about what needs attention"
+  },
+  "actions": [
+    {
+      "accountName": "Company Name",
+      "accountId": "account id if available",
+      "type": "email_draft|risk_assessment|next_action",
+      "urgency": "critical|high|medium",
+      "title": "Short action title",
+      "description": "Why this action matters — reference specific data points",
+      "draft": "For email_draft: full email text ready to send. For risk_assessment: detailed risk analysis. For next_action: specific step-by-step recommendation.",
+      "reasoning": "What data led to this recommendation"
+    }
+  ],
+  "expansionHighlights": [
+    {
+      "accountName": "Company Name",
+      "signal": "Brief description of the expansion opportunity",
+      "estimatedValue": "$X,XXX"
+    }
+  ],
+  "attentionItems": [
+    {
+      "accountName": "Company Name",
+      "issue": "What needs human judgment and why"
+    }
+  ]
+}
+
+RULES:
+- Order actions by urgency, then by ARR (highest first).
+- For email_draft: Write professional, warm outreach. Reference specific account details. Include clear ask/next step.
+- For risk_assessment: Be specific about risk signals. Quantify impact. Suggest mitigations.
+- For next_action: Give concrete steps, not vague advice. "Schedule QBR with VP Engineering" not "Reach out to stakeholders".
+- Only include expansionHighlights if there's real evidence in the account context data.
+- attentionItems are for situations where AI can't make the call — missing data, conflicting signals, needs executive judgment.
+- Return ONLY the JSON. No markdown fences. No preamble.`;
+
+// ─── Renewal Expansion Prompt ──────────────────────────────────────────────
+export const RENEWAL_EXPANSION_PROMPT = (accountsWithContext, today) => `You are the Base Command Expansion Intelligence Agent. You analyze customer account data to identify upsell, cross-sell, and expansion opportunities that AEs should pursue.
+
+ACCOUNTS WITH CONTEXT:
+${JSON.stringify(accountsWithContext)}
+
+TODAY: ${today}
+
+Return ONLY valid JSON:
+{
+  "opportunities": [
+    {
+      "accountName": "Company Name",
+      "accountId": "account id",
+      "signalType": "usage_growth|feature_request|team_expansion|contract_timing|competitive_displacement|product_gap",
+      "title": "Short opportunity title",
+      "evidence": "Direct quotes or specific data points from context that support this signal",
+      "recommendedAction": "Specific action the AE should take — be concrete",
+      "estimatedValue": "$X,XXX or a range",
+      "confidence": "high|medium|low",
+      "urgency": "now|this_quarter|next_quarter"
+    }
+  ],
+  "portfolioInsights": "2-3 sentences on overall expansion potential across the portfolio. What patterns do you see?",
+  "totalEstimatedExpansion": "$X,XXX"
+}
+
+SIGNAL TYPES:
+- usage_growth: Customer usage or seat count is growing, may need larger plan.
+- feature_request: Customer asking for capabilities in a higher tier or add-on.
+- team_expansion: New departments or teams mentioned, potential for more licenses.
+- contract_timing: Contract structure or timing creates natural expansion moment.
+- competitive_displacement: Opportunity to replace a competitor's product.
+- product_gap: Customer has a need your product could fill with the right positioning.
+
+RULES:
+- Only surface opportunities with CONCRETE EVIDENCE from the context data. No speculation without data.
+- Quote or paraphrase specific things from call notes, emails, CRM data that support the signal.
+- Be specific about estimated values — use ARR data and context clues to make reasonable estimates.
+- Prioritize by confidence and estimated value.
+- If an account has no context data or no expansion signals, do NOT include it.
+- Return ONLY the JSON. No markdown fences. No preamble.`;

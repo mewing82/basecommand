@@ -1,21 +1,22 @@
 import { useState, useEffect, useRef } from "react";
-import { Compass, MessageSquare, LineChart, BookOpen, BarChart3, Sparkles, Plus, Send, X, ChevronDown, ArrowRight, AlertTriangle, Zap, FileText, Type, Image, Upload, Trash2, Eye, Check } from "lucide-react";
+import { Bot, MessageSquare, Upload, TrendingUp, BookOpen, Sparkles, Plus, Send, X, ChevronDown, ArrowRight, AlertTriangle, Zap, FileText, Type, Image, Trash2, Eye, Check, Mail, Shield, ChevronRight, Copy } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { renewalStore, store } from "../lib/storage";
 import { callAI } from "../lib/ai";
-import { safeParse, fmtRelative } from "../lib/utils";
+import { safeParse, fmtRelative, similarity } from "../lib/utils";
 import { Badge, Btn, Input, Modal, FormField, renderMarkdown } from "../components/ui/index";
+import { RENEWAL_IMPORT_PROMPT, RENEWAL_AUTOPILOT_PROMPT, RENEWAL_EXPANSION_PROMPT } from "../lib/prompts";
 
 const RENEWALS_SECTIONS = [
-  { id: "guidance", icon: Compass, label: "Guidance", agent: "Orchestration Agent" },
+  { id: "autopilot", icon: Bot, label: "Autopilot", agent: "Autopilot Agent" },
   { id: "accounts", icon: MessageSquare, label: "Accounts", agent: "Account Intelligence Agent" },
-  { id: "forecast", icon: LineChart, label: "Forecast", agent: "Forecast Intelligence Agent" },
+  { id: "import", icon: Upload, label: "Import", agent: "Data Intelligence Agent" },
+  { id: "expansion", icon: TrendingUp, label: "Expansion", agent: "Expansion Intelligence Agent" },
   { id: "knowledge", icon: BookOpen, label: "Knowledge Base", agent: "Enablement Agent" },
-  { id: "metrics", icon: BarChart3, label: "Metrics", agent: "Performance Agent" },
 ];
 
 export default function Renewals() {
-  const [activeSection, setActiveSection] = useState("guidance");
+  const [activeSection, setActiveSection] = useState("autopilot");
   const [hoveredSection, setHoveredSection] = useState(null);
   const [accounts, setAccounts] = useState(() => renewalStore.getAccounts());
   const [selectedAccountId, setSelectedAccountId] = useState(null);
@@ -57,11 +58,11 @@ export default function Renewals() {
         })}
       </div>
 
-      {activeSection === "guidance" && <RenewalsGuidance accounts={accounts} onNavigate={handleNavigateToAccount} />}
+      {activeSection === "autopilot" && <RenewalsAutopilot accounts={accounts} onNavigate={handleNavigateToAccount} onSwitchTab={setActiveSection} />}
       {activeSection === "accounts" && <RenewalsAccountsView accounts={accounts} selectedAccount={selectedAccount} onSelectAccount={setSelectedAccountId} onAddAccount={() => setShowAddAccount(true)} />}
-      {activeSection === "forecast" && <Placeholder icon={LineChart} title="Forecast" agent="Forecast Intelligence Agent" description="Quarterly churn and retention forecast. Upload data, track WoW changes, generate executive briefs." />}
+      {activeSection === "import" && <RenewalsImport existingAccounts={accounts} onAccountsCreated={() => setAccounts(renewalStore.getAccounts())} onSwitchTab={setActiveSection} />}
+      {activeSection === "expansion" && <RenewalsExpansion accounts={accounts} onNavigate={handleNavigateToAccount} />}
       {activeSection === "knowledge" && <Placeholder icon={BookOpen} title="Knowledge Base" agent="Enablement Agent" description="Searchable repository of renewal documentation. Ask questions, get sourced answers." />}
-      {activeSection === "metrics" && <Placeholder icon={BarChart3} title="Metrics" agent="Performance Agent" description="KPI tracking with AI interpretation. Upload data, get performance insights." />}
 
       {showAddAccount && <AddAccountModal onClose={() => setShowAddAccount(false)} onCreate={handleCreateAccount} />}
     </div>
@@ -105,12 +106,15 @@ function AddAccountModal({ onClose, onCreate }) {
   );
 }
 
-// ─── Guidance (Orchestration Agent) ──────────────────────────────────────────
-function RenewalsGuidance({ accounts, onNavigate }) {
-  const CACHE_KEY = `bc2-${store._ws}-renewals-guidance`;
-  const [briefing, setBriefing] = useState(() => safeParse(localStorage.getItem(CACHE_KEY), null));
+// ─── Autopilot (replaces Guidance) ───────────────────────────────────────────
+function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
+  const CACHE_KEY = `bc2-${store._ws}-renewals-autopilot`;
+  const [autopilot, setAutopilot] = useState(() => safeParse(localStorage.getItem(CACHE_KEY), null));
+  const [actions, setActions] = useState(() => renewalStore.getAutopilotActions());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [expandedAction, setExpandedAction] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
 
   const now = new Date();
   const totalARR = accounts.reduce((sum, a) => sum + (a.arr || 0), 0);
@@ -119,25 +123,62 @@ function RenewalsGuidance({ accounts, onNavigate }) {
   const due60 = accounts.filter(a => { const d = new Date(a.renewalDate); const diff = (d - now) / 86400000; return diff > 30 && diff <= 60; }).length;
   const due90 = accounts.filter(a => { const d = new Date(a.renewalDate); const diff = (d - now) / 86400000; return diff > 60 && diff <= 90; }).length;
   const fmt$ = (n) => n >= 1000000 ? `$${(n / 1000000).toFixed(1)}M` : n >= 1000 ? `$${(n / 1000).toFixed(0)}K` : `$${n}`;
-  const cachedAgo = briefing?._generatedAt ? (() => { const m = Math.floor((Date.now() - briefing._generatedAt) / 60000); return m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`; })() : null;
+  const cachedAgo = autopilot?._generatedAt ? (() => { const m = Math.floor((Date.now() - autopilot._generatedAt) / 60000); return m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`; })() : null;
+  const pendingActions = actions.filter(a => a.status === "pending");
 
-  async function generateBriefing() {
+  async function generateAutopilot() {
     if (accounts.length === 0) return; setLoading(true); setError(null);
     try {
-      const portfolioData = accounts.map(a => { const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000); return { name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, daysUntilRenewal: daysUntil, contextItems: renewalStore.getContext(a.id).length, activeThreads: renewalStore.getThreads(a.id).length, summary: a.summary || "", tags: a.tags || [] }; });
-      const systemPrompt = `You analyze a renewal specialist's full portfolio and prioritize their day.\n\nPORTFOLIO DATA:\n${JSON.stringify(portfolioData)}\n\nTODAY: ${now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}\nSUMMARY: ${accounts.length} accounts, ${fmt$(totalARR)} total ARR, ${fmt$(atRiskARR)} at-risk, ${due30} due 30d, ${due60} due 60d, ${due90} due 90d.\n\nReturn ONLY valid JSON:\n{"summary":"2-3 sentences. Be direct, reference names and amounts.","priorities":[{"accountName":"Name","urgency":"critical|high|medium|opportunity","reasoning":"WHY this needs attention.","action":"WHAT to do.","daysUntilRenewal":30,"arr":187000}],"onTrack":["on-track account names"],"pendingDrafts":0}\n\nRULES: Order by urgency. Be specific. Flag data gaps.`;
-      const response = await callAI([{ role: "user", content: "Generate my daily renewal briefing." }], systemPrompt, 3000);
+      const portfolioData = accounts.map(a => {
+        const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000);
+        const ctx = renewalStore.getContext(a.id);
+        const contextSummary = ctx.length === 0 ? "No context data" : ctx.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 500)}`).join("\n");
+        return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, daysUntilRenewal: daysUntil, contacts: a.contacts || [], summary: a.summary || "", tags: a.tags || [], contextData: contextSummary };
+      });
+      const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+      const response = await callAI([{ role: "user", content: "Generate autopilot actions for my renewal portfolio." }], RENEWAL_AUTOPILOT_PROMPT(portfolioData, today), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setBriefing(parsed); localStorage.setItem(CACHE_KEY, JSON.stringify(parsed));
+      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setAutopilot(parsed); localStorage.setItem(CACHE_KEY, JSON.stringify(parsed));
+      // Save new actions
+      if (parsed.actions?.length > 0) {
+        const newActions = parsed.actions.map(a => ({ id: `action_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: a.accountId || "", accountName: a.accountName, type: a.type, title: a.title, description: a.description, draft: a.draft || "", urgency: a.urgency, reasoning: a.reasoning || "", status: "pending", createdAt: new Date().toISOString() }));
+        renewalStore.saveAutopilotActions(newActions); setActions(newActions);
+      }
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   }
 
-  useEffect(() => { if (accounts.length > 0 && !briefing && !loading) generateBriefing(); }, [accounts.length]);
+  function handleActionStatus(actionId, status) {
+    renewalStore.updateAutopilotAction(actionId, { status }); setActions(renewalStore.getAutopilotActions());
+  }
+  function handleCopy(text, id) { navigator.clipboard.writeText(text); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); }
 
-  if (accounts.length === 0) return (<Placeholder icon={Compass} title="Guidance" agent="Orchestration Agent" description="Add accounts to get AI-generated prioritization briefings." />);
+  useEffect(() => { if (accounts.length > 0 && !autopilot && !loading) generateAutopilot(); }, [accounts.length]);
 
-  const urgencyColors = { critical: C.red, high: C.amber, medium: C.blue, opportunity: C.green };
-  const urgencyLabels = { critical: "CRITICAL", high: "HIGH", medium: "MEDIUM", opportunity: "OPPORTUNITY" };
+  if (accounts.length === 0) return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20, textAlign: "center", padding: "40px 20px" }}>
+      <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg, ${C.aiBlue}20, ${C.gold}20)`, display: "flex", alignItems: "center", justifyContent: "center" }}><Bot size={32} style={{ color: C.aiBlue }} /></div>
+      <div>
+        <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Your Renewal Autopilot</h2>
+        <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>BaseCommand takes renewal work off your plate. Import your customer data — even a messy spreadsheet works — and the autopilot will generate outreach emails, flag risks, and surface expansion opportunities.</p>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400, width: "100%" }}>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em" }}>Get Started</div>
+        {[{ step: "1", label: "Import your data", desc: "Paste a Salesforce export, spreadsheet, or even rough notes about your customers", action: () => onSwitchTab("import") }, { step: "2", label: "Review extracted accounts", desc: "AI identifies accounts, ARR, renewal dates, and risk signals from your data" }, { step: "3", label: "Let Autopilot work", desc: "Get draft emails, risk assessments, and expansion signals — just review and approve" }].map((item, i) => (
+          <button key={i} onClick={item.action} disabled={!item.action} style={{ display: "flex", gap: 14, padding: "14px 18px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, cursor: item.action ? "pointer" : "default", textAlign: "left", transition: "all 0.15s", width: "100%" }}
+            onMouseEnter={e => { if (item.action) { e.currentTarget.style.borderColor = C.aiBlue + "40"; e.currentTarget.style.background = C.bgCardHover; } }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.background = C.bgCard; }}>
+            <span style={{ fontFamily: FONT_MONO, fontSize: 16, fontWeight: 700, color: C.aiBlue, opacity: 0.5, flexShrink: 0, width: 24 }}>{item.step}</span>
+            <div><div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{item.label}</div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.4 }}>{item.desc}</div></div>
+            {item.action && <ArrowRight size={14} style={{ color: C.aiBlue, flexShrink: 0, alignSelf: "center", opacity: 0.5 }} />}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const urgencyColors = { critical: C.red, high: C.amber, medium: C.blue };
+  const typeIcons = { email_draft: Mail, risk_assessment: Shield, next_action: Zap };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -151,62 +192,111 @@ function RenewalsGuidance({ accounts, onNavigate }) {
         ))}
       </div>
 
-      {/* AI Briefing */}
+      {/* Autopilot Status Banner */}
       <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.borderAI}`, borderLeft: `3px solid ${C.aiBlue}`, borderRadius: 12, padding: "22px 26px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: `radial-gradient(circle, ${C.aiBlueGlow} 0%, transparent 70%)`, pointerEvents: "none" }} />
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, position: "relative" }}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}25`, display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkles size={12} color={C.aiBlue} /></div>
-          <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Daily Briefing</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Orchestration Agent</span>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}25`, display: "flex", alignItems: "center", justifyContent: "center" }}><Bot size={14} color={C.aiBlue} /></div>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Autopilot</span>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Autopilot Agent</span>
           {cachedAgo && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>· {cachedAgo}</span>}
-          <button onClick={generateBriefing} disabled={loading} style={{ background: loading ? C.aiBlueMuted : "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.aiBlue : C.textTertiary, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={generateAutopilot} disabled={loading} style={{ background: loading ? C.aiBlueMuted : "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.aiBlue : C.textTertiary, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
             <Sparkles size={11} style={{ animation: loading ? "aiPulse 2s ease-in-out infinite" : "none" }} />{loading ? "Analyzing..." : "Refresh"}
           </button>
         </div>
         {error && <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 12 }}><AlertTriangle size={14} /> {error}</div>}
-        {loading && !briefing ? (<div style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: C.aiBlue, animation: "aiPulse 2s ease-in-out infinite" }} /><span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Analyzing your {accounts.length} accounts...</span></div>
-        ) : briefing?.summary ? (<div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.7 }}>{briefing.summary}</div>
-        ) : (<div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Click Refresh to generate your daily briefing.</div>)}
-        {briefing && <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.borderDefault}`, display: "flex", alignItems: "center", gap: 8 }}><FileText size={13} style={{ color: C.textTertiary }} /><span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{briefing.pendingDrafts || 0} pending drafts</span></div>}
+        {loading && !autopilot ? (<div style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: C.aiBlue, animation: "aiPulse 2s ease-in-out infinite" }} /><span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Analyzing {accounts.length} accounts and generating actions...</span></div>
+        ) : autopilot?.status?.summary ? (
+          <div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.7, marginBottom: 12 }}>{autopilot.status.summary}</div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+              {[{ label: "Managing", value: autopilot.status.managing || accounts.length, color: C.aiBlue }, { label: "Pending Actions", value: pendingActions.length, color: pendingActions.length > 0 ? C.amber : C.textTertiary }, { label: "Expansion Signals", value: autopilot.expansionHighlights?.length || 0, color: C.green }].map((s, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontFamily: FONT_MONO, fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</span><span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>{s.label}</span></div>
+              ))}
+            </div>
+          </div>
+        ) : (<div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Click Refresh to activate the autopilot.</div>)}
       </div>
 
-      {/* Priority Cards */}
-      {briefing?.priorities?.length > 0 && (
+      {/* Actions Feed */}
+      {pendingActions.length > 0 && (
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Today's Priorities</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /><span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{briefing.priorities.length} accounts</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Actions to Review</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /><span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{pendingActions.length} pending</span></div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {briefing.priorities.map((item, i) => {
-              const color = urgencyColors[item.urgency] || C.textTertiary; const matchedAccount = accounts.find(a => a.name === item.accountName);
+            {pendingActions.map(action => {
+              const color = urgencyColors[action.urgency] || C.textTertiary;
+              const TypeIcon = typeIcons[action.type] || Zap;
+              const expanded = expandedAction === action.id;
+              const typeLabels = { email_draft: "Email Draft", risk_assessment: "Risk Assessment", next_action: "Next Action" };
               return (
-                <button key={i} onClick={() => matchedAccount && onNavigate(matchedAccount.id)} style={{ display: "flex", gap: 16, padding: "16px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderLeft: `3px solid ${color}`, borderRadius: 10, cursor: matchedAccount ? "pointer" : "default", textAlign: "left", transition: "all 0.15s", width: "100%" }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.background = C.bgCardHover; e.currentTarget.style.borderLeftColor = color; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.background = C.bgCard; e.currentTarget.style.borderLeftColor = color; }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flexShrink: 0, minWidth: 48 }}>
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 700, color, background: color + "18", padding: "2px 8px", borderRadius: 4, letterSpacing: "0.06em" }}>{urgencyLabels[item.urgency]}</span>
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 18, fontWeight: 700, color: C.textTertiary, opacity: 0.4 }}>{i + 1}</span>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                      <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>{item.accountName}</span>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{fmt$(item.arr || 0)}</span>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 11, marginLeft: "auto", color: (item.daysUntilRenewal || 999) <= 30 ? C.red : (item.daysUntilRenewal || 999) <= 60 ? C.amber : C.textTertiary }}>{item.daysUntilRenewal > 0 ? `${item.daysUntilRenewal}d` : item.daysUntilRenewal === 0 ? "Today" : `${Math.abs(item.daysUntilRenewal)}d overdue`}</span>
+                <div key={action.id} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderLeft: `3px solid ${color}`, borderRadius: 10, overflow: "hidden", transition: "all 0.15s" }}>
+                  <button onClick={() => setExpandedAction(expanded ? null : action.id)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 20px", width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>
+                    <TypeIcon size={16} style={{ color, flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{action.accountName}</span>
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color, background: color + "18", padding: "2px 6px", borderRadius: 3, letterSpacing: "0.04em", textTransform: "uppercase" }}>{typeLabels[action.type] || action.type}</span>
+                      </div>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, marginTop: 2 }}>{action.title}</div>
                     </div>
-                    <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5, marginBottom: 6 }}>{item.reasoning}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Zap size={12} style={{ color: C.gold }} /><span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.gold, fontWeight: 500 }}>{item.action}</span></div>
-                  </div>
-                  {matchedAccount && <ArrowRight size={16} style={{ color: C.textTertiary, flexShrink: 0, alignSelf: "center", opacity: 0.5 }} />}
-                </button>
+                    <ChevronRight size={14} style={{ color: C.textTertiary, transform: expanded ? "rotate(90deg)" : "none", transition: "transform 0.15s", flexShrink: 0 }} />
+                  </button>
+                  {expanded && (
+                    <div style={{ padding: "0 20px 16px", borderTop: `1px solid ${C.borderDefault}` }}>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, margin: "12px 0", padding: "12px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}` }}>
+                        {action.description && <div style={{ marginBottom: 8 }}>{action.description}</div>}
+                        {action.draft && <div style={{ whiteSpace: "pre-wrap", fontFamily: FONT_BODY, fontSize: 13, color: C.textPrimary, lineHeight: 1.6 }}>{action.draft}</div>}
+                        {action.reasoning && <div style={{ marginTop: 8, fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Reasoning: {action.reasoning}</div>}
+                      </div>
+                      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                        {action.draft && <button onClick={() => handleCopy(action.draft, action.id)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 6, cursor: "pointer", background: "transparent", border: `1px solid ${C.borderDefault}`, color: copiedId === action.id ? C.green : C.textSecondary, fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500 }}>{copiedId === action.id ? <Check size={12} /> : <Copy size={12} />}{copiedId === action.id ? "Copied" : "Copy"}</button>}
+                        <button onClick={() => handleActionStatus(action.id, "dismissed")} style={{ padding: "6px 12px", borderRadius: 6, cursor: "pointer", background: "transparent", border: `1px solid ${C.borderDefault}`, color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500 }}>Dismiss</button>
+                        <button onClick={() => handleActionStatus(action.id, "approved")} style={{ padding: "6px 12px", borderRadius: 6, cursor: "pointer", background: C.green + "18", border: `1px solid ${C.green}40`, color: C.green, fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600 }}><Check size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />Approve</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
         </div>
       )}
 
-      {/* On-track */}
-      {briefing?.onTrack?.length > 0 && (
-        <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: "16px 20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><Check size={14} style={{ color: C.green }} /><span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textSecondary }}>On Track</span></div>
-          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6 }}>{briefing.onTrack.join(" · ")}</div>
+      {/* Expansion Highlights */}
+      {autopilot?.expansionHighlights?.length > 0 && (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Expansion Opportunities</span>
+            <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
+            <button onClick={() => onSwitchTab("expansion")} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.green }}>View All <ArrowRight size={12} /></button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300, 1fr))", gap: 10 }}>
+            {autopilot.expansionHighlights.slice(0, 3).map((opp, i) => (
+              <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.green}25`, borderRadius: 10, padding: "14px 18px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <TrendingUp size={14} style={{ color: C.green }} />
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{opp.accountName}</span>
+                  {opp.estimatedValue && <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color: C.green, marginLeft: "auto" }}>{opp.estimatedValue}</span>}
+                </div>
+                <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{opp.signal}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Attention Items */}
+      {autopilot?.attentionItems?.length > 0 && (
+        <div style={{ background: C.bgCard, border: `1px solid ${C.amber}25`, borderRadius: 10, padding: "16px 20px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><AlertTriangle size={14} style={{ color: C.amber }} /><span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.amber }}>Needs Your Judgment</span></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {autopilot.attentionItems.map((item, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, flexShrink: 0 }}>{item.accountName}:</span>
+                <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{item.issue}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -225,6 +315,340 @@ function RenewalsGuidance({ accounts, onNavigate }) {
           </button>);
         })}
       </div>
+    </div>
+  );
+}
+
+// ─── Import (Data Intelligence Agent) ────────────────────────────────────────
+function RenewalsImport({ existingAccounts, onAccountsCreated, onSwitchTab }) {
+  const [phase, setPhase] = useState("input"); // input | review | done
+  const [rawData, setRawData] = useState("");
+  const [source, setSource] = useState("Salesforce");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [extracted, setExtracted] = useState([]);
+  const [warnings, setWarnings] = useState([]);
+  const [aiSummary, setAiSummary] = useState("");
+  const [createdCount, setCreatedCount] = useState(0);
+  const fileInputRef = useRef(null);
+
+  async function handleProcess() {
+    if (!rawData.trim()) return; setLoading(true); setError(null);
+    try {
+      // Chunk large inputs
+      const chunks = [];
+      const maxChunk = 12000;
+      if (rawData.length <= maxChunk) { chunks.push(rawData); }
+      else { let start = 0; while (start < rawData.length) { chunks.push(rawData.slice(start, start + maxChunk)); start += maxChunk; } }
+
+      let allAccounts = [];
+      let allWarnings = [];
+      let summary = "";
+      for (const chunk of chunks) {
+        const response = await callAI([{ role: "user", content: `Process this data and extract renewal accounts:\n\n${chunk}` }], RENEWAL_IMPORT_PROMPT(chunk, source), 4000);
+        let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+        const parsed = JSON.parse(text);
+        if (parsed.accounts) allAccounts = allAccounts.concat(parsed.accounts);
+        if (parsed.warnings) allWarnings = allWarnings.concat(parsed.warnings);
+        if (parsed.summary) summary = parsed.summary;
+      }
+
+      // Deduplicate extracted accounts
+      const deduped = [];
+      for (const acct of allAccounts) {
+        const isDup = deduped.some(d => similarity(d.name.toLowerCase(), acct.name.toLowerCase()) > 0.8);
+        if (!isDup) deduped.push(acct);
+      }
+
+      // Flag accounts that match existing ones
+      for (const acct of deduped) {
+        const existingMatch = existingAccounts.find(e => similarity(e.name.toLowerCase(), acct.name.toLowerCase()) > 0.7);
+        if (existingMatch) acct._existingMatch = existingMatch.name;
+      }
+
+      setExtracted(deduped); setWarnings(allWarnings); setAiSummary(summary); setPhase("review");
+    } catch (err) { setError(err.message); } finally { setLoading(false); }
+  }
+
+  function handleFileUpload(e) {
+    const file = e.target.files?.[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => { setRawData(prev => prev ? prev + "\n\n---\n\n" + ev.target.result : ev.target.result); };
+    reader.readAsText(file); e.target.value = "";
+  }
+
+  function removeExtracted(idx) { setExtracted(prev => prev.filter((_, i) => i !== idx)); }
+  function updateExtracted(idx, field, value) { setExtracted(prev => prev.map((a, i) => i === idx ? { ...a, [field]: value } : a)); }
+
+  function handleCreateAccounts() {
+    let created = 0;
+    for (const acct of extracted) {
+      if (acct._existingMatch && acct._skip) continue;
+      const account = {
+        id: `acct-${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        name: acct.name.trim(),
+        arr: parseFloat(acct.arr) || 0,
+        renewalDate: acct.renewalDate || "",
+        riskLevel: acct.riskLevel || "medium",
+        contacts: acct.contacts || [],
+        summary: acct.notes || "",
+        tags: [],
+        lastActivity: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      };
+      renewalStore.saveAccount(account);
+      // Attach raw source data as context item
+      renewalStore.addContextItem(account.id, {
+        id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        accountId: account.id,
+        type: "text",
+        label: `Import: ${source}`,
+        source: source.toLowerCase(),
+        content: rawData.slice(0, 5000),
+        metadata: { words: rawData.split(/\s+/).length, size: (new Blob([rawData]).size / 1024).toFixed(1) + " KB" },
+        uploadedAt: new Date().toISOString()
+      });
+      created++;
+    }
+    setCreatedCount(created); onAccountsCreated(); setPhase("done");
+  }
+
+  const confidenceColors = { high: C.green, medium: C.amber, low: C.red };
+
+  // Phase: Input
+  if (phase === "input") return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.borderAI}`, borderLeft: `3px solid ${C.aiBlue}`, borderRadius: 12, padding: "22px 26px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: C.aiBlueMuted, display: "flex", alignItems: "center", justifyContent: "center" }}><Upload size={14} color={C.aiBlue} /></div>
+          <div>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Import Unstructured Data</span>
+            <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, margin: "2px 0 0" }}>Don't worry about clean data. Paste messy CRM exports, spreadsheets, call notes, emails — AI will extract your accounts.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <FormField label="Source">
+          <select value={source} onChange={e => setSource(e.target.value)} style={{ padding: "8px 12px", borderRadius: 8, background: C.bgCard, border: `1px solid ${C.borderDefault}`, color: C.textPrimary, fontFamily: FONT_BODY, fontSize: 13, outline: "none" }}>
+            {["Salesforce", "HubSpot", "Gong", "Spreadsheet", "Email", "Notes", "Other"].map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </FormField>
+        <div style={{ flex: 1 }} />
+        <input ref={fileInputRef} type="file" accept=".csv,.txt,.tsv,.md" style={{ display: "none" }} onChange={handleFileUpload} />
+        <Btn variant="ghost" onClick={() => fileInputRef.current?.click()}><FileText size={14} /> Upload File</Btn>
+      </div>
+
+      <textarea value={rawData} onChange={e => setRawData(e.target.value)} placeholder={"Paste your data here...\n\nExamples:\n- Salesforce CSV export\n- Spreadsheet copy/paste\n- CRM report\n- Call notes with account details\n- Email threads about renewals\n- Any mix of the above"} rows={14}
+        style={{ width: "100%", padding: "16px 18px", borderRadius: 10, background: C.bgCard, border: `1px solid ${C.borderDefault}`, color: C.textPrimary, fontFamily: FONT_MONO, fontSize: 13, outline: "none", resize: "vertical", lineHeight: 1.6, boxSizing: "border-box" }}
+        onFocus={e => e.target.style.borderColor = C.aiBlue} onBlur={e => e.target.style.borderColor = C.borderDefault} />
+
+      {rawData.trim() ? <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{rawData.split(/\s+/).length} words · {(new Blob([rawData]).size / 1024).toFixed(1)} KB</div>
+      : <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+          {[{ title: "CRM Exports", desc: "Salesforce reports, HubSpot exports, even messy CSV files with inconsistent columns", icon: FileText, color: C.green },
+            { title: "Call Notes & Transcripts", desc: "Gong summaries, meeting notes, or any text with customer details mentioned", icon: MessageSquare, color: C.amber },
+            { title: "Emails & Messages", desc: "Renewal threads, customer check-ins, Slack conversations about accounts", icon: Mail, color: C.aiBlue }
+          ].map((item, i) => { const Icon = item.icon; return (
+            <div key={i} style={{ padding: "14px 16px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}><Icon size={14} style={{ color: item.color }} /><span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>{item.title}</span></div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5 }}>{item.desc}</div>
+            </div>);
+          })}
+        </div>}
+      {error && <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.red, fontFamily: FONT_BODY, fontSize: 13 }}><AlertTriangle size={14} /> {error}</div>}
+
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <Btn variant="primary" onClick={handleProcess} disabled={!rawData.trim() || loading}>
+          {loading ? <><Sparkles size={14} style={{ animation: "aiPulse 2s ease-in-out infinite" }} /> Processing...</> : <><Sparkles size={14} /> Process with AI</>}
+        </Btn>
+      </div>
+    </div>
+  );
+
+  // Phase: Review
+  if (phase === "review") return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.borderAI}`, borderLeft: `3px solid ${C.aiBlue}`, borderRadius: 12, padding: "18px 22px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <Sparkles size={14} style={{ color: C.aiBlue }} />
+          <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>AI Extraction Complete</span>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.aiBlue, marginLeft: "auto" }}>{extracted.length} accounts found</span>
+        </div>
+        {aiSummary && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>{aiSummary}</div>}
+        {warnings.length > 0 && <div style={{ marginTop: 8 }}>{warnings.map((w, i) => <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6, fontFamily: FONT_BODY, fontSize: 12, color: C.amber, lineHeight: 1.4, marginTop: 4 }}><AlertTriangle size={12} style={{ flexShrink: 0, marginTop: 1 }} />{w}</div>)}</div>}
+      </div>
+
+      {extracted.length === 0 ? (
+        <div style={{ textAlign: "center", padding: 32 }}>
+          <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>No accounts could be extracted from the data. Try pasting different data or a larger sample.</p>
+          <Btn variant="ghost" onClick={() => setPhase("input")} style={{ marginTop: 12 }}>Go Back</Btn>
+        </div>
+      ) : (
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {extracted.map((acct, idx) => {
+              const confColor = confidenceColors[acct.confidence] || C.textTertiary;
+              const rc = { high: C.red, medium: C.amber, low: C.green };
+              return (
+                <div key={idx} style={{ background: C.bgCard, border: `1px solid ${acct._existingMatch ? C.amber + "40" : C.borderDefault}`, borderRadius: 10, padding: "16px 20px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    <input value={acct.name} onChange={e => updateExtracted(idx, "name", e.target.value)} style={{ flex: 1, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, background: "transparent", border: "none", outline: "none", padding: 0 }} />
+                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: confColor, background: confColor + "18", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase" }}>{acct.confidence || "medium"}</span>
+                    <button onClick={() => removeExtracted(idx)} style={{ background: "transparent", border: "none", cursor: "pointer", color: C.textTertiary, display: "flex", padding: 2, opacity: 0.5 }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0.5"}><X size={14} /></button>
+                  </div>
+                  {acct._existingMatch && <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, padding: "6px 10px", background: C.amber + "12", borderRadius: 6, border: `1px solid ${C.amber}25` }}><AlertTriangle size={12} style={{ color: C.amber }} /><span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.amber }}>Possible duplicate of "{acct._existingMatch}"</span></div>}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, marginBottom: 4 }}>ARR</div>
+                      <div style={{ position: "relative" }}>
+                        <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: C.textTertiary, fontFamily: FONT_MONO, fontSize: 12 }}>$</span>
+                        <input type="number" value={acct.arr || ""} onChange={e => updateExtracted(idx, "arr", parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "6px 8px 6px 20px", borderRadius: 6, background: C.bgPrimary, border: `1px solid ${C.borderDefault}`, color: C.textPrimary, fontFamily: FONT_MONO, fontSize: 12, outline: "none", boxSizing: "border-box" }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, marginBottom: 4 }}>Renewal Date</div>
+                      <input type="date" value={acct.renewalDate || ""} onChange={e => updateExtracted(idx, "renewalDate", e.target.value)} style={{ width: "100%", padding: "6px 8px", borderRadius: 6, background: C.bgPrimary, border: `1px solid ${C.borderDefault}`, color: C.textPrimary, fontFamily: FONT_MONO, fontSize: 12, outline: "none", colorScheme: "dark", boxSizing: "border-box" }} />
+                    </div>
+                    <div>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, marginBottom: 4 }}>Risk Level</div>
+                      <div style={{ display: "flex", gap: 4 }}>
+                        {["low", "medium", "high"].map(level => (<button key={level} onClick={() => updateExtracted(idx, "riskLevel", level)} style={{ flex: 1, padding: "5px 4px", borderRadius: 5, cursor: "pointer", border: `1px solid ${acct.riskLevel === level ? rc[level] + "60" : C.borderDefault}`, background: acct.riskLevel === level ? rc[level] + "14" : "transparent", color: acct.riskLevel === level ? rc[level] : C.textTertiary, fontFamily: FONT_SANS, fontSize: 10, fontWeight: acct.riskLevel === level ? 600 : 500, textTransform: "capitalize" }}>{level}</button>))}
+                      </div>
+                    </div>
+                  </div>
+                  {acct.notes && <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.5, padding: "8px 10px", background: C.bgPrimary, borderRadius: 6, border: `1px solid ${C.borderDefault}` }}>{acct.notes}</div>}
+                  {acct.contacts?.length > 0 && <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>{acct.contacts.map((c, ci) => <span key={ci} style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, background: C.bgPrimary, padding: "2px 8px", borderRadius: 4, border: `1px solid ${C.borderDefault}` }}>{c.name}{c.role ? ` · ${c.role}` : ""}</span>)}</div>}
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+            <Btn variant="ghost" onClick={() => { setPhase("input"); setExtracted([]); }}>Back</Btn>
+            <Btn variant="primary" onClick={handleCreateAccounts} disabled={extracted.length === 0}><Check size={14} /> Create {extracted.length} Account{extracted.length !== 1 ? "s" : ""}</Btn>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  // Phase: Done
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 320, gap: 16, textAlign: "center" }}>
+      <div style={{ width: 56, height: 56, borderRadius: 14, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={28} style={{ color: C.green }} /></div>
+      <h2 style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: C.textPrimary, margin: 0 }}>Import Complete</h2>
+      <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 400, lineHeight: 1.5, margin: 0 }}>{createdCount} account{createdCount !== 1 ? "s" : ""} created with source data attached. The Autopilot will start generating actions for them.</p>
+      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+        <Btn variant="ghost" onClick={() => { setPhase("input"); setRawData(""); setExtracted([]); }}>Import More</Btn>
+        <Btn variant="primary" onClick={() => onSwitchTab("autopilot")}>Go to Autopilot</Btn>
+      </div>
+    </div>
+  );
+}
+
+// ─── Expansion (Expansion Intelligence Agent) ───────────────────────────────
+function RenewalsExpansion({ accounts, onNavigate }) {
+  const [cache, setCache] = useState(() => renewalStore.getExpansionCache());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const cachedAgo = cache?._generatedAt ? (() => { const m = Math.floor((Date.now() - cache._generatedAt) / 60000); return m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`; })() : null;
+
+  const accountsWithContext = accounts.filter(a => renewalStore.getContext(a.id).length > 0);
+
+  async function analyzeExpansion() {
+    if (accountsWithContext.length === 0) return; setLoading(true); setError(null);
+    try {
+      const data = accountsWithContext.map(a => {
+        const ctx = renewalStore.getContext(a.id);
+        return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, contacts: a.contacts || [], context: ctx.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 600)}`).join("\n") };
+      });
+      const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+      const response = await callAI([{ role: "user", content: "Analyze my accounts for expansion opportunities." }], RENEWAL_EXPANSION_PROMPT(data, today), 4000);
+      let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); renewalStore.saveExpansionCache(parsed);
+    } catch (err) { setError(err.message); } finally { setLoading(false); }
+  }
+
+  useEffect(() => { if (accountsWithContext.length > 0 && !cache && !loading) analyzeExpansion(); }, [accountsWithContext.length]);
+
+  if (accounts.length === 0) return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20, textAlign: "center", padding: "40px 20px" }}>
+      <div style={{ width: 64, height: 64, borderRadius: 16, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><TrendingUp size={32} style={{ color: C.green }} /></div>
+      <div>
+        <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Find Expansion Revenue</h2>
+        <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Import your accounts first, then add context data (call notes, CRM exports, emails). The Expansion Agent will identify upsell and cross-sell opportunities hiding in your customer conversations.</p>
+      </div>
+    </div>
+  );
+
+  if (accountsWithContext.length === 0) return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20, textAlign: "center", padding: "40px 20px" }}>
+      <div style={{ width: 64, height: 64, borderRadius: 16, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><TrendingUp size={32} style={{ color: C.green }} /></div>
+      <div>
+        <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Add Context to Unlock Signals</h2>
+        <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>You have {accounts.length} account{accounts.length !== 1 ? "s" : ""} but none have context data yet. Add call notes, CRM data, or emails to any account and the Expansion Agent will scan for upsell and cross-sell opportunities.</p>
+      </div>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, maxWidth: 400, lineHeight: 1.5 }}>
+        <strong style={{ color: C.textSecondary }}>What counts as context?</strong> Gong call transcripts, Salesforce notes, email threads, support tickets, usage data — anything that reveals how your customer is using your product and what they need next.
+      </div>
+    </div>
+  );
+
+  const signalColors = { usage_growth: C.green, feature_request: C.aiBlue, team_expansion: C.gold, contract_timing: C.amber, competitive_displacement: C.red, product_gap: "#a78bfa" };
+  const signalLabels = { usage_growth: "Usage Growth", feature_request: "Feature Request", team_expansion: "Team Expansion", contract_timing: "Contract Timing", competitive_displacement: "Competitive", product_gap: "Product Gap" };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Header */}
+      <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.green}25`, borderLeft: `3px solid ${C.green}`, borderRadius: 12, padding: "22px 26px", position: "relative", overflow: "hidden" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><TrendingUp size={14} color={C.green} /></div>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Expansion Intelligence</span>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Analyzing {accountsWithContext.length} accounts</span>
+          {cachedAgo && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>· {cachedAgo}</span>}
+          <button onClick={analyzeExpansion} disabled={loading} style={{ background: loading ? C.green + "18" : "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.green : C.textTertiary, display: "flex", alignItems: "center", gap: 6 }}>
+            <Sparkles size={11} style={{ animation: loading ? "aiPulse 2s ease-in-out infinite" : "none" }} />{loading ? "Analyzing..." : "Refresh"}
+          </button>
+        </div>
+        {error && <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 8 }}><AlertTriangle size={14} /> {error}</div>}
+        {loading && !cache ? (<div style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green, animation: "aiPulse 2s ease-in-out infinite" }} /><span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Scanning account data for expansion signals...</span></div>
+        ) : cache?.portfolioInsights ? (
+          <div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.7, marginBottom: 8 }}>{cache.portfolioInsights}</div>
+            {cache.totalEstimatedExpansion && <div style={{ fontFamily: FONT_MONO, fontSize: 14, fontWeight: 600, color: C.green }}>Total Estimated Expansion: {cache.totalEstimatedExpansion}</div>}
+          </div>
+        ) : (<div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Click Refresh to scan for expansion opportunities.</div>)}
+      </div>
+
+      {/* Opportunity Cards */}
+      {cache?.opportunities?.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Opportunities</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /><span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{cache.opportunities.length} signals</span></div>
+          {cache.opportunities.map((opp, i) => {
+            const color = signalColors[opp.signalType] || C.green;
+            const matchedAccount = accounts.find(a => a.name === opp.accountName || a.id === opp.accountId);
+            const confColors = { high: C.green, medium: C.amber, low: C.red };
+            return (
+              <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderLeft: `3px solid ${color}`, borderRadius: 10, padding: "16px 20px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <TrendingUp size={14} style={{ color }} />
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>{opp.accountName}</span>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color, background: color + "18", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", letterSpacing: "0.04em" }}>{signalLabels[opp.signalType] || opp.signalType}</span>
+                  {opp.confidence && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: confColors[opp.confidence] || C.textTertiary }}>{opp.confidence}</span>}
+                  {opp.estimatedValue && <span style={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, color: C.green, marginLeft: "auto" }}>{opp.estimatedValue}</span>}
+                </div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>{opp.title}</div>
+                {opp.evidence && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 8, padding: "8px 12px", background: C.bgPrimary, borderRadius: 6, borderLeft: `2px solid ${color}40` }}>"{opp.evidence}"</div>}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Zap size={12} style={{ color: C.gold }} /><span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.gold, fontWeight: 500 }}>{opp.recommendedAction}</span>
+                  {opp.urgency && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: "auto", textTransform: "uppercase" }}>{opp.urgency}</span>}
+                  {matchedAccount && <button onClick={() => onNavigate(matchedAccount.id)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}><ArrowRight size={10} />View</button>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
