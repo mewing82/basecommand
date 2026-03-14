@@ -25,8 +25,8 @@ const NAV_SECTIONS = [
     { id: "meetings", icon: Users, label: "Meetings" },
     { id: "library", icon: Library, label: "Library" },
   ]},
-  { label: "Operations", items: [
-    { id: "renewals", icon: RefreshCw, label: "Renewals" },
+  { label: "Renewals", items: [
+    { id: "renewals", icon: RefreshCw, label: "Renewal Ops" },
   ]},
 ];
 
@@ -199,7 +199,7 @@ export default function Sidebar({ activeView, onNavigate }) {
           }}>B</div>
           {isExpanded && (
             <span style={{ fontFamily: FONT_SANS, fontWeight: 600, fontSize: 17, color: C.textPrimary, letterSpacing: "-0.03em", whiteSpace: "nowrap" }}>
-              Base Command
+              BaseCommand
             </span>
           )}
         </div>

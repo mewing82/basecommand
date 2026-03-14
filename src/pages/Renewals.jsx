@@ -35,7 +35,7 @@ export default function Renewals() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
         <div>
           <h1 style={{ fontFamily: FONT_SANS, fontSize: 24, fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Renewal Operations</h1>
-          <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>AI-augmented renewal management</p>
+          <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>AI-powered renewal automation, expansion intelligence, and executive reporting</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}30`, borderRadius: 8, padding: "6px 14px" }}>

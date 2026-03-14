@@ -50,7 +50,7 @@ export default function Dashboard() {
         dayOfWeek: today.toLocaleDateString("en-US", { weekday: "long" }),
       };
 
-      const prompt = `You are BC, an executive decision intelligence co-pilot. Analyze this user's current state and return a JSON response that powers their dashboard. Be direct, strategic, and personal.
+      const prompt = `You are BC, an AI-powered renewal operations co-pilot. Analyze this user's current state and return a JSON response that powers their dashboard. Be direct, strategic, and personal.
 
 DATA:
 ${JSON.stringify(snapshot)}
@@ -105,10 +105,10 @@ RULES:
           display: "flex", alignItems: "center", justifyContent: "center", color: C.gold,
         }}><Sparkles size={28} /></div>
         <h1 style={{ fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700, color: C.textPrimary, margin: "0 0 12px", letterSpacing: "-0.03em" }}>
-          Your command center is ready
+          Your renewal command center is ready
         </h1>
         <p style={{ fontFamily: FONT_BODY, fontSize: 15, color: C.textSecondary, lineHeight: 1.7, maxWidth: 460, margin: "0 auto 36px" }}>
-          BC is your decision intelligence partner. Create a project or import a plan, and I'll analyze what matters, surface risks, and tell you exactly where to focus.
+          BaseCommand is your AI-powered renewal operations partner. Import your portfolio, automate renewal workflows, and surface expansion opportunities — all from one platform.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
           <button onClick={() => navigate("/projects")} style={{

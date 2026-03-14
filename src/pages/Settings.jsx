@@ -187,7 +187,7 @@ export default function Settings() {
         <SettingsRow label="Schema Version" value={localStorage.getItem("bc2-meta:schema-version") || "—"} />
         <SettingsRow label="Storage" value="localStorage" />
         <SettingsRow label="Workspace" value={(() => { const ws = getWorkspaces().find(w => w.id === getActiveWorkspaceId()); return ws ? ws.name : "Default"; })()} />
-        <SettingsRow label="App" value="Base Command v3.0 (rebuild)" />
+        <SettingsRow label="App" value="BaseCommand v3.0 — Renewal Operations Platform" />
       </SettingsSection>
     </div>
   );
