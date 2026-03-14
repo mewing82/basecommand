@@ -303,4 +303,27 @@ export const renewalStore = {
   // Settings
   getSettings() { return safeParse(localStorage.getItem(this._key("settings")), {}); },
   saveSettings(settings) { localStorage.setItem(this._key("settings"), JSON.stringify(settings)); },
+
+  // Autopilot Actions
+  getAutopilotActions() { return safeParse(localStorage.getItem(this._key("autopilot-actions")), []); },
+  saveAutopilotActions(actions) { localStorage.setItem(this._key("autopilot-actions"), JSON.stringify(actions)); },
+  addAutopilotAction(action) {
+    const actions = this.getAutopilotActions();
+    actions.push(action);
+    this.saveAutopilotActions(actions);
+    return action;
+  },
+  updateAutopilotAction(id, updates) {
+    const actions = this.getAutopilotActions();
+    const idx = actions.findIndex(a => a.id === id);
+    if (idx >= 0) { actions[idx] = { ...actions[idx], ...updates }; this.saveAutopilotActions(actions); }
+  },
+
+  // Expansion Cache
+  getExpansionCache() { return safeParse(localStorage.getItem(this._key("expansion-cache")), null); },
+  saveExpansionCache(data) { localStorage.setItem(this._key("expansion-cache"), JSON.stringify(data)); },
+
+  // Leadership Cache
+  getLeadershipCache() { return safeParse(localStorage.getItem(this._key("leadership-cache")), null); },
+  saveLeadershipCache(data) { localStorage.setItem(this._key("leadership-cache"), JSON.stringify(data)); },
 };

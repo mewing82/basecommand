@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 
 const VIEW_TITLES = {
-  dashboard: "Command Center",
+  dashboard: "Renewal Command Center",
   intel: "Intel",
   decisions: "Decisions",
   tasks: "Tasks",
@@ -10,7 +10,7 @@ const VIEW_TITLES = {
   projects: "Projects",
   meetings: "Meetings",
   library: "Library",
-  renewals: "Renewals",
+  renewals: "Renewal Operations",
   settings: "Settings",
 };
 
