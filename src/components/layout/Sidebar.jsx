@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard, Radio, Diamond, CheckSquare, TrendingUp,
   FolderKanban, Users, Library, Settings as SettingsIcon,
-  ChevronLeft, ChevronRight, RefreshCw,
+  ChevronLeft, ChevronRight, RefreshCw, LogOut,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 import { useAppStore } from "../../store/appStore";
+import { useAuthStore } from "../../store/authStore";
 
 const WS_DEFAULT_ID = "ws_default";
 
@@ -174,8 +175,13 @@ function WorkspaceSwitcher({ collapsed }) {
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
 export default function Sidebar({ activeView, onNavigate }) {
   const { sidebarCollapsed, setSidebarCollapsed } = useAppStore();
+  const { user, profile, signOut } = useAuthStore();
   const [hoveredItem, setHoveredItem] = useState(null);
   const isExpanded = !sidebarCollapsed;
+
+  const displayName = profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "";
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "";
+  const initials = displayName ? displayName.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?";
 
   return (
     <div style={{
@@ -269,6 +275,53 @@ export default function Sidebar({ activeView, onNavigate }) {
           </div>
         ))}
       </nav>
+
+      {/* User profile */}
+      {user && (
+        <div style={{
+          padding: isExpanded ? "12px 16px" : "12px 0",
+          display: "flex", alignItems: "center", gap: 10,
+          justifyContent: isExpanded ? "flex-start" : "center",
+        }}>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" style={{
+              width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+              border: `1px solid ${C.borderDefault}`,
+            }} referrerPolicy="no-referrer" />
+          ) : (
+            <div style={{
+              width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+              background: C.goldMuted, border: `1px solid ${C.gold}20`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 11, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS,
+            }}>{initials}</div>
+          )}
+          {isExpanded && (
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {displayName}
+              </div>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {user.email}
+              </div>
+            </div>
+          )}
+          {isExpanded && (
+            <button
+              onClick={signOut}
+              title="Sign out"
+              style={{
+                background: "none", border: "none", color: C.textTertiary, cursor: "pointer",
+                padding: 4, borderRadius: 6, flexShrink: 0, transition: "color 0.15s",
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = C.red}
+              onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}
+            >
+              <LogOut size={14} />
+            </button>
+          )}
+        </div>
+      )}
 
       <div style={{ width: isExpanded ? "85%" : 20, height: 1, background: C.borderDefault, margin: "4px auto 8px" }} />
 

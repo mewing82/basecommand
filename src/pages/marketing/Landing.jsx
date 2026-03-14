@@ -39,7 +39,7 @@ export default function Landing() {
   return (
     <div>
       {/* Hero */}
-      <section style={{
+      <section className="bc-hero" style={{
         padding: "100px 40px 80px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
       }}>
         <div style={{
@@ -63,14 +63,14 @@ export default function Landing() {
           }}>renewal again</span>
         </h1>
 
-        <p style={{
+        <p className="bc-hero-sub" style={{
           fontFamily: FONT_BODY, fontSize: 18, color: C.textTertiary, lineHeight: 1.7,
           maxWidth: 520, margin: "0 auto 40px",
         }}>
           Base Command gives renewal teams AI-powered visibility across their entire portfolio. Predict churn, drive expansion, and hit your retention targets.
         </p>
 
-        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+        <div className="bc-hero-buttons" style={{ display: "flex", gap: 12, justifyContent: "center" }}>
           <Link to="/signup" style={{
             padding: "14px 32px", borderRadius: 10, border: "none",
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
@@ -93,9 +93,9 @@ export default function Landing() {
       </section>
 
       {/* Features Grid */}
-      <section style={{ padding: "40px 40px 100px", maxWidth: 1200, margin: "0 auto" }}>
+      <section className="bc-features-section" style={{ padding: "40px 40px 100px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <h2 style={{
+          <h2 className="bc-features-heading" style={{
             fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
@@ -106,7 +106,7 @@ export default function Landing() {
           </p>
         </div>
 
-        <div style={{
+        <div className="bc-feature-grid" style={{
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16,
         }}>
           {FEATURES.map((feature, i) => (
@@ -142,14 +142,14 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section style={{
+      <section className="bc-cta-section" style={{
         padding: "60px 40px", maxWidth: 800, margin: "0 auto", textAlign: "center",
       }}>
-        <div style={{
+        <div className="bc-cta-box" style={{
           background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
           border: `1px solid ${C.borderAI}`, borderRadius: 16, padding: "48px 40px",
         }}>
-          <h2 style={{
+          <h2 className="bc-cta-heading" style={{
             fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>

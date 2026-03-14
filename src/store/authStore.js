@@ -1,10 +1,37 @@
 import { create } from "zustand";
 import { supabase } from "../lib/supabase";
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
   user: null,
   session: null,
+  profile: null,
   loading: true,
+
+  fetchProfile: async (userId) => {
+    if (!supabase || !userId) return;
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+    if (!error && data) {
+      set({ profile: data });
+    }
+  },
+
+  updateProfile: async (updates) => {
+    const { user } = get();
+    if (!supabase || !user) throw new Error("Not authenticated");
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", user.id)
+      .select()
+      .single();
+    if (error) throw error;
+    set({ profile: data });
+    return data;
+  },
 
   initialize: async () => {
     if (!supabase) {
@@ -13,17 +40,21 @@ export const useAuthStore = create((set) => ({
     }
 
     const { data: { session } } = await supabase.auth.getSession();
-    set({
-      session,
-      user: session?.user ?? null,
-      loading: false,
-    });
+    const user = session?.user ?? null;
+    set({ session, user, loading: false });
+
+    if (user) {
+      get().fetchProfile(user.id);
+    }
 
     supabase.auth.onAuthStateChange((_event, session) => {
-      set({
-        session,
-        user: session?.user ?? null,
-      });
+      const user = session?.user ?? null;
+      set({ session, user });
+      if (user) {
+        get().fetchProfile(user.id);
+      } else {
+        set({ profile: null });
+      }
     });
   },
 
@@ -63,6 +94,6 @@ export const useAuthStore = create((set) => ({
     if (!supabase) return;
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-    set({ user: null, session: null });
+    set({ user: null, session: null, profile: null });
   },
 }));

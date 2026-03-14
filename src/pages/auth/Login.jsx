@@ -26,7 +26,7 @@ export default function Login() {
   }
 
   return (
-    <div style={{
+    <div className="bc-auth-page" style={{
       minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
       background: C.bgPrimary, fontFamily: FONT_SANS, padding: 24,
     }}>

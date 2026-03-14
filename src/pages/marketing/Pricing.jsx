@@ -41,9 +41,9 @@ const TIERS = [
 
 export default function Pricing() {
   return (
-    <div style={{ padding: "80px 40px", maxWidth: 900, margin: "0 auto" }}>
+    <div className="bc-pricing-section" style={{ padding: "80px 40px", maxWidth: 900, margin: "0 auto" }}>
       <div style={{ textAlign: "center", marginBottom: 56 }}>
-        <h1 style={{
+        <h1 className="bc-pricing-heading" style={{
           fontFamily: FONT_SANS, fontSize: 40, fontWeight: 700,
           color: C.textPrimary, letterSpacing: "-0.04em", margin: "0 0 14px",
         }}>
@@ -56,7 +56,7 @@ export default function Pricing() {
         </p>
       </div>
 
-      <div style={{
+      <div className="bc-pricing-grid" style={{
         display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20,
         maxWidth: 760, margin: "0 auto",
       }}>

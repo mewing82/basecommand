@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
+import { Menu } from "lucide-react";
 import { useAppStore } from "./store/appStore";
 import { useEntityStore } from "./store/entityStore";
 import { useAuthStore } from "./store/authStore";
@@ -31,6 +32,7 @@ function AppLayout() {
   const { loading, setLoading } = useAppStore();
   const { loadAll } = useEntityStore();
   const [showPalette, setShowPalette] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Derive current view from /app/... pathname
   const pathAfterApp = location.pathname.replace(/^\/app\/?/, "") || "dashboard";
@@ -92,13 +94,45 @@ function AppLayout() {
       color: C.textPrimary, fontFamily: FONT_SANS, overflow: "hidden",
       letterSpacing: "-0.01em",
     }}>
-      <Sidebar
-        activeView={currentView}
-        onNavigate={(view) => navigate(view === "dashboard" ? "/app" : `/app/${view}`)}
-      />
+      {/* Mobile sidebar overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="bc-sidebar-overlay bc-sidebar-overlay--open"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      <div className={`bc-sidebar${mobileSidebarOpen ? " bc-sidebar--open" : ""}`} style={{ display: "flex", flexShrink: 0 }}>
+        <Sidebar
+          activeView={currentView}
+          onNavigate={(view) => {
+            navigate(view === "dashboard" ? "/app" : `/app/${view}`);
+            setMobileSidebarOpen(false);
+          }}
+        />
+      </div>
 
       <main style={{ flex: 1, overflow: "auto", position: "relative" }}>
-        <TopBar currentView={currentView} onCommandPalette={() => setShowPalette(true)} />
+        <div className="bc-top-bar" style={{
+          position: "sticky", top: 0, zIndex: 50,
+          background: `${C.bgPrimary}F2`, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          borderBottom: `1px solid ${C.borderDefault}`,
+          padding: "0 24px", height: 48,
+          display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <button
+            className="bc-mobile-menu-btn"
+            onClick={() => setMobileSidebarOpen(true)}
+            aria-label="Open menu"
+            style={{
+              background: "none", border: "none", color: C.textSecondary,
+              cursor: "pointer", padding: 4, borderRadius: 6, display: "flex", alignItems: "center",
+            }}
+          >
+            <Menu size={20} />
+          </button>
+          <TopBar currentView={currentView} onCommandPalette={() => setShowPalette(true)} />
+        </div>
 
         <div style={{ minHeight: "calc(100vh - 48px)" }}>
           <Routes>
