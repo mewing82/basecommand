@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from
 import { useAppStore } from "./store/appStore";
 import { useEntityStore } from "./store/entityStore";
 import { useAuthStore } from "./store/authStore";
-import { C, FONT_SANS, FONT_MONO } from "./lib/tokens";
+import { C, FONT_SANS, FONT_MONO, S, R, HOVER } from "./lib/tokens";
 import Sidebar from "./components/layout/Sidebar";
 import TopBar from "./components/layout/TopBar";
 import CommandPalette from "./components/layout/CommandPalette";
@@ -72,6 +72,19 @@ function AppLayout() {
       </div>
     );
   }
+
+  const VIEW_TITLES = {
+    dashboard: "Command Center",
+    intel: "Intel",
+    decisions: "Decisions",
+    tasks: "Tasks",
+    priorities: "Priorities",
+    projects: "Projects",
+    meetings: "Meetings",
+    library: "Library",
+    renewals: "Renewals",
+    settings: "Settings",
+  };
 
   return (
     <div style={{
