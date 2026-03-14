@@ -322,4 +322,8 @@ export const renewalStore = {
   // Expansion Cache
   getExpansionCache() { return safeParse(localStorage.getItem(this._key("expansion-cache")), null); },
   saveExpansionCache(data) { localStorage.setItem(this._key("expansion-cache"), JSON.stringify(data)); },
+
+  // Leadership Cache
+  getLeadershipCache() { return safeParse(localStorage.getItem(this._key("leadership-cache")), null); },
+  saveLeadershipCache(data) { localStorage.setItem(this._key("leadership-cache"), JSON.stringify(data)); },
 };
