@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { useAppStore } from "./store/appStore";
 import { useEntityStore } from "./store/entityStore";
 import { useAuthStore } from "./store/authStore";
@@ -8,6 +8,7 @@ import { C, FONT_SANS, FONT_MONO } from "./lib/tokens";
 import Sidebar from "./components/layout/Sidebar";
 import TopBar from "./components/layout/TopBar";
 import CommandPalette from "./components/layout/CommandPalette";
+import BottomTabBar from "./components/layout/BottomTabBar";
 import AuthGate from "./components/auth/AuthGate";
 import MarketingLayout from "./components/layout/MarketingLayout";
 import Dashboard from "./pages/Dashboard";
@@ -132,9 +133,22 @@ function AppLayout() {
             <Menu size={20} />
           </button>
           <TopBar currentView={currentView} onCommandPalette={() => setShowPalette(true)} />
+          {/* Mobile search button — replaces hidden command palette trigger */}
+          <button
+            className="bc-mobile-search-btn"
+            onClick={() => setShowPalette(true)}
+            aria-label="Search"
+            style={{
+              background: "none", border: "none", color: C.textTertiary,
+              cursor: "pointer", padding: 6, borderRadius: 6,
+              display: "none", alignItems: "center",
+            }}
+          >
+            <Search size={18} />
+          </button>
         </div>
 
-        <div style={{ minHeight: "calc(100vh - 48px)" }}>
+        <div className="bc-app-content" style={{ minHeight: "calc(100vh - 48px)" }}>
           <Routes>
             <Route index element={<Dashboard />} />
             <Route path="intel" element={<Intel />} />
@@ -149,6 +163,14 @@ function AppLayout() {
           </Routes>
         </div>
       </main>
+
+      {/* Bottom tab bar — visible on mobile only via CSS */}
+      <BottomTabBar
+        activeView={currentView}
+        onNavigate={(view) => {
+          navigate(view === "dashboard" ? "/app" : `/app/${view}`);
+        }}
+      />
 
       {showPalette && <CommandPalette onClose={() => setShowPalette(false)} />}
     </div>

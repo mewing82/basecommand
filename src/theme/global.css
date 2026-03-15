@@ -81,27 +81,14 @@ select option { background: #171921; color: #ECEDF0; }
 
 /* ─── Responsive Utilities ─────────────────────────────────────────────────── */
 
-/* Mobile overlay sidebar */
+/* Mobile: bottom tab bar replaces sidebar */
 @media (max-width: 768px) {
   .bc-sidebar {
-    position: fixed !important;
-    z-index: 100 !important;
-    height: 100vh !important;
-  }
-
-  .bc-sidebar.collapsed {
-    width: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    border: none !important;
+    display: none !important;
   }
 
   .bc-sidebar-overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(1, 4, 9, 0.6);
-    z-index: 99;
+    display: none !important;
   }
 
   .bc-main-content {
@@ -142,13 +129,21 @@ select option { background: #171921; color: #ECEDF0; }
   }
 }
 
-/* Mobile hamburger button */
+/* Desktop: hide mobile-only elements */
 @media (min-width: 769px) {
   .bc-mobile-menu-btn {
     display: none !important;
   }
 
   .bc-sidebar-overlay {
+    display: none !important;
+  }
+
+  .bc-bottom-tab-bar {
+    display: none !important;
+  }
+
+  .bc-mobile-search-btn {
     display: none !important;
   }
 }
