@@ -60,6 +60,37 @@ body {
     padding-bottom: 64px !important;
   }
 
+  /* Phase 3: Command palette goes full-screen on mobile */
+  .bc-command-palette-overlay {
+    padding-top: 0 !important;
+    align-items: stretch !important;
+  }
+  .bc-command-palette-modal {
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .bc-command-palette-modal .bc-command-results {
+    flex: 1;
+    max-height: none !important;
+  }
+  .bc-command-palette-modal .bc-command-input {
+    padding: 16px 18px !important;
+  }
+  .bc-command-palette-modal .bc-command-input input {
+    font-size: 16px !important; /* prevents iOS zoom on focus */
+  }
+  .bc-command-palette-modal .bc-command-result-btn {
+    padding: 14px 18px !important; /* larger touch targets */
+    min-height: 48px;
+  }
+  .bc-command-palette-modal .bc-command-kbd {
+    display: none !important; /* hide ESC/⌘K labels on mobile */
+  }
+
   /* Marketing nav: stack on small screens */
   .bc-marketing-nav {
     padding: 12px 16px !important;
@@ -137,6 +168,37 @@ body {
   }
   .bc-search-trigger {
     display: none !important;
+  }
+}
+
+/* Phase 5: Touch-friendly sizing on mobile */
+@media (max-width: 768px) {
+  /* Minimum 44px touch targets for all interactive elements */
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Filter pill buttons need bigger tap areas */
+  .bc-app-content button {
+    min-height: 36px;
+  }
+
+  /* Page headings scale with token */
+  .bc-app-content h1,
+  .bc-app-content [data-heading] {
+    font-size: var(--bc-heading-size) !important;
+  }
+
+  /* Top bar title smaller on mobile */
+  .bc-top-bar {
+    height: 52px !important; /* taller for touch */
+  }
+
+  /* Card hover effects shouldn't fire on touch */
+  @media (hover: none) {
+    .bc-app-content div:hover {
+      transform: none !important;
+    }
   }
 }
 

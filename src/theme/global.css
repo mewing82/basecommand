@@ -164,6 +164,29 @@ select option { background: #171921; color: #ECEDF0; }
   .bc-grid-responsive {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
   }
+
+  /* Phase 4: Force sidebar into collapsed rail on tablet */
+  .bc-sidebar > div {
+    width: 56px !important;
+    min-width: 56px !important;
+  }
+
+  /* Hide text labels, section headers, workspace name, collapse button */
+  .bc-sidebar-text,
+  .bc-sidebar-section-label,
+  .bc-sidebar-collapse-btn,
+  .bc-sidebar-ws-expanded,
+  .bc-sidebar-user-details,
+  .bc-sidebar-signout-btn {
+    display: none !important;
+  }
+
+  /* Center nav items */
+  .bc-sidebar-nav-btn {
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
 }
 
 /* Desktop: hide mobile-only elements */
