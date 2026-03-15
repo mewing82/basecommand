@@ -117,7 +117,8 @@ body {
     max-width: 100%;
     box-sizing: border-box;
   }
-  .bc-hero h1 {
+  .bc-hero h1,
+  .bc-hero-title {
     font-size: 36px !important;
   }
   .bc-hero .bc-hero-sub {
@@ -246,7 +247,8 @@ body {
 }
 
 @media (max-width: 480px) {
-  .bc-hero h1 {
+  .bc-hero h1,
+  .bc-hero-title {
     font-size: 28px !important;
   }
   .bc-hero-buttons {

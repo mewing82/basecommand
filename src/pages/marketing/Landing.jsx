@@ -23,8 +23,8 @@ const FEATURES = [
   },
   {
     icon: TrendingUp,
-    title: "Find expansion in your book",
-    description: "Surface upsell and cross-sell opportunities automatically. AI identifies which accounts are primed for growth and why.",
+    title: "Never miss a renewal again",
+    description: "AI tracks every renewal date, stakeholder change, and contract detail so nothing slips through the cracks — even across hundreds of accounts.",
     color: "#34D399",
     bg: "rgba(52, 211, 153, 0.12)",
     border: "rgba(52, 211, 153, 0.20)",
@@ -66,34 +66,29 @@ export default function Landing() {
       <section className="bc-hero" style={{
         padding: "100px 40px 80px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
       }}>
-        <div style={{
-          display: "inline-block", padding: "6px 16px", borderRadius: 20, marginBottom: 24,
-          background: C.goldMuted, border: `1px solid ${C.gold}20`,
-          fontSize: 13, fontWeight: 500, color: C.gold, fontFamily: FONT_SANS,
-        }}>
-          The AI command center for renewal revenue
-        </div>
-
-        <h1 style={{
+        <h1 className="bc-hero-title" style={{
           fontFamily: FONT_SANS, fontSize: 56, fontWeight: 700,
-          color: C.textPrimary, letterSpacing: "-0.04em", lineHeight: 1.1,
-          margin: "0 auto 20px", maxWidth: 700,
+          letterSpacing: "-0.04em", lineHeight: 1.1,
+          margin: "0 auto 16px", maxWidth: 800,
+          background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover}, ${C.aiBlue})`,
+          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
         }}>
-          Protect revenue.
-          <br />
-          <span style={{
-            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover}, ${C.aiBlue})`,
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          }}>Expand accounts.</span>
-          <br />
-          Hit your number.
+          AI-Powered Renewal Intelligence
         </h1>
+
+        <p style={{
+          fontFamily: FONT_SANS, fontSize: 32, fontWeight: 600,
+          color: C.textPrimary, letterSpacing: "-0.03em",
+          margin: "0 auto 24px",
+        }}>
+          Your renewal portfolio, under control.
+        </p>
 
         <p className="bc-hero-sub" style={{
           fontFamily: FONT_BODY, fontSize: 18, color: C.textTertiary, lineHeight: 1.7,
           maxWidth: 520, margin: "0 auto 40px",
         }}>
-          Base Command replaces spreadsheet tracking and CRM guesswork with AI-powered portfolio intelligence — real-time churn risk scores, expansion signals, and automated renewal playbooks in one view.
+          Stop chasing renewals through spreadsheets and CRM tabs. One view for risk scores, renewal timelines, next actions, and automated playbooks across your entire book.
         </p>
 
         <div className="bc-hero-buttons" style={{ display: "flex", gap: 12, justifyContent: "center" }}>
@@ -116,10 +111,10 @@ export default function Landing() {
             fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
-            Everything you need to grow and protect renewal revenue
+            Smarter renewals at every step
           </h2>
           <p style={{ fontFamily: FONT_BODY, fontSize: 16, color: C.textTertiary, lineHeight: 1.6 }}>
-            Six integrated modules that replace spreadsheets, guesswork, and gut feelings.
+            Six AI-powered modules that replace spreadsheets, guesswork, and manual tracking.
           </p>
         </div>
 
