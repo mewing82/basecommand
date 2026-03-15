@@ -108,6 +108,14 @@ body {
   /* Landing hero */
   .bc-hero {
     padding: 60px 20px 48px !important;
+    overflow-x: hidden;
+  }
+  .bc-hero-buttons {
+    max-width: 100%;
+  }
+  .bc-hero-buttons a {
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .bc-hero h1 {
     font-size: 36px !important;
@@ -248,5 +256,7 @@ body {
     display: block !important;
     text-align: center;
     width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
   }
 }

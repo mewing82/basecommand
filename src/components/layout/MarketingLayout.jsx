@@ -14,7 +14,7 @@ export default function MarketingLayout() {
   const isAuthenticated = supabase && user;
 
   return (
-    <div style={{ minHeight: "100vh", background: C.bgPrimary, fontFamily: FONT_SANS }}>
+    <div style={{ minHeight: "100vh", background: C.bgPrimary, fontFamily: FONT_SANS, overflowX: "hidden" }}>
       {/* Nav */}
       <nav className="bc-marketing-nav" style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
