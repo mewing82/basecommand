@@ -7,31 +7,55 @@ const FEATURES = [
     icon: RefreshCw,
     title: "See every renewal at a glance",
     description: "One AI-powered dashboard for your entire portfolio. Risk signals, next actions, and renewal timelines — no more hunting through spreadsheets.",
+    color: "#3B82F6",
+    bg: "rgba(59, 130, 246, 0.12)",
+    border: "rgba(59, 130, 246, 0.20)",
+    glow: "rgba(59, 130, 246, 0.08)",
   },
   {
     icon: Shield,
     title: "Catch churn before it happens",
     description: "AI analyzes engagement patterns, support tickets, and usage trends to flag at-risk accounts weeks before renewal — so you can act, not react.",
+    color: "#F87171",
+    bg: "rgba(248, 113, 113, 0.12)",
+    border: "rgba(248, 113, 113, 0.20)",
+    glow: "rgba(248, 113, 113, 0.08)",
   },
   {
     icon: TrendingUp,
     title: "Find expansion in your book",
     description: "Surface upsell and cross-sell opportunities automatically. AI identifies which accounts are primed for growth and why.",
+    color: "#34D399",
+    bg: "rgba(52, 211, 153, 0.12)",
+    border: "rgba(52, 211, 153, 0.20)",
+    glow: "rgba(52, 211, 153, 0.08)",
   },
   {
     icon: BarChart3,
     title: "Know your numbers in real time",
     description: "GRR, NRR, and renewal rates updated live. AI-powered forecasts and health scores give you confidence walking into any QBR.",
+    color: "#A78BFA",
+    bg: "rgba(167, 139, 250, 0.12)",
+    border: "rgba(167, 139, 250, 0.20)",
+    glow: "rgba(167, 139, 250, 0.08)",
   },
   {
     icon: Zap,
     title: "Automate the busywork",
     description: "AI generates renewal playbooks, stakeholder briefs, and risk assessments automatically. Spend your time on relationships, not admin.",
+    color: "#FB923C",
+    bg: "rgba(251, 146, 60, 0.12)",
+    border: "rgba(251, 146, 60, 0.20)",
+    glow: "rgba(251, 146, 60, 0.08)",
   },
   {
     icon: Sparkles,
     title: "An AI partner for every view",
     description: "Built on Claude and GPT-4. Every screen has an AI co-pilot that understands your full portfolio context and speaks your language.",
+    color: "#22D3EE",
+    bg: "rgba(34, 211, 238, 0.12)",
+    border: "rgba(34, 211, 238, 0.20)",
+    glow: "rgba(34, 211, 238, 0.08)",
   },
 ];
 
@@ -106,17 +130,18 @@ export default function Landing() {
             <div key={i} style={{
               background: C.bgCard, border: `1px solid ${C.borderDefault}`,
               borderRadius: 14, padding: "28px 24px",
-              transition: "border-color 0.15s, transform 0.15s",
+              transition: "border-color 0.15s, transform 0.15s, box-shadow 0.15s",
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.transform = "translateY(-2px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.transform = "translateY(0)"; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = feature.border; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 8px 32px ${feature.glow}`; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
             >
               <div style={{
-                width: 40, height: 40, borderRadius: 10, marginBottom: 16,
-                background: C.goldMuted, border: `1px solid ${C.gold}15`,
+                width: 48, height: 48, borderRadius: 12, marginBottom: 18,
+                background: feature.bg, border: `1px solid ${feature.border}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: `0 4px 16px ${feature.glow}`,
               }}>
-                <feature.icon size={18} color={C.gold} />
+                <feature.icon size={22} color={feature.color} strokeWidth={1.75} />
               </div>
               <div style={{
                 fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600,
