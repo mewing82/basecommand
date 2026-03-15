@@ -6,6 +6,7 @@ import { callAI, callAIForEntity, AI_ACTIONS } from "../lib/ai";
 import { genId, isoNow, fmtRelative, isOverdue, statusColor, priorityColor } from "../lib/utils";
 import { useEntityStore } from "../store/entityStore";
 import { Badge, Btn, Input, Select, Modal, FormField, EmptyState, ProjectFilterPills, useProjectLinks, filterByProject } from "../components/ui/index";
+import { PageLayout } from "../components/layout/PageLayout";
 
 export default function Tasks() {
   const { tasks, setTasks, decisions, projects, ingestSessions } = useEntityStore();
@@ -52,7 +53,7 @@ export default function Tasks() {
   const completedCount = tasks.filter(t => t.status === "complete").length;
 
   return (
-    <div style={{ padding: "32px 40px", maxWidth: 960, margin: "0 auto" }}>
+    <PageLayout maxWidth={960}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
         <div>
           <h1 style={{ fontSize: 26, fontWeight: 700, color: C.textPrimary, margin: 0, fontFamily: FONT_SANS, letterSpacing: "-0.03em" }}>Tasks</h1>
@@ -136,7 +137,7 @@ export default function Tasks() {
       )}
 
       {showForm && <TaskFormModal onClose={() => setShowForm(false)} onCreate={createTask} decisions={decisions} />}
-    </div>
+    </PageLayout>
   );
 }
 

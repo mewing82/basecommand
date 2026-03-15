@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, AI_PROVIDERS } from "../lib/tokens";
 import { store, getWorkspaces, getActiveWorkspaceId } from "../lib/storage";
 import { callAI, getModelLabel, setActiveAIConfig } from "../lib/ai";
+import { PageLayout } from "../components/layout/PageLayout";
 import { useAppStore } from "../store/appStore";
 import { Btn } from "../components/ui/index";
 
@@ -47,7 +48,7 @@ export default function Settings() {
   }
 
   return (
-    <div style={{ padding: "32px 40px", maxWidth: 640 }}>
+    <PageLayout maxWidth={640}>
       <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", marginBottom: 32 }}>Settings</div>
 
       <SettingsSection title="AI Configuration">
@@ -189,6 +190,6 @@ export default function Settings() {
         <SettingsRow label="Workspace" value={(() => { const ws = getWorkspaces().find(w => w.id === getActiveWorkspaceId()); return ws ? ws.name : "Default"; })()} />
         <SettingsRow label="App" value="BaseCommand v3.0 — Renewal Operations Platform" />
       </SettingsSection>
-    </div>
+    </PageLayout>
   );
 }

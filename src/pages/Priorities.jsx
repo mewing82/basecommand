@@ -6,6 +6,7 @@ import { callAIForEntity, AI_ACTIONS } from "../lib/ai";
 import { genId, isoNow, fmtRelative, statusColor, priorityColor } from "../lib/utils";
 import { useEntityStore } from "../store/entityStore";
 import { Badge, Btn, Input, Select, Modal, FormField, AIPanel, EmptyState, HealthBar, ProjectFilterPills, useProjectLinks, filterByProject } from "../components/ui/index";
+import { PageLayout } from "../components/layout/PageLayout";
 
 export default function Priorities() {
   const { priorities, setPriorities, decisions, tasks, projects } = useEntityStore();
@@ -48,7 +49,7 @@ export default function Priorities() {
   const sorted = [...sourceFiltered].sort((a, b) => a.rank - b.rank);
 
   return (
-    <div style={{ padding: "32px 40px" }}>
+    <PageLayout>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <div>
           <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>Priorities</div>
@@ -79,7 +80,7 @@ export default function Priorities() {
         </div>
       )}
       {showForm && <PriorityFormModal onClose={() => setShowForm(false)} onCreate={createPriority} />}
-    </div>
+    </PageLayout>
   );
 }
 

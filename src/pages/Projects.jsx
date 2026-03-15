@@ -3,6 +3,7 @@ import { Grid3X3, Sparkles, CheckSquare, Diamond, ChevronUp, ChevronDown, Folder
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, TASK_PRIORITIES, PROJECT_STATUSES, PROJECT_STATUS_LABELS, PRIORITY_TIMEFRAME_LABELS } from "../lib/tokens";
 import { store } from "../lib/storage";
 import { callAI } from "../lib/ai";
+import { PageLayout } from "../components/layout/PageLayout";
 import { PROJECT_BUILDER_PROMPT } from "../lib/prompts";
 import { genId, isoNow, fmtRelative, statusColor, priorityColor } from "../lib/utils";
 import { useEntityStore } from "../store/entityStore";
@@ -43,7 +44,7 @@ export default function Projects() {
   const other = sortedProjects.filter(p => p.status !== "active");
 
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto", padding: "40px 40px 80px" }}>
+    <PageLayout maxWidth={800} largePadding>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
         <div>
           <h1 style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 6px" }}>Projects</h1>
@@ -98,7 +99,7 @@ export default function Projects() {
           </div>
         )
       )}
-    </div>
+    </PageLayout>
   );
 }
 

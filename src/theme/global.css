@@ -3,6 +3,43 @@
 * { box-sizing: border-box; }
 body { margin: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
+/* ─── Responsive Layout Tokens ────────────────────────────────────────────── */
+:root {
+  --bc-page-px: 40px;
+  --bc-page-py: 32px;
+  --bc-page-py-lg: 40px;
+  --bc-stat-cols: 4;
+  --bc-card-min: 340px;
+  --bc-heading-size: 26px;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --bc-page-px: 24px;
+    --bc-page-py: 24px;
+    --bc-page-py-lg: 32px;
+    --bc-stat-cols: 2;
+    --bc-card-min: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --bc-page-px: 16px;
+    --bc-page-py: 20px;
+    --bc-page-py-lg: 24px;
+    --bc-stat-cols: 2;
+    --bc-card-min: 100%;
+    --bc-heading-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --bc-stat-cols: 1;
+  }
+}
+
 /* ─── Scrollbar ────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

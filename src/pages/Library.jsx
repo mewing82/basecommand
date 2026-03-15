@@ -3,6 +3,7 @@ import { FileText, Sparkles, Grid3X3 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, SUPPORTED_DOC_TYPES } from "../lib/tokens";
 import { store } from "../lib/storage";
 import { callAI, callAIForEntity } from "../lib/ai";
+import { PageLayout } from "../components/layout/PageLayout";
 import { genId, isoNow, fmtRelative, extractFileContent } from "../lib/utils";
 import { useEntityStore } from "../store/entityStore";
 import { Badge, Btn, AIPanel, EmptyState, renderMarkdown, ProjectFilterPills, useProjectLinks } from "../components/ui/index";
@@ -48,7 +49,7 @@ export default function Library() {
   async function deleteDocument(id) { await store.delete("document", id); setDocuments(documents.filter(d => d.id !== id)); if (expandedId === id) setExpandedId(null); }
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 40px 80px" }}>
+    <PageLayout maxWidth={760} largePadding>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
         <div>
           <h1 style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 6px" }}>Library</h1>
@@ -88,7 +89,7 @@ export default function Library() {
           {filtered.map(d => <DocumentCard key={d.id} doc={d} expanded={expandedId === d.id} onToggle={() => setExpandedId(expandedId === d.id ? null : d.id)} onDelete={() => deleteDocument(d.id)} />)}
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }
 

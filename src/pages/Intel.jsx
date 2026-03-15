@@ -3,6 +3,7 @@ import { MessageSquare, Zap, Sparkles, Send, X, CheckSquare, Diamond, ChevronUp,
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { store } from "../lib/storage";
 import { callAI } from "../lib/ai";
+import { PageLayout } from "../components/layout/PageLayout";
 import { INGEST_PROMPT, RESPOND_TO_PROMPT, RESPONSE_STYLES, RESPONSE_TONES } from "../lib/prompts";
 import { genId, isoNow, safeParse } from "../lib/utils";
 import { useEntityStore } from "../store/entityStore";
@@ -14,7 +15,7 @@ export default function Intel() {
   const [hoveredTab, setHoveredTab] = useState(null);
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 40px 80px" }}>
+    <PageLayout maxWidth={760} largePadding>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 6px" }}>Intel</h1>
         <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_BODY }}>
@@ -38,7 +39,7 @@ export default function Intel() {
       </div>
       {intelTab === "chat" && <CommandChat decisions={decisions} tasks={tasks} priorities={priorities} projects={projects} />}
       {intelTab === "extract" && <ExtractView />}
-    </div>
+    </PageLayout>
   );
 }
 

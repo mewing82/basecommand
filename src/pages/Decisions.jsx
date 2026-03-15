@@ -6,6 +6,7 @@ import { callAI, callAIForEntity, AI_ACTIONS } from "../lib/ai";
 import { genId, isoNow, fmtRelative, statusColor, priorityColor } from "../lib/utils";
 import { useEntityStore } from "../store/entityStore";
 import { Badge, Btn, Input, Modal, FormField, AIPanel, EmptyState, ProjectFilterPills, useProjectLinks, filterByProject } from "../components/ui/index";
+import { PageLayout, CardGrid } from "../components/layout/PageLayout";
 
 export default function Decisions() {
   const { decisions, setDecisions, tasks, setTasks, priorities, projects, ingestSessions } = useEntityStore();
@@ -48,7 +49,7 @@ export default function Decisions() {
   }
 
   return (
-    <div style={{ padding: "32px 40px" }}>
+    <PageLayout>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
         <div>
           <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>Decisions</div>
@@ -101,7 +102,7 @@ export default function Decisions() {
       {filtered.length === 0 ? (
         <EmptyState icon={<Diamond size={36} />} title="No decisions yet" sub="Start by creating your first decision to track." action="＋ New Decision" onAction={() => setShowForm(true)} />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14 }}>
+        <CardGrid>
           {filtered.map(d => (
             <DecisionCard key={d.id} decision={d} expanded={expandedId === d.id}
               onToggle={() => setExpandedId(expandedId === d.id ? null : d.id)}
@@ -110,11 +111,11 @@ export default function Decisions() {
               tasks={tasks} setTasks={setTasks}
             />
           ))}
-        </div>
+        </CardGrid>
       )}
 
       {showForm && <DecisionFormModal onClose={() => setShowForm(false)} onCreate={createDecision} />}
-    </div>
+    </PageLayout>
   );
 }
 
