@@ -3,6 +3,43 @@
 * { box-sizing: border-box; }
 body { margin: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
+/* ─── Responsive Layout Tokens ────────────────────────────────────────────── */
+:root {
+  --bc-page-px: 40px;
+  --bc-page-py: 32px;
+  --bc-page-py-lg: 40px;
+  --bc-stat-cols: 4;
+  --bc-card-min: 340px;
+  --bc-heading-size: 26px;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --bc-page-px: 24px;
+    --bc-page-py: 24px;
+    --bc-page-py-lg: 32px;
+    --bc-stat-cols: 2;
+    --bc-card-min: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --bc-page-px: 16px;
+    --bc-page-py: 20px;
+    --bc-page-py-lg: 24px;
+    --bc-stat-cols: 2;
+    --bc-card-min: 100%;
+    --bc-heading-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --bc-stat-cols: 1;
+  }
+}
+
 /* ─── Scrollbar ────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -81,27 +118,14 @@ select option { background: #171921; color: #ECEDF0; }
 
 /* ─── Responsive Utilities ─────────────────────────────────────────────────── */
 
-/* Mobile overlay sidebar */
+/* Mobile: bottom tab bar replaces sidebar */
 @media (max-width: 768px) {
   .bc-sidebar {
-    position: fixed !important;
-    z-index: 100 !important;
-    height: 100vh !important;
-  }
-
-  .bc-sidebar.collapsed {
-    width: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    border: none !important;
+    display: none !important;
   }
 
   .bc-sidebar-overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(1, 4, 9, 0.6);
-    z-index: 99;
+    display: none !important;
   }
 
   .bc-main-content {
@@ -140,15 +164,46 @@ select option { background: #171921; color: #ECEDF0; }
   .bc-grid-responsive {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
   }
+
+  /* Phase 4: Force sidebar into collapsed rail on tablet */
+  .bc-sidebar > div {
+    width: 56px !important;
+    min-width: 56px !important;
+  }
+
+  /* Hide text labels, section headers, workspace name, collapse button */
+  .bc-sidebar-text,
+  .bc-sidebar-section-label,
+  .bc-sidebar-collapse-btn,
+  .bc-sidebar-ws-expanded,
+  .bc-sidebar-user-details,
+  .bc-sidebar-signout-btn {
+    display: none !important;
+  }
+
+  /* Center nav items */
+  .bc-sidebar-nav-btn {
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
 }
 
-/* Mobile hamburger button */
+/* Desktop: hide mobile-only elements */
 @media (min-width: 769px) {
   .bc-mobile-menu-btn {
     display: none !important;
   }
 
   .bc-sidebar-overlay {
+    display: none !important;
+  }
+
+  .bc-bottom-tab-bar {
+    display: none !important;
+  }
+
+  .bc-mobile-search-btn {
     display: none !important;
   }
 }

@@ -7,6 +7,7 @@ import { store } from "../lib/storage";
 import { getGreeting, isOverdue } from "../lib/utils";
 import { useEntityStore } from "../store/entityStore";
 import { useAuthStore } from "../store/authStore";
+import { PageLayout, StatGrid } from "../components/layout/PageLayout";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ RULES:
   // ─── Empty State ───
   if (!hasData) {
     return (
-      <div style={{ padding: "80px 40px", maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+      <PageLayout maxWidth={640} largePadding style={{ textAlign: "center" }}>
         <div style={{
           width: 64, height: 64, borderRadius: 16, margin: "0 auto 24px",
           background: `linear-gradient(135deg, ${C.goldMuted}, ${C.aiBlueMuted})`,
@@ -130,13 +131,13 @@ RULES:
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textSecondary; }}
           >Import a Plan</button>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
   // ─── Main Dashboard ───
   return (
-    <div style={{ padding: "32px 40px", maxWidth: 960, margin: "0 auto" }}>
+    <PageLayout maxWidth={960}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
         <div>
@@ -163,7 +164,7 @@ RULES:
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 28 }}>
+      <StatGrid style={{ marginBottom: 28 }}>
         {[
           { label: "Completed this week", value: completedThisWeek.length, total: activeTasks.length + completedThisWeek.length, color: C.green, icon: <TrendingUp size={11} /> },
           { label: "Overdue", value: overdueTasks.length, total: null, color: overdueTasks.length > 0 ? C.red : C.green, icon: overdueTasks.length > 0 ? <AlertTriangle size={11} /> : <Check size={11} /> },
@@ -189,7 +190,7 @@ RULES:
             )}
           </div>
         ))}
-      </div>
+      </StatGrid>
 
       {error && <div style={{ color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}><AlertTriangle size={14} /> {error}</div>}
 
@@ -302,6 +303,6 @@ RULES:
           BC is refreshing your intelligence...
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }

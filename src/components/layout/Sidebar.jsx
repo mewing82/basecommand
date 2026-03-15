@@ -66,7 +66,7 @@ function WorkspaceSwitcher({ collapsed }) {
   }
 
   return (
-    <div ref={ref} style={{ padding: "0 12px 8px", position: "relative" }}>
+    <div ref={ref} className="bc-sidebar-ws-expanded" style={{ padding: "0 12px 8px", position: "relative" }}>
       <button onClick={() => setOpen(!open)} style={{
         width: "100%", display: "flex", alignItems: "center", gap: 8,
         padding: "7px 10px", borderRadius: 6, cursor: "pointer",
@@ -204,13 +204,13 @@ export default function Sidebar({ activeView, onNavigate }) {
             fontFamily: FONT_MONO, flexShrink: 0,
           }}>B</div>
           {isExpanded && (
-            <span style={{ fontFamily: FONT_SANS, fontWeight: 600, fontSize: 17, color: C.textPrimary, letterSpacing: "-0.03em", whiteSpace: "nowrap" }}>
+            <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontWeight: 600, fontSize: 17, color: C.textPrimary, letterSpacing: "-0.03em", whiteSpace: "nowrap" }}>
               BaseCommand
             </span>
           )}
         </div>
         {isExpanded && (
-          <button onClick={() => setSidebarCollapsed(true)} style={{
+          <button className="bc-sidebar-collapse-btn" onClick={() => setSidebarCollapsed(true)} style={{
             background: "rgba(255,255,255,0.04)", border: "none", color: C.textTertiary, cursor: "pointer",
             fontSize: 12, padding: "4px 6px", borderRadius: 6, transition: "all 0.15s",
           }}
@@ -237,7 +237,7 @@ export default function Sidebar({ activeView, onNavigate }) {
         {NAV_SECTIONS.map((section, si) => (
           <div key={si} style={{ marginBottom: 8 }}>
             {isExpanded && (
-              <div style={{
+              <div className="bc-sidebar-section-label" style={{
                 fontFamily: FONT_SANS, fontSize: 12, fontWeight: 700, color: C.textTertiary,
                 padding: "8px 20px 4px", textTransform: "uppercase", letterSpacing: "0.06em",
               }}>{section.label}</div>
@@ -250,6 +250,7 @@ export default function Sidebar({ activeView, onNavigate }) {
               const isHovered = hoveredItem === item.id;
               return (
                 <button key={item.id}
+                  className="bc-sidebar-nav-btn"
                   onClick={() => onNavigate(item.id)}
                   onMouseEnter={() => setHoveredItem(item.id)}
                   onMouseLeave={() => setHoveredItem(null)}
@@ -267,7 +268,7 @@ export default function Sidebar({ activeView, onNavigate }) {
                 >
                   <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ flexShrink: 0, opacity: active ? 1 : 0.75 }} />
                   {isExpanded && (
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: active ? 600 : 500, whiteSpace: "nowrap" }}>{item.label}</span>
+                    <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: active ? 600 : 500, whiteSpace: "nowrap" }}>{item.label}</span>
                   )}
                 </button>
               );
@@ -297,7 +298,7 @@ export default function Sidebar({ activeView, onNavigate }) {
             }}>{initials}</div>
           )}
           {isExpanded && (
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="bc-sidebar-user-details" style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {displayName}
               </div>
@@ -308,6 +309,7 @@ export default function Sidebar({ activeView, onNavigate }) {
           )}
           {isExpanded && (
             <button
+              className="bc-sidebar-signout-btn"
               onClick={signOut}
               title="Sign out"
               style={{
@@ -327,6 +329,7 @@ export default function Sidebar({ activeView, onNavigate }) {
 
       {/* Settings */}
       <button
+        className="bc-sidebar-nav-btn"
         onClick={() => onNavigate("settings")}
         onMouseEnter={() => setHoveredItem("settings")}
         onMouseLeave={() => setHoveredItem(null)}
@@ -341,7 +344,7 @@ export default function Sidebar({ activeView, onNavigate }) {
         }}
       >
         <SettingsIcon size={18} strokeWidth={activeView === "settings" ? 2 : 1.75} style={{ flexShrink: 0, opacity: activeView === "settings" ? 1 : 0.75 }} />
-        {isExpanded && <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: activeView === "settings" ? 600 : 500, whiteSpace: "nowrap" }}>Settings</span>}
+        {isExpanded && <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: activeView === "settings" ? 600 : 500, whiteSpace: "nowrap" }}>Settings</span>}
       </button>
     </div>
   );

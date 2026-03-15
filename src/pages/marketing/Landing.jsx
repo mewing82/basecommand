@@ -5,33 +5,33 @@ import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 const FEATURES = [
   {
     icon: RefreshCw,
-    title: "Renewal Command Center",
-    description: "See every renewal in your portfolio at a glance. AI surfaces risk signals, flags at-risk accounts, and recommends next actions.",
+    title: "See every renewal at a glance",
+    description: "One AI-powered dashboard for your entire portfolio. Risk signals, next actions, and renewal timelines — no more hunting through spreadsheets.",
   },
   {
     icon: Shield,
-    title: "Churn Prevention",
-    description: "Identify at-risk accounts before it's too late. AI analyzes engagement patterns, support tickets, and usage trends to predict churn.",
+    title: "Catch churn before it happens",
+    description: "AI analyzes engagement patterns, support tickets, and usage trends to flag at-risk accounts weeks before renewal — so you can act, not react.",
   },
   {
     icon: TrendingUp,
-    title: "Expansion Intelligence",
-    description: "Spot upsell and cross-sell opportunities across your book of business. AI identifies accounts primed for growth.",
+    title: "Find expansion in your book",
+    description: "Surface upsell and cross-sell opportunities automatically. AI identifies which accounts are primed for growth and why.",
   },
   {
     icon: BarChart3,
-    title: "Portfolio Analytics",
-    description: "Track GRR, NRR, and renewal rates in real time. Get AI-powered forecasts and health scores for every account.",
+    title: "Know your numbers in real time",
+    description: "GRR, NRR, and renewal rates updated live. AI-powered forecasts and health scores give you confidence walking into any QBR.",
   },
   {
     icon: Zap,
-    title: "Automated Workflows",
-    description: "Auto-generate renewal playbooks, stakeholder briefs, and risk assessments. Spend less time on admin, more on relationships.",
+    title: "Automate the busywork",
+    description: "AI generates renewal playbooks, stakeholder briefs, and risk assessments automatically. Spend your time on relationships, not admin.",
   },
   {
     icon: Sparkles,
-    title: "AI Co-pilot",
-    description: "Built on Claude and GPT-4. Every view has an AI partner that understands your full portfolio context.",
+    title: "An AI partner for every view",
+    description: "Built on Claude and GPT-4. Every screen has an AI co-pilot that understands your full portfolio context and speaks your language.",
   },
 ];
 
@@ -47,7 +47,7 @@ export default function Landing() {
           background: C.goldMuted, border: `1px solid ${C.gold}20`,
           fontSize: 13, fontWeight: 500, color: C.gold, fontFamily: FONT_SANS,
         }}>
-          AI-powered renewal operations platform
+          The AI command center for renewal revenue
         </div>
 
         <h1 style={{
@@ -55,19 +55,21 @@ export default function Landing() {
           color: C.textPrimary, letterSpacing: "-0.04em", lineHeight: 1.1,
           margin: "0 auto 20px", maxWidth: 700,
         }}>
-          Never lose a
+          Protect revenue.
           <br />
           <span style={{
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover}, ${C.aiBlue})`,
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          }}>renewal again</span>
+          }}>Expand accounts.</span>
+          <br />
+          Hit your number.
         </h1>
 
         <p className="bc-hero-sub" style={{
           fontFamily: FONT_BODY, fontSize: 18, color: C.textTertiary, lineHeight: 1.7,
           maxWidth: 520, margin: "0 auto 40px",
         }}>
-          Base Command gives renewal teams AI-powered visibility across their entire portfolio. Predict churn, drive expansion, and hit your retention targets.
+          Base Command replaces spreadsheet tracking and CRM guesswork with AI-powered portfolio intelligence — real-time churn risk scores, expansion signals, and automated renewal playbooks in one view.
         </p>
 
         <div className="bc-hero-buttons" style={{ display: "flex", gap: 12, justifyContent: "center" }}>
@@ -80,15 +82,6 @@ export default function Landing() {
           }}>
             Get Started Free
           </Link>
-          <Link to="/login" style={{
-            padding: "14px 32px", borderRadius: 10,
-            border: `1px solid ${C.borderDefault}`,
-            background: "transparent", color: C.textSecondary,
-            fontFamily: FONT_SANS, fontSize: 15, fontWeight: 500,
-            textDecoration: "none", transition: "all 0.15s",
-          }}>
-            Sign in
-          </Link>
         </div>
       </section>
 
@@ -99,10 +92,10 @@ export default function Landing() {
             fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
-            Everything you need to protect and grow revenue
+            Everything you need to grow and protect renewal revenue
           </h2>
           <p style={{ fontFamily: FONT_BODY, fontSize: 16, color: C.textTertiary, lineHeight: 1.6 }}>
-            Six integrated modules. One AI-powered renewal operations platform.
+            Six integrated modules that replace spreadsheets, guesswork, and gut feelings.
           </p>
         </div>
 
@@ -153,12 +146,12 @@ export default function Landing() {
             fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
-            Ready to protect your revenue?
+            Ready to take command of your renewals?
           </h2>
           <p style={{
             fontFamily: FONT_BODY, fontSize: 15, color: C.textTertiary, marginBottom: 28, lineHeight: 1.6,
           }}>
-            Free to start. Bring your own AI keys. No credit card required.
+            Free to start. Bring your own AI keys. No credit card required. Works alongside your CRM.
           </p>
           <Link to="/signup" style={{
             display: "inline-block", padding: "14px 36px", borderRadius: 10,

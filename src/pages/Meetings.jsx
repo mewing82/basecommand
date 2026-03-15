@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Sparkles, CheckSquare, Diamond, ChevronUp } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { callAIForEntity } from "../lib/ai";
+import { PageLayout } from "../components/layout/PageLayout";
 import { useEntityStore } from "../store/entityStore";
 import { AIPanel, renderMarkdown } from "../components/ui/index";
 
@@ -14,7 +15,7 @@ export default function Meetings() {
   const filtered = search.trim() ? sorted.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || (m.attendees || "").toLowerCase().includes(search.toLowerCase()) || (m.summary || "").toLowerCase().includes(search.toLowerCase())) : sorted;
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 40px 80px" }}>
+    <PageLayout maxWidth={760} largePadding>
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
@@ -44,7 +45,7 @@ export default function Meetings() {
           {filtered.map(m => <MeetingCard key={m.id} meeting={m} expanded={expandedId === m.id} onToggle={() => setExpandedId(expandedId === m.id ? null : m.id)} />)}
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }
 

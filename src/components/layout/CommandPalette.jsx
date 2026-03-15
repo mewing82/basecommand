@@ -77,28 +77,28 @@ export default function CommandPalette({ onClose }) {
   };
 
   return (
-    <div style={{
+    <div className="bc-command-palette-overlay" style={{
       position: "fixed", inset: 0, background: "rgba(1,4,9,0.80)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", zIndex: 2000,
       display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "15vh",
     }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{
+      <div className="bc-command-palette-modal" style={{
         background: C.bgElevated, border: `1px solid ${C.borderSubtle}`, borderRadius: 14,
         width: "100%", maxWidth: 580, overflow: "hidden",
         boxShadow: "0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: `1px solid ${C.borderDefault}` }}>
+        <div className="bc-command-input" style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: `1px solid ${C.borderDefault}` }}>
           <span style={{ color: C.textTertiary, fontSize: 16, opacity: 0.6 }}>⌕</span>
           <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKeyDown}
             placeholder="Search or type / for commands..."
             style={{ flex: 1, background: "none", border: "none", outline: "none", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 400, letterSpacing: "-0.01em" }}
           />
-          <kbd style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, background: "rgba(255,255,255,0.06)", padding: "3px 8px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.06)" }}>ESC</kbd>
+          <kbd className="bc-command-kbd" style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, background: "rgba(255,255,255,0.06)", padding: "3px 8px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.06)" }}>ESC</kbd>
         </div>
 
         {results.length > 0 && (
-          <div style={{ maxHeight: 380, overflow: "auto", padding: "4px 0" }}>
+          <div className="bc-command-results" style={{ maxHeight: 380, overflow: "auto", padding: "4px 0" }}>
             {results.map((r, i) => (
-              <button key={i} onClick={r.action} style={{
+              <button key={i} onClick={r.action} className="bc-command-result-btn" style={{
                 width: "100%", background: i === selectedIdx ? "rgba(255,255,255,0.06)" : "none", border: "none", cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 12, padding: "10px 18px", textAlign: "left", transition: "background 0.1s ease",
               }}

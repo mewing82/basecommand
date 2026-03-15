@@ -34,26 +34,61 @@ body {
 .bc-mobile-nav-toggle { display: none !important; }
 
 @media (max-width: 768px) {
-  /* App sidebar: hidden by default on mobile, shown via overlay */
+  /* App sidebar: completely hidden on mobile — bottom tab bar replaces it */
   .bc-sidebar {
-    position: fixed !important;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 200;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
+    display: none !important;
   }
-  .bc-sidebar.bc-sidebar--open {
-    transform: translateX(0);
-    width: 260px !important;
-    min-width: 260px !important;
-  }
-  .bc-sidebar-overlay.bc-sidebar-overlay--open {
-    display: block;
+  .bc-sidebar-overlay {
+    display: none !important;
   }
   .bc-mobile-menu-btn {
+    display: none !important;
+  }
+
+  /* Show bottom tab bar on mobile */
+  .bc-bottom-tab-bar {
     display: flex !important;
+  }
+
+  /* Mobile search button in top bar */
+  .bc-mobile-search-btn {
+    display: flex !important;
+  }
+
+  /* Add bottom padding so content isn't hidden behind tab bar */
+  .bc-app-content {
+    padding-bottom: 64px !important;
+  }
+
+  /* Phase 3: Command palette goes full-screen on mobile */
+  .bc-command-palette-overlay {
+    padding-top: 0 !important;
+    align-items: stretch !important;
+  }
+  .bc-command-palette-modal {
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .bc-command-palette-modal .bc-command-results {
+    flex: 1;
+    max-height: none !important;
+  }
+  .bc-command-palette-modal .bc-command-input {
+    padding: 16px 18px !important;
+  }
+  .bc-command-palette-modal .bc-command-input input {
+    font-size: 16px !important; /* prevents iOS zoom on focus */
+  }
+  .bc-command-palette-modal .bc-command-result-btn {
+    padding: 14px 18px !important; /* larger touch targets */
+    min-height: 48px;
+  }
+  .bc-command-palette-modal .bc-command-kbd {
+    display: none !important; /* hide ESC/⌘K labels on mobile */
   }
 
   /* Marketing nav: stack on small screens */
@@ -133,6 +168,37 @@ body {
   }
   .bc-search-trigger {
     display: none !important;
+  }
+}
+
+/* Phase 5: Touch-friendly sizing on mobile */
+@media (max-width: 768px) {
+  /* Minimum 44px touch targets for all interactive elements */
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Filter pill buttons need bigger tap areas */
+  .bc-app-content button {
+    min-height: 36px;
+  }
+
+  /* Page headings scale with token */
+  .bc-app-content h1,
+  .bc-app-content [data-heading] {
+    font-size: var(--bc-heading-size) !important;
+  }
+
+  /* Top bar title smaller on mobile */
+  .bc-top-bar {
+    height: 52px !important; /* taller for touch */
+  }
+
+  /* Card hover effects shouldn't fire on touch */
+  @media (hover: none) {
+    .bc-app-content div:hover {
+      transform: none !important;
+    }
   }
 }
 

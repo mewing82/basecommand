@@ -3,6 +3,7 @@ import { Bot, MessageSquare, Upload, TrendingUp, Crown, Sparkles, Plus, Send, X,
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { renewalStore, store } from "../lib/storage";
 import { callAI } from "../lib/ai";
+import { PageLayout } from "../components/layout/PageLayout";
 import { safeParse, fmtRelative, similarity } from "../lib/utils";
 import { Badge, Btn, Input, Modal, FormField, renderMarkdown } from "../components/ui/index";
 import { RENEWAL_IMPORT_PROMPT, RENEWAL_AUTOPILOT_PROMPT, RENEWAL_EXPANSION_PROMPT, RENEWAL_LEADERSHIP_PROMPT } from "../lib/prompts";
@@ -31,7 +32,7 @@ export default function Renewals() {
   const selectedAccount = selectedAccountId ? accounts.find(a => a.id === selectedAccountId) || null : null;
 
   return (
-    <div style={{ padding: "24px 32px", maxWidth: 1200, margin: "0 auto" }}>
+    <PageLayout maxWidth={1200}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
         <div>
           <h1 style={{ fontFamily: FONT_SANS, fontSize: 24, fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Renewal Operations</h1>
@@ -65,7 +66,7 @@ export default function Renewals() {
       {activeSection === "leadership" && <RenewalsLeadership accounts={accounts} onNavigate={handleNavigateToAccount} onSwitchTab={setActiveSection} />}
 
       {showAddAccount && <AddAccountModal onClose={() => setShowAddAccount(false)} onCreate={handleCreateAccount} />}
-    </div>
+    </PageLayout>
   );
 }
 
