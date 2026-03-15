@@ -173,16 +173,6 @@ body {
 
 /* Phase 5: Touch-friendly sizing on mobile */
 @media (max-width: 768px) {
-  /* Minimum 44px touch targets for all interactive elements */
-  button, a, [role="button"] {
-    min-height: 44px;
-  }
-
-  /* Filter pill buttons need bigger tap areas */
-  .bc-app-content button {
-    min-height: 36px;
-  }
-
   /* Page headings scale with token */
   .bc-app-content h1,
   .bc-app-content [data-heading] {
@@ -192,6 +182,51 @@ body {
   /* Top bar title smaller on mobile */
   .bc-top-bar {
     height: 52px !important; /* taller for touch */
+  }
+
+  /* ─── Renewals tabs: compact horizontal scroll ─────────────────── */
+  .bc-renewals-tabs {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .bc-renewals-tabs button {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    min-height: auto !important;
+    gap: 6px !important;
+  }
+
+  /* ─── Renewals header: stack on mobile ─────────────────────────── */
+  .bc-renewals-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* ─── Filter pills: compact on mobile ──────────────────────────── */
+  .bc-filter-row {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap !important;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .bc-filter-row::-webkit-scrollbar {
+    display: none;
+  }
+  .bc-filter-row button {
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: auto !important;
+  }
+
+  /* ─── Generic small buttons: no forced min-height ──────────────── */
+  .bc-app-content button {
+    min-height: auto;
   }
 
   /* Card hover effects shouldn't fire on touch */
@@ -210,6 +245,8 @@ body {
     flex-direction: column !important;
   }
   .bc-hero-buttons a {
+    display: block !important;
     text-align: center;
+    width: 100%;
   }
 }

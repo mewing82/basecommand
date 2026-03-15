@@ -76,8 +76,8 @@ export default function Tasks() {
 
       <ProjectFilterPills projects={projects} filterProject={filterProject} setFilterProject={setFilterProject} />
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-        <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontWeight: 500, alignSelf: "center", marginRight: 2 }}>Source:</span>
+      <div className="bc-filter-row" style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontWeight: 500, alignSelf: "center", marginRight: 2, whiteSpace: "nowrap", flexShrink: 0 }}>Source:</span>
         {[[null, "All"], ["ingest", "Extract"], ["project", "Project"], ["decision", "Decision"], ["manual", "Manual"]].map(([val, lbl]) => (
           <button key={lbl} onClick={() => setFilterSource(val)} style={{
             padding: "4px 10px", borderRadius: 6, cursor: "pointer",
@@ -89,8 +89,8 @@ export default function Tasks() {
         ))}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+      <div className="bc-filter-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+        <div className="bc-filter-row" style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
           {[["status", "Status"], ["priority", "Priority"]].map(([val, lbl]) => (
             <button key={val} onClick={() => setGroupBy(val)} style={{
               padding: "5px 14px", borderRadius: 8, cursor: "pointer",

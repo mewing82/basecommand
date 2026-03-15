@@ -61,7 +61,7 @@ export default function Decisions() {
       <ProjectFilterPills projects={projects} filterProject={filterProject} setFilterProject={setFilterProject} />
 
       {/* Status filter */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+      <div className="bc-filter-row" style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
         {["all", ...DECISION_STATUSES].map(s => (
           <button key={s} onClick={() => setFilterStatus(s)} style={{
             background: filterStatus === s ? "rgba(255,255,255,0.08)" : "transparent",
@@ -73,8 +73,8 @@ export default function Decisions() {
       </div>
 
       {/* Source + sort */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22, flexWrap: "wrap", gap: 8 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+      <div className="bc-filter-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22, flexWrap: "wrap", gap: 8 }}>
+        <div className="bc-filter-row" style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
           <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontWeight: 500, marginRight: 2 }}>Source:</span>
           {[[null, "All"], ["ingest", "Extract"], ["project", "Project"], ["manual", "Manual"]].map(([val, lbl]) => (
             <button key={lbl} onClick={() => setFilterSource(val)} style={{
