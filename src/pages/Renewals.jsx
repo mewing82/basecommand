@@ -33,29 +33,27 @@ export default function Renewals() {
 
   return (
     <PageLayout maxWidth={1200}>
-      <div className="bc-renewals-header" style={{ marginBottom: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontFamily: FONT_SANS, fontSize: "var(--bc-heading-size, 24px)", fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Renewal Operations</h1>
           <p className="bc-hide-mobile" style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>AI-powered renewal automation, expansion intelligence, and executive reporting</p>
         </div>
-        <div className="bc-renewals-header-actions">
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}30`, borderRadius: 8, padding: "5px 10px" }}>
-            <Sparkles size={13} style={{ color: C.aiBlue }} />
-            <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.aiBlue, letterSpacing: "0.04em" }}>CO-PILOT</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}30`, borderRadius: 8, padding: "6px 14px" }}>
+            <Sparkles size={14} style={{ color: C.aiBlue }} />
+            <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color: C.aiBlue, letterSpacing: "0.04em" }}>MODE: CO-PILOT</span>
           </div>
           <Btn variant="primary" onClick={() => setShowAddAccount(true)} size="sm"><Plus size={14} /> Add Account</Btn>
         </div>
       </div>
 
-      <div className="bc-renewals-tabs" style={{ marginBottom: 28, borderBottom: `1px solid ${C.borderDefault}` }}>
+      <div className="bc-renewals-tabs" style={{ display: "flex", gap: 4, marginBottom: 28, borderBottom: `1px solid ${C.borderDefault}`, paddingBottom: 0 }}>
         {RENEWALS_SECTIONS.map(section => {
           const active = activeSection === section.id; const hovered = hoveredSection === section.id; const Icon = section.icon;
           return (
             <button key={section.id} onClick={() => setActiveSection(section.id)} onMouseEnter={() => setHoveredSection(section.id)} onMouseLeave={() => setHoveredSection(null)} title={section.agent}
-              className={`bc-renewals-tab${active ? " bc-renewals-tab-active" : ""}`}
-              style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", background: active ? `${C.gold}10` : "none", border: active ? `1px solid ${C.gold}30` : "1px solid transparent", borderBottom: "none", borderRadius: "8px 8px 0 0", color: active ? C.textPrimary : hovered ? C.textPrimary : C.textSecondary, fontFamily: FONT_SANS, fontWeight: active ? 600 : 500, transition: "all 0.15s ease", marginBottom: -1, boxShadow: active ? `0 2px 0 ${C.gold}` : "none", whiteSpace: "nowrap" }}>
-              <Icon size={16} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.7, flexShrink: 0 }} />
-              <span className="bc-renewals-tab-label">{section.label}</span>
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 18px", cursor: "pointer", background: "none", border: "none", borderBottom: `2px solid ${active ? C.gold : "transparent"}`, color: active ? C.textPrimary : hovered ? C.textPrimary : C.textSecondary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: active ? 600 : 500, transition: "all 0.15s ease", marginBottom: -1, whiteSpace: "nowrap" }}>
+              <Icon size={16} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.7 }} />{section.label}
             </button>
           );
         })}
