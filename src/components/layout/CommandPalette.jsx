@@ -28,15 +28,14 @@ export default function CommandPalette({ onClose }) {
       // Action shortcuts
       if (q.startsWith("/")) {
         const actions = [
+          { type: "action", label: "Dashboard", cmd: "/dashboard", action: () => nav("/app") },
+          { type: "action", label: "Accounts", cmd: "/accounts", action: () => nav("/app/accounts") },
+          { type: "action", label: "Autopilot", cmd: "/autopilot", action: () => nav("/app/autopilot") },
           { type: "action", label: "Intel", cmd: "/intel", action: () => nav("/app/intel") },
-          { type: "action", label: "Meeting Log", cmd: "/meetings", action: () => nav("/app/meetings") },
-          { type: "action", label: "New Decision", cmd: "/new decision", action: () => nav("/app/decisions") },
-          { type: "action", label: "New Task", cmd: "/new task", action: () => nav("/app/tasks") },
-          { type: "action", label: "Projects", cmd: "/projects", action: () => nav("/app/projects") },
-          { type: "action", label: "Library", cmd: "/library", action: () => nav("/app/library") },
-          { type: "action", label: "Renewals", cmd: "/renewals", action: () => nav("/app/renewals") },
-          { type: "action", label: "Weekly Briefing", cmd: "/briefing", action: () => nav("/app") },
-          { type: "action", label: "Export Data", cmd: "/export", action: () => nav("/app/settings") },
+          { type: "action", label: "Leadership", cmd: "/leadership", action: () => nav("/app/leadership") },
+          { type: "action", label: "Tasks", cmd: "/tasks", action: () => nav("/app/tasks") },
+          { type: "action", label: "Import", cmd: "/import", action: () => nav("/app/import") },
+          { type: "action", label: "Settings", cmd: "/settings", action: () => nav("/app/settings") },
         ].filter(a => a.cmd.includes(q));
         setResults(actions);
         setSelectedIdx(0);
@@ -131,11 +130,11 @@ export default function CommandPalette({ onClose }) {
           <div style={{ padding: "14px 18px" }}>
             <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, color: C.textTertiary, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 10 }}>Quick actions</div>
             {[
-              { cmd: "/new decision", label: "Create a new decision" },
-              { cmd: "/new task", label: "Create a new task" },
-              { cmd: "/intel", label: "Open Command Chat" },
-              { cmd: "/briefing", label: "Get your strategic briefing" },
-              { cmd: "/export", label: "Export your data" },
+              { cmd: "/autopilot", label: "View AI-generated renewal actions" },
+              { cmd: "/accounts", label: "Manage your renewal portfolio" },
+              { cmd: "/intel", label: "View renewal intelligence signals" },
+              { cmd: "/leadership", label: "Generate executive brief" },
+              { cmd: "/import", label: "Import portfolio data" },
             ].map(item => (
               <div key={item.cmd} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 0" }}>
                 <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.gold, fontWeight: 500, minWidth: 120 }}>{item.cmd}</span>

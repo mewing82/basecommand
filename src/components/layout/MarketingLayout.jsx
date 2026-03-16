@@ -48,6 +48,19 @@ export default function MarketingLayout() {
           >
             Pricing
           </Link>
+          <Link
+            to="/agents"
+            className="bc-nav-hide-mobile"
+            style={{
+              padding: "8px 16px", borderRadius: 8, fontSize: 14, fontWeight: 500,
+              color: hoveredLink === "agents" ? C.textPrimary : C.textSecondary,
+              textDecoration: "none", transition: "color 0.15s",
+            }}
+            onMouseEnter={() => setHoveredLink("agents")}
+            onMouseLeave={() => setHoveredLink(null)}
+          >
+            Agents
+          </Link>
 
           {isAuthenticated ? (
             <button
@@ -114,6 +127,10 @@ export default function MarketingLayout() {
             padding: "10px 12px", borderRadius: 8, fontSize: 15, fontWeight: 500,
             color: C.textSecondary, textDecoration: "none",
           }}>Pricing</Link>
+          <Link to="/agents" onClick={() => setMobileMenuOpen(false)} style={{
+            padding: "10px 12px", borderRadius: 8, fontSize: 15, fontWeight: 500,
+            color: C.textSecondary, textDecoration: "none",
+          }}>Agents</Link>
           {!isAuthenticated && (
             <>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} style={{
@@ -143,6 +160,7 @@ export default function MarketingLayout() {
         </span>
         <div style={{ display: "flex", gap: 24 }}>
           <Link to="/pricing" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Pricing</Link>
+          <Link to="/agents" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Agents</Link>
           <Link to="/login" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Sign in</Link>
         </div>
       </footer>

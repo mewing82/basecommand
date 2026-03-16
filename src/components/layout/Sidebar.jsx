@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  LayoutDashboard, Radio, Diamond, CheckSquare, TrendingUp,
-  FolderKanban, Users, Library, Settings as SettingsIcon,
-  ChevronLeft, ChevronRight, RefreshCw, LogOut,
+  LayoutDashboard, Radio, Bot, CheckSquare, Crown,
+  Settings as SettingsIcon, Upload,
+  ChevronLeft, ChevronRight, LogOut, MessageSquare,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 import { useAppStore } from "../../store/appStore";
@@ -12,22 +12,16 @@ const WS_DEFAULT_ID = "ws_default";
 
 // ─── Nav Configuration ───────────────────────────────────────────────────────
 const NAV_SECTIONS = [
-  { label: "Command", items: [
-    { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { id: "intel", icon: Radio, label: "Intel" },
-  ]},
-  { label: "Work", items: [
-    { id: "decisions", icon: Diamond, label: "Decisions" },
-    { id: "tasks", icon: CheckSquare, label: "Tasks" },
-    { id: "priorities", icon: TrendingUp, label: "Priorities" },
-    { id: "projects", icon: FolderKanban, label: "Projects" },
-  ]},
-  { label: "Reference", items: [
-    { id: "meetings", icon: Users, label: "Meetings" },
-    { id: "library", icon: Library, label: "Library" },
-  ]},
   { label: "Renewals", items: [
-    { id: "renewals", icon: RefreshCw, label: "Renewal Ops" },
+    { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { id: "accounts", icon: MessageSquare, label: "Accounts" },
+    { id: "autopilot", icon: Bot, label: "Autopilot" },
+    { id: "intel", icon: Radio, label: "Intel" },
+    { id: "leadership", icon: Crown, label: "Leadership" },
+    { id: "tasks", icon: CheckSquare, label: "Tasks" },
+  ]},
+  { label: "Utility", items: [
+    { id: "import", icon: Upload, label: "Import" },
   ]},
 ];
 

@@ -3,14 +3,12 @@ import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 
 const VIEW_TITLES = {
   dashboard: "Renewal Command Center",
+  accounts: "Accounts",
+  autopilot: "Autopilot",
   intel: "Intel",
-  decisions: "Decisions",
+  leadership: "Leadership",
   tasks: "Tasks",
-  priorities: "Priorities",
-  projects: "Projects",
-  meetings: "Meetings",
-  library: "Library",
-  renewals: "Renewal Operations",
+  import: "Import",
   settings: "Settings",
 };
 

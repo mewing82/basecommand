@@ -1,26 +1,24 @@
 import { useState } from "react";
 import {
-  LayoutDashboard, CheckSquare, RefreshCw, TrendingUp,
-  MoreHorizontal, Radio, Diamond, FolderKanban,
-  Users, Library, Settings as SettingsIcon, X,
+  LayoutDashboard, MessageSquare, Bot, Radio,
+  MoreHorizontal, Crown, CheckSquare, Upload,
+  Settings as SettingsIcon, X,
 } from "lucide-react";
 import { C, FONT_SANS } from "../../lib/tokens";
 
 // Primary tabs shown in the bottom bar
 const PRIMARY_TABS = [
   { id: "dashboard", icon: LayoutDashboard, label: "Home" },
-  { id: "tasks", icon: CheckSquare, label: "Tasks" },
-  { id: "renewals", icon: RefreshCw, label: "Renewals" },
-  { id: "priorities", icon: TrendingUp, label: "Priorities" },
+  { id: "accounts", icon: MessageSquare, label: "Accounts" },
+  { id: "autopilot", icon: Bot, label: "Autopilot" },
+  { id: "intel", icon: Radio, label: "Intel" },
 ];
 
 // Overflow items shown in the "More" bottom sheet
 const MORE_ITEMS = [
-  { id: "intel", icon: Radio, label: "Intel" },
-  { id: "decisions", icon: Diamond, label: "Decisions" },
-  { id: "projects", icon: FolderKanban, label: "Projects" },
-  { id: "meetings", icon: Users, label: "Meetings" },
-  { id: "library", icon: Library, label: "Library" },
+  { id: "leadership", icon: Crown, label: "Leadership" },
+  { id: "tasks", icon: CheckSquare, label: "Tasks" },
+  { id: "import", icon: Upload, label: "Import" },
   { id: "settings", icon: SettingsIcon, label: "Settings" },
 ];
 
