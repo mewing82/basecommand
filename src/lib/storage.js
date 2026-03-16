@@ -326,4 +326,24 @@ export const renewalStore = {
   // Leadership Cache
   getLeadershipCache() { return safeParse(localStorage.getItem(this._key("leadership-cache")), null); },
   saveLeadershipCache(data) { localStorage.setItem(this._key("leadership-cache"), JSON.stringify(data)); },
+
+  // Renewal Tasks (account actions + portfolio operations)
+  getTaskItems() { return safeParse(localStorage.getItem(this._key("task-items")), []); },
+  saveTaskItems(tasks) { localStorage.setItem(this._key("task-items"), JSON.stringify(tasks)); },
+  saveTaskItem(task) {
+    const tasks = this.getTaskItems();
+    const idx = tasks.findIndex(t => t.id === task.id);
+    if (idx >= 0) tasks[idx] = task;
+    else tasks.push(task);
+    this.saveTaskItems(tasks);
+    return task;
+  },
+  updateTaskItem(id, updates) {
+    const tasks = this.getTaskItems();
+    const idx = tasks.findIndex(t => t.id === id);
+    if (idx >= 0) { tasks[idx] = { ...tasks[idx], ...updates }; this.saveTaskItems(tasks); }
+  },
+  deleteTaskItem(id) {
+    this.saveTaskItems(this.getTaskItems().filter(t => t.id !== id));
+  },
 };
