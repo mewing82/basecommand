@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  LayoutDashboard, Radio, Bot, CheckSquare, Crown, BarChart3,
+  LayoutDashboard, Sparkles, CheckSquare,
   Settings as SettingsIcon, Upload,
   ChevronLeft, ChevronRight, LogOut, MessageSquare,
 } from "lucide-react";
@@ -15,10 +15,7 @@ const NAV_SECTIONS = [
   { label: "Renewals", items: [
     { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { id: "accounts", icon: MessageSquare, label: "Accounts" },
-    { id: "autopilot", icon: Bot, label: "Autopilot" },
-    { id: "forecast", icon: BarChart3, label: "Forecast" },
-    { id: "intel", icon: Radio, label: "Intel" },
-    { id: "briefs", icon: Crown, label: "Briefs" },
+    { id: "agents", icon: Sparkles, label: "Agents" },
     { id: "tasks", icon: CheckSquare, label: "Tasks" },
   ]},
   { label: "Utility", items: [
@@ -241,7 +238,7 @@ export default function Sidebar({ activeView, onNavigate }) {
               <div style={{ width: 20, height: 1, background: C.borderDefault, margin: "6px auto" }} />
             )}
             {section.items.map(item => {
-              const active = activeView === item.id;
+              const active = activeView === item.id || activeView.startsWith(item.id + "/");
               const isHovered = hoveredItem === item.id;
               return (
                 <button key={item.id}

@@ -232,7 +232,7 @@ function DashboardOnboarding({ userName, onAccountsChanged }) {
 
           <Btn
             variant="primary"
-            onClick={() => navigate("/app/autopilot")}
+            onClick={() => navigate("/app/agents/autopilot")}
             style={{ marginTop: 16, width: "100%" }}
           >
             <Bot size={14} /> See Autopilot Actions for Your Accounts
@@ -480,7 +480,7 @@ RULES:
             </div>
           )}
           <button
-            onClick={() => navigate("/app/autopilot")}
+            onClick={() => navigate("/app/agents/autopilot")}
             style={{
               marginTop: 14, display: "flex", alignItems: "center", gap: 6,
               padding: "8px 14px", borderRadius: 8, border: `1px solid ${C.borderDefault}`,
@@ -559,12 +559,11 @@ RULES:
       </div>
 
       {/* Quick Links */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
         {[
-          { icon: Bot, label: "Autopilot", desc: "AI-generated actions", route: "/app/autopilot", color: C.aiBlue },
-          { icon: BarChart3, label: "Forecast", desc: "Renewal forecasting", route: "/app/forecast", color: "#A78BFA" },
-          { icon: Radio, label: "Intel", desc: "Expansion & risk signals", route: "/app/intel", color: C.green },
-          { icon: Crown, label: "Briefs", desc: "Strategic briefs", route: "/app/briefs", color: C.gold },
+          { icon: Sparkles, label: "Agents", desc: "AI agent hub", route: "/app/agents", color: C.gold },
+          { icon: Bot, label: "Autopilot", desc: "AI-generated actions", route: "/app/agents/autopilot", color: C.aiBlue },
+          { icon: BarChart3, label: "Forecast", desc: "Renewal forecasting", route: "/app/agents/forecast", color: "#A78BFA" },
           { icon: Upload, label: "Import", desc: "Add portfolio data", route: "/app/import", color: C.amber },
         ].map((link, i) => {
           const Icon = link.icon;

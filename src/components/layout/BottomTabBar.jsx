@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
-  LayoutDashboard, MessageSquare, Bot, Radio, BarChart3,
-  MoreHorizontal, Crown, CheckSquare, Upload,
+  LayoutDashboard, MessageSquare, Sparkles,
+  MoreHorizontal, CheckSquare, Upload,
   Settings as SettingsIcon, X,
 } from "lucide-react";
 import { C, FONT_SANS } from "../../lib/tokens";
@@ -10,15 +10,12 @@ import { C, FONT_SANS } from "../../lib/tokens";
 const PRIMARY_TABS = [
   { id: "dashboard", icon: LayoutDashboard, label: "Home" },
   { id: "accounts", icon: MessageSquare, label: "Accounts" },
-  { id: "autopilot", icon: Bot, label: "Autopilot" },
-  { id: "forecast", icon: BarChart3, label: "Forecast" },
+  { id: "agents", icon: Sparkles, label: "Agents" },
+  { id: "tasks", icon: CheckSquare, label: "Tasks" },
 ];
 
 // Overflow items shown in the "More" bottom sheet
 const MORE_ITEMS = [
-  { id: "intel", icon: Radio, label: "Intel" },
-  { id: "briefs", icon: Crown, label: "Briefs" },
-  { id: "tasks", icon: CheckSquare, label: "Tasks" },
   { id: "import", icon: Upload, label: "Import" },
   { id: "settings", icon: SettingsIcon, label: "Settings" },
 ];
@@ -26,7 +23,7 @@ const MORE_ITEMS = [
 export default function BottomTabBar({ activeView, onNavigate }) {
   const [showMore, setShowMore] = useState(false);
 
-  const isMoreActive = MORE_ITEMS.some(item => item.id === activeView);
+  const isMoreActive = MORE_ITEMS.some(item => item.id === activeView) || (!["dashboard", "accounts", "agents", "tasks"].includes(activeView) && !activeView.startsWith("agents/"));
 
   const handleNavigate = (id) => {
     onNavigate(id);
@@ -129,7 +126,7 @@ export default function BottomTabBar({ activeView, onNavigate }) {
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}>
         {PRIMARY_TABS.map(tab => {
-          const active = activeView === tab.id;
+          const active = activeView === tab.id || activeView.startsWith(tab.id + "/");
           return (
             <button
               key={tab.id}

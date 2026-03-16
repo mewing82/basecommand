@@ -571,6 +571,142 @@ Stored in user profile / localStorage. Drives task suggestions.
 
 ---
 
+---
+
+## Epic 7: Agent Hub — AI Agents as the Product Experience
+
+### The Vision
+BaseCommand's AI features aren't just features — they're agents. The Agent Hub reframes the product as a platform of purpose-built AI agents that work your renewal portfolio. Pre-installed agents cover the core workflows, installable agents let users unlock new capabilities, and the whole experience feels like having a team of AI specialists on staff.
+
+### Nav Consolidation
+
+```
+CURRENT (9 items):              NEW (7 items):
+├─ Dashboard                    ├─ Dashboard
+├─ Accounts                     ├─ Accounts
+├─ Autopilot                    ├─ Agents        ← hub for all AI agents
+├─ Forecast                     ├─ Tasks
+├─ Intel                        ├─ ─────────
+├─ Briefs                       ├─ Import
+├─ Tasks                        └─ Settings
+├─ ─────────
+├─ Import
+└─ Settings
+```
+
+Autopilot, Forecast, Intel, and Briefs move inside the Agent Hub. Nav gets simpler, product feels more powerful.
+
+### Agent Hub Page (`/app/agents`)
+
+**Layout: Two sections**
+
+**Active Agents** — grid of installed/enabled agents with live status:
+- Each card shows: icon, name, live metric (pending actions, last run, signals found)
+- "Open" button takes user into the agent's full workspace
+- Cards sorted by most recently used
+
+**Available Agents** — agents that can be activated:
+- Each card shows: icon, name, description, what it does
+- "Activate" button enables instantly (no install, just unlocks)
+- Activated agents move to Active section
+
+### Pre-Installed Agents (Existing Features, Reframed)
+
+| Agent | Icon | Live Status | Workspace |
+|-------|------|-------------|-----------|
+| **Autopilot** | ⚡ Bot | "X pending actions" | Existing Autopilot page |
+| **Forecast** | 📊 BarChart3 | "GRR: X% · Updated Xh ago" | Existing Forecast page |
+| **Intel** | 📡 Radio | "X signals found" | Existing Intel page |
+| **Briefs** | 👑 Crown | "Ready to generate" or "Updated Xh ago" | Existing Briefs/Leadership page |
+
+These are the 4 existing features wrapped in the agent frame. Zero functional changes — just a new home and live status cards.
+
+### New Installable Agents (v1 — Build 2)
+
+| Agent | What It Does | Experience | Persona Value |
+|-------|-------------|------------|---------------|
+| **Renewal Playbook** | Auto-generates 90/60/30 day action checklist per account | Select account → get timestamped playbook → creates tasks in Tasks | Specialist, Director |
+| **Meeting Prep** | Prep brief for any upcoming renewal meeting | Select account → talking points, risk summary, ask recommendations, relationship map | Specialist, Revenue Leader |
+
+### Future Installable Agents (v2+)
+
+| Agent | What It Does |
+|-------|-------------|
+| **Churn Predictor** | Weekly churn probability score per account with reasoning |
+| **Win/Loss Analyst** | Retrospective analysis of completed renewals for patterns |
+| **Stakeholder Mapper** | Per-account stakeholder map with engagement signals and gaps |
+| **Data Quality** | Portfolio data health score with specific fix recommendations |
+| **Expansion Scout** | Deep expansion analysis beyond Intel's signal detection |
+
+### Agent Workspace Experience
+
+When a user clicks "Open" on an agent card, they enter the agent's workspace:
+- **Back navigation:** "← Agents" link at top to return to hub
+- **Agent header:** Agent name + icon + status + "Refresh" button
+- **Full workspace:** The agent's complete UI (existing pages for pre-installed, new UIs for installable)
+- **Consistent frame:** Every agent workspace feels the same structurally
+
+### Agent Card Component (Shared)
+
+```
+┌──────────────────────────────┐
+│  [Icon]  Agent Name          │
+│                              │
+│  Brief description of what   │
+│  this agent does             │
+│                              │
+│  STATUS: Live metric here    │
+│                              │
+│  [Open] or [Activate]        │
+└──────────────────────────────┘
+```
+
+### Routing
+
+```
+/app/agents              → Agent Hub (grid of all agents)
+/app/agents/autopilot    → Autopilot workspace
+/app/agents/forecast     → Forecast workspace
+/app/agents/intel        → Intel workspace
+/app/agents/briefs       → Briefs workspace
+/app/agents/playbook     → Renewal Playbook workspace (new)
+/app/agents/meeting-prep → Meeting Prep workspace (new)
+```
+
+Old routes (/app/autopilot, /app/forecast, etc.) redirect to new paths for backward compatibility.
+
+### Implementation Plan
+
+**Phase 1: Hub + Reframe Existing (build now)**
+- [ ] Create Agent Hub page with Active/Available grid
+- [ ] Move Autopilot, Forecast, Intel, Briefs into agent sub-routes
+- [ ] Add back-navigation ("← Agents") to each workspace
+- [ ] Update Sidebar nav (consolidate 4 items → 1 "Agents" item)
+- [ ] Update BottomTabBar, TopBar, CommandPalette
+- [ ] Add redirects for old routes
+- [ ] Live status on agent cards (pending actions count, cache timestamps, signal counts)
+
+**Phase 2: New Agents (build now)**
+- [ ] Renewal Playbook agent (select account → generate 90/60/30 day checklist → create tasks)
+- [ ] Meeting Prep agent (select account → generate prep brief with talking points)
+
+**Phase 3: Agent Storage + Activation (build now)**
+- [ ] Store activated/deactivated state in renewalStore settings
+- [ ] Available agents show "Activate" button
+- [ ] Activated agents persist across sessions
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 36 | Consolidate Autopilot/Forecast/Intel/Briefs into Agent Hub | Simpler nav (9→7 items), frames AI as agents, creates platform feel | 2026-03-15 |
+| 37 | Forecast lives in hub, not top-level nav | One clear path to each feature. Hub card with live GRR makes it visible. Can promote back if needed | 2026-03-15 |
+| 38 | Pre-installed agents = existing features reframed | Zero functional changes for v1. New home + live status cards | 2026-03-15 |
+| 39 | Renewal Playbook + Meeting Prep as first installable agents | Most immediately valuable for Specialist and Director personas | 2026-03-15 |
+| 40 | Agent workspace pattern with back-navigation | Consistent frame for all agents. User always knows they're "inside" an agent | 2026-03-15 |
+
+---
+
 ## Open Questions
 
 1. ~~Which "operating system" features actually serve renewal personas vs. are generic filler?~~ **Resolved**

@@ -13,6 +13,7 @@ import AuthGate from "./components/auth/AuthGate";
 import MarketingLayout from "./components/layout/MarketingLayout";
 import Dashboard from "./pages/Dashboard";
 import Accounts from "./pages/Accounts";
+import AgentHub from "./pages/AgentHub";
 import Autopilot from "./pages/Autopilot";
 import Intel from "./pages/Intel";
 import Leadership from "./pages/Leadership";
@@ -87,10 +88,13 @@ function AppLayout() {
   const VIEW_TITLES = {
     dashboard: "Renewal Command Center",
     accounts: "Accounts",
-    autopilot: "Autopilot",
-    forecast: "Forecast",
-    intel: "Intel",
-    briefs: "Briefs",
+    agents: "Agents",
+    "agents/autopilot": "Autopilot",
+    "agents/forecast": "Forecast",
+    "agents/intel": "Intel",
+    "agents/briefs": "Briefs",
+    "agents/playbook": "Renewal Playbook",
+    "agents/meeting-prep": "Meeting Prep",
     tasks: "Tasks",
     import: "Import",
     settings: "Settings",
@@ -159,13 +163,21 @@ function AppLayout() {
           <Routes>
             <Route index element={<Dashboard />} />
             <Route path="accounts" element={<Accounts />} />
-            <Route path="autopilot" element={<Autopilot />} />
-            <Route path="intel" element={<Intel />} />
-            <Route path="forecast" element={<Forecast />} />
-            <Route path="briefs" element={<Leadership />} />
+            <Route path="agents" element={<AgentHub />} />
+            <Route path="agents/autopilot" element={<Autopilot />} />
+            <Route path="agents/forecast" element={<Forecast />} />
+            <Route path="agents/intel" element={<Intel />} />
+            <Route path="agents/briefs" element={<Leadership />} />
+            <Route path="agents/playbook" element={<AgentHub />} />
+            <Route path="agents/meeting-prep" element={<AgentHub />} />
             <Route path="tasks" element={<Tasks />} />
             <Route path="import" element={<Import />} />
             <Route path="settings" element={<Settings />} />
+            {/* Backward-compatible redirects */}
+            <Route path="autopilot" element={<Navigate to="/app/agents/autopilot" replace />} />
+            <Route path="forecast" element={<Navigate to="/app/agents/forecast" replace />} />
+            <Route path="intel" element={<Navigate to="/app/agents/intel" replace />} />
+            <Route path="briefs" element={<Navigate to="/app/agents/briefs" replace />} />
           </Routes>
         </div>
       </main>
