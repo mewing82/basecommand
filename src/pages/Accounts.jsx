@@ -116,11 +116,7 @@ export default function Accounts() {
 
   return (
     <PageLayout maxWidth={1200}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontFamily: FONT_SANS, fontSize: "var(--bc-heading-size, 24px)", fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Accounts</h1>
-          <p className="bc-hide-mobile" style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>Manage your renewal portfolio and AI co-pilot conversations</p>
-        </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
         <Btn variant="primary" onClick={() => setShowAddAccount(true)} size="sm"><Plus size={14} /> Add Account</Btn>
       </div>
 

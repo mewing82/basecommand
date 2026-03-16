@@ -61,12 +61,6 @@ export default function Leadership() {
   // Empty state
   if (accounts.length === 0) return (
     <PageLayout maxWidth={1200}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontFamily: FONT_SANS, fontSize: "var(--bc-heading-size, 24px)", fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Briefs</h1>
-          <p className="bc-hide-mobile" style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>Executive briefs, talking points, and strategic recommendations</p>
-        </div>
-      </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20, textAlign: "center", padding: "40px 20px" }}>
         <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg, ${C.gold}20, ${C.aiBlue}20)`, display: "flex", alignItems: "center", justifyContent: "center" }}><Crown size={32} style={{ color: C.gold }} /></div>
         <div>
@@ -95,13 +89,6 @@ export default function Leadership() {
 
   return (
     <PageLayout maxWidth={1200}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontFamily: FONT_SANS, fontSize: "var(--bc-heading-size, 24px)", fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Briefs</h1>
-          <p className="bc-hide-mobile" style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>Executive briefs, talking points, and strategic recommendations</p>
-        </div>
-      </div>
-
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         {/* Executive Brief */}
         <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.gold}25`, borderLeft: `3px solid ${C.gold}`, borderRadius: 12, padding: "22px 26px", position: "relative", overflow: "hidden" }}>

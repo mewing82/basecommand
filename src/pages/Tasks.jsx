@@ -201,16 +201,7 @@ Format with markdown. Be concise but thorough.`;
 
   return (
     <PageLayout maxWidth={1000}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontFamily: FONT_SANS, fontSize: "var(--bc-heading-size, 24px)", fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Tasks</h1>
-          <p className="bc-hide-mobile" style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>
-            Account actions and strategic tasks
-            {activeCount > 0 && <span> · <span style={{ color: C.textSecondary }}>{activeCount} active</span></span>}
-            {overdueCount > 0 && <span> · <span style={{ color: C.red }}>{overdueCount} overdue</span></span>}
-          </p>
-        </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
         <Btn variant="primary" onClick={() => setShowCreate(true)} size="sm"><Plus size={14} /> New Task</Btn>
       </div>
 

@@ -125,7 +125,7 @@ function AppLayout() {
           position: "sticky", top: 0, zIndex: 50,
           background: `${C.bgPrimary}F2`, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
           borderBottom: `1px solid ${C.borderDefault}`,
-          padding: "0 24px", height: 48,
+          padding: "0 24px", height: 56,
           display: "flex", alignItems: "center", gap: 12,
         }}>
           <button
@@ -155,7 +155,7 @@ function AppLayout() {
           </button>
         </div>
 
-        <div className="bc-app-content" style={{ minHeight: "calc(100vh - 48px)" }}>
+        <div className="bc-app-content" style={{ minHeight: "calc(100vh - 56px)" }}>
           <Routes>
             <Route index element={<Dashboard />} />
             <Route path="accounts" element={<Accounts />} />

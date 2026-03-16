@@ -106,12 +106,6 @@ export default function Forecast() {
   // Empty state
   if (accounts.length === 0) return (
     <PageLayout maxWidth={1200}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontFamily: FONT_SANS, fontSize: "var(--bc-heading-size, 24px)", fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Forecast</h1>
-          <p className="bc-hide-mobile" style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>AI-powered renewal forecasting</p>
-        </div>
-      </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20, textAlign: "center", padding: "40px 20px" }}>
         <div style={{ width: 64, height: 64, borderRadius: 16, background: "#A78BFA18", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <BarChart3 size={32} style={{ color: "#A78BFA" }} />
@@ -131,13 +125,7 @@ export default function Forecast() {
 
   return (
     <PageLayout maxWidth={1200}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontFamily: FONT_SANS, fontSize: "var(--bc-heading-size, 24px)", fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Forecast</h1>
-          <p className="bc-hide-mobile" style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>AI-powered renewal forecasting · {accounts.length} accounts · {fmt$(totalARR)} total ARR</p>
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 20 }}>
           {forecast && (
             <button onClick={() => handleCopy(buildForecastText(), "all")} style={{
               display: "flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 10,
@@ -161,7 +149,6 @@ export default function Forecast() {
             {loading ? "Generating..." : "Refresh"}
             {cachedAgo && !loading && <span style={{ color: C.textTertiary, fontSize: 12 }}>· {cachedAgo}</span>}
           </button>
-        </div>
       </div>
 
       {error && <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 16 }}><AlertTriangle size={14} /> {error}</div>}
