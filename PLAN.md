@@ -707,6 +707,116 @@ Old routes (/app/autopilot, /app/forecast, etc.) redirect to new paths for backw
 
 ---
 
+---
+
+## Epic 8: Premium Autonomous Agents — The Roadmap
+
+### The Vision
+Move from co-pilot (drafts for human approval) to full autonomous execution (runs the renewal process). This is where BaseCommand becomes indispensable and justifies premium pricing.
+
+### Three Phases
+
+| Phase | Mode | What It Does | Pricing Tier |
+|-------|------|-------------|-------------|
+| **v1 (now)** | Co-pilot | Drafts emails, generates forecasts, suggests actions. Human approves everything | Free / Pro |
+| **v2 (next)** | Supervised autopilot | Sends emails, updates CRM on approval. User sets rules and approves batches | Pro / Team |
+| **v3 (future)** | Full autonomous | Runs the entire renewal process. Monitors, acts, escalates only when needed | Team / Enterprise |
+
+### v2: Supervised Autopilot — Technical Requirements
+
+**Email Send (not just draft):**
+- Gmail API write access (send on behalf of user)
+- Outlook/Microsoft Graph API send
+- Email templates with merge fields from account data
+- Send queue with batch approval ("approve all 5 low-risk renewal emails")
+- Delivery tracking (sent, opened, replied)
+
+**CRM Write Integration:**
+- Salesforce API (create tasks, update opportunities, log activities)
+- HubSpot API (same)
+- Field mapping UI (BaseCommand fields → CRM fields)
+- Sync log with rollback capability
+
+**Rules Engine:**
+- User-defined guardrails per action type
+- Examples: "Auto-send renewal reminders for accounts under $50K ARR"
+- "Never send without approval for accounts over $500K"
+- "Auto-update CRM notes after every AI interaction"
+- Rule builder UI (condition → action → approval level)
+
+**Execution Log:**
+- Audit trail of every autonomous action
+- What was done, when, to which account, by which agent
+- Undo/rollback capability for reversible actions
+- Dashboard showing agent activity feed
+
+**Escalation Framework:**
+- Agent knows when to stop and ask the human
+- Risk-based: high-ARR accounts always escalate
+- Anomaly-based: unusual response patterns trigger human review
+- Configurable thresholds per user/persona
+
+### v3: Full Autonomous — Future Vision
+
+- Agents monitor email responses and auto-reply in threads
+- Agents detect renewal risk from email sentiment and escalate
+- Agents send quotes and proposals based on templates
+- Agents schedule meetings via calendar integration
+- Agents build and update forecasts weekly on schedule
+- Agents generate and distribute exec summaries automatically
+- Human only involved for strategic decisions and exceptions
+
+### Revenue Model for Premium Agents
+
+| Tier | Agents | Autonomy | Price |
+|------|--------|----------|-------|
+| Free | 4 pre-installed (co-pilot only) | Draft only | $0 |
+| Pro | All agents + supervised autopilot | Send with approval | $99-149/mo |
+| Team | Multi-user + full autonomous | Rules-based auto-execution | $299-499/mo |
+| Enterprise | Custom agents + API access | Full autonomous + custom rules | Custom |
+
+### Implementation Priority (v2 — next to build)
+
+1. Gmail send integration (already have OAuth, need write scope)
+2. Execution log UI (show what agents have done)
+3. Batch approval workflow ("approve these 5 actions at once")
+4. Basic rules engine (per-action approval thresholds)
+5. CRM write integration (Salesforce first)
+
+---
+
+## agent.ai Agent Specs (Ready to Build)
+
+### Agent 1: CRM Data Parser
+- **Platform:** agent.ai
+- **Source prompt:** `RENEWAL_IMPORT_PROMPT` from `src/lib/prompts.js`
+- **Input:** User pastes messy CRM data (Salesforce exports, spreadsheets, notes)
+- **Output:** Clean, structured renewal accounts (name, ARR, renewal date, risk level, contacts)
+- **CTA:** "Save these accounts to your BaseCommand portfolio → basecommand.ai/signup"
+
+### Agent 2: Renewal Autopilot
+- **Platform:** agent.ai
+- **Source prompt:** `RENEWAL_AUTOPILOT_PROMPT` from `src/lib/prompts.js`
+- **Input:** User pastes account details + context
+- **Output:** Action plan with draft emails, risk assessments, next steps
+- **CTA:** "Automate this across your entire portfolio → basecommand.ai/signup"
+
+### Agent 3: Exec Brief Generator
+- **Platform:** agent.ai
+- **Source prompt:** `RENEWAL_LEADERSHIP_PROMPT` from `src/lib/prompts.js`
+- **Input:** User pastes portfolio data
+- **Output:** Board-ready executive brief with forecast, health signals, recommendations
+- **CTA:** "Get live briefs from your portfolio → basecommand.ai/signup"
+
+### Agent 4: Forecast Intelligence (NEW)
+- **Platform:** agent.ai
+- **Source prompt:** `RENEWAL_FORECAST_PROMPT` from `src/lib/prompts.js`
+- **Input:** User pastes renewal portfolio data
+- **Output:** Full forecast with GRR/NRR, confidence tiers, scenario analysis, risk callouts
+- **CTA:** "Get live forecasting from your portfolio → basecommand.ai/signup"
+
+---
+
 ## Open Questions
 
 1. ~~Which "operating system" features actually serve renewal personas vs. are generic filler?~~ **Resolved**
