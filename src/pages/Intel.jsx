@@ -25,7 +25,7 @@ export default function Intel() {
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, contacts: a.contacts || [], context: ctx.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 600)}`).join("\n") };
       });
       const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-      const response = await callAI([{ role: "user", content: "Analyze my accounts for expansion opportunities." }], RENEWAL_EXPANSION_PROMPT(data, today), 4000);
+      const response = await callAI([{ role: "user", content: "Analyze my accounts for renewal signals — expansion opportunities, churn risk, and renewal triggers." }], RENEWAL_EXPANSION_PROMPT(data, today), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
       const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); renewalStore.saveExpansionCache(parsed);
     } catch (err) { setError(err.message); } finally { setLoading(false); }
@@ -49,8 +49,8 @@ export default function Intel() {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20, textAlign: "center", padding: "40px 20px" }}>
           <div style={{ width: 64, height: 64, borderRadius: 16, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><TrendingUp size={32} style={{ color: C.green }} /></div>
           <div>
-            <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Find Expansion Revenue</h2>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Import your accounts first, then add context data (call notes, CRM exports, emails). The Expansion Agent will identify upsell and cross-sell opportunities hiding in your customer conversations.</p>
+            <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Renewal Intelligence</h2>
+            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Import your accounts first, then add context data (call notes, CRM exports, emails). AI will surface expansion opportunities, churn signals, risk indicators, and renewal triggers hiding in your data.</p>
           </div>
         </div>
       ) : accountsWithContext.length === 0 ? (
@@ -58,10 +58,10 @@ export default function Intel() {
           <div style={{ width: 64, height: 64, borderRadius: 16, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><TrendingUp size={32} style={{ color: C.green }} /></div>
           <div>
             <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Add Context to Unlock Signals</h2>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>You have {accounts.length} account{accounts.length !== 1 ? "s" : ""} but none have context data yet. Add call notes, CRM data, or emails to any account and the Expansion Agent will scan for upsell and cross-sell opportunities.</p>
+            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>You have {accounts.length} account{accounts.length !== 1 ? "s" : ""} but none have context data yet. Add call notes, CRM data, or emails to any account and AI will scan for expansion signals, churn risk, and renewal triggers.</p>
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, maxWidth: 400, lineHeight: 1.5 }}>
-            <strong style={{ color: C.textSecondary }}>What counts as context?</strong> Gong call transcripts, Salesforce notes, email threads, support tickets, usage data — anything that reveals how your customer is using your product and what they need next.
+            <strong style={{ color: C.textSecondary }}>What counts as context?</strong> Gong call transcripts, Salesforce notes, email threads, support tickets, usage data — anything that reveals renewal health, risk signals, or growth opportunities.
           </div>
         </div>
       ) : (
@@ -70,7 +70,7 @@ export default function Intel() {
           <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.green}25`, borderLeft: `3px solid ${C.green}`, borderRadius: 12, padding: "22px 26px", position: "relative", overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
               <div style={{ width: 28, height: 28, borderRadius: 8, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><TrendingUp size={14} color={C.green} /></div>
-              <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Expansion Intelligence</span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Renewal Intelligence</span>
               <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Analyzing {accountsWithContext.length} accounts</span>
               {cachedAgo && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>· {cachedAgo}</span>}
               <button onClick={analyzeExpansion} disabled={loading} style={{ background: loading ? C.green + "18" : "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.green : C.textTertiary, display: "flex", alignItems: "center", gap: 6 }}>
@@ -78,13 +78,13 @@ export default function Intel() {
               </button>
             </div>
             {error && <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 8 }}><AlertTriangle size={14} /> {error}</div>}
-            {loading && !cache ? (<div style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green, animation: "aiPulse 2s ease-in-out infinite" }} /><span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Scanning account data for expansion signals...</span></div>
+            {loading && !cache ? (<div style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green, animation: "aiPulse 2s ease-in-out infinite" }} /><span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Scanning account data for renewal signals...</span></div>
             ) : cache?.portfolioInsights ? (
               <div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.7, marginBottom: 8 }}>{cache.portfolioInsights}</div>
                 {cache.totalEstimatedExpansion && <div style={{ fontFamily: FONT_MONO, fontSize: 14, fontWeight: 600, color: C.green }}>Total Estimated Expansion: {cache.totalEstimatedExpansion}</div>}
               </div>
-            ) : (<div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Click Refresh to scan for expansion opportunities.</div>)}
+            ) : (<div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Click Refresh to scan for renewal signals.</div>)}
           </div>
 
           {/* Opportunity Cards */}

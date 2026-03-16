@@ -209,6 +209,170 @@ New marketing page at `/agents` showcasing the 3 agents:
 
 ---
 
+---
+
+## Epic 3: Post-Login Experience & Onboarding
+
+### The Problem
+1. **Logged-in users see marketing:** Visiting `/` shows the Landing page even when authenticated. They should be redirected to `/app`.
+2. **Dashboard is stale:** Built around old "executive productivity" features (completed tasks, open decisions, active projects). None of this maps to renewal ops.
+3. **No onboarding:** New users land on an empty Dashboard with a "Create a Project" button that links to a cut feature. Zero guidance on what to do.
+4. **No Quick Add:** Users can't try the product without committing to a full import.
+
+### Implementation Plan
+
+#### 1. Smart Routing for Authenticated Users
+- If logged-in user visits `/`, `/pricing`, or `/agents` → redirect to `/app`
+- Marketing site is for prospects only
+
+#### 2. Dashboard Rewrite — Renewal Command Center
+
+**For users WITH accounts (has renewal data):**
+
+| Section | Content | Priority |
+|---------|---------|----------|
+| **Header** | Personalized greeting + date + refresh button | Must have |
+| **Portfolio Snapshot** | Total ARR, # accounts, at-risk ARR, renewals due 30/60/90d | Must have |
+| **Pending Actions** | Top 3-5 Autopilot actions awaiting review (approve/dismiss inline) | Must have |
+| **Upcoming Renewals** | Next 5 renewals by date with risk indicators | Must have |
+| **AI Strategic Brief** | AI-generated portfolio summary (replaces old brief) | Must have |
+| **Recent Intel** | Latest 2-3 expansion/risk signals | Nice to have |
+| **Quick Links** | Cards linking to Autopilot, Intel, Leadership, Import | Nice to have |
+
+**Data sources:** All from `renewalStore` — accounts, autopilot actions, expansion cache, leadership cache. No dependency on old entityStore.
+
+#### 3. New User Onboarding (Zero Accounts)
+
+When `renewalStore.getAccounts().length === 0`:
+
+```
+┌─────────────────────────────────────────────────┐
+│  Welcome to BaseCommand, [Name]                 │
+│                                                 │
+│  Get started in under a minute.                 │
+│  Add a few accounts to see AI in action.        │
+│                                                 │
+│  ┌─────────────────────────────────────────┐    │
+│  │ Quick Add                                │    │
+│  │ [Company] [ARR] [Renewal Date] [+Add]   │    │
+│  │ [Company] [ARR] [Renewal Date] [+Add]   │    │
+│  └─────────────────────────────────────────┘    │
+│                                                 │
+│  ── or ──                                       │
+│                                                 │
+│  [Import from CRM]  [Paste Spreadsheet Data]    │
+│                                                 │
+│  "Added accounts? Head to Autopilot to see      │
+│   AI-generated actions for your portfolio."      │
+└─────────────────────────────────────────────────┘
+```
+
+- Quick Add: inline form, minimal fields (company name, ARR, renewal date)
+- Each added account appears below in a mini-list
+- "Go to Autopilot" CTA appears after first account is added
+- Import buttons link to `/app/import`
+
+#### 4. Personalization
+- Greeting with user's name (already have from auth)
+- Time-of-day aware greeting (already have `getGreeting()`)
+- Activity-aware: "You have X pending actions" / "Y renewals due this month"
+
+### Decision Log
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 17 | Redirect authenticated users from marketing to /app | Marketing is for prospects, not logged-in users | 2026-03-15 |
+| 18 | Full Dashboard rewrite with renewal data | Old dashboard references cut features (decisions, projects). Must reflect renewal ops | 2026-03-15 |
+| 19 | Quick Add as primary onboarding in Dashboard | Lower friction than Import for first-time users. Immediate value from 1-2 accounts | 2026-03-15 |
+| 20 | Dashboard reads from renewalStore, not entityStore | Renewal data is the product. Old entity data is from archived features | 2026-03-15 |
+
+---
+
+---
+
+## Epic 4: Tasks Overhaul — AI-Powered Renewal Task Engine
+
+### The Problem
+Current Tasks page is a generic task list (title, status, priority, due date, subtasks) built for personal task management. It doesn't serve renewal ops personas:
+- **Founder/CEO:** Needs to see "what do I need to do for renewals this week" without managing tasks manually
+- **Revenue Leader/CRO:** Needs cross-team visibility — what actions are in flight across the portfolio
+- **RevOps/CS Ops:** Needs to track operational follow-ups and data hygiene tasks
+- **Renewal Leader:** Needs portfolio-level task health — are renewal playbooks being executed, what's falling behind
+
+### What Tasks Should Be
+Not a todo list. A **renewal action center** that:
+1. Auto-generates tasks from Autopilot actions (approved actions become trackable tasks)
+2. Surfaces per-account action items with renewal context
+3. Provides portfolio-wide task visibility for leadership
+4. Links every task to an account, a renewal, or a portfolio-level initiative
+
+### Design Decisions
+
+**Two task types, one surface:**
+
+| Type | Scope | Examples | Tied to |
+|------|-------|----------|---------|
+| **Account Actions** | Per-account renewal work | Follow up, send proposal, schedule alignment call | Specific account |
+| **Portfolio Operations** | Running the renewal org | Compile forecast, churn analysis, QBR prep, weekly exec summary | Portfolio (no account) |
+
+**Scope boundary:** If it's renewal work, it belongs. If it's not, it doesn't. Not a generic todo list.
+
+**What makes this NOT a todo list:**
+1. AI execution layer — tasks trigger AI to do the work (draft exec summary from portfolio data, compile forecast from accounts)
+2. Recurring cadences — portfolio ops auto-regenerate on schedule (weekly, monthly, quarterly)
+3. Context-aware — every task has full renewal context (ARR, risk, timelines) behind it
+
+**No over-engineering:**
+- No projects, tags, or Kanban boards
+- No collaboration features (not Asana)
+- No subtasks in v1 (keep it flat)
+
+**Task sources (v1):**
+1. Manual creation (account task or portfolio operation)
+2. Approved Autopilot actions → auto-create as account tasks
+3. AI-suggested tasks (future: auto-generate renewal playbook tasks)
+
+**Data model:**
+```
+{
+  id: string,
+  title: string,
+  type: "account" | "portfolio",     // the two categories
+  accountId: string | null,           // null for portfolio ops
+  accountName: string | null,
+  status: "pending" | "in_progress" | "complete",
+  dueDate: string | null,
+  recurrence: "none" | "weekly" | "monthly" | "quarterly" | null,  // portfolio ops
+  priority: "high" | "medium" | "low",
+  aiOutput: string | null,            // AI-generated content for this task
+  createdAt: string,
+  completedAt: string | null,
+}
+```
+
+**UI structure:**
+- Unified view with two filter tabs: "All" | "Account Actions" | "Portfolio Ops"
+- Sorted by: due date (soonest first), then priority
+- Quick-create bar at top (type selector: account action vs portfolio op)
+- Account actions show account name + risk badge
+- Portfolio ops show recurrence badge if recurring
+- AI assist button on each task: "Draft this" → AI generates output using portfolio context
+
+**Storage:** `renewalStore` with new methods (getTaskItems, saveTaskItem, etc.) — separate from old entityStore tasks
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 21 | Two task types: Account Actions + Portfolio Operations | Directors need portfolio-level ops tasks (forecast, QBR, exec summary), not just account follow-ups | 2026-03-15 |
+| 22 | AI execution layer on tasks | Tasks trigger AI to draft outputs (exec summary, forecast) using portfolio data — not just reminders | 2026-03-15 |
+| 23 | Recurring cadences for portfolio ops | Weekly/monthly/quarterly ops tasks auto-regenerate — supports operational rhythm | 2026-03-15 |
+| 24 | Scope guard: renewal work only | No generic todos. If it's not renewal ops, it doesn't belong. Keeps product niche | 2026-03-15 |
+| 25 | Build both types together | Share same data model and UI surface. Separating would mean touching same code twice | 2026-03-15 |
+| 26 | New storage in renewalStore | Separate from old entityStore tasks which are archived generic task management | 2026-03-15 |
+
+---
+
 ## Open Questions
 
 1. ~~Which "operating system" features actually serve renewal personas vs. are generic filler?~~ **Resolved**
