@@ -2,6 +2,7 @@ import { store } from "./storage";
 import { AI_PROVIDERS } from "./tokens";
 import { BC_SYSTEM_PROMPT } from "./prompts";
 import { safeParse } from "./utils";
+import { supabase } from "./supabase";
 
 // ─── AI Config Helpers ───────────────────────────────────────────────────────
 export function getActiveAIConfig() {
@@ -30,71 +31,62 @@ export function getModelLabel(provider, modelId) {
 }
 
 // ─── Core AI Call ────────────────────────────────────────────────────────────
+// Routes through /api/ai proxy. Uses BaseCommand's server-side API key by default.
+// If user has BYOK configured, sends their keyId for KV lookup.
 export async function callAI(messages, systemOverride, maxTokens, configOverride) {
   const config = configOverride || getActiveAIConfig();
   const provider = config?.provider || "anthropic";
-  const model = config?.model || "claude-sonnet-4-20250514";
   const system = systemOverride || BC_SYSTEM_PROMPT;
   const max_tokens = maxTokens || 4000;
 
-  const apiKey = resolveAPIKey(config);
-  if (!apiKey) {
-    throw new Error(`No ${provider === "openai" ? "OpenAI" : "Anthropic"} API key configured. Add one in Settings → AI Configuration.`);
+  // Determine model based on user tier (BYOK users can pick their own)
+  const byokKey = resolveAPIKey(config);
+  const model = byokKey
+    ? (config?.model || "claude-sonnet-4-20250514")
+    : (config?.model || "claude-sonnet-4-20250514"); // TODO: Opus for Pro tier
+
+  // Build request body
+  const body = {
+    provider,
+    model,
+    max_tokens,
+    system,
+    messages,
+  };
+
+  // If user has BYOK key, include it for server-side lookup
+  if (byokKey) {
+    body.byokKey = byokKey;
   }
 
-  let data;
+  // Include auth token if available
+  const headers = { "Content-Type": "application/json" };
+  if (supabase) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+  }
 
-  if (provider === "anthropic") {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true",
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens,
-        ...(system ? { system } : {}),
-        messages,
-      }),
-    });
-    data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || `Anthropic API error (${res.status})`);
-  } else if (provider === "openai") {
-    const openaiMessages = [];
-    if (system) openaiMessages.push({ role: "system", content: system });
-    for (const msg of messages) openaiMessages.push({ role: msg.role, content: msg.content });
+  const res = await fetch("/api/ai", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
 
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({ model, max_tokens, messages: openaiMessages }),
-    });
-    const raw = await res.json();
-    if (!res.ok) throw new Error(raw.error?.message || `OpenAI API error (${res.status})`);
+  const data = await res.json();
 
-    // Normalize to Anthropic response shape
-    const choice = raw.choices?.[0];
-    data = {
-      content: [{ text: choice?.message?.content || "" }],
-      stop_reason: choice?.finish_reason === "stop" ? "end_turn"
-        : choice?.finish_reason === "length" ? "max_tokens"
-        : choice?.finish_reason || "end_turn",
-      model: raw.model,
-      usage: { input_tokens: raw.usage?.prompt_tokens || 0, output_tokens: raw.usage?.completion_tokens || 0 },
-    };
-  } else {
-    throw new Error(`Unknown AI provider: ${provider}`);
+  if (!res.ok) {
+    if (res.status === 429) {
+      throw new Error("You've used all your free AI calls this month. Upgrade to Pro for unlimited AI.");
+    }
+    throw new Error(data.error || `AI error (${res.status})`);
   }
 
   const text = data.content?.map(b => b.text || "").join("") || "";
   const result = new String(text);
   result.stop_reason = data.stop_reason;
+  result.usage = data.usage;
   return result;
 }
 

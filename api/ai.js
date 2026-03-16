@@ -1,11 +1,17 @@
 /**
- * Generalized AI proxy — routes to Anthropic or OpenAI based on provider.
- * Looks up API keys from Vercel KV; falls back to env vars when no keyId provided.
- * Normalizes all responses to Anthropic message format for client consistency.
+ * AI proxy — routes to Anthropic or OpenAI.
+ * Default: uses BaseCommand's server-side API key (zero friction for users).
+ * BYOK: if byokKey is provided, uses the user's own key instead.
+ * Metering: tracks usage per user per month in Supabase.
  *
  * POST /api/ai
- * Body: { userId?, keyId?, provider?, model?, max_tokens?, system?, messages }
+ * Body: { provider?, model?, max_tokens?, system?, messages, byokKey? }
+ * Headers: Authorization: Bearer <supabase-jwt> (optional, enables metering)
  */
+import { createClient } from "@supabase/supabase-js";
+
+const FREE_MONTHLY_LIMIT = 50;
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -22,22 +28,52 @@ export default async function handler(req, res) {
   const system = body.system || "";
   const messages = body.messages;
 
-  // Resolve API key
-  let apiKey = null;
+  // ─── Resolve user identity from Supabase JWT ────────────────────────────
+  let userId = null;
+  let userTier = "free"; // default tier
+  const authHeader = req.headers.authorization;
 
-  if (body.keyId && body.userId) {
-    // Look up from KV
-    const kvUrl = process.env.KV_REST_API_URL;
-    const kvToken = process.env.KV_REST_API_TOKEN;
-    if (kvUrl && kvToken) {
-      const keyData = await kvGet(kvUrl, kvToken, `bc2-aikey:${body.userId}:${body.keyId}`);
-      if (keyData?.apiKey) {
-        apiKey = keyData.apiKey;
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (supabaseUrl && supabaseServiceKey) {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (!error && user) {
+          userId = user.id;
+          // TODO: Look up tier from Stripe subscription when billing is live
+          // For now, all authenticated users are "free" tier
+        }
+      } catch (e) {
+        console.error("[ai] Auth error:", e.message);
       }
     }
   }
 
-  // Fallback to env vars
+  // ─── Usage metering (free tier only, skip for BYOK) ─────────────────────
+  if (userId && !body.byokKey) {
+    const usage = await getUsage(userId);
+    if (usage !== null && userTier === "free" && usage >= FREE_MONTHLY_LIMIT) {
+      return res.status(429).json({
+        error: "Free tier limit reached. Upgrade to Pro for unlimited AI.",
+        usage,
+        limit: FREE_MONTHLY_LIMIT,
+      });
+    }
+  }
+
+  // ─── Resolve API key ────────────────────────────────────────────────────
+  let apiKey = null;
+
+  // BYOK: user provided their own key
+  if (body.byokKey) {
+    apiKey = body.byokKey;
+  }
+
+  // Default: use BaseCommand's server-side key
   if (!apiKey) {
     if (provider === "anthropic") {
       apiKey = process.env.ANTHROPIC_API_KEY;
@@ -47,25 +83,38 @@ export default async function handler(req, res) {
   }
 
   if (!apiKey) {
-    return res.status(500).json({ error: `No API key available for ${provider}. Add one in Settings.` });
+    return res.status(500).json({ error: `No API key available for ${provider}.` });
   }
 
+  // ─── Make the AI call ───────────────────────────────────────────────────
   try {
+    let result;
     if (provider === "anthropic") {
-      return await handleAnthropic(res, apiKey, model, maxTokens, system, messages);
+      result = await handleAnthropic(apiKey, model, maxTokens, system, messages);
     } else if (provider === "openai") {
-      return await handleOpenAI(res, apiKey, model, maxTokens, system, messages);
+      result = await handleOpenAI(apiKey, model, maxTokens, system, messages);
     } else {
       return res.status(400).json({ error: `Unknown provider: ${provider}` });
     }
+
+    if (result.error) {
+      return res.status(result.status || 500).json({ error: result.error });
+    }
+
+    // ─── Track usage (after successful call, skip for BYOK) ─────────────
+    if (userId && !body.byokKey) {
+      await trackUsage(userId, model, result.data.usage);
+    }
+
+    return res.status(200).json(result.data);
   } catch (err) {
-    console.error(`AI proxy error (${provider}):`, err);
+    console.error(`[ai] proxy error (${provider}):`, err);
     return res.status(500).json({ error: "Internal server error" });
   }
 }
 
 // ─── Anthropic handler ───────────────────────────────────────────────────────
-async function handleAnthropic(res, apiKey, model, maxTokens, system, messages) {
+async function handleAnthropic(apiKey, model, maxTokens, system, messages) {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -83,21 +132,16 @@ async function handleAnthropic(res, apiKey, model, maxTokens, system, messages) 
 
   const data = await response.json();
   if (!response.ok) {
-    return res.status(response.status).json({ error: data.error?.message || "Anthropic API error" });
+    return { error: data.error?.message || "Anthropic API error", status: response.status };
   }
-  return res.status(200).json(data);
+  return { data };
 }
 
 // ─── OpenAI handler ──────────────────────────────────────────────────────────
-async function handleOpenAI(res, apiKey, model, maxTokens, system, messages) {
-  // Translate messages: prepend system message in OpenAI format
+async function handleOpenAI(apiKey, model, maxTokens, system, messages) {
   const openaiMessages = [];
-  if (system) {
-    openaiMessages.push({ role: "system", content: system });
-  }
-  for (const msg of messages) {
-    openaiMessages.push({ role: msg.role, content: msg.content });
-  }
+  if (system) openaiMessages.push({ role: "system", content: system });
+  for (const msg of messages) openaiMessages.push({ role: msg.role, content: msg.content });
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -105,43 +149,94 @@ async function handleOpenAI(res, apiKey, model, maxTokens, system, messages) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      messages: openaiMessages,
-    }),
+    body: JSON.stringify({ model, max_tokens: maxTokens, messages: openaiMessages }),
   });
 
   const data = await response.json();
   if (!response.ok) {
-    return res.status(response.status).json({
-      error: data.error?.message || "OpenAI API error",
-    });
+    return { error: data.error?.message || "OpenAI API error", status: response.status };
   }
 
-  // Normalize to Anthropic response shape
   const choice = data.choices?.[0];
-  const normalized = {
-    content: [{ text: choice?.message?.content || "" }],
-    stop_reason: choice?.finish_reason === "stop" ? "end_turn"
-      : choice?.finish_reason === "length" ? "max_tokens"
-      : choice?.finish_reason || "end_turn",
-    model: data.model,
-    usage: {
-      input_tokens: data.usage?.prompt_tokens || 0,
-      output_tokens: data.usage?.completion_tokens || 0,
+  return {
+    data: {
+      content: [{ text: choice?.message?.content || "" }],
+      stop_reason: choice?.finish_reason === "stop" ? "end_turn"
+        : choice?.finish_reason === "length" ? "max_tokens"
+        : choice?.finish_reason || "end_turn",
+      model: data.model,
+      usage: {
+        input_tokens: data.usage?.prompt_tokens || 0,
+        output_tokens: data.usage?.completion_tokens || 0,
+      },
     },
   };
-
-  return res.status(200).json(normalized);
 }
 
-// ─── KV helper ───────────────────────────────────────────────────────────────
-async function kvGet(kvUrl, kvToken, key) {
-  const r = await fetch(`${kvUrl}/get/${encodeURIComponent(key)}`, {
-    headers: { Authorization: `Bearer ${kvToken}` },
-  });
-  if (!r.ok) return null;
-  const json = await r.json();
-  return json.result ? (typeof json.result === "string" ? JSON.parse(json.result) : json.result) : null;
+// ─── Usage tracking via Supabase ─────────────────────────────────────────────
+function getPeriod() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getSupabaseAdmin() {
+  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
+
+async function getUsage(userId) {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return null;
+
+  const { data } = await supabase
+    .from("ai_usage")
+    .select("call_count")
+    .eq("user_id", userId)
+    .eq("period", getPeriod())
+    .single();
+
+  return data?.call_count || 0;
+}
+
+async function trackUsage(userId, model, usage) {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return;
+
+  const period = getPeriod();
+  const inputTokens = usage?.input_tokens || 0;
+  const outputTokens = usage?.output_tokens || 0;
+
+  // Upsert: increment call_count and token totals
+  const { data: existing } = await supabase
+    .from("ai_usage")
+    .select("id, call_count, input_tokens, output_tokens")
+    .eq("user_id", userId)
+    .eq("period", period)
+    .single();
+
+  if (existing) {
+    await supabase
+      .from("ai_usage")
+      .update({
+        call_count: existing.call_count + 1,
+        input_tokens: existing.input_tokens + inputTokens,
+        output_tokens: existing.output_tokens + outputTokens,
+        model,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id);
+  } else {
+    await supabase
+      .from("ai_usage")
+      .insert({
+        user_id: userId,
+        period,
+        call_count: 1,
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        model,
+      });
+  }
 }

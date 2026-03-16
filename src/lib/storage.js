@@ -218,7 +218,8 @@ export const store = {
 };
 
 // ─── Renewals Data Layer ─────────────────────────────────────────────────────
-export const renewalStore = {
+// localStorage-based implementation (used as fallback when Supabase is unavailable)
+export const _localRenewalStore = {
   _key(suffix) { return `bc2-${store._ws}-renewals-${suffix}`; },
 
   // Accounts
@@ -346,4 +347,91 @@ export const renewalStore = {
   deleteTaskItem(id) {
     this.saveTaskItems(this.getTaskItems().filter(t => t.id !== id));
   },
+};
+
+// ─── Smart Renewal Store (Supabase with localStorage fallback) ───────────────
+// Wraps each method: tries Supabase first, falls back to localStorage if
+// Supabase is unavailable or user is not authenticated.
+import { supabase } from "./supabase";
+import * as db from "./supabaseStorage";
+
+async function isSupabaseReady() {
+  if (!supabase) return false;
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session?.user?.id;
+  } catch { return false; }
+}
+
+function makeAsyncMethod(dbFn, localFn) {
+  return async function (...args) {
+    if (await isSupabaseReady()) {
+      try { return await dbFn(...args); }
+      catch (e) { console.warn("[renewalStore] Supabase error, falling back to localStorage:", e.message); }
+    }
+    return localFn(...args);
+  };
+}
+
+export const renewalStore = {
+  _key(suffix) { return _localRenewalStore._key(suffix); },
+
+  // Accounts
+  getAccounts: makeAsyncMethod(db.getAccounts, () => _localRenewalStore.getAccounts()),
+  getAccount: makeAsyncMethod(db.getAccount, (id) => _localRenewalStore.getAccount(id)),
+  saveAccount: makeAsyncMethod(db.saveAccount, (a) => _localRenewalStore.saveAccount(a)),
+  saveAccounts: makeAsyncMethod(db.saveAccounts, (a) => _localRenewalStore.saveAccounts(a)),
+  deleteAccount: makeAsyncMethod(db.deleteAccount, (id) => _localRenewalStore.deleteAccount(id)),
+
+  // Context
+  getContext: makeAsyncMethod(db.getContext, (aid) => _localRenewalStore.getContext(aid)),
+  saveContext: makeAsyncMethod(db.saveContext, (aid, items) => _localRenewalStore.saveContext(aid, items)),
+  addContextItem: makeAsyncMethod(db.addContextItem, (aid, item) => _localRenewalStore.addContextItem(aid, item)),
+  deleteContextItem: makeAsyncMethod(db.deleteContextItem, (aid, iid) => _localRenewalStore.deleteContextItem(aid, iid)),
+
+  // Threads
+  getThreads: makeAsyncMethod(db.getThreads, (aid) => _localRenewalStore.getThreads(aid)),
+  saveThreads: makeAsyncMethod(db.saveThreads, (aid, t) => _localRenewalStore.saveThreads(aid, t)),
+  addThread: makeAsyncMethod(db.addThread, (aid, t) => _localRenewalStore.addThread(aid, t)),
+  deleteThread: makeAsyncMethod(db.deleteThread, (aid, tid) => _localRenewalStore.deleteThread(aid, tid)),
+
+  // Messages
+  getMessages: makeAsyncMethod(db.getMessages, (tid) => _localRenewalStore.getMessages(tid)),
+  saveMessages: makeAsyncMethod(db.saveMessages, (tid, m) => _localRenewalStore.saveMessages(tid, m)),
+  addMessage: makeAsyncMethod(db.addMessage, (tid, m) => _localRenewalStore.addMessage(tid, m)),
+
+  // KB Docs
+  getKBDocs: makeAsyncMethod(db.getKBDocs, () => _localRenewalStore.getKBDocs()),
+  getKBContent: makeAsyncMethod(db.getKBContent, (id) => _localRenewalStore.getKBContent(id)),
+  saveKBDoc: makeAsyncMethod(db.saveKBDoc, (doc, c) => _localRenewalStore.saveKBDoc(doc, c)),
+  deleteKBDoc: makeAsyncMethod(db.deleteKBDoc, (id) => _localRenewalStore.deleteKBDoc(id)),
+
+  // Metrics
+  getMetrics: makeAsyncMethod(db.getMetrics, () => _localRenewalStore.getMetrics()),
+  saveMetrics: makeAsyncMethod(db.saveMetrics, (m) => _localRenewalStore.saveMetrics(m)),
+
+  // Settings
+  getSettings: makeAsyncMethod(db.getSettings, () => _localRenewalStore.getSettings()),
+  saveSettings: makeAsyncMethod(db.saveSettings, (s) => _localRenewalStore.saveSettings(s)),
+
+  // Autopilot Actions
+  getAutopilotActions: makeAsyncMethod(db.getAutopilotActions, () => _localRenewalStore.getAutopilotActions()),
+  saveAutopilotActions: makeAsyncMethod(db.saveAutopilotActions, (a) => _localRenewalStore.saveAutopilotActions(a)),
+  addAutopilotAction: makeAsyncMethod(db.addAutopilotAction, (a) => _localRenewalStore.addAutopilotAction(a)),
+  updateAutopilotAction: makeAsyncMethod(db.updateAutopilotAction, (id, u) => _localRenewalStore.updateAutopilotAction(id, u)),
+
+  // Expansion Cache
+  getExpansionCache: makeAsyncMethod(() => db.getAnalysisCache("expansion"), () => _localRenewalStore.getExpansionCache()),
+  saveExpansionCache: makeAsyncMethod((d) => db.saveAnalysisCache("expansion", d), (d) => _localRenewalStore.saveExpansionCache(d)),
+
+  // Leadership Cache
+  getLeadershipCache: makeAsyncMethod(() => db.getAnalysisCache("leadership"), () => _localRenewalStore.getLeadershipCache()),
+  saveLeadershipCache: makeAsyncMethod((d) => db.saveAnalysisCache("leadership", d), (d) => _localRenewalStore.saveLeadershipCache(d)),
+
+  // Task Items
+  getTaskItems: makeAsyncMethod(db.getTaskItems, () => _localRenewalStore.getTaskItems()),
+  saveTaskItems: makeAsyncMethod(db.saveTaskItems, (t) => _localRenewalStore.saveTaskItems(t)),
+  saveTaskItem: makeAsyncMethod(db.saveTaskItem, (t) => _localRenewalStore.saveTaskItem(t)),
+  updateTaskItem: makeAsyncMethod(db.updateTaskItem, (id, u) => _localRenewalStore.updateTaskItem(id, u)),
+  deleteTaskItem: makeAsyncMethod(db.deleteTaskItem, (id) => _localRenewalStore.deleteTaskItem(id)),
 };
