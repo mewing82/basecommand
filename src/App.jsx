@@ -25,6 +25,14 @@ import Agents from "./pages/marketing/Agents";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 
+// ─── Redirect authenticated users from marketing home to app ────────────────
+function AuthRedirect({ children }) {
+  const { user, loading } = useAuthStore();
+  if (loading) return null;
+  if (user) return <Navigate to="/app" replace />;
+  return children;
+}
+
 // ─── App Layout (authenticated) ─────────────────────────────────────────────
 function AppLayout() {
   const navigate = useNavigate();
@@ -185,7 +193,7 @@ export default function App() {
       <Routes>
         {/* Public marketing routes */}
         <Route element={<MarketingLayout />}>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<AuthRedirect><Landing /></AuthRedirect>} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/agents" element={<Agents />} />
         </Route>
