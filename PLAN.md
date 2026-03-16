@@ -473,6 +473,104 @@ Forecast is the #1 reason companies hire $200K+ renewal directors. If BaseComman
 
 ---
 
+## Epic 6: AI-Initiated Value Delivery — Persona-Driven Task Suggestions
+
+### The Vision
+BaseCommand doesn't wait for users to figure out what to do — it tells them. The product knows what good renewal operators do at every level, and proactively suggests the work, pre-built with AI execution.
+
+**Core principle:** AI-initiated value delivery instead of user-initiated. This is a product differentiator AND a marketing message.
+
+### Naming Fix
+- Rename "Portfolio Ops" → **"Strategic"** across Tasks
+- Task types become: **Account Action** + **Strategic Task**
+
+### Implementation
+
+#### 1. Enhanced Profile (Settings)
+Add role/persona selection to Settings:
+
+| Persona | Label | Description |
+|---------|-------|-------------|
+| **Founder/CEO** | Founder | Running a SaaS company, managing renewals directly |
+| **Revenue Leader** | Revenue Leader | VP/CRO managing a sales team with renewal responsibility |
+| **RevOps/CS Ops** | RevOps | Operationalizing revenue processes and data |
+| **Renewal Director** | Renewal Leader | Director/VP managing a renewal portfolio and team |
+| **Renewal Specialist** | Renewal Specialist | IC running the renewal process day-to-day |
+
+Stored in user profile / localStorage. Drives task suggestions.
+
+#### 2. AI Task Suggestions by Persona
+
+**Renewal Specialist (IC)**
+| Suggestion | AI Can Do |
+|-----------|-----------|
+| "Prep for your next upcoming renewal call" | Draft prep brief with account context, risk signals, talking points |
+| "Draft renewal outreach for accounts due in 30 days" | Write personalized emails for each upcoming renewal |
+| "Review and update account health notes" | Summarize recent activity and flag gaps |
+| "Build a save strategy for at-risk accounts" | Generate tactical save plan with steps |
+| "Identify accounts missing key contacts" | Scan portfolio for stakeholder gaps |
+| "Summarize last quarter's renewal outcomes" | Compile win/loss analysis with patterns |
+
+**Renewal Director/VP**
+| Suggestion | AI Can Do |
+|-----------|-----------|
+| "Compile weekly renewal forecast update" | Generate forecast summary from current data |
+| "Conduct quarterly churn analysis" | Analyze churn patterns, root causes, trends |
+| "Deep dive into top 10 ARR accounts" | Strategic brief per account with risk/opportunity |
+| "Build board-ready retention narrative" | Draft board paragraph with GRR/NRR and narrative |
+| "Create QBR prep materials" | Generate QBR deck content with data points |
+| "Send weekly executive summary" | Draft exec summary from portfolio state |
+| "Analyze forecast accuracy vs last quarter" | Compare predicted vs actual outcomes |
+
+**Revenue Leader (CRO/VP Sales)**
+| Suggestion | AI Can Do |
+|-----------|-----------|
+| "Identify which accounts need exec alignment" | Flag accounts where exec sponsor engagement is needed |
+| "Build a renewal pipeline summary for leadership" | Generate pipeline report with confidence tiers |
+| "Analyze AE workload across renewal portfolio" | Show account distribution and capacity gaps |
+| "Create expansion playbook for top accounts" | Generate upsell strategies per account |
+
+**Founder/CEO**
+| Suggestion | AI Can Do |
+|-----------|-----------|
+| "Review your top 3 accounts by ARR" | Brief on your most important renewals |
+| "Build a renewal calendar for the quarter" | Visual timeline of upcoming renewals |
+| "Identify your riskiest renewal this month" | Deep dive on highest-risk account |
+| "Generate investor-ready retention metrics" | GRR/NRR with narrative for board/investors |
+
+**RevOps/CS Ops**
+| Suggestion | AI Can Do |
+|-----------|-----------|
+| "Audit account data completeness" | Identify missing fields across portfolio |
+| "Identify accounts missing renewal dates" | List accounts with data gaps |
+| "Run a duplicate account check" | Find potential duplicates by name similarity |
+| "Standardize risk level assessment" | AI re-evaluate risk levels based on context |
+| "Generate data quality report" | Portfolio data health score with recommendations |
+
+#### 3. "Suggested For You" Section in Tasks
+- Shows 3-5 persona-relevant suggestions above the task list
+- Each suggestion has: title, description, "Let AI do this" button
+- Clicking creates the task AND immediately triggers AI Draft
+- Suggestions rotate/refresh — don't repeat dismissed ones
+- "See more suggestions" link for full list
+
+#### 4. Future: Smart Timing
+- Suggestions based on calendar proximity: "You have 3 renewals in 14 days — prep for them now"
+- Monday suggestions: "Start your week — compile this week's renewal actions"
+- End of quarter: "Build your QBR deck — AI has your data ready"
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 31 | Rename Portfolio Ops → Strategic | "Ops" doesn't resonate. "Strategic" pairs naturally with "Account Action" | 2026-03-15 |
+| 32 | Add Renewal Specialist persona | ICs are the most frequent users — can't forget them in task suggestions | 2026-03-15 |
+| 33 | AI-initiated value delivery as core principle | Product differentiator: we tell users what to do, not wait for them to figure it out | 2026-03-15 |
+| 34 | Enhanced profile with persona selection | Drives personalized task suggestions. Simple role picker in Settings | 2026-03-15 |
+| 35 | Suggested tasks trigger AI Draft immediately | One-click from suggestion to AI-generated output. Maximum "wow" factor | 2026-03-15 |
+
+---
+
 ## Open Questions
 
 1. ~~Which "operating system" features actually serve renewal personas vs. are generic filler?~~ **Resolved**

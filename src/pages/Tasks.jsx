@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckSquare, Plus, Check, Calendar, Sparkles, ArrowRight, RefreshCw, Briefcase, Trash2 } from "lucide-react";
+import { CheckSquare, Plus, Check, Calendar, Sparkles, ArrowRight, RefreshCw, Briefcase, Trash2, Lightbulb, X } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { renewalStore } from "../lib/storage";
 import { callAI } from "../lib/ai";
@@ -10,10 +10,58 @@ import { Btn, Modal, FormField, Input } from "../components/ui/index";
 const FILTERS = [
   { id: "all", label: "All" },
   { id: "account", label: "Account Actions" },
-  { id: "portfolio", label: "Portfolio Ops" },
+  { id: "strategic", label: "Strategic" },
 ];
 
 const PRIORITY_COLORS = { high: C.red, medium: C.amber, low: C.green };
+
+// ─── Persona-Based Task Suggestions ──────────────────────────────────────────
+const SUGGESTIONS = {
+  specialist: [
+    { title: "Prep for your next upcoming renewal call", desc: "AI drafts a prep brief with account context, risk signals, and talking points", type: "account", priority: "high" },
+    { title: "Draft renewal outreach for accounts due in 30 days", desc: "Personalized emails for each upcoming renewal", type: "account", priority: "high" },
+    { title: "Review and update account health notes", desc: "Summarize recent activity and flag gaps in your accounts", type: "account", priority: "medium" },
+    { title: "Build a save strategy for at-risk accounts", desc: "AI generates a tactical save plan with specific steps", type: "account", priority: "high" },
+    { title: "Identify accounts missing key contacts", desc: "Scan your portfolio for stakeholder gaps", type: "strategic", priority: "medium" },
+    { title: "Summarize last quarter's renewal outcomes", desc: "Win/loss analysis with patterns and learnings", type: "strategic", priority: "low" },
+  ],
+  director: [
+    { title: "Compile weekly renewal forecast update", desc: "AI generates a forecast summary from your current portfolio data", type: "strategic", priority: "high" },
+    { title: "Conduct quarterly churn analysis", desc: "Analyze churn patterns, root causes, and trends across your book", type: "strategic", priority: "medium" },
+    { title: "Deep dive into top 10 ARR accounts", desc: "Strategic brief per account with risk and opportunity analysis", type: "strategic", priority: "high" },
+    { title: "Build board-ready retention narrative", desc: "Draft a board paragraph with GRR/NRR metrics and narrative", type: "strategic", priority: "medium" },
+    { title: "Create QBR prep materials", desc: "AI generates QBR content with data points from your portfolio", type: "strategic", priority: "medium" },
+    { title: "Send weekly executive summary", desc: "Draft an exec summary from current portfolio state", type: "strategic", priority: "high", recurrence: "weekly" },
+  ],
+  revenue_leader: [
+    { title: "Identify accounts needing exec alignment", desc: "Flag accounts where executive sponsor engagement is critical", type: "strategic", priority: "high" },
+    { title: "Build renewal pipeline summary for leadership", desc: "Pipeline report with confidence tiers and risk callouts", type: "strategic", priority: "high" },
+    { title: "Analyze workload across renewal portfolio", desc: "Account distribution and capacity gaps analysis", type: "strategic", priority: "medium" },
+    { title: "Create expansion playbook for top accounts", desc: "AI generates upsell strategies per account", type: "account", priority: "medium" },
+    { title: "Review forecast accuracy vs last quarter", desc: "Compare predicted vs actual renewal outcomes", type: "strategic", priority: "low" },
+  ],
+  founder: [
+    { title: "Review your top 3 accounts by ARR", desc: "AI brief on your most important renewals with risk and actions", type: "strategic", priority: "high" },
+    { title: "Build a renewal calendar for the quarter", desc: "Timeline view of upcoming renewals with key dates", type: "strategic", priority: "medium" },
+    { title: "Identify your riskiest renewal this month", desc: "Deep dive on your highest-risk account with save strategy", type: "account", priority: "high" },
+    { title: "Generate investor-ready retention metrics", desc: "GRR/NRR with narrative formatted for board or investors", type: "strategic", priority: "medium" },
+  ],
+  revops: [
+    { title: "Audit account data completeness", desc: "Identify missing fields across your portfolio", type: "strategic", priority: "medium" },
+    { title: "Identify accounts missing renewal dates", desc: "List all accounts with data gaps that affect forecasting", type: "strategic", priority: "high" },
+    { title: "Run a duplicate account check", desc: "Find potential duplicates by name similarity", type: "strategic", priority: "low" },
+    { title: "Standardize risk level assessment", desc: "AI re-evaluates risk levels based on available context", type: "strategic", priority: "medium" },
+    { title: "Generate data quality report", desc: "Portfolio data health score with specific recommendations", type: "strategic", priority: "medium" },
+  ],
+};
+
+// Default suggestions when no persona is set
+const DEFAULT_SUGGESTIONS = [
+  { title: "Review your upcoming renewals", desc: "AI analyzes accounts due in the next 30 days with risk and actions", type: "strategic", priority: "high" },
+  { title: "Compile a renewal forecast", desc: "AI generates a forecast summary from your portfolio data", type: "strategic", priority: "high" },
+  { title: "Draft outreach for your next renewal", desc: "AI writes a personalized renewal email for your soonest account", type: "account", priority: "medium" },
+  { title: "Build a portfolio health summary", desc: "Overview of retention risk, expansion signals, and key metrics", type: "strategic", priority: "medium" },
+];
 
 export default function Tasks() {
   const navigate = useNavigate();
@@ -23,10 +71,50 @@ export default function Tasks() {
   const [showCreate, setShowCreate] = useState(false);
   const [aiDrafting, setAiDrafting] = useState(null);
   const [aiOutput, setAiOutput] = useState({});
+  const [dismissedSuggestions, setDismissedSuggestions] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("bc2-dismissed-suggestions") || "[]"); } catch { return []; }
+  });
   const accounts = renewalStore.getAccounts();
+  const persona = renewalStore.getSettings().persona || null;
+
+  // Get suggestions for current persona
+  const allSuggestions = persona ? (SUGGESTIONS[persona] || DEFAULT_SUGGESTIONS) : DEFAULT_SUGGESTIONS;
+  const existingTitles = tasks.map(t => t.title.toLowerCase());
+  const visibleSuggestions = allSuggestions
+    .filter(s => !dismissedSuggestions.includes(s.title))
+    .filter(s => !existingTitles.includes(s.title.toLowerCase()))
+    .slice(0, 4);
+
+  function dismissSuggestion(title) {
+    const updated = [...dismissedSuggestions, title];
+    setDismissedSuggestions(updated);
+    localStorage.setItem("bc2-dismissed-suggestions", JSON.stringify(updated));
+  }
+
+  function createFromSuggestion(suggestion) {
+    const task = {
+      id: `task-${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      title: suggestion.title,
+      type: suggestion.type === "strategic" ? "strategic" : "account",
+      accountId: null,
+      accountName: null,
+      status: "pending",
+      dueDate: null,
+      recurrence: suggestion.recurrence || "none",
+      priority: suggestion.priority || "medium",
+      aiOutput: null,
+      createdAt: new Date().toISOString(),
+      completedAt: null,
+    };
+    renewalStore.saveTaskItem(task);
+    setTasks(renewalStore.getTaskItems());
+    // Immediately trigger AI draft
+    aiDraft(task);
+  }
 
   const filtered = tasks.filter(t => {
-    if (filter !== "all" && t.type !== filter) return false;
+    const typeMatch = filter === "all" || t.type === filter || (filter === "strategic" && t.type === "portfolio");
+    if (!typeMatch) return false;
     if (statusFilter === "active" && t.status === "complete") return false;
     if (statusFilter === "complete" && t.status !== "complete") return false;
     return true;
@@ -81,7 +169,7 @@ export default function Tasks() {
       const prompt = `You are BC, an AI-powered renewal operations co-pilot. Help execute this task.
 
 TASK: "${task.title}"
-TYPE: ${task.type === "account" ? "Account Action" : "Portfolio Operation"}
+TYPE: ${task.type === "account" ? "Account Action" : "Strategic Task"}
 ${contextStr}
 
 PORTFOLIO (${accounts.length} accounts, $${accounts.reduce((s, a) => s + (a.arr || 0), 0).toLocaleString()} total ARR):
@@ -118,13 +206,67 @@ Format with markdown. Be concise but thorough.`;
         <div>
           <h1 style={{ fontFamily: FONT_SANS, fontSize: "var(--bc-heading-size, 24px)", fontWeight: 700, color: C.textPrimary, margin: 0, letterSpacing: "-0.02em" }}>Tasks</h1>
           <p className="bc-hide-mobile" style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, margin: "4px 0 0" }}>
-            Account actions and portfolio operations
+            Account actions and strategic tasks
             {activeCount > 0 && <span> · <span style={{ color: C.textSecondary }}>{activeCount} active</span></span>}
             {overdueCount > 0 && <span> · <span style={{ color: C.red }}>{overdueCount} overdue</span></span>}
           </p>
         </div>
         <Btn variant="primary" onClick={() => setShowCreate(true)} size="sm"><Plus size={14} /> New Task</Btn>
       </div>
+
+      {/* Suggested For You */}
+      {visibleSuggestions.length > 0 && accounts.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <Lightbulb size={16} style={{ color: C.gold }} />
+            <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.gold }}>Suggested for you</span>
+            {!persona && (
+              <button onClick={() => navigate("/app/settings")} style={{
+                marginLeft: "auto", fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary,
+                background: "none", border: `1px solid ${C.borderDefault}`, borderRadius: 4,
+                padding: "3px 10px", cursor: "pointer",
+              }}>Set your role for better suggestions</button>
+            )}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+            {visibleSuggestions.map((suggestion, i) => (
+              <div key={i} style={{
+                background: C.bgCard, border: `1px solid ${C.gold}15`,
+                borderRadius: 10, padding: "14px 16px", position: "relative",
+                transition: "all 0.15s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold + "40"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.gold + "15"; }}
+              >
+                <button onClick={() => dismissSuggestion(suggestion.title)} style={{
+                  position: "absolute", top: 8, right: 8, background: "none", border: "none",
+                  color: C.textTertiary, cursor: "pointer", padding: 2, opacity: 0.3,
+                  display: "flex",
+                }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = "0.8"}
+                  onMouseLeave={e => e.currentTarget.style.opacity = "0.3"}
+                ><X size={12} /></button>
+
+                <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 4, paddingRight: 20 }}>
+                  {suggestion.title}
+                </div>
+                <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 12 }}>
+                  {suggestion.desc}
+                </div>
+                <button onClick={() => createFromSuggestion(suggestion)} style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "6px 14px", borderRadius: 6,
+                  background: C.goldMuted, border: `1px solid ${C.gold}30`,
+                  color: C.gold, fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600,
+                  cursor: "pointer", transition: "all 0.15s",
+                }}>
+                  <Sparkles size={12} /> Let AI do this
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
@@ -157,7 +299,7 @@ Format with markdown. Be concise but thorough.`;
       </div>
 
       {/* Empty State */}
-      {tasks.length === 0 ? (
+      {tasks.length === 0 && visibleSuggestions.length === 0 ? (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20, textAlign: "center", padding: "40px 20px" }}>
           <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg, ${C.goldMuted}, ${C.aiBlueMuted})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <CheckSquare size={32} style={{ color: C.gold }} />
@@ -165,7 +307,7 @@ Format with markdown. Be concise but thorough.`;
           <div>
             <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Your Renewal Task Center</h2>
             <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>
-              Track account actions and portfolio operations in one place. Create tasks manually, or approve Autopilot actions to add them here automatically.
+              Track account actions and strategic tasks in one place. Create tasks manually, or let AI suggest what you should be doing.
             </p>
           </div>
           <div style={{ display: "flex", gap: 12 }}>
@@ -173,11 +315,11 @@ Format with markdown. Be concise but thorough.`;
             <Btn variant="ghost" onClick={() => navigate("/app/autopilot")}><Sparkles size={14} /> Go to Autopilot</Btn>
           </div>
         </div>
-      ) : sorted.length === 0 ? (
+      ) : sorted.length === 0 && tasks.length > 0 ? (
         <div style={{ textAlign: "center", padding: "60px 20px", color: C.textTertiary, fontFamily: FONT_BODY, fontSize: 14 }}>
           No tasks match this filter.
         </div>
-      ) : (
+      ) : sorted.length > 0 && (
         /* Task List */
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {sorted.map(task => {
@@ -185,6 +327,9 @@ Format with markdown. Be concise but thorough.`;
             const daysUntil = task.dueDate ? Math.ceil((new Date(task.dueDate) - new Date()) / 86400000) : null;
             const hasAiOutput = aiOutput[task.id] || task.aiOutput;
             const isDrafting = aiDrafting === task.id;
+            const taskTypeLabel = (task.type === "strategic" || task.type === "portfolio") ? "Strategic" : "Account";
+            const taskTypeColor = (task.type === "strategic" || task.type === "portfolio") ? C.gold : C.aiBlue;
+            const taskTypeBg = (task.type === "strategic" || task.type === "portfolio") ? C.goldMuted : C.aiBlueMuted;
 
             return (
               <div key={task.id} style={{
@@ -216,9 +361,8 @@ Format with markdown. Be concise but thorough.`;
                       <span style={{
                         fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, letterSpacing: "0.04em",
                         textTransform: "uppercase", padding: "2px 6px", borderRadius: 3,
-                        color: task.type === "portfolio" ? C.gold : C.aiBlue,
-                        background: task.type === "portfolio" ? C.goldMuted : C.aiBlueMuted,
-                      }}>{task.type === "portfolio" ? "Portfolio" : "Account"}</span>
+                        color: taskTypeColor, background: taskTypeBg,
+                      }}>{taskTypeLabel}</span>
 
                       <span style={{
                         width: 6, height: 6, borderRadius: "50%",
@@ -362,7 +506,7 @@ function CreateTaskModal({ accounts, onClose, onCreate }) {
       accountName: type === "account" ? selectedAccount?.name || "" : null,
       status: "pending",
       dueDate: dueDate || null,
-      recurrence: type === "portfolio" ? recurrence : "none",
+      recurrence: type === "strategic" ? recurrence : "none",
       priority,
       aiOutput: null,
       createdAt: new Date().toISOString(),
@@ -376,7 +520,7 @@ function CreateTaskModal({ accounts, onClose, onCreate }) {
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         {[
           { id: "account", label: "Account Action", desc: "Tied to a specific account" },
-          { id: "portfolio", label: "Portfolio Op", desc: "Renewal org operations" },
+          { id: "strategic", label: "Strategic", desc: "Portfolio-level renewal work" },
         ].map(t => (
           <button key={t.id} onClick={() => setType(t.id)} style={{
             flex: 1, padding: "14px 16px", borderRadius: 10, cursor: "pointer", textAlign: "left",
@@ -394,7 +538,7 @@ function CreateTaskModal({ accounts, onClose, onCreate }) {
         <Input
           value={title}
           onChange={setTitle}
-          placeholder={type === "portfolio" ? "e.g., Compile Q1 forecast, Send weekly exec summary" : "e.g., Schedule renewal call, Send proposal"}
+          placeholder={type === "strategic" ? "e.g., Compile Q1 forecast, Send weekly exec summary" : "e.g., Schedule renewal call, Send proposal"}
           onKeyDown={e => e.key === "Enter" && handleSubmit()}
         />
       </FormField>
@@ -419,7 +563,7 @@ function CreateTaskModal({ accounts, onClose, onCreate }) {
         </FormField>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: type === "portfolio" ? "1fr 1fr 1fr" : "1fr 1fr", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: type === "strategic" ? "1fr 1fr 1fr" : "1fr 1fr", gap: 12 }}>
         <FormField label="Priority">
           <div style={{ display: "flex", gap: 6 }}>
             {["low", "medium", "high"].map(level => (
@@ -449,7 +593,7 @@ function CreateTaskModal({ accounts, onClose, onCreate }) {
           />
         </FormField>
 
-        {type === "portfolio" && (
+        {type === "strategic" && (
           <FormField label="Recurrence">
             <select
               value={recurrence}
