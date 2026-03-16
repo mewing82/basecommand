@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Upload, Bot, Crown, ArrowRight, Sparkles } from "lucide-react";
+import { Upload, Bot, Crown, BarChart3, ArrowRight, Sparkles } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 
 const AGENTS = [
@@ -9,7 +9,7 @@ const AGENTS = [
     description: "Paste messy CRM data — Salesforce exports, spreadsheets, call notes, even rough text — and get clean, structured renewal accounts back instantly.",
     standalone: "Clean and structure any CRM data for free. No sign-up required.",
     cta: "Try CRM Data Parser",
-    link: "#", // TODO: Replace with agent.ai link
+    link: "https://agent.ai/agent/basecommand-crm-parser",
     color: "#3B82F6",
     bg: "rgba(59, 130, 246, 0.12)",
     border: "rgba(59, 130, 246, 0.20)",
@@ -20,7 +20,7 @@ const AGENTS = [
     description: "Give it account details and context, and get a ready-to-use renewal action plan — draft emails, risk assessments, next steps, and expansion signals.",
     standalone: "Get an AI-generated renewal action plan for any account. Free to use.",
     cta: "Try Renewal Autopilot",
-    link: "#", // TODO: Replace with agent.ai link
+    link: "https://agent.ai/agent/basecommand-autopilot",
     color: "#34D399",
     bg: "rgba(52, 211, 153, 0.12)",
     border: "rgba(52, 211, 153, 0.20)",
@@ -31,10 +31,21 @@ const AGENTS = [
     description: "Paste your portfolio data and get a board-ready executive brief — forecast by confidence tier, health signals, strategic recommendations, and talking points.",
     standalone: "Generate a leadership-ready renewal brief from raw data. No account needed.",
     cta: "Try Exec Brief Generator",
-    link: "#", // TODO: Replace with agent.ai link
+    link: "https://agent.ai/agent/basecommand-exec-brief",
     color: "#F59E0B",
     bg: "rgba(245, 158, 11, 0.12)",
     border: "rgba(245, 158, 11, 0.20)",
+  },
+  {
+    icon: BarChart3,
+    title: "Forecast Intelligence",
+    description: "Paste your renewal portfolio and get a full forecast — GRR/NRR metrics, confidence tiers, period breakdown, scenario analysis, and prioritized actions to improve your number.",
+    standalone: "Get a board-ready renewal forecast with scenario analysis. Free to use.",
+    cta: "Try Forecast Intelligence",
+    link: "https://agent.ai/agent/basecommand-forecast",
+    color: "#A78BFA",
+    bg: "rgba(167, 139, 250, 0.12)",
+    border: "rgba(167, 139, 250, 0.20)",
   },
 ];
 
