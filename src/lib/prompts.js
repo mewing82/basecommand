@@ -362,3 +362,73 @@ RULES:
 - Strategic recommendations should be actionable process/resource/strategy changes, not account-level tactics.
 - Keep the executive brief tight — a busy director should scan it in 60 seconds.
 - Return ONLY the JSON. No markdown fences. No preamble.`;
+
+export const RENEWAL_FORECAST_PROMPT = (portfolioData, today) => `You are the Base Command Forecast Intelligence Agent. You produce board-ready renewal forecasts that replace the output of a $200K+ renewal director. Be precise, specific, and data-driven.
+
+TODAY: ${today}
+
+PORTFOLIO DATA:
+${JSON.stringify(portfolioData)}
+
+Analyze every account and produce a comprehensive forecast. Assign each account to a time period based on renewal date, and to a confidence tier based on risk level and context signals.
+
+TIER DEFINITIONS:
+- COMMITTED: Low risk, strong engagement, high likelihood of on-time renewal at current or higher value
+- BEST CASE: Medium risk or medium engagement, likely to renew but may require attention or have timing uncertainty
+- AT RISK: High risk, disengagement signals, competitive threat, or champion loss — real possibility of churn or significant downsell
+
+Return ONLY valid JSON (no markdown fences):
+{
+  "narrative": "3-5 sentence executive forecast summary. Reference specific accounts, dollar amounts, and time periods. This should be copy-paste ready for a board email.",
+  "metrics": {
+    "grr": "XX.X%",
+    "nrr": "XX.X%",
+    "grrTrend": "improving|stable|declining",
+    "forecastConfidence": "high|medium|low",
+    "forecastConfidenceReason": "1-2 sentence explanation of overall confidence"
+  },
+  "periods": {
+    "thisMonth": {
+      "committed": { "arr": 0, "accounts": ["Account Name 1"] },
+      "bestCase": { "arr": 0, "accounts": ["Account Name 2"] },
+      "atRisk": { "arr": 0, "accounts": ["Account Name 3"] },
+      "total": 0,
+      "accountCount": 0
+    },
+    "nextMonth": { "committed": { "arr": 0, "accounts": [] }, "bestCase": { "arr": 0, "accounts": [] }, "atRisk": { "arr": 0, "accounts": [] }, "total": 0, "accountCount": 0 },
+    "thisQuarter": { "committed": { "arr": 0, "accounts": [] }, "bestCase": { "arr": 0, "accounts": [] }, "atRisk": { "arr": 0, "accounts": [] }, "total": 0, "accountCount": 0 },
+    "nextQuarter": { "committed": { "arr": 0, "accounts": [] }, "bestCase": { "arr": 0, "accounts": [] }, "atRisk": { "arr": 0, "accounts": [] }, "total": 0, "accountCount": 0 }
+  },
+  "riskCallouts": [
+    {
+      "accountName": "Name",
+      "arr": 0,
+      "renewalDate": "YYYY-MM-DD",
+      "risk": "Specific risk description",
+      "recommendedAction": "What to do about it"
+    }
+  ],
+  "scenarios": {
+    "bestCase": { "totalARR": 0, "grr": "XX%", "narrative": "If all best-case accounts renew..." },
+    "expected": { "totalARR": 0, "grr": "XX%", "narrative": "Based on current signals..." },
+    "downside": { "totalARR": 0, "grr": "XX%", "narrative": "If at-risk accounts churn..." }
+  },
+  "actions": [
+    {
+      "priority": 1,
+      "action": "Specific action to improve forecast",
+      "impact": "Expected revenue impact",
+      "accountName": "Related account or 'Portfolio'"
+    }
+  ]
+}
+
+RULES:
+- Calculate GRR as (renewed ARR / expiring ARR). NRR includes expansion.
+- EVERY account with a renewal date must appear in exactly one period and one tier.
+- Name specific accounts in every section — never say "several accounts."
+- Risk callouts: only include accounts with real risk signals, not every account.
+- Scenarios must use actual math from the accounts.
+- Actions should be ordered by revenue impact (highest first).
+- The narrative should be ready to paste into a board update email.
+- Return ONLY the JSON. No markdown fences. No preamble.`;

@@ -16,6 +16,7 @@ import Accounts from "./pages/Accounts";
 import Autopilot from "./pages/Autopilot";
 import Intel from "./pages/Intel";
 import Leadership from "./pages/Leadership";
+import Forecast from "./pages/Forecast";
 import Tasks from "./pages/Tasks";
 import Import from "./pages/Import";
 import Settings from "./pages/Settings";
@@ -87,8 +88,9 @@ function AppLayout() {
     dashboard: "Renewal Command Center",
     accounts: "Accounts",
     autopilot: "Autopilot",
+    forecast: "Forecast",
     intel: "Intel",
-    leadership: "Leadership",
+    briefs: "Briefs",
     tasks: "Tasks",
     import: "Import",
     settings: "Settings",
@@ -159,7 +161,8 @@ function AppLayout() {
             <Route path="accounts" element={<Accounts />} />
             <Route path="autopilot" element={<Autopilot />} />
             <Route path="intel" element={<Intel />} />
-            <Route path="leadership" element={<Leadership />} />
+            <Route path="forecast" element={<Forecast />} />
+            <Route path="briefs" element={<Leadership />} />
             <Route path="tasks" element={<Tasks />} />
             <Route path="import" element={<Import />} />
             <Route path="settings" element={<Settings />} />

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  LayoutDashboard, MessageSquare, Bot, Radio,
+  LayoutDashboard, MessageSquare, Bot, Radio, BarChart3,
   MoreHorizontal, Crown, CheckSquare, Upload,
   Settings as SettingsIcon, X,
 } from "lucide-react";
@@ -11,12 +11,13 @@ const PRIMARY_TABS = [
   { id: "dashboard", icon: LayoutDashboard, label: "Home" },
   { id: "accounts", icon: MessageSquare, label: "Accounts" },
   { id: "autopilot", icon: Bot, label: "Autopilot" },
-  { id: "intel", icon: Radio, label: "Intel" },
+  { id: "forecast", icon: BarChart3, label: "Forecast" },
 ];
 
 // Overflow items shown in the "More" bottom sheet
 const MORE_ITEMS = [
-  { id: "leadership", icon: Crown, label: "Leadership" },
+  { id: "intel", icon: Radio, label: "Intel" },
+  { id: "briefs", icon: Crown, label: "Briefs" },
   { id: "tasks", icon: CheckSquare, label: "Tasks" },
   { id: "import", icon: Upload, label: "Import" },
   { id: "settings", icon: SettingsIcon, label: "Settings" },

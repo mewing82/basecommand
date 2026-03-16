@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, AlertTriangle, ArrowRight, Bot, Crown, Radio, Upload, Plus, Check } from "lucide-react";
+import { Sparkles, AlertTriangle, ArrowRight, Bot, Crown, Radio, Upload, Plus, Check, BarChart3 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { callAI } from "../lib/ai";
 import { renewalStore, store } from "../lib/storage";
@@ -559,11 +559,12 @@ RULES:
       </div>
 
       {/* Quick Links */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
         {[
           { icon: Bot, label: "Autopilot", desc: "AI-generated actions", route: "/app/autopilot", color: C.aiBlue },
+          { icon: BarChart3, label: "Forecast", desc: "Renewal forecasting", route: "/app/forecast", color: "#A78BFA" },
           { icon: Radio, label: "Intel", desc: "Expansion & risk signals", route: "/app/intel", color: C.green },
-          { icon: Crown, label: "Leadership", desc: "Executive briefs", route: "/app/leadership", color: C.gold },
+          { icon: Crown, label: "Briefs", desc: "Strategic briefs", route: "/app/briefs", color: C.gold },
           { icon: Upload, label: "Import", desc: "Add portfolio data", route: "/app/import", color: C.amber },
         ].map((link, i) => {
           const Icon = link.icon;

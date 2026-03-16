@@ -31,8 +31,9 @@ export default function CommandPalette({ onClose }) {
           { type: "action", label: "Dashboard", cmd: "/dashboard", action: () => nav("/app") },
           { type: "action", label: "Accounts", cmd: "/accounts", action: () => nav("/app/accounts") },
           { type: "action", label: "Autopilot", cmd: "/autopilot", action: () => nav("/app/autopilot") },
+          { type: "action", label: "Forecast", cmd: "/forecast", action: () => nav("/app/forecast") },
           { type: "action", label: "Intel", cmd: "/intel", action: () => nav("/app/intel") },
-          { type: "action", label: "Leadership", cmd: "/leadership", action: () => nav("/app/leadership") },
+          { type: "action", label: "Briefs", cmd: "/briefs", action: () => nav("/app/briefs") },
           { type: "action", label: "Tasks", cmd: "/tasks", action: () => nav("/app/tasks") },
           { type: "action", label: "Import", cmd: "/import", action: () => nav("/app/import") },
           { type: "action", label: "Settings", cmd: "/settings", action: () => nav("/app/settings") },
@@ -132,8 +133,9 @@ export default function CommandPalette({ onClose }) {
             {[
               { cmd: "/autopilot", label: "View AI-generated renewal actions" },
               { cmd: "/accounts", label: "Manage your renewal portfolio" },
+              { cmd: "/forecast", label: "View renewal forecasting" },
               { cmd: "/intel", label: "View renewal intelligence signals" },
-              { cmd: "/leadership", label: "Generate executive brief" },
+              { cmd: "/briefs", label: "Generate executive brief" },
               { cmd: "/import", label: "Import portfolio data" },
             ].map(item => (
               <div key={item.cmd} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 0" }}>

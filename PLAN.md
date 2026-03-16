@@ -373,6 +373,106 @@ Not a todo list. A **renewal action center** that:
 
 ---
 
+---
+
+## Epic 5: Forecast — AI-Powered Renewal Forecast Intelligence
+
+### The Vision
+Forecast is the #1 reason companies hire $200K+ renewal directors. If BaseCommand can deliver that output to a founder, VP, or director through AI — the product sells itself. This needs to be the most compelling feature in the app.
+
+### Why It Deserves Its Own Tab
+- Forecast was buried inside Leadership as one section among many
+- It's the highest-stakes output in renewal ops (board visibility, resource allocation, revenue planning)
+- Every persona needs it: Founder wants confidence in revenue, CRO wants pipeline coverage, RevOps wants data integrity, Director wants accuracy
+
+### Nav Change
+- Pull Forecast out to its own top-level nav item
+- Rename Leadership → Briefs (exec briefs + strategic recs, serves ICs and leaders equally)
+- Add Forecast agent to agent.ai page
+
+```
+├─ Dashboard
+├─ Accounts
+├─ Autopilot
+├─ Forecast    ← NEW
+├─ Intel
+├─ Briefs      ← renamed from Leadership
+├─ Tasks
+├─ ─────────
+├─ Import
+└─ Settings
+```
+
+### Forecast Feature Set (Full Vision)
+
+#### Core Forecast View
+| Feature | Description |
+|---------|-------------|
+| **Period Cards** | This month, next month, this quarter, next quarter — each showing total ARR, account count |
+| **Confidence Tiers** | Committed (high confidence), Best Case (medium), At Risk (low) — per period |
+| **Visual Bars** | Stacked bar per period showing tier breakdown |
+| **Overall Metrics** | GRR (Gross Retention Rate), NRR (Net Retention Rate), forecast accuracy score |
+
+#### AI Forecast Analysis
+| Feature | Description |
+|---------|-------------|
+| **Forecast Narrative** | AI-generated summary: "Your Q2 forecast is $X with Y% at risk. Key drivers: ..." |
+| **Risk Callouts** | "3 accounts totaling $450K are at risk of churning before renewal" |
+| **Confidence Assessment** | AI rates overall forecast confidence with reasoning |
+| **Recommended Actions** | AI suggests moves to improve forecast (de-risk, accelerate, expand) |
+
+#### Forecast Trends (Week-over-Week)
+| Feature | Description |
+|---------|-------------|
+| **Snapshot History** | Auto-save forecast state weekly, show trend over time |
+| **Movement Tracking** | Which accounts moved between tiers? Which were added/lost? |
+| **Forecast Drift** | Is the forecast getting better or worse over time? |
+
+#### Scenario Modeling
+| Feature | Description |
+|---------|-------------|
+| **"What If" Analysis** | "What if we lose Acme Corp?" → instant recalculation |
+| **Downside / Upside** | Show worst-case and best-case portfolio outcomes |
+| **Segment Analysis** | Forecast by customer segment, size tier, or risk level |
+
+#### Export & Reporting
+| Feature | Description |
+|---------|-------------|
+| **Copy Forecast** | One-click copy of formatted forecast for email/Slack/board deck |
+| **Forecast Summary** | Board-ready paragraph with key numbers and narrative |
+
+### Implementation Phases
+
+**Phase 1 (v1 — build now):**
+- Period cards with confidence tiers (committed/best case/at risk)
+- GRR/NRR calculation from account data
+- AI forecast narrative + risk callouts + recommended actions
+- Scenario modeling ("what if we lose X?")
+- Copy-to-clipboard formatted forecast
+- Forecast page + nav changes + Briefs rename
+
+**Phase 2 (post-launch):**
+- Snapshot history (auto-save weekly, show trends)
+- Movement tracking between tiers
+- Forecast drift visualization
+- Segment/cohort breakdown
+
+**Phase 3 (future):**
+- Forecast agent on agent.ai
+- API endpoint for forecast data
+- Forecast accuracy scoring (predicted vs actual)
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 27 | Forecast gets own top-level nav | Too important to be buried in Leadership. Highest-stakes output in renewal ops | 2026-03-15 |
+| 28 | Rename Leadership → Briefs | "Leadership" implies director-only. Briefs serves ICs too. More descriptive | 2026-03-15 |
+| 29 | Full vision for Forecast v1 | Forecast is the impulse-buy feature. Needs to be compelling enough to justify $200K director replacement | 2026-03-15 |
+| 30 | Forecast agent planned for agent.ai | "Paste data, get board-ready forecast" is a killer standalone tool | 2026-03-15 |
+
+---
+
 ## Open Questions
 
 1. ~~Which "operating system" features actually serve renewal personas vs. are generic filler?~~ **Resolved**

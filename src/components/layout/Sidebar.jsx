@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  LayoutDashboard, Radio, Bot, CheckSquare, Crown,
+  LayoutDashboard, Radio, Bot, CheckSquare, Crown, BarChart3,
   Settings as SettingsIcon, Upload,
   ChevronLeft, ChevronRight, LogOut, MessageSquare,
 } from "lucide-react";
@@ -16,8 +16,9 @@ const NAV_SECTIONS = [
     { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { id: "accounts", icon: MessageSquare, label: "Accounts" },
     { id: "autopilot", icon: Bot, label: "Autopilot" },
+    { id: "forecast", icon: BarChart3, label: "Forecast" },
     { id: "intel", icon: Radio, label: "Intel" },
-    { id: "leadership", icon: Crown, label: "Leadership" },
+    { id: "briefs", icon: Crown, label: "Briefs" },
     { id: "tasks", icon: CheckSquare, label: "Tasks" },
   ]},
   { label: "Utility", items: [
