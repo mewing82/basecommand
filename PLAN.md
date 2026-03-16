@@ -1,7 +1,160 @@
 # BaseCommand Master Plan
 
-> **Living document.** Updated as decisions are made. Source of truth for what we're building and why.
+> **Living document.** Updated as decisions are made. Single source of truth for vision, business model, and what we're building.
+> **Last updated:** 2026-03-16
 
+---
+
+## Vision & BHAG
+
+### The Big Hairy Audacious Goal
+**BaseCommand becomes the autonomous revenue operations layer that every SaaS company runs on.**
+
+Not a dashboard with AI features — a fleet of specialized agents that run renewal operations continuously, with a human command layer for oversight, approvals, and strategy.
+
+### The Arc
+
+| Phase | Mode | Experience |
+|-------|------|-----------|
+| **Now** | Co-pilot | AI drafts, analyzes, suggests. Human does everything. |
+| **Next** | Supervised autopilot | AI sends emails, updates CRM on approval. Human sets rules, approves batches. |
+| **Future** | Full autonomous | AI runs the renewal process. Monitors, acts, escalates only when needed. Human steers strategy. |
+
+### The Moat
+The defensibility isn't the AI — everyone has that. It's the **workflow graph**: the accumulated knowledge of how renewals actually get worked, what actions lead to saves, which patterns predict churn. Every account that flows through BaseCommand trains the system on what good renewal ops looks like.
+
+### Operating Constraint
+BaseCommand is a **side-hustle**, not a VC-backed startup. Michael has no intention of quitting his day job (Senior Director of Global Renewals). This shapes every decision:
+- Architecture favors **low-maintenance** over scalable-at-all-costs
+- Managed services over self-hosted. Fewer moving parts.
+- Features favor **"works reliably unattended"** over "impressive but needs babysitting"
+- **Support burden is the enemy** — self-serve onboarding, clear UX, agents that just work
+- The product should run itself. BaseCommand is its own best customer.
+- If MRR exceeds $25K, revisit the full-time question. Until then, optimize for semi-passive income.
+
+---
+
+## Business Model
+
+### Target Market
+- **Primary:** SMB SaaS companies (< $50M ARR)
+- **Secondary:** Smaller mid-market SaaS ($50M–$200M ARR)
+- **Not solving for:** Enterprise (dedicated renewal ops teams, complex Salesforce, procurement-heavy)
+
+### Target Personas
+
+| # | Persona | Context | Entry Point |
+|---|---------|---------|-------------|
+| 1 | **Founder / CEO** | < 50 customers, renewals in spreadsheets or not tracked | Import → dump data → instant portfolio |
+| 2 | **Revenue Leader / CRO** | Sales team with renewal responsibility, no dedicated team | Autopilot → see what AI would do |
+| 3 | **RevOps / CS Ops** | Operationalizing revenue processes, messy CRM data | Import → paste CRM export → AI extraction |
+| 4 | **Renewal Director / VP CS** | Manages renewal portfolio across segments, reports to CRO/CEO | Leadership → exec brief → copy to clipboard |
+| 5 | **Renewal Specialist (IC)** | Runs the renewal process day-to-day | Autopilot → account actions → task execution |
+
+### Pricing
+
+| Tier | List Price | Early Adopter Price | Includes | Target |
+|------|-----------|-------------------|----------|--------|
+| **Free** | $0 | $0 | 10 accounts, 50 AI calls/mo (Sonnet), co-pilot agents | Founders trying it, agent.ai converts |
+| **Pro** | $149/mo | **$49/mo locked for life** | Unlimited accounts, unlimited AI (Opus), supervised autopilot | Individual revenue leaders, small teams |
+| **Pro Annual** | $149/mo | **$39/mo ($468/yr) locked for life** | Same as Pro | Cost-conscious early adopters |
+| **Team** | $299–499/mo | TBD (post-Gate 2) | Multi-user, shared portfolio, full autonomous, API, BYOK option | RevOps teams, CS organizations |
+| **Enterprise** | Custom | TBD (post-SOC 2) | Custom agents, SSO, BYOK required, dedicated support | Mid-market (post-SOC 2) |
+
+### Early Adopter Program
+
+**First 100 customers get founding member pricing — locked in for life.**
+
+- $49/mo (normally $149/mo) — 67% off, locked for as long as they're a customer
+- $39/mo billed annually ($468/yr) — best deal we'll ever offer, 74% off
+- Limited to first 100 customers — creates real scarcity (we only want 50-80 in Phase 1 anyway)
+- Framed as exclusive, not desperate: "You're getting in early. Help shape what we build next."
+
+**Pricing evolution:**
+- **Now → Gate 2:** Early adopter pricing ($49/mo) for first 100 customers
+- **Gate 2 ($5K MRR):** New customers pay $99/mo. Early adopters keep $49.
+- **Post-SOC 2 + autonomous agents:** Full price $149/mo for new customers. Early adopters still keep $49.
+
+### Distribution
+- **Primary channel:** agent.ai (3M+ users) — free agents as top-of-funnel
+- **agent.ai is the free marketing engine** — no paid marketing spend until Gate 2
+- **Conversion funnel:** Free agent → instant value → CTA → signup → Quick Add → portfolio → paid
+- Personal relationship with agent.ai owner who will promote agents on platform
+
+### Unit Economics
+- **At early adopter pricing ($49/mo):** ~21 customers for Gate 1 ($1K MRR), ~102 for Gate 2 ($5K MRR)
+- **Blended (mix of $49 early + $99-149 new):** Gate 2 becomes more achievable as pricing normalizes
+- At 0.5% conversion of engaged agent.ai users, 50-80 Pro customers is achievable in 6-8 months
+- **AI cost per user:** Free tier ~$1-2.50/mo (Sonnet, 50 calls), Pro ~$5-15/mo (Opus, unlimited) → 70-90% gross margin at $49, 90-97% at $149
+- **AI is included, not BYOK:** Users never need an API key. BaseCommand provides AI as part of the product. BYOK is an advanced option in Settings for enterprise/compliance.
+- **50 early adopters at $49/mo = $2,450 MRR** — enough to prove demand and fund Gate 1-2 investments
+
+---
+
+## Revenue-Gated Investment Model
+
+**Principle: No gate-skipping. Time doesn't unlock gates — revenue does.**
+
+Every major spending decision is unlocked by hitting a revenue milestone. No milestone, no spend. Each gate's revenue covers the gate's costs.
+
+| Gate | Milestone | What It Proves | Unlocks | Investment |
+|------|-----------|---------------|---------|------------|
+| **0** | Pre-revenue | — | Your time + minimal infra + AI API costs | ~$50-150/mo (scales with free users) |
+| **1** | $1K MRR (~21 early adopter Pro) | People will pay. Multiple customers, not a fluke. | Basic business ops: Stripe, ToS, monitoring | ~$500 one-time + $50/mo |
+| **2** | $5K MRR (~50 early + new Pro mix) | Repeatable demand. Funnel converts. PMF signal. | Growth: contractor help, pen test, paid marketing. Raise new customer price to $99. | ~$10-15K one-time + $1-2K/mo |
+| **3** | $25-50K total revenue | Real business. Customers retaining, not just trying. | "Trusted" compliance: SOC 2, legal, DPA | ~$30-50K one-time |
+| **4** | $10K MRR (~70 Pro) | Unit economics work. Growth is predictable. | Scale: first hire, CRM integrations, enterprise features | ~$5-10K/mo |
+| **5** | $25K+ MRR | This could be more than a side-hustle. | Revisit full-time. Raise or reinvest aggressively. | TBD |
+
+### Gate Principles
+1. Each gate's revenue should cover the gate's costs — no burning cash ahead of proof
+2. agent.ai is free marketing until Gate 2 — zero paid acquisition spend before then
+3. Revenue-gated, not time-gated — if Gate 1 takes 3 months or 12, the spend stays locked
+4. $25K+ MRR triggers the full-time conversation — that's a great problem to have
+
+### Advertising Readiness Checklist — "Ready to Promote"
+
+Before asking for featured placement on agent.ai or driving significant traffic, **all of these must be checked off:**
+
+| # | Requirement | Epic | Why |
+|---|-------------|------|-----|
+| 1 | **User auth working end-to-end** | 9 (done) | Users must be able to sign up and log in |
+| 2 | **Data persists server-side (Postgres)** | 9 | Users who sign up from agent.ai must not lose data on browser switch |
+| 3 | **Stripe billing live** | 10 | Must be able to accept payments when free users want to upgrade |
+| 4 | **AI works without API key** | 10 | Users must get AI value immediately — no BYOK friction |
+| 5 | **Usage metering + free tier limits** | 10 | Must enforce 50-call limit and show upgrade prompts |
+| 6 | **Onboarding flow (Quick Add)** | 3 (done) | agent.ai converts need a zero-friction entry point |
+| 7 | **Early adopter pricing live** | 10 | $49/mo offer must be visible and purchasable |
+| 8 | **Privacy policy + ToS published** | 9 | Legal minimum before accepting payments |
+
+**Estimated work:** Epics 9 (Postgres migration) and 10 (AI access + Stripe) are the blockers. Everything else is done or nearly done.
+
+**Sequence:** Build Postgres + Stripe + AI access → test end-to-end funnel → then request agent.ai promotion.
+
+### Decision Log Addition
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 53 | Don't request agent.ai featured placement until advertising readiness checklist is complete | Driving traffic to a product that can't persist data, accept payments, or provide AI without API keys wastes the distribution opportunity. One shot to make a first impression. | 2026-03-16 |
+
+---
+
+## Epic Roadmap Summary
+
+| Epic | Name | Status | Description |
+|------|------|--------|-------------|
+| 1 | Navigation & Feature Overhaul | **Completed** | Cut generic features, promote renewals to core nav |
+| 2 | agent.ai Integration | **Planned** | 4 agents on agent.ai + /agents marketing page + Quick Add |
+| 3 | Post-Login Experience & Onboarding | **Completed** | Smart routing, dashboard rewrite, onboarding flow |
+| 4 | Tasks Overhaul | **Completed** | AI-powered renewal task engine (account actions + strategic) |
+| 5 | Forecast Intelligence | **Completed** | Standalone forecast with GRR/NRR, confidence tiers, scenarios |
+| 6 | AI-Initiated Value Delivery | **Completed** | Persona-driven task suggestions + persona picker |
+| 7 | Agent Hub | **Completed** | AI agents as the product experience, hub + workspaces |
+| 8 | Premium Autonomous Agents | **Roadmap** | Supervised autopilot → full autonomous (Gmail send, rules engine, execution log) |
+| 9 | Security & Foundation | **Roadmap** | Auth, server-side data, compliance milestones mapped to revenue gates |
+| 10 | AI Access & Monetization | **Roadmap** | BaseCommand-provided AI (no API key needed), usage metering, free/pro model gate |
+
+---
 ---
 
 ## Epic 1: Navigation & Feature Overhaul
@@ -784,6 +937,216 @@ Move from co-pilot (drafts for human approval) to full autonomous execution (run
 5. CRM write integration (Salesforce first)
 
 ---
+---
+
+## Epic 9: Security & Foundation
+
+### The Problem
+BaseCommand needs to earn the trust of companies before they'll let it touch their CRM, email, or renewal data. As we move toward autonomous agents that *act* on behalf of users (sending emails, updating CRM), the trust bar goes up dramatically.
+
+### Strategy: Security Milestones Mapped to Revenue Gates
+We don't over-invest in compliance before proving demand. Each security milestone unlocks the next tier of customers and maps to a revenue gate.
+
+### Milestone 1 — "Credible" (Gate 0–1: Pre-revenue → $1K MRR)
+
+Gets past a small company's informal review. Minimum bar for real users.
+
+| Requirement | Details | Status |
+|-------------|---------|--------|
+| **User authentication** | Email/password + Google OAuth via Supabase Auth | **DONE** — authStore.js, AuthGate.jsx, Login/Signup pages |
+| **Session management** | Secure tokens, expiry, logout | **DONE** — Supabase Auth handles sessions + onAuthStateChange listener |
+| **HTTPS everywhere** | Handled by Vercel | **DONE** |
+| **Secrets management** | API keys in Vercel env vars / KV, never client-side | **DONE** |
+| **Server-side data** | Supabase Postgres replaces localStorage for all renewal data | **NOT DONE** — only `profiles` table exists. All business data in localStorage |
+| **Tenant isolation** | Row-level security — users can only access their own data | **NOT DONE** — needs Postgres migration first |
+| **Basic audit log** | Log agent actions (what, when, which account) to database | **NOT DONE** |
+| **Cost** | Engineering time only. Supabase free tier to start. | — |
+
+### Milestone 2 — "Vetted" (Gate 2: $5K MRR)
+
+Gets through a mid-market procurement process. Required before selling to companies with security questionnaires.
+
+| Requirement | Details |
+|-------------|---------|
+| **Penetration test** | Third-party pen test, remediate findings, publish summary |
+| **Security questionnaire** | Pre-built answers for common vendor security questionnaires |
+| **Privacy policy + ToS** | Legally reviewed, published on site |
+| **DPA template** | Data Processing Agreement for customers who need it |
+| **Dependency scanning** | Automated CVE scanning in CI (npm audit, Dependabot) |
+| **RBAC** | Admin / member roles within organizations |
+| **MFA** | Optional multi-factor auth for users who want it |
+| **Cost** | ~$5-15K (pen test + legal templates) |
+
+### Milestone 3 — "Trusted" (Gate 3: $25-50K total revenue)
+
+Full compliance posture. Required for mid-market and enterprise customers.
+
+| Requirement | Details |
+|-------------|---------|
+| **SOC 2 Type I → Type II** | Compliance platform (Vanta/Drata/Secureframe) + auditor |
+| **Compliance platform** | Automated evidence collection, policy management |
+| **Bug bounty program** | Responsible disclosure program, possibly via HackerOne |
+| **Data residency controls** | Choose where customer data is stored (US/EU) |
+| **Incident response plan** | Documented, tested procedure for security incidents |
+| **Full audit trail** | Immutable, queryable log of all system actions |
+| **Data retention & deletion** | Right-to-delete, configurable retention policies |
+| **Backup & recovery** | Automated backups, tested restore procedures |
+| **Cost** | ~$25-40K year one, ~$20-30K ongoing |
+
+### Why Security Is Harder with Autonomous Agents
+When BaseCommand is just a dashboard, a security failure means data exposure. When BaseCommand is sending emails and updating CRM on behalf of users, a security failure means:
+- Unauthorized emails sent from user accounts
+- CRM data modified or deleted
+- Customer communications compromised
+- Business relationship damage
+
+This is why the execution log, approval workflows, and rules engine (Epic 8) are security features as much as product features.
+
+### Implementation Priority
+1. ~~**Supabase Auth**~~ — **DONE** (email/password, Google OAuth, session management, auth gate)
+2. **Postgres data migration** — move renewal data from localStorage to Supabase Postgres
+3. **Row-level security** — tenant isolation from day one
+4. **Audit log table** — every agent action logged
+5. Everything else follows revenue gates
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 41 | Security milestones mapped to revenue gates | Don't over-invest before proving demand. Each milestone unlocks next customer tier | 2026-03-16 |
+| 42 | Supabase Auth + Postgres as foundation | Managed service, low maintenance (side-hustle constraint). Free tier to start, scales with revenue | 2026-03-16 |
+| 43 | Row-level security from day one | Tenant isolation can't be retrofitted safely. Must be foundational | 2026-03-16 |
+| 44 | SOC 2 only after $25-50K total revenue | Compliance costs ~$30-50K. Must be funded by proven demand, not speculation | 2026-03-16 |
+| 45 | Autonomous agents raise the security bar | Agents that act (send emails, update CRM) require stricter security than read-only dashboards | 2026-03-16 |
+
+---
+
+---
+
+## Epic 10: AI Access & Monetization — Zero-Friction AI That Pays For Itself
+
+### The Problem
+Today, users must bring their own Anthropic API key before any AI feature works. This is a massive onboarding killer:
+- Most users don't know what an API key is
+- Those who do still have to leave the app, create an Anthropic account, generate a key, and paste it in
+- The "wow moment" (AI analyzing their portfolio) is gated behind a technical hurdle
+- The agent.ai → BaseCommand funnel breaks: users come from an AI agent that "just worked" and land in an app that asks them to configure AI themselves
+
+**This is the difference between "cool tool for developers" and "product that businesses pay for."**
+
+### The Solution: BaseCommand Provides AI
+
+AI is included in the product. Users never see an API key unless they want to.
+
+| Tier | Model | Limits | How It Works |
+|------|-------|--------|-------------|
+| **Free** | Claude Sonnet | 50 AI calls/month | BaseCommand API key on server, metered per user |
+| **Pro** | Claude Opus | Unlimited | BaseCommand API key, included in $149/mo |
+| **Team/Enterprise** | Claude Opus + BYOK option | Unlimited | Use ours or bring your own for compliance |
+
+### Why This Is A Big Deal
+
+1. **Conversion:** Sign up → add accounts → AI works instantly. No friction, no drop-off.
+2. **Natural paywall:** Free users hit 50-call limit after experiencing real value → upgrade prompt → Pro.
+3. **Revenue justification:** "Unlimited AI-powered renewal operations for $149/mo" is a clear value prop. "Access to a dashboard where you configure your own AI" is not.
+4. **Competitive moat:** Every AI SaaS works this way — Notion AI, Jasper, Copy.ai. BYOK is niche, not mainstream.
+
+### The Economics
+
+| | Cost Per Call | Cost Per User/Month | Notes |
+|---|---|---|---|
+| **Free (Sonnet, 50 calls)** | ~$0.01-0.05 | ~$0.50-2.50 | 90% of free users will be low-activity |
+| **Pro (Opus, unlimited)** | ~$0.05-0.15 | ~$5-15 | At $149/mo, that's 90-97% gross margin |
+
+**Break-even on free users:** If 1,000 free users from agent.ai cost ~$1-2K/mo in API fees, that's covered by ~10-15 Pro customers. The free tier is marketing spend, not a loss center.
+
+**At scale:** 100 Pro customers × $149 = $14,900 MRR. API costs ~$1,500/mo. That's 90% margin before infra.
+
+### The BYOK Option (Advanced, Not Default)
+
+Available in Settings → AI Configuration:
+- Toggle: "Use BaseCommand AI (recommended)" vs "Use your own API key"
+- When BYOK is selected: existing API key input fields appear
+- Use case: enterprise customers whose security team requires it, power users who want Opus on free tier
+- BYOK users bypass metering — they're paying Anthropic directly
+
+### Implementation
+
+**Dependencies:** Requires Epic 9 (Supabase Auth + Postgres) for user identity and usage tracking.
+
+**Phase 1 — BaseCommand-Provided AI (build with Epic 9):**
+
+| Task | Details |
+|------|---------|
+| **Master API key** | Store BaseCommand's Anthropic API key as Vercel env var (already supported by `/api/ai.js` fallback) |
+| **Remove API key requirement from onboarding** | New users get AI immediately — no setup needed |
+| **Model routing** | Free users → Sonnet, Pro users → Opus. Route in `/api/ai.js` based on user tier |
+| **Usage tracking table** | Supabase table: `ai_usage` (user_id, call_count, period, model, tokens_used) |
+| **Usage metering** | Increment counter on each `/api/ai` call. Check against tier limits. |
+| **Limit enforcement** | At 50 calls: soft block with "You've used your free AI calls this month. Upgrade to Pro for unlimited Opus-powered AI." |
+| **Usage display** | Show "X/50 AI calls used" in free tier UI (Settings or subtle indicator) |
+
+**Phase 2 — Monetization Integration (build with Stripe at Gate 1):**
+
+| Task | Details |
+|------|---------|
+| **Tier detection** | Check user's subscription status (Stripe) to determine model + limits |
+| **Upgrade prompts** | Contextual "Upgrade to Pro" when free limit hit or when trying Pro features |
+| **BYOK toggle in Settings** | "Use BaseCommand AI" (default) vs "Use your own key" |
+| **Billing page** | Usage stats: AI calls this month, model used, estimated cost savings vs DIY |
+
+**Phase 3 — Optimization (post-launch):**
+
+| Task | Details |
+|------|---------|
+| **Smart model routing** | Use Sonnet for simple tasks (data parsing), Opus for complex (forecasts, briefs) even on Pro |
+| **Caching** | Cache identical AI requests (same portfolio, same prompt) to reduce costs |
+| **Token budgeting** | Track token usage, not just call count, for more accurate cost management |
+| **Cost dashboard** | Internal dashboard showing total API spend, per-user averages, margin tracking |
+
+### What Changes in the Existing Code
+
+The `/api/ai.js` proxy already supports this pattern — it resolves API keys from Vercel KV first, falls back to env vars. The changes:
+
+1. **Default behavior flips:** Instead of "require user key, fall back to env var," it becomes "use BaseCommand key by default, override with user key if BYOK"
+2. **Add user context to API calls:** Pass user ID and tier so the proxy can route to correct model and enforce limits
+3. **Add metering middleware:** Count and log each call before proxying to Anthropic
+
+### The User Experience
+
+**New user (free tier):**
+```
+Sign up → Add first account → Click "Generate Autopilot Actions"
+→ AI just works (Sonnet) → Sees draft emails, risk assessments
+→ "Wow, this is useful"
+→ Uses 50 calls over 2 weeks exploring the product
+→ Hits limit → "Upgrade to Pro for unlimited AI with our most powerful model"
+→ Pays $149/mo → Opus unlocks → Everything is faster and smarter
+```
+
+**Enterprise user (BYOK):**
+```
+Sign up → Settings → AI Configuration → "Use your own API key"
+→ Pastes company Anthropic key → All AI calls use their key
+→ No metering, no limits — they're paying Anthropic directly
+→ Satisfies security team's requirement for direct API relationship
+```
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 46 | BaseCommand provides AI — no API key required for users | API key requirement kills onboarding. Every successful AI SaaS includes AI in the product. | 2026-03-16 |
+| 47 | Free tier: Sonnet, 50 calls/month | Sonnet is 10x cheaper than Opus. 50 calls is enough to experience value but creates natural upgrade pressure. | 2026-03-16 |
+| 48 | Pro tier: Opus, unlimited | Opus is the premium perk. "Faster, smarter AI" is a tangible upgrade users can feel immediately. | 2026-03-16 |
+| 49 | BYOK as advanced option, not default | Enterprise/compliance use case only. Buried in Settings. 99% of users should never see an API key field. | 2026-03-16 |
+| 50 | Free tier API cost is marketing spend | ~$1-2/mo per free user is cheaper than any ad channel. Covered by ~10-15 Pro conversions. | 2026-03-16 |
+| 51 | Early adopter pricing: $49/mo ($39 annual), first 100, locked for life | $149 causes sticker shock for first audience (founders, agent.ai converts). $49 is impulse-buy territory. Proves demand at 70-90% margin. Price rises for new customers at Gate 2. | 2026-03-16 |
+| 52 | Pricing evolution: $49 → $99 at Gate 2 → $149 post-SOC 2 | Anchor high, discount early. Early adopters keep their rate forever. New customers pay more as product matures. | 2026-03-16 |
+
+---
+
+---
 
 ## agent.ai Agent Specs (Ready to Build)
 
@@ -817,6 +1180,70 @@ Move from co-pilot (drafts for human approval) to full autonomous execution (run
 
 ---
 
+## Branding & Copy Guidelines
+
+### Brand Name
+- **Correct:** "BaseCommand" (one word, camelCase in logos/UI)
+- **Incorrect:** "Base Command" (two words — legacy, being phased out)
+
+### Taglines & Descriptions
+- **Primary tagline:** "The AI-Powered Renewal Operations Platform"
+- **Dashboard empty state:** "Your renewal command center is ready"
+- **Dashboard description:** "Import your portfolio, automate renewal workflows, and surface expansion opportunities — all from one platform."
+- **AI persona:** "BC" — described as "AI-powered renewal operations co-pilot"
+- **Renewals subtitle:** "AI-powered renewal automation, expansion intelligence, and executive reporting"
+
+### Navigation Labels
+- Dashboard → "Renewal Command Center" (in TopBar)
+- Renewals section → "Renewal Ops" (in Sidebar)
+- Renewals page title → "Renewal Operations" (in TopBar)
+
+### Tone
+- Confident but not corporate
+- Direct and actionable
+- "Co-pilot" not "assistant"
+- Strategic, not administrative
+
+---
+
+## Tech Stack Summary
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19, React Router v7, Zustand, Vite |
+| Language | JavaScript (JSX) — no TypeScript |
+| Styling | Inline styles with design tokens (`src/lib/tokens.js`) |
+| Fonts | Space Grotesk (headings), Inter (body), JetBrains Mono (code/data) |
+| State | Zustand (`entityStore`, `appStore`) + localStorage (`renewalStore`) |
+| AI | `callAI()` → `/api/ai` proxy → Anthropic or OpenAI |
+| Backend | Vercel Serverless Functions |
+| Storage | Vercel KV (production), localStorage (client) → migrating to Supabase (Epic 9) |
+| Auth | OAuth2 (Gmail, Outlook connectors) → adding Supabase Auth (Epic 9) |
+| Build | Vite, ESLint (flat config) |
+
+---
+
+## Key Files Reference
+
+| File | Purpose |
+|------|---------|
+| `src/pages/Renewals.jsx` | Main renewals page (all 5 tabs) |
+| `src/lib/prompts.js` | All AI prompt definitions (import, autopilot, expansion, leadership, forecast) |
+| `src/lib/storage.js` | Data persistence layer (`renewalStore` for accounts, actions, caches) |
+| `src/lib/ai.js` | AI call abstraction (`callAI()`) |
+| `src/lib/tokens.js` | Design tokens (colors, fonts, spacing) |
+| `src/lib/utils.js` | Utilities (similarity, formatting, date helpers) |
+| `src/pages/Dashboard.jsx` | Renewal command center / home page |
+| `src/components/layout/Sidebar.jsx` | Navigation sidebar |
+| `src/components/layout/TopBar.jsx` | Top bar with view titles |
+| `src/pages/Settings.jsx` | Settings & AI configuration |
+| `api/ai.js` | Serverless AI proxy (Anthropic + OpenAI) |
+| `api/connectors/` | Gmail/Outlook OAuth flows + email scanning |
+| `CLAUDE.md` | Claude Code instructions (technical guidance) |
+| `PLAN.md` | **This file** — vision, business model, and master plan |
+
+---
+
 ## Open Questions
 
 1. ~~Which "operating system" features actually serve renewal personas vs. are generic filler?~~ **Resolved**
@@ -827,3 +1254,5 @@ Move from co-pilot (drafts for human approval) to full autonomous execution (run
 6. ~~Does Tasks stay as own nav item?~~ **Resolved — yes, plus inline in Accounts/Autopilot**
 7. ~~What happens to cut features?~~ **Resolved — archive (keep files, remove from nav/routes)**
 8. ~~Naming for merged Intel/Expansion?~~ **Resolved — "Intel" (short, contextually clear)**
+9. When to build Supabase Auth — before or after agent.ai agents? (Epic 9 vs Epic 2 sequencing)
+10. Gong API feasibility and pricing for meeting intelligence ingestion

@@ -1,6 +1,8 @@
 # BaseCommand — Product Context & Strategy Document
 
-> **Last updated:** 2026-03-15
+> **⚠️ DEPRECATED (2026-03-16):** This document has been superseded by **PLAN.md**, which is now the single source of truth for vision, business model, personas, and all epics. Content from this file has been migrated. Refer to PLAN.md for the latest.
+
+> **Last updated:** 2026-03-15 (no longer maintained)
 > **Purpose:** Canonical reference for all Claude sessions (terminal, web, project). This document captures product positioning, target personas, go-to-market strategy, agent.ai partnership details, and architectural decisions. All future work should align with this baseline.
 
 ---
