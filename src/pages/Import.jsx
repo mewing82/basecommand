@@ -116,7 +116,7 @@ export default function Import() {
             <div style={{ width: 28, height: 28, borderRadius: 8, background: C.aiBlueMuted, display: "flex", alignItems: "center", justifyContent: "center" }}><Upload size={14} color={C.aiBlue} /></div>
             <div>
               <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Import Unstructured Data</span>
-              <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, margin: "2px 0 0" }}>Don't worry about clean data. Paste messy CRM exports, spreadsheets, call notes, emails — AI will extract your accounts.</p>
+              <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textTertiary, margin: "2px 0 0" }}>Don't worry about clean data. Paste messy CRM exports, spreadsheets, call notes, emails — AI will extract your accounts.</p>
             </div>
           </div>
         </div>

@@ -112,7 +112,7 @@ export default function Forecast() {
         </div>
         <div>
           <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Board-Ready Forecasts</h2>
-          <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>
+          <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>
             Import your renewal portfolio to generate AI-powered forecasts with confidence tiers, GRR/NRR metrics, scenario modeling, and risk callouts — the output that usually requires a dedicated renewal director.
           </p>
         </div>

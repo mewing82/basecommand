@@ -124,7 +124,7 @@ export default function Accounts() {
         <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 12, padding: 32, minHeight: 400, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
           <div style={{ width: 56, height: 56, borderRadius: 14, background: C.goldMuted, display: "flex", alignItems: "center", justifyContent: "center" }}><MessageSquare size={28} style={{ color: C.gold }} /></div>
           <div><h2 style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: C.textPrimary, margin: "0 0 4px", textAlign: "center" }}>No Accounts Yet</h2>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, maxWidth: 360, lineHeight: 1.5, margin: "8px 0 0", textAlign: "center" }}>Add your first account to start working with the Account Intelligence co-pilot.</p></div>
+            <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textTertiary, maxWidth: 360, lineHeight: 1.5, margin: "8px 0 0", textAlign: "center" }}>Add your first account to start working with the Account Intelligence co-pilot.</p></div>
           <Btn variant="primary" onClick={() => setShowAddAccount(true)}><Plus size={14} /> Add Account</Btn>
         </div>
       ) : (

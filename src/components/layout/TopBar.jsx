@@ -22,7 +22,10 @@ export default function TopBar({ currentView, onCommandPalette }) {
           {meta.title}
         </div>
         {meta.subtitle && (
-          <div className="bc-hide-mobile" style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginTop: 1 }}>
+          <div className="bc-hide-mobile" style={{
+            fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
+            marginTop: 2, letterSpacing: "0.02em", opacity: 0.7,
+          }}>
             {meta.subtitle}
           </div>
         )}

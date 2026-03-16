@@ -65,7 +65,7 @@ export default function Leadership() {
         <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg, ${C.gold}20, ${C.aiBlue}20)`, display: "flex", alignItems: "center", justifyContent: "center" }}><Crown size={32} style={{ color: C.gold }} /></div>
         <div>
           <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Your Renewal Command Center</h2>
-          <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Built for renewal leaders who need portfolio-level visibility, not account-level execution. Import your portfolio data to unlock executive briefs, forecasting, and strategic insights.</p>
+          <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Built for renewal leaders who need portfolio-level visibility, not account-level execution. Import your portfolio data to unlock executive briefs, forecasting, and strategic insights.</p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400, width: "100%" }}>
           <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em" }}>What You'll Get</div>

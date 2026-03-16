@@ -69,7 +69,7 @@ export default function Autopilot() {
           <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg, ${C.aiBlue}20, ${C.gold}20)`, display: "flex", alignItems: "center", justifyContent: "center" }}><Bot size={32} style={{ color: C.aiBlue }} /></div>
           <div>
             <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Your Renewal Autopilot</h2>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>BaseCommand takes renewal work off your plate. Import your customer data — even a messy spreadsheet works — and the autopilot will generate outreach emails, flag risks, and surface expansion opportunities.</p>
+            <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>BaseCommand takes renewal work off your plate. Import your customer data — even a messy spreadsheet works — and the autopilot will generate outreach emails, flag risks, and surface expansion opportunities.</p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400, width: "100%" }}>
             <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em" }}>Get Started</div>

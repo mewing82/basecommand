@@ -297,7 +297,7 @@ Format with markdown. Be concise but thorough.`;
           </div>
           <div>
             <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Your Renewal Task Center</h2>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>
+            <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>
               Track account actions and strategic tasks in one place. Create tasks manually, or let AI suggest what you should be doing.
             </p>
           </div>

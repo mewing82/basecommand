@@ -43,7 +43,7 @@ export default function Intel() {
           <div style={{ width: 64, height: 64, borderRadius: 16, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><TrendingUp size={32} style={{ color: C.green }} /></div>
           <div>
             <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Renewal Intelligence</h2>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Import your accounts first, then add context data (call notes, CRM exports, emails). AI will surface expansion opportunities, churn signals, risk indicators, and renewal triggers hiding in your data.</p>
+            <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Import your accounts first, then add context data (call notes, CRM exports, emails). AI will surface expansion opportunities, churn signals, risk indicators, and renewal triggers hiding in your data.</p>
           </div>
         </div>
       ) : accountsWithContext.length === 0 ? (
@@ -51,9 +51,9 @@ export default function Intel() {
           <div style={{ width: 64, height: 64, borderRadius: 16, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><TrendingUp size={32} style={{ color: C.green }} /></div>
           <div>
             <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Add Context to Unlock Signals</h2>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>You have {accounts.length} account{accounts.length !== 1 ? "s" : ""} but none have context data yet. Add call notes, CRM data, or emails to any account and AI will scan for expansion signals, churn risk, and renewal triggers.</p>
+            <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>You have {accounts.length} account{accounts.length !== 1 ? "s" : ""} but none have context data yet. Add call notes, CRM data, or emails to any account and AI will scan for expansion signals, churn risk, and renewal triggers.</p>
           </div>
-          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, maxWidth: 400, lineHeight: 1.5 }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textTertiary, maxWidth: 400, lineHeight: 1.5 }}>
             <strong style={{ color: C.textSecondary }}>What counts as context?</strong> Gong call transcripts, Salesforce notes, email threads, support tickets, usage data — anything that reveals renewal health, risk signals, or growth opportunities.
           </div>
         </div>
