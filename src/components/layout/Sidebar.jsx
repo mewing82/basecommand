@@ -434,7 +434,7 @@ export default function Sidebar({ activeView, onNavigate }) {
                     transition: "all 0.12s ease", position: "relative",
                   }}
                 >
-                  <div style={{ position: "relative", flexShrink: 0 }}>
+                  <div style={{ position: "relative", flexShrink: 0, width: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.75 }} />
                     {isAgents && !isExpanded && (
                       <div style={{
@@ -554,7 +554,9 @@ export default function Sidebar({ activeView, onNavigate }) {
                   transition: "all 0.12s ease",
                 }}
               >
-                <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ flexShrink: 0, opacity: active ? 1 : 0.6 }} />
+                <div style={{ width: 20, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.6 }} />
+                </div>
                 {isExpanded && (
                   <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: active ? 600 : 500, whiteSpace: "nowrap" }}>{item.label}</span>
                 )}
