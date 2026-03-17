@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckSquare, Plus, Check, Calendar, Sparkles, ArrowRight, RefreshCw, Briefcase, Trash2, Lightbulb, X } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
@@ -65,7 +65,7 @@ const DEFAULT_SUGGESTIONS = [
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const [tasks, setTasks] = useState(() => renewalStore.getTaskItems());
+  const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("active");
   const [showCreate, setShowCreate] = useState(false);
@@ -74,8 +74,14 @@ export default function Tasks() {
   const [dismissedSuggestions, setDismissedSuggestions] = useState(() => {
     try { return JSON.parse(localStorage.getItem("bc2-dismissed-suggestions") || "[]"); } catch { return []; }
   });
-  const accounts = renewalStore.getAccounts();
-  const persona = renewalStore.getSettings().persona || null;
+  const [accounts, setAccountsLocal] = useState([]);
+  const [persona, setPersona] = useState(null);
+
+  useEffect(() => {
+    renewalStore.getTaskItems().then(setTasks);
+    renewalStore.getAccounts().then(setAccountsLocal);
+    renewalStore.getSettings().then(s => setPersona(s.persona || null));
+  }, []);
 
   // Get suggestions for current persona
   const allSuggestions = persona ? (SUGGESTIONS[persona] || DEFAULT_SUGGESTIONS) : DEFAULT_SUGGESTIONS;
@@ -91,7 +97,7 @@ export default function Tasks() {
     localStorage.setItem("bc2-dismissed-suggestions", JSON.stringify(updated));
   }
 
-  function createFromSuggestion(suggestion) {
+  async function createFromSuggestion(suggestion) {
     const task = {
       id: `task-${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       title: suggestion.title,
@@ -106,8 +112,8 @@ export default function Tasks() {
       createdAt: new Date().toISOString(),
       completedAt: null,
     };
-    renewalStore.saveTaskItem(task);
-    setTasks(renewalStore.getTaskItems());
+    await renewalStore.saveTaskItem(task);
+    setTasks(await renewalStore.getTaskItems());
     // Immediately trigger AI draft
     aiDraft(task);
   }
@@ -133,14 +139,14 @@ export default function Tasks() {
     return (priorityOrder[a.priority] || 1) - (priorityOrder[b.priority] || 1);
   });
 
-  function updateTask(id, updates) {
-    renewalStore.updateTaskItem(id, updates);
-    setTasks(renewalStore.getTaskItems());
+  async function updateTask(id, updates) {
+    await renewalStore.updateTaskItem(id, updates);
+    setTasks(await renewalStore.getTaskItems());
   }
 
-  function deleteTask(id) {
-    renewalStore.deleteTaskItem(id);
-    setTasks(renewalStore.getTaskItems());
+  async function deleteTask(id) {
+    await renewalStore.deleteTaskItem(id);
+    setTasks(await renewalStore.getTaskItems());
   }
 
   function cycleStatus(task) {
@@ -162,7 +168,7 @@ export default function Tasks() {
       let contextStr = "";
       if (task.type === "account" && task.accountId) {
         const acct = accounts.find(a => a.id === task.accountId);
-        const ctx = acct ? renewalStore.getContext(acct.id) : [];
+        const ctx = acct ? await renewalStore.getContext(acct.id) : [];
         contextStr = `\nTARGET ACCOUNT: ${task.accountName} | ARR: $${acct?.arr?.toLocaleString() || 0} | Risk: ${acct?.riskLevel || "unknown"} | Renewal: ${acct?.renewalDate || "not set"}\nContext items: ${ctx.length}`;
       }
 
@@ -464,9 +470,9 @@ Format with markdown. Be concise but thorough.`;
         <CreateTaskModal
           accounts={accounts}
           onClose={() => setShowCreate(false)}
-          onCreate={(task) => {
-            renewalStore.saveTaskItem(task);
-            setTasks(renewalStore.getTaskItems());
+          onCreate={async (task) => {
+            await renewalStore.saveTaskItem(task);
+            setTasks(await renewalStore.getTaskItems());
             setShowCreate(false);
           }}
         />

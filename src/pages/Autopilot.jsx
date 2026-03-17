@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { Bot, Sparkles, ArrowRight, AlertTriangle, Zap, Mail, Shield, Check, Copy, TrendingUp, ChevronRight, Upload } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { renewalStore, store } from "../lib/storage";
@@ -11,11 +12,16 @@ import { RENEWAL_AUTOPILOT_PROMPT } from "../lib/prompts";
 
 export default function Autopilot() {
   const navigate = useNavigate();
-  const [accounts] = useState(() => renewalStore.getAccounts());
+  const [accounts, setAccounts] = useState([]);
 
   const CACHE_KEY = `bc2-${store._ws}-renewals-autopilot`;
   const [autopilot, setAutopilot] = useState(() => safeParse(localStorage.getItem(CACHE_KEY), null));
-  const [actions, setActions] = useState(() => renewalStore.getAutopilotActions());
+  const [actions, setActions] = useState([]);
+
+  useEffect(() => {
+    renewalStore.getAccounts().then(setAccounts);
+    renewalStore.getAutopilotActions().then(setActions);
+  }, []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expandedAction, setExpandedAction] = useState(null);
@@ -34,12 +40,12 @@ export default function Autopilot() {
   async function generateAutopilot() {
     if (accounts.length === 0) return; setLoading(true); setError(null);
     try {
-      const portfolioData = accounts.map(a => {
+      const portfolioData = await Promise.all(accounts.map(async a => {
         const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000);
-        const ctx = renewalStore.getContext(a.id);
+        const ctx = await renewalStore.getContext(a.id);
         const contextSummary = ctx.length === 0 ? "No context data" : ctx.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 500)}`).join("\n");
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, daysUntilRenewal: daysUntil, contacts: a.contacts || [], summary: a.summary || "", tags: a.tags || [], contextData: contextSummary };
-      });
+      }));
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
       const response = await callAI([{ role: "user", content: "Generate autopilot actions for my renewal portfolio." }], RENEWAL_AUTOPILOT_PROMPT(portfolioData, today), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
@@ -47,13 +53,13 @@ export default function Autopilot() {
       // Save new actions
       if (parsed.actions?.length > 0) {
         const newActions = parsed.actions.map(a => ({ id: `action_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: a.accountId || "", accountName: a.accountName, type: a.type, title: a.title, description: a.description, draft: a.draft || "", urgency: a.urgency, reasoning: a.reasoning || "", status: "pending", createdAt: new Date().toISOString() }));
-        renewalStore.saveAutopilotActions(newActions); setActions(newActions);
+        await renewalStore.saveAutopilotActions(newActions); setActions(newActions);
       }
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   }
 
-  function handleActionStatus(actionId, status) {
-    renewalStore.updateAutopilotAction(actionId, { status }); setActions(renewalStore.getAutopilotActions());
+  async function handleActionStatus(actionId, status) {
+    await renewalStore.updateAutopilotAction(actionId, { status }); setActions(await renewalStore.getAutopilotActions());
   }
   function handleCopy(text, id) { navigator.clipboard.writeText(text); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); }
 

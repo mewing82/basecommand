@@ -11,7 +11,8 @@ import { RENEWAL_FORECAST_PROMPT } from "../lib/prompts";
 
 export default function Forecast() {
   const navigate = useNavigate();
-  const [accounts] = useState(() => renewalStore.getAccounts());
+  const [accounts, setAccounts] = useState([]);
+  useEffect(() => { renewalStore.getAccounts().then(setAccounts); }, []);
 
   const cacheKey = `bc2-${store._ws}-forecast`;
   const [forecast, setForecast] = useState(() => safeParse(localStorage.getItem(cacheKey), null));
@@ -34,9 +35,9 @@ export default function Forecast() {
     if (accounts.length === 0) return;
     setLoading(true); setError(null);
     try {
-      const portfolioData = accounts.map(a => {
+      const portfolioData = await Promise.all(accounts.map(async a => {
         const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000);
-        const ctx = renewalStore.getContext(a.id);
+        const ctx = await renewalStore.getContext(a.id);
         return {
           id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate,
           riskLevel: a.riskLevel, daysUntilRenewal: daysUntil,
@@ -46,7 +47,7 @@ export default function Forecast() {
             ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 300)}`
           ).join("\n"),
         };
-      });
+      }));
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
       const response = await callAI(
         [{ role: "user", content: "Generate a comprehensive renewal forecast for my portfolio." }],

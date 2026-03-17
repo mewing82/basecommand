@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bot, BarChart3, Radio, Crown, FileText, Users, Sparkles, ArrowRight, Check, Lock } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
@@ -108,12 +108,55 @@ const AVAILABLE_AGENTS = [
 
 export default function AgentHub() {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState(() => renewalStore.getSettings());
+  const [settings, setSettings] = useState({ activatedAgents: [] });
+  const [agentStatuses, setAgentStatuses] = useState({});
+  const [agentMetrics, setAgentMetrics] = useState({});
   const activatedIds = settings.activatedAgents || [];
 
-  function activateAgent(agentId) {
+  useEffect(() => {
+    renewalStore.getSettings().then(setSettings);
+    // Load agent statuses asynchronously
+    (async () => {
+      const statuses = {};
+      const metrics = {};
+      // Autopilot
+      const actions = await renewalStore.getAutopilotActions();
+      const pending = actions.filter(a => a.status === "pending");
+      statuses.autopilot = pending.length > 0 ? `${pending.length} pending action${pending.length !== 1 ? "s" : ""}` : "No pending actions";
+      metrics.autopilot = pending.length;
+      // Forecast
+      try {
+        const cache = JSON.parse(localStorage.getItem(`bc2-${renewalStore._key("").split("-renewals-")[0].replace("bc2-", "")}-forecast`));
+        statuses.forecast = cache?.metrics?.grr ? `GRR: ${cache.metrics.grr}` : "Ready to generate";
+      } catch (_e) { statuses.forecast = "Ready to generate"; }
+      metrics.forecast = null;
+      // Intel
+      const expansionCache = await renewalStore.getExpansionCache();
+      if (expansionCache?.opportunities?.length > 0) {
+        statuses.intel = `${expansionCache.opportunities.length} signal${expansionCache.opportunities.length !== 1 ? "s" : ""} found`;
+        metrics.intel = expansionCache.opportunities.length;
+      } else {
+        statuses.intel = "Ready to scan";
+        metrics.intel = 0;
+      }
+      // Briefs
+      const leadershipCache = await renewalStore.getLeadershipCache();
+      if (leadershipCache?._generatedAt) {
+        const m = Math.floor((Date.now() - leadershipCache._generatedAt) / 60000);
+        const ago = m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
+        statuses.briefs = `Updated ${ago}`;
+      } else {
+        statuses.briefs = "Ready to generate";
+      }
+      metrics.briefs = null;
+      setAgentStatuses(statuses);
+      setAgentMetrics(metrics);
+    })();
+  }, []);
+
+  async function activateAgent(agentId) {
     const updated = { ...settings, activatedAgents: [...activatedIds, agentId] };
-    renewalStore.saveSettings(updated);
+    await renewalStore.saveSettings(updated);
     setSettings(updated);
   }
 
@@ -140,8 +183,8 @@ export default function AgentHub() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }}>
           {[...PRE_INSTALLED, ...activeAvailable].map(agent => {
             const Icon = agent.icon;
-            const status = agent.getStatus ? agent.getStatus() : "Active";
-            const metric = agent.getMetric ? agent.getMetric() : null;
+            const status = agentStatuses[agent.id] || "Active";
+            const metric = agentMetrics[agent.id] ?? null;
 
             return (
               <button

@@ -9,25 +9,38 @@ import { RENEWAL_EXPANSION_PROMPT } from "../lib/prompts";
 
 export default function Intel() {
   const navigate = useNavigate();
-  const [accounts] = useState(() => renewalStore.getAccounts());
-  const [cache, setCache] = useState(() => renewalStore.getExpansionCache());
+  const [accounts, setAccounts] = useState([]);
+  const [cache, setCache] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [accountsWithContext, setAccountsWithContext] = useState([]);
   const cachedAgo = cache?._generatedAt ? (() => { const m = Math.floor((Date.now() - cache._generatedAt) / 60000); return m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`; })() : null;
 
-  const accountsWithContext = accounts.filter(a => renewalStore.getContext(a.id).length > 0);
+  useEffect(() => {
+    (async () => {
+      const accts = await renewalStore.getAccounts();
+      setAccounts(accts);
+      setCache(await renewalStore.getExpansionCache());
+      const withCtx = [];
+      for (const a of accts) {
+        const ctx = await renewalStore.getContext(a.id);
+        if (ctx.length > 0) withCtx.push(a);
+      }
+      setAccountsWithContext(withCtx);
+    })();
+  }, []);
 
   async function analyzeExpansion() {
     if (accountsWithContext.length === 0) return; setLoading(true); setError(null);
     try {
-      const data = accountsWithContext.map(a => {
-        const ctx = renewalStore.getContext(a.id);
+      const data = await Promise.all(accountsWithContext.map(async a => {
+        const ctx = await renewalStore.getContext(a.id);
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, contacts: a.contacts || [], context: ctx.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 600)}`).join("\n") };
-      });
+      }));
       const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
       const response = await callAI([{ role: "user", content: "Analyze my accounts for renewal signals — expansion opportunities, churn risk, and renewal triggers." }], RENEWAL_EXPANSION_PROMPT(data, today), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); renewalStore.saveExpansionCache(parsed);
+      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); await renewalStore.saveExpansionCache(parsed);
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   }
 

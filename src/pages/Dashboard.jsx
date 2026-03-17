@@ -15,12 +15,13 @@ export default function Dashboard() {
   const { user } = useAuthStore();
   const userName = user?.user_metadata?.name || user?.user_metadata?.full_name || "there";
 
-  const [accounts, setAccounts] = useState(() => renewalStore.getAccounts());
+  const [accounts, setAccounts] = useState([]);
+  useEffect(() => { renewalStore.getAccounts().then(setAccounts); }, []);
   const hasAccounts = accounts.length > 0;
 
   // If no accounts, show onboarding
   if (!hasAccounts) {
-    return <DashboardOnboarding userName={userName} onAccountsChanged={() => setAccounts(renewalStore.getAccounts())} />;
+    return <DashboardOnboarding userName={userName} onAccountsChanged={() => renewalStore.getAccounts().then(setAccounts)} />;
   }
 
   // Otherwise show command center
@@ -41,7 +42,7 @@ function DashboardOnboarding({ userName, onAccountsChanged }) {
     setRows(prev => [...prev, { name: "", arr: "", renewalDate: "" }]);
   }
 
-  function createAccount(idx) {
+  async function createAccount(idx) {
     const row = rows[idx];
     if (!row.name.trim()) return;
     const account = {
@@ -56,7 +57,7 @@ function DashboardOnboarding({ userName, onAccountsChanged }) {
       lastActivity: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     };
-    renewalStore.saveAccount(account);
+    await renewalStore.saveAccount(account);
     setCreated(prev => [...prev, account]);
     setRows(prev => prev.map((r, i) => i === idx ? { name: "", arr: "", renewalDate: "" } : r));
     onAccountsChanged();
@@ -282,8 +283,12 @@ function DashboardCommandCenter({ userName, accounts }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const autopilotActions = renewalStore.getAutopilotActions().filter(a => a.status === "pending");
-  const expansionCache = renewalStore.getExpansionCache();
+  const [autopilotActions, setAutopilotActions] = useState([]);
+  const [expansionCache, setExpansionCache] = useState(null);
+  useEffect(() => {
+    renewalStore.getAutopilotActions().then(actions => setAutopilotActions(actions.filter(a => a.status === "pending")));
+    renewalStore.getExpansionCache().then(setExpansionCache);
+  }, []);
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
@@ -308,15 +313,15 @@ function DashboardCommandCenter({ userName, accounts }) {
   async function generateInsights() {
     setLoading(true); setError("");
     try {
-      const portfolioData = accounts.map(a => {
+      const portfolioData = await Promise.all(accounts.map(async a => {
         const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000);
-        const ctx = renewalStore.getContext(a.id);
+        const ctx = await renewalStore.getContext(a.id);
         return {
           name: a.name, arr: a.arr, renewalDate: a.renewalDate,
           riskLevel: a.riskLevel, daysUntilRenewal: daysUntil,
           contextCount: ctx.length,
         };
-      });
+      }));
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
       const prompt = `You are BC, an AI-powered renewal operations co-pilot. Analyze this renewal portfolio and return a JSON dashboard brief.

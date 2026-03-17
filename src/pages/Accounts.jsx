@@ -35,7 +35,8 @@ function AddAccountModal({ onClose, onCreate }) {
 
 export default function Accounts() {
   const location = useLocation();
-  const [accounts, setAccounts] = useState(() => renewalStore.getAccounts());
+  const [accounts, setAccounts] = useState([]);
+  useEffect(() => { renewalStore.getAccounts().then(setAccounts); }, []);
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const selectedAccount = selectedAccountId ? accounts.find(a => a.id === selectedAccountId) || null : null;
   const [showAddAccount, setShowAddAccount] = useState(false);
@@ -46,9 +47,9 @@ export default function Accounts() {
     }
   }, [location.state?.accountId]);
 
-  function handleCreateAccount(data) {
+  async function handleCreateAccount(data) {
     const account = { id: `acct-${Date.now()}_${Math.random().toString(36).slice(2, 8)}`, name: data.name.trim(), arr: parseFloat(data.arr) || 0, renewalDate: data.renewalDate, riskLevel: data.riskLevel || "medium", contacts: [], summary: "", tags: [], lastActivity: new Date().toISOString(), createdAt: new Date().toISOString() };
-    renewalStore.saveAccount(account); setAccounts(renewalStore.getAccounts());
+    await renewalStore.saveAccount(account); setAccounts(await renewalStore.getAccounts());
     setShowAddAccount(false); setSelectedAccountId(account.id);
   }
 
@@ -66,30 +67,32 @@ export default function Accounts() {
 
   useEffect(() => {
     if (!selectedAccount) { setThreads([]); setActiveThreadId(null); setMessages([]); setContextItems([]); return; }
-    const acctThreads = renewalStore.getThreads(selectedAccount.id); setThreads(acctThreads);
-    if (acctThreads.length > 0) { const sorted = [...acctThreads].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt)); setActiveThreadId(sorted[0].id); }
-    else { setActiveThreadId(null); setMessages([]); }
-    setShowThreadList(false); setContextItems(renewalStore.getContext(selectedAccount.id));
+    (async () => {
+      const acctThreads = await renewalStore.getThreads(selectedAccount.id); setThreads(acctThreads);
+      if (acctThreads.length > 0) { const sorted = [...acctThreads].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt)); setActiveThreadId(sorted[0].id); }
+      else { setActiveThreadId(null); setMessages([]); }
+      setShowThreadList(false); setContextItems(await renewalStore.getContext(selectedAccount.id));
+    })();
   }, [selectedAccount?.id]);
 
-  useEffect(() => { if (!activeThreadId) { setMessages([]); return; } setMessages(renewalStore.getMessages(activeThreadId)); }, [activeThreadId]);
+  useEffect(() => { if (!activeThreadId) { setMessages([]); return; } renewalStore.getMessages(activeThreadId).then(setMessages); }, [activeThreadId]);
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
   useEffect(() => { if (selectedAccount && activeThreadId) inputRef.current?.focus(); }, [selectedAccount?.id, activeThreadId]);
 
-  function refreshContext() { if (selectedAccount) setContextItems(renewalStore.getContext(selectedAccount.id)); }
-  function createThread(firstMessage) {
+  async function refreshContext() { if (selectedAccount) setContextItems(await renewalStore.getContext(selectedAccount.id)); }
+  async function createThread(firstMessage) {
     const thread = { id: `thread_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, title: firstMessage ? firstMessage.slice(0, 50) + (firstMessage.length > 50 ? "..." : "") : "New conversation", createdAt: new Date().toISOString(), lastMessageAt: new Date().toISOString() };
-    renewalStore.addThread(selectedAccount.id, thread); setThreads(renewalStore.getThreads(selectedAccount.id)); setActiveThreadId(thread.id); setMessages([]); setShowThreadList(false); return thread;
+    await renewalStore.addThread(selectedAccount.id, thread); setThreads(await renewalStore.getThreads(selectedAccount.id)); setActiveThreadId(thread.id); setMessages([]); setShowThreadList(false); return thread;
   }
-  function deleteThread(threadId) { renewalStore.deleteThread(selectedAccount.id, threadId); const remaining = renewalStore.getThreads(selectedAccount.id); setThreads(remaining); if (activeThreadId === threadId) { if (remaining.length > 0) { setActiveThreadId([...remaining].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt))[0].id); } else { setActiveThreadId(null); setMessages([]); } } }
-  function deleteContextItem(itemId) { renewalStore.deleteContextItem(selectedAccount.id, itemId); refreshContext(); }
+  async function deleteThread(threadId) { await renewalStore.deleteThread(selectedAccount.id, threadId); const remaining = await renewalStore.getThreads(selectedAccount.id); setThreads(remaining); if (activeThreadId === threadId) { if (remaining.length > 0) { setActiveThreadId([...remaining].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt))[0].id); } else { setActiveThreadId(null); setMessages([]); } } }
+  async function deleteContextItem(itemId) { await renewalStore.deleteContextItem(selectedAccount.id, itemId); refreshContext(); }
 
-  function handleCSVUpload(e) { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { const text = ev.target.result; const lines = text.split("\n").filter(l => l.trim()); renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "csv", label: file.name, source: "manual", content: text, metadata: { rows: Math.max(0, lines.length - 1), words: text.split(/\s+/).length, size: (file.size / 1024).toFixed(1) + " KB" }, uploadedAt: new Date().toISOString() }); refreshContext(); }; reader.readAsText(file); e.target.value = ""; }
-  function handleTextPasteSave() { if (!pasteContent.trim()) return; renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "text", label: pasteLabel.trim() || "Pasted text", source: pasteSource, content: pasteContent, metadata: { words: pasteContent.trim().split(/\s+/).length, size: (new Blob([pasteContent]).size / 1024).toFixed(1) + " KB" }, uploadedAt: new Date().toISOString() }); refreshContext(); setPasteLabel(""); setPasteSource("manual"); setPasteContent(""); setShowTextPaste(false); }
-  function handleImageUpload(e) { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "image", label: file.name, source: "manual", content: ev.target.result, metadata: { size: (file.size / 1024).toFixed(1) + " KB", mimeType: file.type }, uploadedAt: new Date().toISOString() }); refreshContext(); }; reader.readAsDataURL(file); e.target.value = ""; }
+  function handleCSVUpload(e) { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = async (ev) => { const text = ev.target.result; const lines = text.split("\n").filter(l => l.trim()); await renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "csv", label: file.name, source: "manual", content: text, metadata: { rows: Math.max(0, lines.length - 1), words: text.split(/\s+/).length, size: (file.size / 1024).toFixed(1) + " KB" }, uploadedAt: new Date().toISOString() }); refreshContext(); }; reader.readAsText(file); e.target.value = ""; }
+  async function handleTextPasteSave() { if (!pasteContent.trim()) return; await renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "text", label: pasteLabel.trim() || "Pasted text", source: pasteSource, content: pasteContent, metadata: { words: pasteContent.trim().split(/\s+/).length, size: (new Blob([pasteContent]).size / 1024).toFixed(1) + " KB" }, uploadedAt: new Date().toISOString() }); refreshContext(); setPasteLabel(""); setPasteSource("manual"); setPasteContent(""); setShowTextPaste(false); }
+  function handleImageUpload(e) { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = async (ev) => { await renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "image", label: file.name, source: "manual", content: ev.target.result, metadata: { size: (file.size / 1024).toFixed(1) + " KB", mimeType: file.type }, uploadedAt: new Date().toISOString() }); refreshContext(); }; reader.readAsDataURL(file); e.target.value = ""; }
 
-  function buildCoPilotSystemPrompt() {
-    const acct = selectedAccount; const items = renewalStore.getContext(acct.id);
+  async function buildCoPilotSystemPrompt() {
+    const acct = selectedAccount; const items = await renewalStore.getContext(acct.id);
     const daysToRenewal = acct.renewalDate ? Math.ceil((new Date(acct.renewalDate) - new Date()) / 86400000) : null;
     const contextSummary = items.length === 0 ? "No context items ingested yet." : items.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 800)}`).join("\n\n");
     return `You are a Renewal Co-Pilot inside Base Command.\n\nACCOUNT:\n- Name: ${acct.name}\n- ARR: $${(acct.arr || 0).toLocaleString()}\n- Renewal: ${acct.renewalDate || "Not set"}${daysToRenewal !== null ? ` (${daysToRenewal} days)` : ""}\n- Risk: ${acct.riskLevel}\n\nINGESTED DATA (${items.length}):\n${contextSummary}\n\nToday: ${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}\n\nCAPABILITIES: Email drafting, conversation prep, risk analysis, pricing strategies, next best actions, contract analysis, stakeholder mapping.\n\nGUIDELINES: Be direct and actionable. Reference account data. Use markdown. **Bold** key points.`;
@@ -97,17 +100,18 @@ export default function Accounts() {
 
   async function handleSend() {
     const text = input.trim(); if (!text || sending) return; setInput(""); setSending(true);
-    let threadId = activeThreadId; if (!threadId) { const thread = createThread(text); threadId = thread.id; }
+    let threadId = activeThreadId; if (!threadId) { const thread = await createThread(text); threadId = thread.id; }
     const userMsg = { role: "user", content: text, timestamp: new Date().toISOString() };
-    renewalStore.addMessage(threadId, userMsg); setMessages(prev => [...prev, userMsg]);
-    const updatedThreads = renewalStore.getThreads(selectedAccount.id).map(t => t.id !== threadId ? t : { ...t, ...(messages.filter(m => m.role === "user").length === 0 ? { title: text.slice(0, 50) } : {}), lastMessageAt: new Date().toISOString() });
-    renewalStore.saveThreads(selectedAccount.id, updatedThreads); setThreads(updatedThreads);
+    await renewalStore.addMessage(threadId, userMsg); setMessages(prev => [...prev, userMsg]);
+    const currentThreads = await renewalStore.getThreads(selectedAccount.id);
+    const updatedThreads = currentThreads.map(t => t.id !== threadId ? t : { ...t, ...(messages.filter(m => m.role === "user").length === 0 ? { title: text.slice(0, 50) } : {}), lastMessageAt: new Date().toISOString() });
+    await renewalStore.saveThreads(selectedAccount.id, updatedThreads); setThreads(updatedThreads);
     try {
       const apiMessages = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
-      const response = await callAI(apiMessages, buildCoPilotSystemPrompt(), 4000);
+      const response = await callAI(apiMessages, await buildCoPilotSystemPrompt(), 4000);
       const assistantMsg = { role: "assistant", content: response.toString(), timestamp: new Date().toISOString() };
-      renewalStore.addMessage(threadId, assistantMsg); setMessages(prev => [...prev, assistantMsg]);
-    } catch (err) { const errorMsg = { role: "assistant", content: `**Error:** ${err.message}`, timestamp: new Date().toISOString(), isError: true }; renewalStore.addMessage(threadId, errorMsg); setMessages(prev => [...prev, errorMsg]); }
+      await renewalStore.addMessage(threadId, assistantMsg); setMessages(prev => [...prev, assistantMsg]);
+    } catch (err) { const errorMsg = { role: "assistant", content: `**Error:** ${err.message}`, timestamp: new Date().toISOString(), isError: true }; await renewalStore.addMessage(threadId, errorMsg); setMessages(prev => [...prev, errorMsg]); }
     setSending(false);
   }
 

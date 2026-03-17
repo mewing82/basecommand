@@ -29,7 +29,9 @@ export default function Settings() {
   const [newKeyError, setNewKeyError] = useState("");
   const [showAddConfig, setShowAddConfig] = useState(false);
   const [configForm, setConfigForm] = useState({ name: "", provider: "anthropic", keyId: "", model: "" });
-  const [selectedPersona, setSelectedPersona] = useState(() => renewalStore.getSettings().persona || null);
+  const [selectedPersona, setSelectedPersona] = useState(null);
+
+  useEffect(() => { renewalStore.getSettings().then(s => setSelectedPersona(s.persona || null)); }, []);
 
   useEffect(() => { store.list("ai-key").then(setApiKeys); store.list("ai-config").then(setAiConfigs); }, []);
 
@@ -64,7 +66,7 @@ export default function Settings() {
           ].map(p => {
             const isSelected = selectedPersona === p.id;
             return (
-              <button key={p.id} onClick={() => { setSelectedPersona(p.id); renewalStore.saveSettings({ ...renewalStore.getSettings(), persona: p.id }); }} style={{ padding: "14px 18px", borderRadius: 10, cursor: "pointer", textAlign: "left", width: "100%", border: `1px solid ${isSelected ? C.gold + "60" : C.borderDefault}`, background: isSelected ? C.goldMuted : "transparent" }}>
+              <button key={p.id} onClick={async () => { setSelectedPersona(p.id); const current = await renewalStore.getSettings(); await renewalStore.saveSettings({ ...current, persona: p.id }); }} style={{ padding: "14px 18px", borderRadius: 10, cursor: "pointer", textAlign: "left", width: "100%", border: `1px solid ${isSelected ? C.gold + "60" : C.borderDefault}`, background: isSelected ? C.goldMuted : "transparent" }}>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: isSelected ? C.textPrimary : C.textSecondary }}>{p.title}</div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginTop: 2 }}>{p.desc}</div>
               </button>

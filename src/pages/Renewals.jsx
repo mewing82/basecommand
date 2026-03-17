@@ -19,13 +19,15 @@ const RENEWALS_SECTIONS = [
 export default function Renewals() {
   const [activeSection, setActiveSection] = useState("autopilot");
   const [hoveredSection, setHoveredSection] = useState(null);
-  const [accounts, setAccounts] = useState(() => renewalStore.getAccounts());
+  const [accounts, setAccounts] = useState([]);
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const [showAddAccount, setShowAddAccount] = useState(false);
 
-  function handleCreateAccount(data) {
+  useEffect(() => { renewalStore.getAccounts().then(setAccounts); }, []);
+
+  async function handleCreateAccount(data) {
     const account = { id: `acct-${Date.now()}_${Math.random().toString(36).slice(2, 8)}`, name: data.name.trim(), arr: parseFloat(data.arr) || 0, renewalDate: data.renewalDate, riskLevel: data.riskLevel || "medium", contacts: [], summary: "", tags: [], lastActivity: new Date().toISOString(), createdAt: new Date().toISOString() };
-    renewalStore.saveAccount(account); setAccounts(renewalStore.getAccounts());
+    await renewalStore.saveAccount(account); setAccounts(await renewalStore.getAccounts());
     setShowAddAccount(false); setSelectedAccountId(account.id); setActiveSection("accounts");
   }
   function handleNavigateToAccount(accountId) { setSelectedAccountId(accountId); setActiveSection("accounts"); }
@@ -61,7 +63,7 @@ export default function Renewals() {
 
       {activeSection === "autopilot" && <RenewalsAutopilot accounts={accounts} onNavigate={handleNavigateToAccount} onSwitchTab={setActiveSection} />}
       {activeSection === "accounts" && <RenewalsAccountsView accounts={accounts} selectedAccount={selectedAccount} onSelectAccount={setSelectedAccountId} onAddAccount={() => setShowAddAccount(true)} />}
-      {activeSection === "import" && <RenewalsImport existingAccounts={accounts} onAccountsCreated={() => setAccounts(renewalStore.getAccounts())} onSwitchTab={setActiveSection} />}
+      {activeSection === "import" && <RenewalsImport existingAccounts={accounts} onAccountsCreated={() => renewalStore.getAccounts().then(setAccounts)} onSwitchTab={setActiveSection} />}
       {activeSection === "expansion" && <RenewalsExpansion accounts={accounts} onNavigate={handleNavigateToAccount} />}
       {activeSection === "leadership" && <RenewalsLeadership accounts={accounts} onNavigate={handleNavigateToAccount} onSwitchTab={setActiveSection} />}
 
@@ -111,11 +113,13 @@ function AddAccountModal({ onClose, onCreate }) {
 function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
   const CACHE_KEY = `bc2-${store._ws}-renewals-autopilot`;
   const [autopilot, setAutopilot] = useState(() => safeParse(localStorage.getItem(CACHE_KEY), null));
-  const [actions, setActions] = useState(() => renewalStore.getAutopilotActions());
+  const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expandedAction, setExpandedAction] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+
+  useEffect(() => { renewalStore.getAutopilotActions().then(setActions); }, []);
 
   const now = new Date();
   const totalARR = accounts.reduce((sum, a) => sum + (a.arr || 0), 0);
@@ -130,12 +134,12 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
   async function generateAutopilot() {
     if (accounts.length === 0) return; setLoading(true); setError(null);
     try {
-      const portfolioData = accounts.map(a => {
+      const portfolioData = await Promise.all(accounts.map(async a => {
         const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000);
-        const ctx = renewalStore.getContext(a.id);
+        const ctx = await renewalStore.getContext(a.id);
         const contextSummary = ctx.length === 0 ? "No context data" : ctx.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 500)}`).join("\n");
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, daysUntilRenewal: daysUntil, contacts: a.contacts || [], summary: a.summary || "", tags: a.tags || [], contextData: contextSummary };
-      });
+      }));
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
       const response = await callAI([{ role: "user", content: "Generate autopilot actions for my renewal portfolio." }], RENEWAL_AUTOPILOT_PROMPT(portfolioData, today), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
@@ -143,13 +147,13 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
       // Save new actions
       if (parsed.actions?.length > 0) {
         const newActions = parsed.actions.map(a => ({ id: `action_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: a.accountId || "", accountName: a.accountName, type: a.type, title: a.title, description: a.description, draft: a.draft || "", urgency: a.urgency, reasoning: a.reasoning || "", status: "pending", createdAt: new Date().toISOString() }));
-        renewalStore.saveAutopilotActions(newActions); setActions(newActions);
+        await renewalStore.saveAutopilotActions(newActions); setActions(newActions);
       }
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   }
 
-  function handleActionStatus(actionId, status) {
-    renewalStore.updateAutopilotAction(actionId, { status }); setActions(renewalStore.getAutopilotActions());
+  async function handleActionStatus(actionId, status) {
+    await renewalStore.updateAutopilotAction(actionId, { status }); setActions(await renewalStore.getAutopilotActions());
   }
   function handleCopy(text, id) { navigator.clipboard.writeText(text); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); }
 
@@ -322,11 +326,14 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
 
 // ─── Leadership (Executive Intelligence Agent) ──────────────────────────────
 function RenewalsLeadership({ accounts, onNavigate, onSwitchTab }) {
-  const [cache, setCache] = useState(() => renewalStore.getLeadershipCache());
+  const [cache, setCache] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copiedSection, setCopiedSection] = useState(null);
   const [expandedForecast, setExpandedForecast] = useState(null);
+
+  useEffect(() => { renewalStore.getLeadershipCache().then(setCache); }, []);
+
   const cachedAgo = cache?._generatedAt ? (() => { const m = Math.floor((Date.now() - cache._generatedAt) / 60000); return m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`; })() : null;
 
   const now = new Date();
@@ -336,18 +343,19 @@ function RenewalsLeadership({ accounts, onNavigate, onSwitchTab }) {
   async function generateAnalysis() {
     if (accounts.length === 0) return; setLoading(true); setError(null);
     try {
-      const portfolioData = accounts.map(a => {
+      const portfolioData = await Promise.all(accounts.map(async a => {
         const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000);
-        const ctx = renewalStore.getContext(a.id);
+        const ctx = await renewalStore.getContext(a.id);
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, daysUntilRenewal: daysUntil, contacts: a.contacts || [], summary: a.summary || "", tags: a.tags || [], contextCount: ctx.length, contextSummary: ctx.slice(0, 3).map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 300)}`).join("\n") };
-      });
-      const autopilotActions = renewalStore.getAutopilotActions().filter(a => a.status !== "dismissed").slice(0, 20);
-      const expansionCache = renewalStore.getExpansionCache();
+      }));
+      const allActions = await renewalStore.getAutopilotActions();
+      const autopilotActions = allActions.filter(a => a.status !== "dismissed").slice(0, 20);
+      const expansionCache = await renewalStore.getExpansionCache();
       const expansionSignals = expansionCache?.opportunities?.slice(0, 10) || [];
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
       const response = await callAI([{ role: "user", content: "Generate my executive leadership analysis and brief." }], RENEWAL_LEADERSHIP_PROMPT(portfolioData, autopilotActions, expansionSignals, today), 5000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); renewalStore.saveLeadershipCache(parsed);
+      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); await renewalStore.saveLeadershipCache(parsed);
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   }
 
@@ -638,7 +646,7 @@ function RenewalsImport({ existingAccounts, onAccountsCreated, onSwitchTab }) {
   function removeExtracted(idx) { setExtracted(prev => prev.filter((_, i) => i !== idx)); }
   function updateExtracted(idx, field, value) { setExtracted(prev => prev.map((a, i) => i === idx ? { ...a, [field]: value } : a)); }
 
-  function handleCreateAccounts() {
+  async function handleCreateAccounts() {
     let created = 0;
     for (const acct of extracted) {
       if (acct._existingMatch && acct._skip) continue;
@@ -654,9 +662,9 @@ function RenewalsImport({ existingAccounts, onAccountsCreated, onSwitchTab }) {
         lastActivity: new Date().toISOString(),
         createdAt: new Date().toISOString()
       };
-      renewalStore.saveAccount(account);
+      await renewalStore.saveAccount(account);
       // Attach raw source data as context item
-      renewalStore.addContextItem(account.id, {
+      await renewalStore.addContextItem(account.id, {
         id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
         accountId: account.id,
         type: "text",
@@ -806,24 +814,35 @@ function RenewalsImport({ existingAccounts, onAccountsCreated, onSwitchTab }) {
 
 // ─── Expansion (Expansion Intelligence Agent) ───────────────────────────────
 function RenewalsExpansion({ accounts, onNavigate }) {
-  const [cache, setCache] = useState(() => renewalStore.getExpansionCache());
+  const [cache, setCache] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [accountsWithContext, setAccountsWithContext] = useState([]);
   const cachedAgo = cache?._generatedAt ? (() => { const m = Math.floor((Date.now() - cache._generatedAt) / 60000); return m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`; })() : null;
 
-  const accountsWithContext = accounts.filter(a => renewalStore.getContext(a.id).length > 0);
+  useEffect(() => {
+    (async () => {
+      setCache(await renewalStore.getExpansionCache());
+      const withCtx = [];
+      for (const a of accounts) {
+        const ctx = await renewalStore.getContext(a.id);
+        if (ctx.length > 0) withCtx.push(a);
+      }
+      setAccountsWithContext(withCtx);
+    })();
+  }, [accounts]);
 
   async function analyzeExpansion() {
     if (accountsWithContext.length === 0) return; setLoading(true); setError(null);
     try {
-      const data = accountsWithContext.map(a => {
-        const ctx = renewalStore.getContext(a.id);
+      const data = await Promise.all(accountsWithContext.map(async a => {
+        const ctx = await renewalStore.getContext(a.id);
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, contacts: a.contacts || [], context: ctx.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 600)}`).join("\n") };
-      });
+      }));
       const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
       const response = await callAI([{ role: "user", content: "Analyze my accounts for expansion opportunities." }], RENEWAL_EXPANSION_PROMPT(data, today), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); renewalStore.saveExpansionCache(parsed);
+      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); await renewalStore.saveExpansionCache(parsed);
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   }
 
@@ -927,30 +946,32 @@ function RenewalsAccountsView({ accounts, selectedAccount, onSelectAccount, onAd
 
   useEffect(() => {
     if (!selectedAccount) { setThreads([]); setActiveThreadId(null); setMessages([]); setContextItems([]); return; }
-    const acctThreads = renewalStore.getThreads(selectedAccount.id); setThreads(acctThreads);
-    if (acctThreads.length > 0) { const sorted = [...acctThreads].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt)); setActiveThreadId(sorted[0].id); }
-    else { setActiveThreadId(null); setMessages([]); }
-    setShowThreadList(false); setContextItems(renewalStore.getContext(selectedAccount.id));
+    (async () => {
+      const acctThreads = await renewalStore.getThreads(selectedAccount.id); setThreads(acctThreads);
+      if (acctThreads.length > 0) { const sorted = [...acctThreads].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt)); setActiveThreadId(sorted[0].id); }
+      else { setActiveThreadId(null); setMessages([]); }
+      setShowThreadList(false); setContextItems(await renewalStore.getContext(selectedAccount.id));
+    })();
   }, [selectedAccount?.id]);
 
-  useEffect(() => { if (!activeThreadId) { setMessages([]); return; } setMessages(renewalStore.getMessages(activeThreadId)); }, [activeThreadId]);
+  useEffect(() => { if (!activeThreadId) { setMessages([]); return; } renewalStore.getMessages(activeThreadId).then(setMessages); }, [activeThreadId]);
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
   useEffect(() => { if (selectedAccount && activeThreadId) inputRef.current?.focus(); }, [selectedAccount?.id, activeThreadId]);
 
-  function refreshContext() { if (selectedAccount) setContextItems(renewalStore.getContext(selectedAccount.id)); }
-  function createThread(firstMessage) {
+  async function refreshContext() { if (selectedAccount) setContextItems(await renewalStore.getContext(selectedAccount.id)); }
+  async function createThread(firstMessage) {
     const thread = { id: `thread_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, title: firstMessage ? firstMessage.slice(0, 50) + (firstMessage.length > 50 ? "..." : "") : "New conversation", createdAt: new Date().toISOString(), lastMessageAt: new Date().toISOString() };
-    renewalStore.addThread(selectedAccount.id, thread); setThreads(renewalStore.getThreads(selectedAccount.id)); setActiveThreadId(thread.id); setMessages([]); setShowThreadList(false); return thread;
+    await renewalStore.addThread(selectedAccount.id, thread); setThreads(await renewalStore.getThreads(selectedAccount.id)); setActiveThreadId(thread.id); setMessages([]); setShowThreadList(false); return thread;
   }
-  function deleteThread(threadId) { renewalStore.deleteThread(selectedAccount.id, threadId); const remaining = renewalStore.getThreads(selectedAccount.id); setThreads(remaining); if (activeThreadId === threadId) { if (remaining.length > 0) { setActiveThreadId([...remaining].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt))[0].id); } else { setActiveThreadId(null); setMessages([]); } } }
-  function deleteContextItem(itemId) { renewalStore.deleteContextItem(selectedAccount.id, itemId); refreshContext(); }
+  async function deleteThread(threadId) { await renewalStore.deleteThread(selectedAccount.id, threadId); const remaining = await renewalStore.getThreads(selectedAccount.id); setThreads(remaining); if (activeThreadId === threadId) { if (remaining.length > 0) { setActiveThreadId([...remaining].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt))[0].id); } else { setActiveThreadId(null); setMessages([]); } } }
+  async function deleteContextItem(itemId) { await renewalStore.deleteContextItem(selectedAccount.id, itemId); refreshContext(); }
 
-  function handleCSVUpload(e) { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { const text = ev.target.result; const lines = text.split("\n").filter(l => l.trim()); renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "csv", label: file.name, source: "manual", content: text, metadata: { rows: Math.max(0, lines.length - 1), words: text.split(/\s+/).length, size: (file.size / 1024).toFixed(1) + " KB" }, uploadedAt: new Date().toISOString() }); refreshContext(); }; reader.readAsText(file); e.target.value = ""; }
-  function handleTextPasteSave() { if (!pasteContent.trim()) return; renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "text", label: pasteLabel.trim() || "Pasted text", source: pasteSource, content: pasteContent, metadata: { words: pasteContent.trim().split(/\s+/).length, size: (new Blob([pasteContent]).size / 1024).toFixed(1) + " KB" }, uploadedAt: new Date().toISOString() }); refreshContext(); setPasteLabel(""); setPasteSource("manual"); setPasteContent(""); setShowTextPaste(false); }
-  function handleImageUpload(e) { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "image", label: file.name, source: "manual", content: ev.target.result, metadata: { size: (file.size / 1024).toFixed(1) + " KB", mimeType: file.type }, uploadedAt: new Date().toISOString() }); refreshContext(); }; reader.readAsDataURL(file); e.target.value = ""; }
+  function handleCSVUpload(e) { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = async (ev) => { const text = ev.target.result; const lines = text.split("\n").filter(l => l.trim()); await renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "csv", label: file.name, source: "manual", content: text, metadata: { rows: Math.max(0, lines.length - 1), words: text.split(/\s+/).length, size: (file.size / 1024).toFixed(1) + " KB" }, uploadedAt: new Date().toISOString() }); refreshContext(); }; reader.readAsText(file); e.target.value = ""; }
+  async function handleTextPasteSave() { if (!pasteContent.trim()) return; await renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "text", label: pasteLabel.trim() || "Pasted text", source: pasteSource, content: pasteContent, metadata: { words: pasteContent.trim().split(/\s+/).length, size: (new Blob([pasteContent]).size / 1024).toFixed(1) + " KB" }, uploadedAt: new Date().toISOString() }); refreshContext(); setPasteLabel(""); setPasteSource("manual"); setPasteContent(""); setShowTextPaste(false); }
+  function handleImageUpload(e) { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = async (ev) => { await renewalStore.addContextItem(selectedAccount.id, { id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: selectedAccount.id, type: "image", label: file.name, source: "manual", content: ev.target.result, metadata: { size: (file.size / 1024).toFixed(1) + " KB", mimeType: file.type }, uploadedAt: new Date().toISOString() }); refreshContext(); }; reader.readAsDataURL(file); e.target.value = ""; }
 
-  function buildCoPilotSystemPrompt() {
-    const acct = selectedAccount; const items = renewalStore.getContext(acct.id);
+  async function buildCoPilotSystemPrompt() {
+    const acct = selectedAccount; const items = await renewalStore.getContext(acct.id);
     const daysToRenewal = acct.renewalDate ? Math.ceil((new Date(acct.renewalDate) - new Date()) / 86400000) : null;
     const contextSummary = items.length === 0 ? "No context items ingested yet." : items.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 800)}`).join("\n\n");
     return `You are a Renewal Co-Pilot inside Base Command.\n\nACCOUNT:\n- Name: ${acct.name}\n- ARR: $${(acct.arr || 0).toLocaleString()}\n- Renewal: ${acct.renewalDate || "Not set"}${daysToRenewal !== null ? ` (${daysToRenewal} days)` : ""}\n- Risk: ${acct.riskLevel}\n\nINGESTED DATA (${items.length}):\n${contextSummary}\n\nToday: ${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}\n\nCAPABILITIES: Email drafting, conversation prep, risk analysis, pricing strategies, next best actions, contract analysis, stakeholder mapping.\n\nGUIDELINES: Be direct and actionable. Reference account data. Use markdown. **Bold** key points.`;
@@ -958,17 +979,18 @@ function RenewalsAccountsView({ accounts, selectedAccount, onSelectAccount, onAd
 
   async function handleSend() {
     const text = input.trim(); if (!text || sending) return; setInput(""); setSending(true);
-    let threadId = activeThreadId; if (!threadId) { const thread = createThread(text); threadId = thread.id; }
+    let threadId = activeThreadId; if (!threadId) { const thread = await createThread(text); threadId = thread.id; }
     const userMsg = { role: "user", content: text, timestamp: new Date().toISOString() };
-    renewalStore.addMessage(threadId, userMsg); setMessages(prev => [...prev, userMsg]);
-    const updatedThreads = renewalStore.getThreads(selectedAccount.id).map(t => t.id !== threadId ? t : { ...t, ...(messages.filter(m => m.role === "user").length === 0 ? { title: text.slice(0, 50) } : {}), lastMessageAt: new Date().toISOString() });
-    renewalStore.saveThreads(selectedAccount.id, updatedThreads); setThreads(updatedThreads);
+    await renewalStore.addMessage(threadId, userMsg); setMessages(prev => [...prev, userMsg]);
+    const currentThreads = await renewalStore.getThreads(selectedAccount.id);
+    const updatedThreads = currentThreads.map(t => t.id !== threadId ? t : { ...t, ...(messages.filter(m => m.role === "user").length === 0 ? { title: text.slice(0, 50) } : {}), lastMessageAt: new Date().toISOString() });
+    await renewalStore.saveThreads(selectedAccount.id, updatedThreads); setThreads(updatedThreads);
     try {
       const apiMessages = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
-      const response = await callAI(apiMessages, buildCoPilotSystemPrompt(), 4000);
+      const response = await callAI(apiMessages, await buildCoPilotSystemPrompt(), 4000);
       const assistantMsg = { role: "assistant", content: response.toString(), timestamp: new Date().toISOString() };
-      renewalStore.addMessage(threadId, assistantMsg); setMessages(prev => [...prev, assistantMsg]);
-    } catch (err) { const errorMsg = { role: "assistant", content: `**Error:** ${err.message}`, timestamp: new Date().toISOString(), isError: true }; renewalStore.addMessage(threadId, errorMsg); setMessages(prev => [...prev, errorMsg]); }
+      await renewalStore.addMessage(threadId, assistantMsg); setMessages(prev => [...prev, assistantMsg]);
+    } catch (err) { const errorMsg = { role: "assistant", content: `**Error:** ${err.message}`, timestamp: new Date().toISOString(), isError: true }; await renewalStore.addMessage(threadId, errorMsg); setMessages(prev => [...prev, errorMsg]); }
     setSending(false);
   }
 

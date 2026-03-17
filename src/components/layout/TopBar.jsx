@@ -63,7 +63,8 @@ export default function TopBar({ currentView, onCommandPalette }) {
   const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
   const userName = user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
   const userEmail = user?.email || "";
-  const settings = renewalStore.getSettings();
+  const [settings, setSettingsState] = useState(null);
+  useEffect(() => { renewalStore.getSettings().then(setSettingsState); }, []);
   const persona = settings?.persona;
   const personaLabel = persona ? PERSONA_LABELS[persona] || persona : null;
 

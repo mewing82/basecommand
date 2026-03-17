@@ -10,9 +10,13 @@ import { RENEWAL_LEADERSHIP_PROMPT } from "../lib/prompts";
 
 export default function Leadership() {
   const navigate = useNavigate();
-  const [accounts] = useState(() => renewalStore.getAccounts());
+  const [accounts, setAccounts] = useState([]);
+  const [cache, setCache] = useState(null);
 
-  const [cache, setCache] = useState(() => renewalStore.getLeadershipCache());
+  useEffect(() => {
+    renewalStore.getAccounts().then(setAccounts);
+    renewalStore.getLeadershipCache().then(setCache);
+  }, []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copiedSection, setCopiedSection] = useState(null);
@@ -25,18 +29,19 @@ export default function Leadership() {
   async function generateAnalysis() {
     if (accounts.length === 0) return; setLoading(true); setError(null);
     try {
-      const portfolioData = accounts.map(a => {
+      const portfolioData = await Promise.all(accounts.map(async a => {
         const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000);
-        const ctx = renewalStore.getContext(a.id);
+        const ctx = await renewalStore.getContext(a.id);
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, daysUntilRenewal: daysUntil, contacts: a.contacts || [], summary: a.summary || "", tags: a.tags || [], contextCount: ctx.length, contextSummary: ctx.slice(0, 3).map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 300)}`).join("\n") };
-      });
-      const autopilotActions = renewalStore.getAutopilotActions().filter(a => a.status !== "dismissed").slice(0, 20);
-      const expansionCache = renewalStore.getExpansionCache();
+      }));
+      const allActions = await renewalStore.getAutopilotActions();
+      const autopilotActions = allActions.filter(a => a.status !== "dismissed").slice(0, 20);
+      const expansionCache = await renewalStore.getExpansionCache();
       const expansionSignals = expansionCache?.opportunities?.slice(0, 10) || [];
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
       const response = await callAI([{ role: "user", content: "Generate my executive leadership analysis and brief." }], RENEWAL_LEADERSHIP_PROMPT(portfolioData, autopilotActions, expansionSignals, today), 5000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); renewalStore.saveLeadershipCache(parsed);
+      const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); await renewalStore.saveLeadershipCache(parsed);
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   }
 

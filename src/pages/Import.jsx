@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Sparkles, AlertTriangle, Check, X, FileText, MessageSquare, Mail } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
@@ -11,7 +11,8 @@ import { RENEWAL_IMPORT_PROMPT } from "../lib/prompts";
 
 export default function Import() {
   const navigate = useNavigate();
-  const [existingAccounts, setExistingAccounts] = useState(() => renewalStore.getAccounts());
+  const [existingAccounts, setExistingAccounts] = useState([]);
+  useEffect(() => { renewalStore.getAccounts().then(setExistingAccounts); }, []);
 
   const [phase, setPhase] = useState("input"); // input | review | done
   const [rawData, setRawData] = useState("");
@@ -72,7 +73,7 @@ export default function Import() {
   function removeExtracted(idx) { setExtracted(prev => prev.filter((_, i) => i !== idx)); }
   function updateExtracted(idx, field, value) { setExtracted(prev => prev.map((a, i) => i === idx ? { ...a, [field]: value } : a)); }
 
-  function handleCreateAccounts() {
+  async function handleCreateAccounts() {
     let created = 0;
     for (const acct of extracted) {
       if (acct._existingMatch && acct._skip) continue;
@@ -88,9 +89,9 @@ export default function Import() {
         lastActivity: new Date().toISOString(),
         createdAt: new Date().toISOString()
       };
-      renewalStore.saveAccount(account);
+      await renewalStore.saveAccount(account);
       // Attach raw source data as context item
-      renewalStore.addContextItem(account.id, {
+      await renewalStore.addContextItem(account.id, {
         id: `ctx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
         accountId: account.id,
         type: "text",
@@ -102,7 +103,7 @@ export default function Import() {
       });
       created++;
     }
-    setCreatedCount(created); setExistingAccounts(renewalStore.getAccounts()); setPhase("done");
+    setCreatedCount(created); setExistingAccounts(await renewalStore.getAccounts()); setPhase("done");
   }
 
   const confidenceColors = { high: C.green, medium: C.amber, low: C.red };
