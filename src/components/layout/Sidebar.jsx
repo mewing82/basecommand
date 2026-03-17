@@ -426,19 +426,19 @@ export default function Sidebar({ activeView, onNavigate }) {
                     width: "100%",
                     background: active ? "rgba(255,255,255,0.07)" : isHovered ? "rgba(255,255,255,0.04)" : "none",
                     border: "none", cursor: "pointer",
-                    display: "flex", alignItems: "center", gap: 12,
-                    padding: isExpanded ? "10px 20px" : "10px 0",
+                    display: "flex", alignItems: "center",
+                    padding: isExpanded ? "10px 16px 10px 20px" : "10px 0",
                     justifyContent: isExpanded ? "flex-start" : "center",
                     color: active ? C.textPrimary : isHovered ? C.textPrimary : C.textSecondary,
                     borderRight: active ? `2px solid ${C.gold}` : "2px solid transparent",
                     transition: "all 0.12s ease", position: "relative",
                   }}
                 >
-                  <div style={{ position: "relative", flexShrink: 0, width: 20, minWidth: 20, maxWidth: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.75, flexShrink: 0 }} />
+                  <div style={{ width: 32, minWidth: 32, display: "flex", alignItems: "center", justifyContent: "flex-start", position: "relative" }}>
+                    <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.75 }} />
                     {isAgents && !isExpanded && (
                       <div style={{
-                        position: "absolute", top: -2, right: -2,
+                        position: "absolute", top: -2, right: 8,
                         width: 6, height: 6, borderRadius: "50%",
                         background: "#34D399", border: `1.5px solid ${C.bgSidebar}`,
                         boxShadow: "0 0 4px rgba(52, 211, 153, 0.6)",
@@ -546,16 +546,16 @@ export default function Sidebar({ activeView, onNavigate }) {
                   width: "100%",
                   background: active ? "rgba(255,255,255,0.07)" : isHovered ? "rgba(255,255,255,0.04)" : "none",
                   border: "none", cursor: "pointer",
-                  display: "flex", alignItems: "center", gap: 12,
-                  padding: isExpanded ? "10px 20px" : "10px 0",
+                  display: "flex", alignItems: "center",
+                  padding: isExpanded ? "10px 16px 10px 20px" : "10px 0",
                   justifyContent: isExpanded ? "flex-start" : "center",
                   color: active ? C.textPrimary : isHovered ? C.textPrimary : C.textTertiary,
                   borderRight: active ? `2px solid ${C.gold}` : "2px solid transparent",
                   transition: "all 0.12s ease",
                 }}
               >
-                <div style={{ width: 20, minWidth: 20, maxWidth: 20, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.6, flexShrink: 0 }} />
+                <div style={{ width: 32, minWidth: 32, display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
+                  <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.6 }} />
                 </div>
                 {isExpanded && (
                   <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: active ? 600 : 500, whiteSpace: "nowrap" }}>{item.label}</span>
