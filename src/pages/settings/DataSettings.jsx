@@ -1,8 +1,13 @@
 import { useState } from "react";
+import { HardDrive, Download, Upload, AlertTriangle, Info } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { store, getWorkspaces, getActiveWorkspaceId } from "../../lib/storage";
 import { Btn } from "../../components/ui/index";
-import { SettingsSection, SettingsRow } from "./SettingsShared";
+import { SettingsRow } from "./SettingsShared";
+
+const cardStyle = { padding: "18px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 12 };
+const cardHeaderStyle = { display: "flex", alignItems: "center", gap: 8, marginBottom: 12 };
+const cardLabelStyle = { fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
 
 export default function DataSettings() {
   const [clearConfirm, setClearConfirm] = useState(false);
@@ -19,27 +24,74 @@ export default function DataSettings() {
   }
 
   return (
-    <>
-      <SettingsSection title="Data Management">
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <Btn variant="outline" onClick={exportData}>Export JSON</Btn>
-          <Btn variant="outline" onClick={importData}>Import JSON</Btn>
-          {clearConfirm ? (
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.red }}>This will delete all data.</span>
-              <Btn variant="danger" onClick={() => { store.clearAll(); window.location.reload(); }}>Confirm Clear</Btn>
-              <Btn variant="ghost" onClick={() => setClearConfirm(false)}>Cancel</Btn>
-            </div>
-          ) : (<Btn variant="danger" onClick={() => setClearConfirm(true)}>Clear All Data</Btn>)}
-        </div>
-      </SettingsSection>
+    <div>
+      {/* Page header */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>Data</div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 2 }}>Export, import, and manage your BaseCommand data</div>
+      </div>
 
-      <SettingsSection title="About">
+      {/* Backup & Restore card */}
+      <div style={cardStyle}>
+        <div style={cardHeaderStyle}>
+          <HardDrive size={16} style={{ color: C.gold }} />
+          <span style={cardLabelStyle}>Backup & Restore</span>
+        </div>
+        <div style={{ display: "flex", gap: 12 }}>
+          {/* Export card */}
+          <div style={{ flex: 1, padding: "14px 16px", background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <Download size={16} style={{ color: C.aiBlue }} />
+              <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>Export to JSON</span>
+            </div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 12 }}>
+              Download all your data as a JSON file for backup or migration.
+            </div>
+            <Btn variant="outline" size="sm" onClick={exportData}>Export</Btn>
+          </div>
+          {/* Import card */}
+          <div style={{ flex: 1, padding: "14px 16px", background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <Upload size={16} style={{ color: C.green }} />
+              <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>Import from JSON</span>
+            </div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 12 }}>
+              Restore data from a previously exported JSON backup file.
+            </div>
+            <Btn variant="outline" size="sm" onClick={importData}>Import</Btn>
+          </div>
+        </div>
+      </div>
+
+      {/* Danger Zone card */}
+      <div style={{ ...cardStyle, border: `1px solid ${C.red}30` }}>
+        <div style={cardHeaderStyle}>
+          <AlertTriangle size={16} style={{ color: C.red }} />
+          <span style={{ ...cardLabelStyle, color: C.red }}>Danger Zone</span>
+        </div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.5, marginBottom: 12 }}>
+          Permanently delete all BaseCommand data. This action cannot be undone.
+        </div>
+        {clearConfirm ? (
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.red }}>This will delete all data.</span>
+            <Btn variant="danger" onClick={() => { store.clearAll(); window.location.reload(); }}>Confirm Clear</Btn>
+            <Btn variant="ghost" onClick={() => setClearConfirm(false)}>Cancel</Btn>
+          </div>
+        ) : (<Btn variant="danger" onClick={() => setClearConfirm(true)}>Clear All Data</Btn>)}
+      </div>
+
+      {/* System Info card */}
+      <div style={cardStyle}>
+        <div style={cardHeaderStyle}>
+          <Info size={16} style={{ color: C.textTertiary }} />
+          <span style={cardLabelStyle}>System</span>
+        </div>
         <SettingsRow label="Schema Version" value={localStorage.getItem("bc2-meta:schema-version") || "—"} />
         <SettingsRow label="Storage" value="Supabase Postgres + localStorage fallback" />
         <SettingsRow label="Workspace" value={(() => { const ws = getWorkspaces().find(w => w.id === getActiveWorkspaceId()); return ws ? ws.name : "Default"; })()} />
         <SettingsRow label="App" value="BaseCommand v3.0 — Renewal Operations Platform" />
-      </SettingsSection>
-    </>
+      </div>
+    </div>
   );
 }

@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { Sparkles, Key, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, Key, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, AI_PROVIDERS } from "../../lib/tokens";
 import { store } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
 import { getAIUsage } from "../../lib/supabaseStorage";
 import { Btn } from "../../components/ui/index";
-import { SettingsSection } from "./SettingsShared";
+
+const cardStyle = { padding: "18px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 12 };
+const cardHeaderStyle = { display: "flex", alignItems: "center", gap: 8, marginBottom: 12 };
+const cardLabelStyle = { fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
 
 export default function AISettings() {
   const [testStatus, setTestStatus] = useState("");
@@ -30,9 +33,15 @@ export default function AISettings() {
   }
 
   return (
-    <SettingsSection title="AI Configuration">
+    <div>
+      {/* Page header */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>AI</div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 2 }}>Powered by Claude — zero configuration required</div>
+      </div>
+
       {/* AI Included Banner */}
-      <div style={{ padding: "16px 18px", background: C.goldMuted, border: `1px solid ${C.gold}30`, borderRadius: 10, marginBottom: 16 }}>
+      <div style={{ ...cardStyle, background: C.goldMuted, border: `1px solid ${C.gold}30` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
           <Sparkles size={16} style={{ color: C.gold }} />
           <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>AI is included</span>
@@ -44,14 +53,15 @@ export default function AISettings() {
       </div>
 
       {/* Usage Meter */}
-      <div style={{ padding: "14px 18px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-          <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textSecondary }}>AI Usage This Month</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 700, color: aiUsage.callCount >= aiUsage.limit ? C.red : C.textPrimary }}>
+      <div style={cardStyle}>
+        <div style={cardHeaderStyle}>
+          <Zap size={16} style={{ color: C.gold }} />
+          <span style={cardLabelStyle}>Usage</span>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 700, color: aiUsage.callCount >= aiUsage.limit ? C.red : C.textPrimary, marginLeft: "auto" }}>
             {aiUsage.callCount} / {aiUsage.limit}
           </span>
         </div>
-        <div style={{ width: "100%", height: 6, background: C.borderDefault, borderRadius: 3, overflow: "hidden" }}>
+        <div style={{ width: "100%", height: 6, background: C.borderDefault, borderRadius: 3, overflow: "hidden", marginBottom: 12 }}>
           <div style={{
             width: `${Math.min((aiUsage.callCount / aiUsage.limit) * 100, 100)}%`,
             height: "100%",
@@ -63,18 +73,24 @@ export default function AISettings() {
           }} />
         </div>
         {aiUsage.callCount >= aiUsage.limit ? (
-          <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.red, marginTop: 8 }}>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.red, marginBottom: 10 }}>
             You've reached your free tier limit. Upgrade to Pro for unlimited AI with Claude Opus.
           </div>
         ) : aiUsage.callCount >= aiUsage.limit * 0.8 ? (
-          <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.amber, marginTop: 8 }}>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.amber, marginBottom: 10 }}>
             {aiUsage.limit - aiUsage.callCount} calls remaining this month.
           </div>
         ) : null}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Model: Claude Sonnet</span>
+          </div>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.gold, cursor: "pointer" }}>Upgrade to Pro for Claude Opus</span>
+        </div>
       </div>
 
       {/* Test Connection */}
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 12 }}>
         <Btn variant="outline" size="sm" onClick={testConnection}>Test AI Connection</Btn>
         {testStatus && <span style={{ marginLeft: 12, fontFamily: FONT_MONO, fontSize: 12, color: testStatus.startsWith("Error") ? C.red : C.green }}>{testStatus}</span>}
       </div>
@@ -87,7 +103,7 @@ export default function AISettings() {
       </button>
 
       {showBYOK && (
-        <div style={{ padding: 14, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8, marginTop: 8 }}>
+        <div style={{ ...cardStyle, marginTop: 8 }}>
           <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 12, lineHeight: 1.5 }}>
             For enterprise or compliance requirements, you can use your own API key instead of BaseCommand's built-in AI. BYOK usage is not metered.
           </div>
@@ -131,6 +147,6 @@ export default function AISettings() {
           ) : (<Btn variant="outline" size="sm" onClick={() => setShowAddKey(true)}>+ Add API Key</Btn>)}
         </div>
       )}
-    </SettingsSection>
+    </div>
   );
 }
