@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard, Sparkles, CheckSquare,
   Settings as SettingsIcon, Upload,
-  ChevronLeft, ChevronRight, ChevronDown, LogOut, MessageSquare,
+  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, LogOut, MessageSquare,
   Bot, BarChart3, Radio, Crown, FileText, Users,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
@@ -173,6 +173,143 @@ function WorkspaceSwitcher({ collapsed }) {
               <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary }}>New Workspace</span>
             </button>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Profile Dropdown ────────────────────────────────────────────────────────
+function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, activeView, onNavigate, signOut }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  if (!user) return null;
+
+  const avatar = avatarUrl ? (
+    <img src={avatarUrl} alt="" style={{
+      width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+      border: `1px solid ${C.borderDefault}`,
+    }} referrerPolicy="no-referrer" />
+  ) : (
+    <div style={{
+      width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+      background: C.goldMuted, border: `1px solid ${C.gold}20`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: 11, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS,
+    }}>{initials}</div>
+  );
+
+  return (
+    <div ref={ref} style={{ position: "relative", padding: isExpanded ? "8px 12px 16px" : "8px 0 16px" }}>
+      {/* Trigger button */}
+      <button
+        onClick={() => setOpen(prev => !prev)}
+        style={{
+          width: "100%", display: "flex", alignItems: "center", gap: 10,
+          padding: isExpanded ? "8px 8px" : "8px 0",
+          borderRadius: 8, cursor: "pointer",
+          background: open ? "rgba(255,255,255,0.07)" : activeView === "settings" ? "rgba(255,255,255,0.05)" : "transparent",
+          border: "none",
+          justifyContent: isExpanded ? "flex-start" : "center",
+          transition: "all 0.15s",
+        }}
+        onMouseEnter={e => { if (!open) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+        onMouseLeave={e => { if (!open && activeView !== "settings") e.currentTarget.style.background = "transparent"; }}
+      >
+        {avatar}
+        {isExpanded && (
+          <>
+            <span className="bc-sidebar-text" style={{
+              fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600,
+              color: C.textPrimary, flex: 1, textAlign: "left",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>{displayName}</span>
+            <ChevronUp size={12} style={{
+              color: C.textTertiary, flexShrink: 0,
+              transition: "transform 0.15s",
+              transform: open ? "rotate(0deg)" : "rotate(180deg)",
+            }} />
+          </>
+        )}
+      </button>
+
+      {/* Upward dropdown menu */}
+      {open && (
+        <div style={{
+          position: "absolute",
+          bottom: "100%",
+          left: isExpanded ? 12 : -4,
+          right: isExpanded ? 12 : -4,
+          minWidth: isExpanded ? undefined : 200,
+          zIndex: 200,
+          background: C.bgElevated,
+          border: `1px solid ${C.borderSubtle}`,
+          borderRadius: 10,
+          padding: 4,
+          marginBottom: 4,
+          boxShadow: "0 -8px 30px rgba(0,0,0,0.4)",
+        }}>
+          {/* Email header */}
+          <div style={{
+            padding: "10px 12px 8px",
+            borderBottom: `1px solid ${C.borderDefault}`,
+            marginBottom: 4,
+          }}>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>
+              {displayName}
+            </div>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginTop: 1 }}>
+              {user.email}
+            </div>
+          </div>
+
+          {/* Settings */}
+          <button
+            onClick={() => { onNavigate("settings"); setOpen(false); }}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 10,
+              padding: "8px 12px", borderRadius: 6, cursor: "pointer",
+              background: activeView === "settings" ? C.goldMuted : "transparent",
+              border: "none", textAlign: "left",
+              transition: "background 0.12s",
+            }}
+            onMouseEnter={e => { if (activeView !== "settings") e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+            onMouseLeave={e => { if (activeView !== "settings") e.currentTarget.style.background = "transparent"; }}
+          >
+            <SettingsIcon size={14} style={{ color: activeView === "settings" ? C.gold : C.textTertiary }} />
+            <span style={{
+              fontFamily: FONT_SANS, fontSize: 13,
+              fontWeight: activeView === "settings" ? 600 : 400,
+              color: activeView === "settings" ? C.textPrimary : C.textSecondary,
+            }}>Settings</span>
+          </button>
+
+          {/* Divider */}
+          <div style={{ height: 1, background: C.borderDefault, margin: "4px 8px" }} />
+
+          {/* Sign out */}
+          <button
+            onClick={() => { signOut(); setOpen(false); }}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 10,
+              padding: "8px 12px", borderRadius: 6, cursor: "pointer",
+              background: "transparent", border: "none", textAlign: "left",
+              transition: "background 0.12s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+          >
+            <LogOut size={14} style={{ color: C.red }} />
+            <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.red }}>Sign out</span>
+          </button>
         </div>
       )}
     </div>
@@ -394,75 +531,17 @@ export default function Sidebar({ activeView, onNavigate }) {
         ))}
       </nav>
 
-      {/* User profile */}
-      {user && (
-        <div style={{
-          padding: isExpanded ? "12px 16px" : "12px 0",
-          display: "flex", alignItems: "center", gap: 10,
-          justifyContent: isExpanded ? "flex-start" : "center",
-        }}>
-          {avatarUrl ? (
-            <img src={avatarUrl} alt="" style={{
-              width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-              border: `1px solid ${C.borderDefault}`,
-            }} referrerPolicy="no-referrer" />
-          ) : (
-            <div style={{
-              width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-              background: C.goldMuted, border: `1px solid ${C.gold}20`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 11, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS,
-            }}>{initials}</div>
-          )}
-          {isExpanded && (
-            <div className="bc-sidebar-user-details" style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {displayName}
-              </div>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {user.email}
-              </div>
-            </div>
-          )}
-          {isExpanded && (
-            <button
-              className="bc-sidebar-signout-btn"
-              onClick={signOut}
-              title="Sign out"
-              style={{
-                background: "none", border: "none", color: C.textTertiary, cursor: "pointer",
-                padding: 4, borderRadius: 6, flexShrink: 0, transition: "color 0.15s",
-              }}
-              onMouseEnter={e => e.currentTarget.style.color = C.red}
-              onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}
-            >
-              <LogOut size={14} />
-            </button>
-          )}
-        </div>
-      )}
-
-      <div style={{ width: isExpanded ? "85%" : 20, height: 1, background: C.borderDefault, margin: "4px auto 8px" }} />
-
-      {/* Settings */}
-      <button
-        className="bc-sidebar-nav-btn"
-        onClick={() => onNavigate("settings")}
-        onMouseEnter={() => setHoveredItem("settings")}
-        onMouseLeave={() => setHoveredItem(null)}
-        style={{
-          width: "100%", background: activeView === "settings" ? "rgba(255,255,255,0.07)" : hoveredItem === "settings" ? "rgba(255,255,255,0.04)" : "none",
-          border: "none", cursor: "pointer",
-          display: "flex", alignItems: "center", gap: 12, padding: isExpanded ? "12px 20px 20px" : "12px 0 20px",
-          justifyContent: isExpanded ? "flex-start" : "center",
-          color: activeView === "settings" ? C.textPrimary : hoveredItem === "settings" ? C.textPrimary : C.textSecondary,
-          borderRight: activeView === "settings" ? `2px solid ${C.gold}` : "2px solid transparent",
-          transition: "all 0.12s ease",
-        }}
-      >
-        <SettingsIcon size={18} strokeWidth={activeView === "settings" ? 2 : 1.75} style={{ flexShrink: 0, opacity: activeView === "settings" ? 1 : 0.75 }} />
-        {isExpanded && <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: activeView === "settings" ? 600 : 500, whiteSpace: "nowrap" }}>Settings</span>}
-      </button>
+      {/* ─── Profile Dropdown (Linear/Notion pattern) ──────────────────────── */}
+      <ProfileDropdown
+        user={user}
+        displayName={displayName}
+        avatarUrl={avatarUrl}
+        initials={initials}
+        isExpanded={isExpanded}
+        activeView={activeView}
+        onNavigate={onNavigate}
+        signOut={signOut}
+      />
     </div>
   );
 }
