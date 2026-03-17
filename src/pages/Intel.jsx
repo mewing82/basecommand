@@ -5,7 +5,7 @@ import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { renewalStore } from "../lib/storage";
 import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
-import { RENEWAL_EXPANSION_PROMPT } from "../lib/prompts";
+import { RENEWAL_EXPANSION_PROMPT, buildCompanyContext } from "../lib/prompts";
 
 export default function Intel() {
   const navigate = useNavigate();
@@ -38,7 +38,9 @@ export default function Intel() {
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, contacts: a.contacts || [], context: ctx.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 600)}`).join("\n") };
       }));
       const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-      const response = await callAI([{ role: "user", content: "Analyze my accounts for renewal signals — expansion opportunities, churn risk, and renewal triggers." }], RENEWAL_EXPANSION_PROMPT(data, today), 4000);
+      const settings = await renewalStore.getSettings();
+      const companyContext = buildCompanyContext(settings.companyProfile);
+      const response = await callAI([{ role: "user", content: "Analyze my accounts for renewal signals — expansion opportunities, churn risk, and renewal triggers." }], RENEWAL_EXPANSION_PROMPT(data, today, companyContext), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
       const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); await renewalStore.saveExpansionCache(parsed);
     } catch (err) { setError(err.message); } finally { setLoading(false); }

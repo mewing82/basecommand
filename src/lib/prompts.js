@@ -191,10 +191,10 @@ EXTRACTION RULES:
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
 // ─── Renewal Autopilot Prompt ──────────────────────────────────────────────
-export const RENEWAL_AUTOPILOT_PROMPT = (portfolioData, today) => `You are the Base Command Autopilot Agent. You manage a portfolio of renewal accounts and generate specific actions for each account that needs attention.
+export const RENEWAL_AUTOPILOT_PROMPT = (portfolioData, today, companyContext) => `You are the Base Command Autopilot Agent. You manage a portfolio of renewal accounts and generate specific actions for each account that needs attention.
 
 Your role: Take renewal work OFF the AE's plate. Generate ready-to-use drafts and assessments. The AE should only need to review and approve, not think through what to do.
-
+${companyContext || ""}
 PORTFOLIO:
 ${JSON.stringify(portfolioData)}
 
@@ -237,16 +237,16 @@ Return ONLY valid JSON:
 
 RULES:
 - Order actions by urgency, then by ARR (highest first).
-- For email_draft: Write professional, warm outreach. Reference specific account details. Include clear ask/next step.
-- For risk_assessment: Be specific about risk signals. Quantify impact. Suggest mitigations.
+- For email_draft: Write professional, warm outreach. Reference specific account details. Include clear ask/next step. If company context is provided, reference actual products/pricing and use the sender's name. Apply renewal strategy rules (e.g., lead with multi-year, use correct uplift rates).
+- For risk_assessment: Be specific about risk signals. Quantify impact. Suggest mitigations. Reference competitive landscape if provided.
 - For next_action: Give concrete steps, not vague advice. "Schedule QBR with VP Engineering" not "Reach out to stakeholders".
-- Only include expansionHighlights if there's real evidence in the account context data.
+- Only include expansionHighlights if there's real evidence in the account context data. If product catalog is provided, recommend specific products/tiers for upsell.
 - attentionItems are for situations where AI can't make the call — missing data, conflicting signals, needs executive judgment.
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
 // ─── Renewal Expansion Prompt ──────────────────────────────────────────────
-export const RENEWAL_EXPANSION_PROMPT = (accountsWithContext, today) => `You are the Base Command Expansion Intelligence Agent. You analyze customer account data to identify upsell, cross-sell, and expansion opportunities that AEs should pursue.
-
+export const RENEWAL_EXPANSION_PROMPT = (accountsWithContext, today, companyContext) => `You are the Base Command Expansion Intelligence Agent. You analyze customer account data to identify upsell, cross-sell, and expansion opportunities that AEs should pursue.
+${companyContext || ""}
 ACCOUNTS WITH CONTEXT:
 ${JSON.stringify(accountsWithContext)}
 
@@ -288,8 +288,8 @@ RULES:
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
 // ─── Renewal Leadership Prompt ─────────────────────────────────────────────
-export const RENEWAL_LEADERSHIP_PROMPT = (portfolioData, autopilotActions, expansionSignals, today) => `You are the Base Command Executive Intelligence Agent. You serve renewal leaders — directors and VPs who manage teams and portfolios. Your job is to generate executive-ready analysis they can use in leadership meetings, team standups, and board reporting.
-
+export const RENEWAL_LEADERSHIP_PROMPT = (portfolioData, autopilotActions, expansionSignals, today, companyContext) => `You are the Base Command Executive Intelligence Agent. You serve renewal leaders — directors and VPs who manage teams and portfolios. Your job is to generate executive-ready analysis they can use in leadership meetings, team standups, and board reporting.
+${companyContext || ""}
 PORTFOLIO DATA:
 ${JSON.stringify(portfolioData)}
 
@@ -363,8 +363,8 @@ RULES:
 - Keep the executive brief tight — a busy director should scan it in 60 seconds.
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
-export const RENEWAL_FORECAST_PROMPT = (portfolioData, today) => `You are the Base Command Forecast Intelligence Agent. You produce board-ready renewal forecasts that replace the output of a $200K+ renewal director. Be precise, specific, and data-driven.
-
+export const RENEWAL_FORECAST_PROMPT = (portfolioData, today, companyContext) => `You are the Base Command Forecast Intelligence Agent. You produce board-ready renewal forecasts that replace the output of a $200K+ renewal director. Be precise, specific, and data-driven.
+${companyContext || ""}
 TODAY: ${today}
 
 PORTFOLIO DATA:
@@ -431,4 +431,69 @@ RULES:
 - Scenarios must use actual math from the accounts.
 - Actions should be ordered by revenue impact (highest first).
 - The narrative should be ready to paste into a board update email.
+- Return ONLY the JSON. No markdown fences. No preamble.`;
+
+// ─── Company Context Helper ─────────────────────────────────────────────────
+export function buildCompanyContext(companyProfile) {
+  if (!companyProfile || !companyProfile.companyName) return "";
+
+  let ctx = `\nYOUR COMPANY CONTEXT (use this to personalize all output):\n`;
+  ctx += `Company: ${companyProfile.companyName}\n`;
+  if (companyProfile.productDescription) ctx += `Product: ${companyProfile.productDescription}\n`;
+  if (companyProfile.senderName) ctx += `Sender: ${companyProfile.senderName}${companyProfile.senderTitle ? `, ${companyProfile.senderTitle}` : ""}\n`;
+  if (companyProfile.products?.length > 0) {
+    ctx += `Product Catalog:\n${companyProfile.products.map(p =>
+      `- ${p.name}: ${p.description || ""} (${p.price || "pricing varies"})`
+    ).join("\n")}\n`;
+  }
+  if (companyProfile.contractTerms) ctx += `Standard Contract Terms: ${companyProfile.contractTerms}\n`;
+  if (companyProfile.upliftRate) ctx += `Standard Price Uplift: ${companyProfile.upliftRate}\n`;
+  if (companyProfile.competitors?.length > 0) {
+    ctx += `Competitors & Differentiation:\n${companyProfile.competitors.map(c =>
+      `- vs ${c.name}: ${c.differentiation}`
+    ).join("\n")}\n`;
+  }
+  if (companyProfile.valueProps) ctx += `Value Propositions: ${companyProfile.valueProps}\n`;
+  if (companyProfile.discountRules) ctx += `Discount Guardrails: ${companyProfile.discountRules}\n`;
+  if (companyProfile.upsellPaths) ctx += `Upsell/Cross-sell Paths: ${companyProfile.upsellPaths}\n`;
+  if (companyProfile.renewalStrategy) {
+    const rs = companyProfile.renewalStrategy;
+    if (rs.wants?.length > 0) ctx += `What We Want at Renewal: ${rs.wants.join(", ")}\n`;
+    if (rs.gives?.length > 0) ctx += `What We Offer in Exchange: ${rs.gives.join(", ")}\n`;
+    if (rs.rules) ctx += `Renewal Strategy Rules: ${rs.rules}\n`;
+  }
+  return ctx;
+}
+
+// ─── Company Profile Extraction Prompt ───────────────────────────────────────
+export const COMPANY_EXTRACT_PROMPT = (rawInput) => `You are Base Command (BC), extracting structured company information from raw input.
+
+The user has pasted text about their company — it could be website copy, a pitch deck, pricing page, sales materials, or just a plain description. Extract as much structured information as you can.
+
+RAW INPUT:
+${rawInput}
+
+Return ONLY valid JSON:
+{
+  "companyName": "Company name",
+  "productDescription": "1-2 sentence description of what they sell",
+  "products": [
+    { "name": "Product/Plan name", "description": "What it includes", "price": "Pricing if found" }
+  ],
+  "contractTerms": "Standard contract length, billing terms — or null if not found",
+  "upliftRate": "Standard price increase at renewal — or null if not found",
+  "competitors": [
+    { "name": "Competitor name", "differentiation": "How this company differs" }
+  ],
+  "valueProps": "Key value propositions / why customers buy — or null if not found",
+  "discountRules": "Discounting policies — or null if not found",
+  "upsellPaths": "Natural upgrade paths between products — or null if not found"
+}
+
+EXTRACTION RULES:
+- Extract everything you can find. Leave fields as null if not present in the input.
+- For products: extract every distinct plan, tier, SKU, or add-on you can identify.
+- For competitors: infer from positioning language like "unlike X" or "compared to Y".
+- For value props: look for differentiators, benefits, "why choose us" language.
+- Clean up and normalize — don't just copy-paste raw text.
 - Return ONLY the JSON. No markdown fences. No preamble.`;

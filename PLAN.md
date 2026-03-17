@@ -154,6 +154,7 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 9 | Security & Foundation | **Roadmap** | Auth, server-side data, compliance milestones mapped to revenue gates |
 | 10 | AI Access & Monetization | **Roadmap** | BaseCommand-provided AI (no API key needed), usage metering, free/pro model gate |
 | 11 | Brand & Operations | **Deferred** | Google Workspace, social media campaigns, content marketing, demo videos (post-launch) |
+| 12 | My Company — Company Profile & Renewal Strategy | **In Progress** | AI-first company data ingestion, product catalog, renewal strategy, negotiation exchange framework |
 
 ---
 ---
@@ -1206,6 +1207,149 @@ Once the product is functioning end-to-end (Postgres, Stripe, AI access), shift 
 | 54 | Defer brand/marketing epic until product is functioning | Product must accept payments and persist data before driving traffic. One shot at first impressions. | 2026-03-16 |
 | 55 | Free email forwarding now, Google Workspace at Gate 1 | $84/yr isn't justified before revenue. Forwarding covers receiving for free. | 2026-03-16 |
 | 56 | Social campaigns start at Gate 2, not before | Need product maturity and early customer wins before public marketing push | 2026-03-16 |
+
+---
+
+---
+
+## Epic 12: My Company — Company Profile & Renewal Strategy
+
+### The Problem
+The AI doesn't know what the user's company sells. When generating renewal emails, it recommends competitor products. When assessing expansion, it can't reference actual product tiers or pricing. When drafting forecasts, it doesn't know uplift rules or contract term structures. Every AI output is generic instead of company-specific.
+
+### The Solution: AI-First Company Profile + Renewal Strategy
+
+A "My Company" section where users input their company context through an AI-assisted flow — paste messy data, AI extracts structure, user confirms. Plus a renewal strategy framework that captures what the company wants at renewal and what it offers in exchange.
+
+### Company Profile Data Model
+
+**P0 — Required for basic functionality:**
+
+| Field | Why | Used By |
+|-------|-----|---------|
+| Company name | Every email draft, every reference | All prompts |
+| Product description (1-2 sentences) | AI must know what product is being renewed | Autopilot, Expansion |
+| Product/SKU list with prices | Correct product references, upsell paths | Autopilot, Intel |
+| Standard contract terms (length, billing) | Forecasting, renewal date logic | Forecast, Autopilot |
+| Standard uplift/escalation rate | Renewal pricing guidance | Autopilot, Forecast |
+| User name and title | Email signatures, exec briefs | Autopilot |
+
+**P1 — Significantly improves output:**
+
+| Field | Why | Used By |
+|-------|-----|---------|
+| Top 3-5 competitors + differentiation | Competitive displacement, risk assessment | Intel, Autopilot |
+| Value propositions | Talk tracks, renewal justification | Autopilot, Leadership |
+| Discounting rules/guardrails | Realistic pricing in drafts | Autopilot |
+| Upsell/cross-sell paths | Expansion recommendations | Intel/Expansion |
+| Fiscal year start month | Quarterly reporting alignment | Forecast, Leadership |
+
+**P2 — Advanced:**
+
+| Field | Why | Used By |
+|-------|-----|---------|
+| ICP description | Risk scoring for accounts outside ICP | Intel, Leadership |
+| Retention/expansion targets | Forecast benchmarking | Forecast, Leadership |
+| Renewal playbook description | AI aligns to your process | Autopilot |
+
+### Renewal Strategy Framework
+
+**Negotiation Exchange Configuration:**
+
+Two-sided framework capturing what the company wants from customers at renewal and what it's willing to give in exchange:
+
+**"What We Want" (renewal objectives):**
+- Multi-year commitment
+- New product adoption
+- Upfront/annual payment (better payment terms)
+- Case study or reference
+- Executive sponsor access
+- Custom items
+
+**"What We'll Give" (negotiation levers):**
+- Lower annual price lifts
+- Waived implementation fees
+- Extended support hours
+- Early access to features
+- Dedicated CSM
+- Custom items
+
+**Renewal Strategy Rules (free text):**
+Example: "Lead with 3-year options. 1-year = 7% lift (or flat if at list price). 3-year = 3% annual lift locked in. Never discount for multi-year — we offer lower lifts instead."
+
+This framework lets the AI draft emails like: "I'd like to propose a 3-year renewal at a locked 3% annual adjustment — that saves you $X compared to annual renewals over the same period."
+
+### User Experience
+
+**Step 1 — Quick Start (30 seconds):**
+Single textarea: "Tell us about your company. Paste your website, pitch deck, pricing page, or just describe what you sell."
+AI extracts structured profile via `COMPANY_EXTRACT_PROMPT`. Shows result as editable cards.
+
+**Step 2 — Review & Edit (60 seconds):**
+Organized cards: Company Info, Products/Pricing, Contract Terms, Competitive Landscape, Renewal Strategy.
+Missing P0 fields flagged with amber "Add this to improve AI output" indicator.
+
+**Step 3 — Progressive Prompting (over time):**
+Contextual banners on agent pages: "Your email drafts would be more specific with competitor info. Add now?"
+
+### Technical Design
+
+**Storage:** No new tables. Company profile nests inside existing `user_settings.settings` JSONB column.
+
+**Prompt Integration:** A `buildCompanyContext()` helper serializes the profile into a text block. Each renewal prompt gains a `companyContext` parameter (~3 lines per caller).
+
+**Data shape:**
+```json
+{
+  "companyProfile": {
+    "companyName": "Acme SaaS",
+    "productDescription": "Cloud project management for enterprise",
+    "products": [
+      { "name": "Team Plan", "price": "$15/user/mo", "description": "Up to 50 users" },
+      { "name": "Enterprise", "price": "$45/user/mo", "description": "Unlimited, SSO, API" }
+    ],
+    "contractTerms": "Annual contracts, net-30 billing",
+    "upliftRate": "7% annual (1-year), 3% annual (3-year)",
+    "senderName": "Michael",
+    "senderTitle": "Sr. Director of Global Renewals",
+    "competitors": [
+      { "name": "Monday.com", "differentiation": "Deeper enterprise integrations, SOC2" }
+    ],
+    "valueProps": "Enterprise security, 99.99% uptime, dedicated CSM >$50K",
+    "discountRules": "Max 15% without VP approval. Multi-year = lower lifts, not discounts.",
+    "upsellPaths": "Team → Enterprise at 50+ users. All plans → Analytics Add-on.",
+    "renewalStrategy": {
+      "wants": ["Multi-year commitment", "New product adoption", "Upfront payment"],
+      "gives": ["Lower annual price lifts", "Waived implementation", "Early access"],
+      "rules": "Lead with 3-year. 1-year = 7% lift. 3-year = 3%/yr locked. Never discount for multi-year."
+    }
+  }
+}
+```
+
+### Implementation Plan
+
+**Phase 1 — MVP (this session):**
+- [ ] `COMPANY_EXTRACT_PROMPT` in prompts.js
+- [ ] `buildCompanyContext()` helper in prompts.js
+- [ ] Add companyContext parameter to all 4 renewal prompts
+- [ ] "My Company" section in Settings with paste-and-extract wizard
+- [ ] Renewal strategy / negotiation exchange UI
+- [ ] Update all AI callers to inject company context
+
+**Phase 2 — Polish (next session):**
+- [ ] Progressive nudge banners on agent pages
+- [ ] Product catalog add/remove/edit UI
+- [ ] AI extraction preview with inline editing
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 57 | Company profile stored in existing settings JSONB | No new tables needed. One document per user, no relational queries. | 2026-03-16 |
+| 58 | AI-first ingestion (paste → extract → confirm) | Users shouldn't fill out 50 form fields. Paste pitch deck, AI does the work. | 2026-03-16 |
+| 59 | Negotiation exchange framework (wants vs. gives) | Every renewal team has this playbook, usually undocumented. Makes AI drafts strategically accurate. | 2026-03-16 |
+| 60 | Renewal strategy rules as free text | Too varied across companies to structure. Free text lets the AI interpret context-specific rules. | 2026-03-16 |
 
 ---
 

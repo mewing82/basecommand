@@ -8,7 +8,7 @@ import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
 import { safeParse } from "../lib/utils";
 import { Btn } from "../components/ui/index";
-import { RENEWAL_AUTOPILOT_PROMPT } from "../lib/prompts";
+import { RENEWAL_AUTOPILOT_PROMPT, buildCompanyContext } from "../lib/prompts";
 
 export default function Autopilot() {
   const navigate = useNavigate();
@@ -47,7 +47,9 @@ export default function Autopilot() {
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, daysUntilRenewal: daysUntil, contacts: a.contacts || [], summary: a.summary || "", tags: a.tags || [], contextData: contextSummary };
       }));
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-      const response = await callAI([{ role: "user", content: "Generate autopilot actions for my renewal portfolio." }], RENEWAL_AUTOPILOT_PROMPT(portfolioData, today), 4000);
+      const settings = await renewalStore.getSettings();
+      const companyContext = buildCompanyContext(settings.companyProfile);
+      const response = await callAI([{ role: "user", content: "Generate autopilot actions for my renewal portfolio." }], RENEWAL_AUTOPILOT_PROMPT(portfolioData, today, companyContext), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
       const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setAutopilot(parsed); localStorage.setItem(CACHE_KEY, JSON.stringify(parsed));
       // Save new actions

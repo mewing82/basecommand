@@ -6,7 +6,7 @@ import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
 import { safeParse, fmtRelative, similarity } from "../lib/utils";
 import { Badge, Btn, Input, Modal, FormField, renderMarkdown } from "../components/ui/index";
-import { RENEWAL_IMPORT_PROMPT, RENEWAL_AUTOPILOT_PROMPT, RENEWAL_EXPANSION_PROMPT, RENEWAL_LEADERSHIP_PROMPT } from "../lib/prompts";
+import { RENEWAL_IMPORT_PROMPT, RENEWAL_AUTOPILOT_PROMPT, RENEWAL_EXPANSION_PROMPT, RENEWAL_LEADERSHIP_PROMPT, buildCompanyContext } from "../lib/prompts";
 
 const RENEWALS_SECTIONS = [
   { id: "autopilot", icon: Bot, label: "Autopilot", agent: "Autopilot Agent" },
@@ -141,7 +141,9 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, daysUntilRenewal: daysUntil, contacts: a.contacts || [], summary: a.summary || "", tags: a.tags || [], contextData: contextSummary };
       }));
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-      const response = await callAI([{ role: "user", content: "Generate autopilot actions for my renewal portfolio." }], RENEWAL_AUTOPILOT_PROMPT(portfolioData, today), 4000);
+      const settings = await renewalStore.getSettings();
+      const companyContext = buildCompanyContext(settings.companyProfile);
+      const response = await callAI([{ role: "user", content: "Generate autopilot actions for my renewal portfolio." }], RENEWAL_AUTOPILOT_PROMPT(portfolioData, today, companyContext), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
       const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setAutopilot(parsed); localStorage.setItem(CACHE_KEY, JSON.stringify(parsed));
       // Save new actions
@@ -353,7 +355,9 @@ function RenewalsLeadership({ accounts, onNavigate, onSwitchTab }) {
       const expansionCache = await renewalStore.getExpansionCache();
       const expansionSignals = expansionCache?.opportunities?.slice(0, 10) || [];
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-      const response = await callAI([{ role: "user", content: "Generate my executive leadership analysis and brief." }], RENEWAL_LEADERSHIP_PROMPT(portfolioData, autopilotActions, expansionSignals, today), 5000);
+      const settings = await renewalStore.getSettings();
+      const companyContext = buildCompanyContext(settings.companyProfile);
+      const response = await callAI([{ role: "user", content: "Generate my executive leadership analysis and brief." }], RENEWAL_LEADERSHIP_PROMPT(portfolioData, autopilotActions, expansionSignals, today, companyContext), 5000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
       const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); await renewalStore.saveLeadershipCache(parsed);
     } catch (err) { setError(err.message); } finally { setLoading(false); }
@@ -840,7 +844,9 @@ function RenewalsExpansion({ accounts, onNavigate }) {
         return { id: a.id, name: a.name, arr: a.arr, renewalDate: a.renewalDate, riskLevel: a.riskLevel, contacts: a.contacts || [], context: ctx.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 600)}`).join("\n") };
       }));
       const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-      const response = await callAI([{ role: "user", content: "Analyze my accounts for expansion opportunities." }], RENEWAL_EXPANSION_PROMPT(data, today), 4000);
+      const settings = await renewalStore.getSettings();
+      const companyContext = buildCompanyContext(settings.companyProfile);
+      const response = await callAI([{ role: "user", content: "Analyze my accounts for expansion opportunities." }], RENEWAL_EXPANSION_PROMPT(data, today, companyContext), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
       const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); await renewalStore.saveExpansionCache(parsed);
     } catch (err) { setError(err.message); } finally { setLoading(false); }

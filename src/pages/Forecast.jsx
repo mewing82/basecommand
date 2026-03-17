@@ -7,7 +7,7 @@ import { callAI } from "../lib/ai";
 import { safeParse } from "../lib/utils";
 import { PageLayout } from "../components/layout/PageLayout";
 import { Btn } from "../components/ui/index";
-import { RENEWAL_FORECAST_PROMPT } from "../lib/prompts";
+import { RENEWAL_FORECAST_PROMPT, buildCompanyContext } from "../lib/prompts";
 
 export default function Forecast() {
   const navigate = useNavigate();
@@ -49,9 +49,11 @@ export default function Forecast() {
         };
       }));
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+      const settings = await renewalStore.getSettings();
+      const companyContext = buildCompanyContext(settings.companyProfile);
       const response = await callAI(
         [{ role: "user", content: "Generate a comprehensive renewal forecast for my portfolio." }],
-        RENEWAL_FORECAST_PROMPT(portfolioData, today),
+        RENEWAL_FORECAST_PROMPT(portfolioData, today, companyContext),
         5000
       );
       let text = String(response).trim();

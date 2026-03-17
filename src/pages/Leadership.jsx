@@ -6,7 +6,7 @@ import { renewalStore } from "../lib/storage";
 import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
 import { Btn } from "../components/ui/index";
-import { RENEWAL_LEADERSHIP_PROMPT } from "../lib/prompts";
+import { RENEWAL_LEADERSHIP_PROMPT, buildCompanyContext } from "../lib/prompts";
 
 export default function Leadership() {
   const navigate = useNavigate();
@@ -39,7 +39,9 @@ export default function Leadership() {
       const expansionCache = await renewalStore.getExpansionCache();
       const expansionSignals = expansionCache?.opportunities?.slice(0, 10) || [];
       const today = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-      const response = await callAI([{ role: "user", content: "Generate my executive leadership analysis and brief." }], RENEWAL_LEADERSHIP_PROMPT(portfolioData, autopilotActions, expansionSignals, today), 5000);
+      const settings = await renewalStore.getSettings();
+      const companyContext = buildCompanyContext(settings.companyProfile);
+      const response = await callAI([{ role: "user", content: "Generate my executive leadership analysis and brief." }], RENEWAL_LEADERSHIP_PROMPT(portfolioData, autopilotActions, expansionSignals, today, companyContext), 5000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
       const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setCache(parsed); await renewalStore.saveLeadershipCache(parsed);
     } catch (err) { setError(err.message); } finally { setLoading(false); }
