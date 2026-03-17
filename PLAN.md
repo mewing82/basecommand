@@ -153,6 +153,7 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 8 | Premium Autonomous Agents | **Roadmap** | Supervised autopilot → full autonomous (Gmail send, rules engine, execution log) |
 | 9 | Security & Foundation | **Roadmap** | Auth, server-side data, compliance milestones mapped to revenue gates |
 | 10 | AI Access & Monetization | **Roadmap** | BaseCommand-provided AI (no API key needed), usage metering, free/pro model gate |
+| 11 | Brand & Operations | **Deferred** | Google Workspace, social media campaigns, content marketing, demo videos (post-launch) |
 
 ---
 ---
@@ -1143,6 +1144,68 @@ Sign up → Settings → AI Configuration → "Use your own API key"
 | 50 | Free tier API cost is marketing spend | ~$1-2/mo per free user is cheaper than any ad channel. Covered by ~10-15 Pro conversions. | 2026-03-16 |
 | 51 | Early adopter pricing: $49/mo ($39 annual), first 100, locked for life | $149 causes sticker shock for first audience (founders, agent.ai converts). $49 is impulse-buy territory. Proves demand at 70-90% margin. Price rises for new customers at Gate 2. | 2026-03-16 |
 | 52 | Pricing evolution: $49 → $99 at Gate 2 → $149 post-SOC 2 | Anchor high, discount early. Early adopters keep their rate forever. New customers pay more as product matures. | 2026-03-16 |
+
+---
+
+---
+
+## Epic 11: Brand & Operations (Deferred — Post-Launch)
+
+### The Vision
+Once the product is functioning end-to-end (Postgres, Stripe, AI access), shift focus to building the brand and driving awareness. This epic is intentionally deferred — product first, marketing second.
+
+### What's Done (Pre-Launch)
+- Email forwarding: michael@basecommand.ai, hello@basecommand.ai, catch-all (free via Namecheap)
+- LinkedIn company page secured
+- YouTube channel secured
+- 4 agents live on agent.ai
+- `/agents` marketing page with real links
+
+### Phase 1 — At Gate 1 ($1K MRR)
+
+| Task | Details | Cost |
+|------|---------|------|
+| **Google Workspace** | michael@basecommand.ai as proper mailbox with SMTP send, calendar, Drive | $7/mo |
+| **Migrate accounts** | Update all services (Vercel, Supabase, Stripe, social, agent.ai) to basecommand.ai email | Free |
+| **Privacy Policy + ToS** | Publish on site, required for Stripe and customer trust | Template or ~$500 legal |
+
+### Phase 2 — At Gate 2 ($5K MRR)
+
+| Task | Details | Cost |
+|------|---------|------|
+| **Demo videos** | 60-second screen recordings for each agent.ai agent and key product features | Free (screen recording) |
+| **Social media presence** | Start posting on LinkedIn and X — product updates, renewal ops insights, customer wins | Free |
+| **Content marketing** | Blog posts, LinkedIn articles on renewal ops best practices | Free |
+| **agent.ai featured placement** | Request promotion once advertising readiness checklist is complete | Free (relationship) |
+
+### Phase 3 — At Gate 3+ ($10K+ MRR)
+
+| Task | Details | Cost |
+|------|---------|------|
+| **Paid marketing experiments** | LinkedIn ads, Google ads targeting renewal ops keywords | $500-1K/mo |
+| **Case studies** | Customer success stories with real metrics | Free |
+| **Product Hunt launch** | Coordinated launch with early adopter testimonials | Free |
+| **Community building** | Discord or Slack community for renewal ops professionals | Free |
+
+### Social Handles Secured
+
+| Platform | Status | Handle |
+|----------|--------|--------|
+| LinkedIn | Secured | BaseCommand company page |
+| YouTube | Secured | BaseCommand channel |
+| X / Twitter | Pending | Need to update email + username |
+| GitHub | Pending | basecommand or basecommandai |
+| Product Hunt | Pending | basecommand |
+| Reddit | Pending | u/basecommand |
+| Bluesky | Pending | basecommand |
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 54 | Defer brand/marketing epic until product is functioning | Product must accept payments and persist data before driving traffic. One shot at first impressions. | 2026-03-16 |
+| 55 | Free email forwarding now, Google Workspace at Gate 1 | $84/yr isn't justified before revenue. Forwarding covers receiving for free. | 2026-03-16 |
+| 56 | Social campaigns start at Gate 2, not before | Need product maturity and early customer wins before public marketing push | 2026-03-16 |
 
 ---
 

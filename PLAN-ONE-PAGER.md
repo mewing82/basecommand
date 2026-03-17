@@ -41,6 +41,7 @@ Co-pilot → Supervised Autopilot → Full Autonomous
 [ ] 8. Autonomous Agents             Gmail send, rules engine, execution log
 [ ] 9. Security & Foundation         Supabase Auth, Postgres, RLS
 [ ] 10. AI Access & Monetization     Zero-friction AI, usage metering, free→paid
+[ ] 11. Brand & Operations           Google Workspace, social, content (post-launch)
 ```
 
 ---
