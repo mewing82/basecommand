@@ -22,7 +22,7 @@ const VIEW_META = {
   "agents/coaching/meeting-prep": { title: "Meeting Prep", subtitle: "Pre-call briefs with relationship context" },
   "agents/coaching/playbook-builder": { title: "Playbook Builder", subtitle: "90/60/30 day renewal action plans" },
   // Other
-  tasks: { title: "Tasks", subtitle: "Account actions and strategic tasks" },
+  tasks: { title: "Action Center", subtitle: "Agent proposals, your tasks, and activity history" },
   import: { title: "Data Sources & Import", subtitle: "Connect and sync your renewal data" },
   settings: { title: "Settings" },
 };

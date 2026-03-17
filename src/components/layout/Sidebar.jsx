@@ -50,7 +50,7 @@ const NAV_SECTIONS = [
     { id: "dashboard", icon: LayoutDashboard, label: "Command Center" },
     { id: "accounts", icon: MessageSquare, label: "Accounts" },
     { id: "agents", icon: Sparkles, label: "Agents", expandable: true },
-    { id: "tasks", icon: CheckSquare, label: "Tasks" },
+    { id: "tasks", icon: CheckSquare, label: "Action Center" },
   ]},
   { label: "Utility", items: [
     { id: "import", icon: Upload, label: "Data Sources" },

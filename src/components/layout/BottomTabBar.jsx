@@ -11,7 +11,7 @@ const PRIMARY_TABS = [
   { id: "dashboard", icon: LayoutDashboard, label: "Command" },
   { id: "accounts", icon: MessageSquare, label: "Accounts" },
   { id: "agents", icon: Sparkles, label: "Agents" },
-  { id: "tasks", icon: CheckSquare, label: "Tasks" },
+  { id: "tasks", icon: CheckSquare, label: "Actions" },
 ];
 
 // Overflow items shown in the "More" bottom sheet

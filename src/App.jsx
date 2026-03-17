@@ -111,7 +111,7 @@ function AppLayout() {
     "agents/forecast": "Forecast",
     "agents/intel": "Intel",
     "agents/briefs": "Briefs",
-    tasks: "Tasks",
+    tasks: "Action Center",
     import: "Data Sources & Import",
     settings: "Settings",
   };
