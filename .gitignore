@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local documents (personal uploads, research, audio — never pushed to git)
+local-docs/
