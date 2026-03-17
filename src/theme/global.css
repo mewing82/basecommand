@@ -236,3 +236,36 @@ select option { background: #171921; color: #ECEDF0; }
 .skip-to-content:focus {
   left: 0;
 }
+
+/* ─── Settings Two-Panel Layout ───────────────────────────────────────────── */
+.bc-settings-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.bc-settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@media (max-width: 768px) {
+  .bc-settings-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .bc-settings-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    width: 100%;
+    position: static !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .bc-settings-nav::-webkit-scrollbar { display: none; }
+  .bc-settings-nav button {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
