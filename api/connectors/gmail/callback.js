@@ -93,7 +93,7 @@ export default async function handler(req, res) {
 
 function redirectToApp(res, query) {
   const appUrl = process.env.APP_URL || "https://basecommand.ai";
-  res.redirect(302, `${appUrl}/#settings?${query}`);
+  res.redirect(302, `${appUrl}/app/import?${query}`);
 }
 
 async function kvSet(kvUrl, kvToken, key, value) {

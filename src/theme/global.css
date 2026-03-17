@@ -273,3 +273,40 @@ select option { background: #171921; color: #ECEDF0; }
     flex-shrink: 0;
   }
 }
+
+/* ─── Import / Data Sources Two-Panel Layout ─────────────────────────────── */
+.bc-import-layout {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 32px !important;
+  align-items: flex-start !important;
+}
+
+.bc-import-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: 80px;
+}
+
+@media (max-width: 768px) {
+  .bc-import-layout {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  .bc-import-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    width: 100% !important;
+    min-width: 0 !important;
+    position: static !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .bc-import-nav::-webkit-scrollbar { display: none; }
+  .bc-import-nav button {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}

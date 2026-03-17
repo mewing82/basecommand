@@ -16,7 +16,7 @@ const PRIMARY_TABS = [
 
 // Overflow items shown in the "More" bottom sheet
 const MORE_ITEMS = [
-  { id: "import", icon: Upload, label: "Import" },
+  { id: "import", icon: Upload, label: "Data Sources" },
   { id: "settings", icon: SettingsIcon, label: "Settings" },
 ];
 

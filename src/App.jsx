@@ -96,7 +96,7 @@ function AppLayout() {
     "agents/playbook": "Renewal Playbook",
     "agents/meeting-prep": "Meeting Prep",
     tasks: "Tasks",
-    import: "Import",
+    import: "Data Sources & Import",
     settings: "Settings",
   };
 
