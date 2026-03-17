@@ -25,11 +25,10 @@ export default function Settings() {
     <PageLayout maxWidth={920}>
       <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", marginBottom: 28 }}>Settings</div>
 
-      <div className="bc-settings-layout">
+      <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }} className="bc-settings-layout">
         {/* Sidebar Nav */}
         <nav className="bc-settings-nav" style={{
-          width: 180, flexShrink: 0, position: "sticky", top: 80,
-          background: C.bgPrimary, paddingRight: 16, zIndex: 5,
+          width: 180, minWidth: 180, flexShrink: 0,
         }}>
           {TABS.map(tab => {
             const Icon = tab.icon;

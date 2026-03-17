@@ -239,26 +239,30 @@ select option { background: #171921; color: #ECEDF0; }
 
 /* ─── Settings Two-Panel Layout ───────────────────────────────────────────── */
 .bc-settings-layout {
-  display: flex;
-  gap: 32px;
-  align-items: flex-start;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 32px !important;
+  align-items: flex-start !important;
 }
 
 .bc-settings-nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  position: sticky;
+  top: 20px;
 }
 
 @media (max-width: 768px) {
   .bc-settings-layout {
-    flex-direction: column;
-    gap: 16px;
+    flex-direction: column !important;
+    gap: 16px !important;
   }
   .bc-settings-nav {
     flex-direction: row;
     overflow-x: auto;
-    width: 100%;
+    width: 100% !important;
+    min-width: 0 !important;
     position: static !important;
     -ms-overflow-style: none;
     scrollbar-width: none;
