@@ -456,7 +456,7 @@ RULES:
           </div>
           {autopilotActions.length === 0 ? (
             <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6 }}>
-              No pending actions. Run Autopilot to generate renewal actions.
+              No pending actions. Visit Renewal Agents to monitor your portfolio.
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -567,9 +567,9 @@ RULES:
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
         {[
           { icon: Sparkles, label: "Agents", desc: "AI agent hub", route: "/app/agents", color: C.gold },
-          { icon: Bot, label: "Autopilot", desc: "AI-generated actions", route: "/app/agents/autopilot", color: C.aiBlue },
-          { icon: BarChart3, label: "Forecast", desc: "Renewal forecasting", route: "/app/agents/forecast", color: "#A78BFA" },
-          { icon: Upload, label: "Import", desc: "Add portfolio data", route: "/app/import", color: C.amber },
+          { icon: Bot, label: "Health Monitor", desc: "Portfolio health scores", route: "/app/agents/renewal/health-monitor", color: C.aiBlue },
+          { icon: BarChart3, label: "Forecast Engine", desc: "GRR/NRR forecasting", route: "/app/agents/growth/forecast-engine", color: "#A78BFA" },
+          { icon: Upload, label: "Data Sources", desc: "Connect & import data", route: "/app/import", color: C.amber },
         ].map((link, i) => {
           const Icon = link.icon;
           return (

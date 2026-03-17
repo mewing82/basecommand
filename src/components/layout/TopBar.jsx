@@ -6,17 +6,24 @@ import { useAuthStore } from "../../store/authStore";
 import { renewalStore } from "../../lib/storage";
 
 const VIEW_META = {
-  dashboard: { title: "Renewal Command Center" },
+  dashboard: { title: "Command Center" },
   accounts: { title: "Accounts", subtitle: "Portfolio management and AI co-pilot" },
-  agents: { title: "Agents", subtitle: "Your AI-powered renewal specialists" },
-  "agents/autopilot": { title: "Autopilot", subtitle: "AI-generated renewal actions" },
-  "agents/forecast": { title: "Forecast", subtitle: "AI-powered renewal forecasting" },
-  "agents/intel": { title: "Intel", subtitle: "Expansion signals, risk analysis, and renewal intelligence" },
-  "agents/briefs": { title: "Briefs", subtitle: "Executive briefs, talking points, and strategic recommendations" },
-  "agents/playbook": { title: "Renewal Playbook", subtitle: "90/60/30 day renewal action plans" },
-  "agents/meeting-prep": { title: "Meeting Prep", subtitle: "Prep briefs for renewal meetings" },
+  agents: { title: "Agents", subtitle: "Your AI-powered renewal operations fleet" },
+  // Renewal Agents
+  "agents/renewal/health-monitor": { title: "Health Monitor", subtitle: "Continuous health scoring and risk signal detection" },
+  "agents/renewal/rescue-planner": { title: "Rescue Planner", subtitle: "AI-generated intervention playbooks for at-risk accounts" },
+  "agents/renewal/outreach-drafter": { title: "Outreach Drafter", subtitle: "Personalized renewal emails calibrated to health and archetype" },
+  // Growth Agents
+  "agents/growth/expansion-scout": { title: "Expansion Scout", subtitle: "PQL detection, upsell triggers, and expansion signals" },
+  "agents/growth/forecast-engine": { title: "Forecast Engine", subtitle: "GRR/NRR forecasts with industry benchmarks" },
+  "agents/growth/opportunity-brief": { title: "Opportunity Brief", subtitle: "Pre-call expansion briefs with pricing strategy" },
+  // Coaching Agents
+  "agents/coaching/executive-brief": { title: "Executive Brief", subtitle: "Board-ready summaries and strategic recommendations" },
+  "agents/coaching/meeting-prep": { title: "Meeting Prep", subtitle: "Pre-call briefs with relationship context" },
+  "agents/coaching/playbook-builder": { title: "Playbook Builder", subtitle: "90/60/30 day renewal action plans" },
+  // Other
   tasks: { title: "Tasks", subtitle: "Account actions and strategic tasks" },
-  import: { title: "Import", subtitle: "Import and sync your renewal portfolio data" },
+  import: { title: "Data Sources & Import", subtitle: "Connect and sync your renewal data" },
   settings: { title: "Settings" },
 };
 

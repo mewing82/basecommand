@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { MessageSquare, Sparkles, Plus, Send, X, ChevronDown, FileText, Type, Image, Trash2, Eye, Upload } from "lucide-react";
+import { MessageSquare, Sparkles, Plus, Send, X, ChevronDown, FileText, Type, Image, Trash2, Eye, Upload, Pencil } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { renewalStore } from "../lib/storage";
 import { callAI } from "../lib/ai";
@@ -40,6 +40,21 @@ export default function Accounts() {
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const selectedAccount = selectedAccountId ? accounts.find(a => a.id === selectedAccountId) || null : null;
   const [showAddAccount, setShowAddAccount] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
+  async function handleUpdateAccount(updated) {
+    await renewalStore.saveAccount(updated);
+    setAccounts(await renewalStore.getAccounts());
+    setEditingAccount(null);
+  }
+
+  async function handleDeleteAccount(id) {
+    await renewalStore.deleteAccount(id);
+    setAccounts(await renewalStore.getAccounts());
+    if (selectedAccountId === id) setSelectedAccountId(null);
+    setConfirmDeleteId(null);
+  }
 
   useEffect(() => {
     if (location.state?.accountId) {
@@ -160,6 +175,10 @@ export default function Accounts() {
                     <span key={i} style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: chip.color, background: C.bgPrimary, padding: "3px 10px", borderRadius: 4, border: `1px solid ${C.borderDefault}`, textTransform: "capitalize" }}>{chip.label}</span>
                   ))}
                   <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: C.aiBlue, background: C.aiBlueMuted, padding: "3px 10px", borderRadius: 4 }}>Co-Pilot</span>
+                  <button onClick={() => setEditingAccount({ ...selectedAccount })} title="Edit account" style={{ display: "flex", alignItems: "center", padding: "3px 6px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", color: C.textTertiary, transition: "color 0.15s" }}
+                    onMouseEnter={e => e.currentTarget.style.color = C.textPrimary} onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}><Pencil size={12} /></button>
+                  <button onClick={() => setConfirmDeleteId(selectedAccount.id)} title="Delete account" style={{ display: "flex", alignItems: "center", padding: "3px 6px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", color: C.textTertiary, transition: "color 0.15s" }}
+                    onMouseEnter={e => e.currentTarget.style.color = C.red} onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}><Trash2 size={12} /></button>
                   <button onClick={() => setShowContext(!showContext)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 10px", background: showContext ? "rgba(255,255,255,0.07)" : "transparent", border: `1px solid ${showContext ? C.aiBlue + "40" : C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: showContext ? C.aiBlue : C.textTertiary }}><Eye size={12} /> Context{contextItems.length > 0 ? ` (${contextItems.length})` : ""}</button>
                 </div>
               </div>
@@ -295,6 +314,62 @@ export default function Accounts() {
       )}
 
       {showAddAccount && <AddAccountModal onClose={() => setShowAddAccount(false)} onCreate={handleCreateAccount} />}
+
+      {/* Edit Account Modal */}
+      {editingAccount && (
+        <Modal onClose={() => setEditingAccount(null)} title="Edit Account">
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <FormField label="Account Name">
+              <Input value={editingAccount.name} onChange={e => setEditingAccount(prev => ({ ...prev, name: e.target.value }))} />
+            </FormField>
+            <FormField label="ARR">
+              <Input type="number" value={editingAccount.arr || ""} onChange={e => setEditingAccount(prev => ({ ...prev, arr: parseFloat(e.target.value) || 0 }))} />
+            </FormField>
+            <FormField label="Renewal Date">
+              <Input type="date" value={editingAccount.renewalDate || ""} onChange={e => setEditingAccount(prev => ({ ...prev, renewalDate: e.target.value }))} style={{ colorScheme: "dark" }} />
+            </FormField>
+            <FormField label="Risk Level">
+              <div style={{ display: "flex", gap: 6 }}>
+                {["low", "medium", "high"].map(level => {
+                  const rc = { low: C.green, medium: C.amber, high: C.red };
+                  return (
+                    <button key={level} onClick={() => setEditingAccount(prev => ({ ...prev, riskLevel: level }))} style={{
+                      flex: 1, padding: "8px", borderRadius: 6, cursor: "pointer", textTransform: "capitalize",
+                      border: `1px solid ${editingAccount.riskLevel === level ? rc[level] + "60" : C.borderDefault}`,
+                      background: editingAccount.riskLevel === level ? rc[level] + "14" : "transparent",
+                      color: editingAccount.riskLevel === level ? rc[level] : C.textTertiary,
+                      fontFamily: FONT_SANS, fontSize: 13, fontWeight: editingAccount.riskLevel === level ? 600 : 400,
+                    }}>{level}</button>
+                  );
+                })}
+              </div>
+            </FormField>
+            <FormField label="Summary / Notes">
+              <textarea value={editingAccount.summary || ""} onChange={e => setEditingAccount(prev => ({ ...prev, summary: e.target.value }))}
+                rows={3} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}`, color: C.textPrimary, fontFamily: FONT_BODY, fontSize: 13, outline: "none", resize: "vertical", boxSizing: "border-box" }} />
+            </FormField>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 4 }}>
+              <Btn variant="ghost" onClick={() => setEditingAccount(null)}>Cancel</Btn>
+              <Btn variant="primary" onClick={() => handleUpdateAccount(editingAccount)}>Save Changes</Btn>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDeleteId && (
+        <Modal onClose={() => setConfirmDeleteId(null)} title="Delete Account">
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.6, margin: 0 }}>
+              This will permanently delete <strong style={{ color: C.textPrimary }}>{accounts.find(a => a.id === confirmDeleteId)?.name}</strong> and all its context data, conversations, and associated actions. This cannot be undone.
+            </p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <Btn variant="ghost" onClick={() => setConfirmDeleteId(null)}>Cancel</Btn>
+              <Btn variant="danger" onClick={() => handleDeleteAccount(confirmDeleteId)}>Delete Account</Btn>
+            </div>
+          </div>
+        </Modal>
+      )}
     </PageLayout>
   );
 }
