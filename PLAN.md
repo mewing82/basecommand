@@ -155,6 +155,142 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 10 | AI Access & Monetization | **Roadmap** | BaseCommand-provided AI (no API key needed), usage metering, free/pro model gate |
 | 11 | Brand & Operations | **Deferred** | Google Workspace, social media campaigns, content marketing, demo videos (post-launch) |
 | 12 | My Company — Company Profile & Renewal Strategy | **In Progress** | AI-first company data ingestion, product catalog, renewal strategy, negotiation exchange framework |
+| 13 | Agent Architecture Overhaul | **In Progress** | Restructure into Renewal/Growth/Coaching categories, health scoring, industry-standard naming, unified intelligence layer |
+
+---
+
+## The Unified AI Revenue Architecture
+
+> Based on "Architecting Intelligence: The AI-Driven Revenue Engine" — a research synthesis on AI-powered renewal operations that validates and extends the BaseCommand vision. This section defines the product's DNA.
+
+### The 4-Layer Stack
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ORCHESTRATION — Command Center (Dashboard)             │
+│  NRR waterfall, intervention queue, agent activity feed │
+├─────────────────────────────────────────────────────────┤
+│  AGENTS — Renewal │ Growth │ Coaching                   │
+│  Specialized sub-agents organized by mission            │
+├─────────────────────────────────────────────────────────┤
+│  AI REASONING ENGINE — Health Scores + Archetypes       │
+│  Composite scoring, behavioral classification, signals  │
+├─────────────────────────────────────────────────────────┤
+│  DATA LAYER — Data Sources & Import Hub                 │
+│  Email, CRM, meetings, manual import, telemetry (future)│
+└─────────────────────────────────────────────────────────┘
+```
+
+### The 5-Function Pipeline (Cross-Cutting)
+
+These are capabilities that run across all agent categories, not nav items:
+
+| Function | What It Does | Primary Agent(s) |
+|----------|-------------|-------------------|
+| **Monitor** | Scans health signals 24/7 across unified data | Health Monitor |
+| **Predict** | Scores churn risk 90–180 days before renewal | Forecast Engine + Health Monitor |
+| **Generate** | Drafts hyper-personalized, context-rich outreach | Outreach Drafter |
+| **Identify** | Flags expansion, upsell, and contraction triggers | Expansion Scout |
+| **Orchestrate** | Focuses humans on high-value strategic conversations | Command Center + Executive Brief |
+
+### Agent Categories & Sub-Agents
+
+#### Renewal Agents
+| Agent | Mission | Key Outputs |
+|-------|---------|-------------|
+| **Health Monitor** | Continuous health scoring, risk signal detection, champion tracking | Composite health score (decomposable), severity flags, archetype classification |
+| **Rescue Planner** | At-risk intervention strategies, archetype-aware playbooks | Rescue playbook per account, intervention timeline, recommended actions |
+| **Outreach Drafter** | Personalized renewal emails, follow-ups, context-rich drafts | Draft emails referencing past wins, health context, relationship history |
+
+#### Growth Agents
+| Agent | Mission | Key Outputs |
+|-------|---------|-------------|
+| **Expansion Scout** | PQL detection, upsell triggers, expansion signals, budget signals | Expansion opportunity cards, trigger alerts, recommended upsell approach |
+| **Forecast Engine** | GRR/NRR modeling, scenario analysis, benchmark comparisons | Board-ready forecast, confidence tiers, "your GRR vs. best-in-class" |
+| **Opportunity Brief** | Expansion talking points, pricing recommendations | Pre-call expansion brief, competitive positioning, pricing scenarios |
+
+#### Coaching Agents
+| Agent | Mission | Key Outputs |
+|-------|---------|-------------|
+| **Executive Brief** | Board-ready summaries, leadership intel, strategic recommendations | Exec summary, portfolio health overview, talking points for CRO/CEO |
+| **Meeting Prep** | Pre-call briefs, relationship context, recommended asks | Account brief, attendee profiles, conversation guide, risk/opportunity callouts |
+| **Playbook Builder** | 90/60/30 day action plans, milestone checklists | Time-sequenced action plan, task generation, reminder cadence |
+
+### Account Health Score — The Connective Tissue
+
+The health score is the shared data point that all agents read and write. It synthesizes multiple signals into a single composite score (0–10) with full decomposition.
+
+**Health Signals:**
+
+| Signal | Source | Weight | Detection Method |
+|--------|--------|--------|-----------------|
+| Renewal proximity | Account data | High | Days to renewal date (urgency curve) |
+| Activity recency | Email scan + manual | High | Days since last meaningful interaction |
+| Email sentiment | Email scanner (Claude) | Medium | Sentiment scoring during inbox scan |
+| Champion status | Contact tracking | Critical | Email bounce, LinkedIn departure, role change |
+| Contraction signals | Email scan + context | High | Downsell mentions, scope reduction language |
+| Expansion signals | Email scan + context | Positive | Growth mentions, new use cases, team expansion |
+| Engagement trend | Activity over time | Medium | 30/60/90 day activity trend line |
+
+**Behavioral Archetypes (auto-classified per account):**
+
+| Archetype | Characteristics | Renewal Probability | Agent Strategy |
+|-----------|----------------|--------------------:|---------------|
+| Power User | High ARR, long tenure, multiple products | ~90% | Expansion play (Expansion Scout) |
+| Enthusiastic Adopter | High feature breadth, growing usage | ~80% | Safe renewal, nurture (Outreach Drafter) |
+| Convert | Rising usage, recent expansion | ~68% | Targeted upsell (Expansion Scout + Opportunity Brief) |
+| Explorer | Broad but shallow, trying features | ~50% | Guided adoption (Coaching: Playbook Builder) |
+| Struggler | Usage cliffs, support issues | ~28% | Immediate intervention (Rescue Planner) |
+| Disconnected | Zero engagement, unresponsive | ~5% | Last-resort rescue or managed churn (Rescue Planner) |
+
+### NRR Waterfall — The Command Center View
+
+The primary Dashboard visualization shows money flow:
+```
+Starting MRR → [+Expansion] → [-Contraction] → [-Churn] → Net MRR
+                    ↑                ↑               ↑
+              Intervention 1   Intervention 2   Intervention 3
+              (Expansion Scout  (Health Monitor   (Health Monitor
+               identifies PQLs)  detects scope    flags at-risk
+                                 reduction)        90 days out)
+```
+
+### Revenue Impact Calculator
+
+Show users the dollar value of retention improvement based on their actual portfolio:
+- "Your portfolio: $2.4M ARR across 47 accounts"
+- "A 3% GRR improvement = $72K in retained revenue"
+- "A 5% GRR improvement = $120K — that's 2.5x the cost of BaseCommand Pro"
+
+### Feedback Loop (The Moat)
+
+Every human action on agent output is stored:
+- Agent proposed action → User approved / rejected / modified
+- Agent risk score → User agreed / overrode
+- Agent-drafted email → User sent as-is / edited / discarded
+
+This data accumulates into the **workflow graph** — the knowledge of how renewals actually get worked. This is the long-term defensibility.
+
+### Key Market Data (from "AI Revenue Engine" research)
+
+- 58% of SaaS companies report lower NRR than two years ago
+- CS spending at all-time high, retention rates falling — the human playbook has broken down
+- +5% retention → 25–95% profitability boost → higher EV multiples (AI SaaS: 6.3x–6.9x EV/TTM)
+- Solution usage alone accounts for 80% of commercial outcomes (160B telemetry points, 9,100 accounts)
+- Behavior predicts renewals with 90% accuracy up to 12 months in advance
+- AI + human effort prevents up to 71% of churn (vs. AI or human alone)
+- Positioning: "AI doesn't replace Customer Success; it makes them superhuman"
+- Tagline candidate: "Stop negotiating exits. Start predicting growth."
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 54 | Restructure agents into 3 categories (Renewal/Growth/Coaching) with industry-standard naming | User tests show "Autopilot" requires inference while "Renewal Agent" produces instant trust. Category model maps to Unified AI Revenue Architecture. | 2026-03-17 |
+| 55 | Split Autopilot into Health Monitor + Rescue Planner + Outreach Drafter before launch | The monolithic Autopilot conflates three distinct concerns. Splitting enables the health score to be the connective tissue across all agents. | 2026-03-17 |
+| 56 | Add computed Account Health Score (0–10) as the shared data point across all agents | Without a shared health score, agents operate in silos. The score enables: trigger-based automation, archetype classification, cross-agent intelligence. | 2026-03-17 |
+| 57 | Reframe Dashboard as Command Center with NRR Waterfall as primary visualization | The Command Center is the Orchestration layer — it shows where money flows and where agents are intervening. A stat dashboard doesn't convey the intelligence. | 2026-03-17 |
+| 58 | Track all human approve/reject/edit actions on agent suggestions as feedback loop data | This data becomes the "workflow graph" moat — accumulated knowledge of how renewals get worked. Collect now, leverage for ML later. | 2026-03-17 |
 
 ---
 ---
