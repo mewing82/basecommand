@@ -14,10 +14,7 @@ import MarketingLayout from "./components/layout/MarketingLayout";
 import Dashboard from "./pages/Dashboard";
 import Accounts from "./pages/Accounts";
 import AgentHub from "./pages/AgentHub";
-import Autopilot from "./pages/Autopilot";
-import Intel from "./pages/Intel";
 import Leadership from "./pages/Leadership";
-import Forecast from "./pages/Forecast";
 import Tasks from "./pages/Tasks";
 import Import from "./pages/Import";
 import Settings from "./pages/Settings";
@@ -26,6 +23,14 @@ import Pricing from "./pages/marketing/Pricing";
 import Agents from "./pages/marketing/Agents";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
+// ─── New Agent Architecture (Epic 13) ────────────────────────────────────────
+import HealthMonitor from "./pages/agents/HealthMonitor";
+import RescuePlanner from "./pages/agents/RescuePlanner";
+import OutreachDrafter from "./pages/agents/OutreachDrafter";
+import ExpansionScout from "./pages/agents/ExpansionScout";
+import ForecastEngine from "./pages/agents/ForecastEngine";
+import OpportunityBrief from "./pages/agents/OpportunityBrief";
+import PlaybookBuilder from "./pages/agents/PlaybookBuilder";
 
 // ─── Redirect authenticated users from marketing home to app ────────────────
 function AuthRedirect({ children }) {
@@ -86,15 +91,26 @@ function AppLayout() {
   }
 
   const VIEW_TITLES = {
-    dashboard: "Renewal Command Center",
+    dashboard: "Command Center",
     accounts: "Accounts",
     agents: "Agents",
+    // Renewal Agents
+    "agents/renewal/health-monitor": "Health Monitor",
+    "agents/renewal/rescue-planner": "Rescue Planner",
+    "agents/renewal/outreach-drafter": "Outreach Drafter",
+    // Growth Agents
+    "agents/growth/expansion-scout": "Expansion Scout",
+    "agents/growth/forecast-engine": "Forecast Engine",
+    "agents/growth/opportunity-brief": "Opportunity Brief",
+    // Coaching Agents
+    "agents/coaching/executive-brief": "Executive Brief",
+    "agents/coaching/meeting-prep": "Meeting Prep",
+    "agents/coaching/playbook-builder": "Playbook Builder",
+    // Legacy (backward compat)
     "agents/autopilot": "Autopilot",
     "agents/forecast": "Forecast",
     "agents/intel": "Intel",
     "agents/briefs": "Briefs",
-    "agents/playbook": "Renewal Playbook",
-    "agents/meeting-prep": "Meeting Prep",
     tasks: "Tasks",
     import: "Data Sources & Import",
     settings: "Settings",
@@ -164,20 +180,31 @@ function AppLayout() {
             <Route index element={<Dashboard />} />
             <Route path="accounts" element={<Accounts />} />
             <Route path="agents" element={<AgentHub />} />
-            <Route path="agents/autopilot" element={<Autopilot />} />
-            <Route path="agents/forecast" element={<Forecast />} />
-            <Route path="agents/intel" element={<Intel />} />
-            <Route path="agents/briefs" element={<Leadership />} />
-            <Route path="agents/playbook" element={<AgentHub />} />
-            <Route path="agents/meeting-prep" element={<AgentHub />} />
+            {/* ─── Renewal Agents ─────────────────────────────── */}
+            <Route path="agents/renewal/health-monitor" element={<HealthMonitor />} />
+            <Route path="agents/renewal/rescue-planner" element={<RescuePlanner />} />
+            <Route path="agents/renewal/outreach-drafter" element={<OutreachDrafter />} />
+            {/* ─── Growth Agents ──────────────────────────────── */}
+            <Route path="agents/growth/expansion-scout" element={<ExpansionScout />} />
+            <Route path="agents/growth/forecast-engine" element={<ForecastEngine />} />
+            <Route path="agents/growth/opportunity-brief" element={<OpportunityBrief />} />
+            {/* ─── Coaching Agents ────────────────────────────── */}
+            <Route path="agents/coaching/executive-brief" element={<Leadership />} />
+            <Route path="agents/coaching/meeting-prep" element={<AgentHub />} />
+            <Route path="agents/coaching/playbook-builder" element={<PlaybookBuilder />} />
+            {/* ─── Other ─────────────────────────────────────── */}
             <Route path="tasks" element={<Tasks />} />
             <Route path="import" element={<Import />} />
             <Route path="settings" element={<Settings />} />
-            {/* Backward-compatible redirects */}
-            <Route path="autopilot" element={<Navigate to="/app/agents/autopilot" replace />} />
-            <Route path="forecast" element={<Navigate to="/app/agents/forecast" replace />} />
-            <Route path="intel" element={<Navigate to="/app/agents/intel" replace />} />
-            <Route path="briefs" element={<Navigate to="/app/agents/briefs" replace />} />
+            {/* Backward-compatible redirects (old agent routes) */}
+            <Route path="autopilot" element={<Navigate to="/app/agents/renewal/health-monitor" replace />} />
+            <Route path="agents/autopilot" element={<Navigate to="/app/agents/renewal/health-monitor" replace />} />
+            <Route path="forecast" element={<Navigate to="/app/agents/growth/forecast-engine" replace />} />
+            <Route path="agents/forecast" element={<Navigate to="/app/agents/growth/forecast-engine" replace />} />
+            <Route path="intel" element={<Navigate to="/app/agents/growth/expansion-scout" replace />} />
+            <Route path="agents/intel" element={<Navigate to="/app/agents/growth/expansion-scout" replace />} />
+            <Route path="briefs" element={<Navigate to="/app/agents/coaching/executive-brief" replace />} />
+            <Route path="agents/briefs" element={<Navigate to="/app/agents/coaching/executive-brief" replace />} />
           </Routes>
         </div>
       </main>

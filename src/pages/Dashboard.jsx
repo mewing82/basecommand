@@ -233,10 +233,10 @@ function DashboardOnboarding({ userName, onAccountsChanged }) {
 
           <Btn
             variant="primary"
-            onClick={() => navigate("/app/agents/autopilot")}
+            onClick={() => navigate("/app/agents/renewal/health-monitor")}
             style={{ marginTop: 16, width: "100%" }}
           >
-            <Bot size={14} /> See Autopilot Actions for Your Accounts
+            <Bot size={14} /> View Account Health Scores
           </Btn>
         </div>
       )}
@@ -485,7 +485,7 @@ RULES:
             </div>
           )}
           <button
-            onClick={() => navigate("/app/agents/autopilot")}
+            onClick={() => navigate("/app/agents/renewal/health-monitor")}
             style={{
               marginTop: 14, display: "flex", alignItems: "center", gap: 6,
               padding: "8px 14px", borderRadius: 8, border: `1px solid ${C.borderDefault}`,
@@ -496,7 +496,7 @@ RULES:
             onMouseEnter={e => { e.currentTarget.style.borderColor = C.aiBlue + "40"; e.currentTarget.style.color = C.aiBlue; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textSecondary; }}
           >
-            Go to Autopilot <ArrowRight size={12} />
+            View Renewal Agents <ArrowRight size={12} />
           </button>
         </div>
 

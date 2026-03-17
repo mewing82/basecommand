@@ -8,7 +8,7 @@ import { C, FONT_SANS } from "../../lib/tokens";
 
 // Primary tabs shown in the bottom bar
 const PRIMARY_TABS = [
-  { id: "dashboard", icon: LayoutDashboard, label: "Home" },
+  { id: "dashboard", icon: LayoutDashboard, label: "Command" },
   { id: "accounts", icon: MessageSquare, label: "Accounts" },
   { id: "agents", icon: Sparkles, label: "Agents" },
   { id: "tasks", icon: CheckSquare, label: "Tasks" },

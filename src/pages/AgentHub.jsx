@@ -1,353 +1,218 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bot, BarChart3, Radio, Crown, FileText, Users, Sparkles, ArrowRight, Check, Lock } from "lucide-react";
+import {
+  Activity, ShieldAlert, Mail, TrendingUp, BarChart3, DollarSign,
+  Crown, Users, FileText, ArrowRight, Sparkles,
+} from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { renewalStore } from "../lib/storage";
 import { PageLayout } from "../components/layout/PageLayout";
+import { computePortfolioHealth, computePortfolioSummary, getSeverity } from "../lib/healthScore";
 
-const PRE_INSTALLED = [
+// ─── Agent Category Definitions ─────────────────────────────────────────────
+const CATEGORIES = [
   {
-    id: "autopilot",
-    name: "Autopilot",
-    icon: Bot,
+    id: "renewal",
+    label: "Renewal Agents",
+    description: "Protect revenue. Monitor health, plan rescues, draft outreach.",
     color: "#6B8AFF",
-    glow: "rgba(107, 138, 255, 0.12)",
-    border: "rgba(107, 138, 255, 0.25)",
-    description: "AI-generated renewal actions — draft emails, flag risks, surface next steps across your entire portfolio.",
-    route: "/app/agents/autopilot",
-    getStatus: () => {
-      const actions = renewalStore.getAutopilotActions().filter(a => a.status === "pending");
-      return actions.length > 0 ? `${actions.length} pending action${actions.length !== 1 ? "s" : ""}` : "No pending actions";
-    },
-    getMetric: () => {
-      const actions = renewalStore.getAutopilotActions().filter(a => a.status === "pending");
-      return actions.length;
-    },
+    glow: "rgba(107, 138, 255, 0.08)",
+    agents: [
+      { id: "health-monitor", name: "Health Monitor", icon: Activity, color: "#6B8AFF", route: "/app/agents/renewal/health-monitor", description: "Continuous health scoring, risk signals, behavioral archetype classification" },
+      { id: "rescue-planner", name: "Rescue Planner", icon: ShieldAlert, color: "#F87171", route: "/app/agents/renewal/rescue-planner", description: "AI-generated intervention playbooks for at-risk accounts" },
+      { id: "outreach-drafter", name: "Outreach Drafter", icon: Mail, color: "#22D3EE", route: "/app/agents/renewal/outreach-drafter", description: "Personalized renewal emails calibrated to health and archetype" },
+    ],
   },
   {
-    id: "forecast",
-    name: "Forecast",
-    icon: BarChart3,
-    color: "#A78BFA",
-    glow: "rgba(167, 139, 250, 0.12)",
-    border: "rgba(167, 139, 250, 0.25)",
-    description: "Board-ready renewal forecasts with GRR/NRR, confidence tiers, scenario modeling, and risk callouts.",
-    route: "/app/agents/forecast",
-    getStatus: () => {
-      try {
-        const cache = JSON.parse(localStorage.getItem(`bc2-${renewalStore._key("").split("-renewals-")[0].replace("bc2-", "")}-forecast`));
-        if (cache?.metrics?.grr) return `GRR: ${cache.metrics.grr}`;
-      } catch {}
-      return "Ready to generate";
-    },
-    getMetric: () => null,
-  },
-  {
-    id: "intel",
-    name: "Intel",
-    icon: Radio,
+    id: "growth",
+    label: "Growth Agents",
+    description: "Surface expansion. Detect PQLs, forecast revenue, brief for upsell.",
     color: "#34D399",
-    glow: "rgba(52, 211, 153, 0.12)",
-    border: "rgba(52, 211, 153, 0.25)",
-    description: "Expansion signals, churn risk indicators, competitive intelligence, and renewal triggers from your account data.",
-    route: "/app/agents/intel",
-    getStatus: () => {
-      const cache = renewalStore.getExpansionCache();
-      if (cache?.opportunities?.length > 0) return `${cache.opportunities.length} signal${cache.opportunities.length !== 1 ? "s" : ""} found`;
-      return "Ready to scan";
-    },
-    getMetric: () => {
-      const cache = renewalStore.getExpansionCache();
-      return cache?.opportunities?.length || 0;
-    },
+    glow: "rgba(52, 211, 153, 0.08)",
+    agents: [
+      { id: "expansion-scout", name: "Expansion Scout", icon: TrendingUp, color: "#34D399", route: "/app/agents/growth/expansion-scout", description: "PQL detection, upsell triggers, expansion signals from your data" },
+      { id: "forecast-engine", name: "Forecast Engine", icon: BarChart3, color: "#A78BFA", route: "/app/agents/growth/forecast-engine", description: "GRR/NRR forecasts with benchmarks, scenarios, and confidence tiers" },
+      { id: "opportunity-brief", name: "Opportunity Brief", icon: DollarSign, color: "#34D399", route: "/app/agents/growth/opportunity-brief", description: "Pre-call expansion briefs with pricing strategy and talking points" },
+    ],
   },
   {
-    id: "briefs",
-    name: "Briefs",
-    icon: Crown,
+    id: "coaching",
+    label: "Coaching Agents",
+    description: "Make humans superhuman. Briefs, prep, and playbooks.",
     color: "#D4A843",
-    glow: "rgba(212, 168, 67, 0.12)",
-    border: "rgba(212, 168, 67, 0.25)",
-    description: "Executive briefs, talking points, and strategic recommendations — copy-ready for leadership meetings and board updates.",
-    route: "/app/agents/briefs",
-    getStatus: () => {
-      const cache = renewalStore.getLeadershipCache();
-      if (cache?._generatedAt) {
-        const m = Math.floor((Date.now() - cache._generatedAt) / 60000);
-        const ago = m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
-        return `Updated ${ago}`;
-      }
-      return "Ready to generate";
-    },
-    getMetric: () => null,
+    glow: "rgba(212, 168, 67, 0.08)",
+    agents: [
+      { id: "executive-brief", name: "Executive Brief", icon: Crown, color: "#D4A843", route: "/app/agents/coaching/executive-brief", description: "Board-ready summaries, talking points, and strategic recommendations" },
+      { id: "meeting-prep", name: "Meeting Prep", icon: Users, color: "#22D3EE", route: "/app/agents/coaching/meeting-prep", description: "Pre-call briefs with relationship context and recommended asks" },
+      { id: "playbook-builder", name: "Playbook Builder", icon: FileText, color: "#FB923C", route: "/app/agents/coaching/playbook-builder", description: "90/60/30 day action plans with archetype-aware strategies" },
+    ],
   },
 ];
 
-const AVAILABLE_AGENTS = [
-  {
-    id: "playbook",
-    name: "Renewal Playbook",
-    icon: FileText,
-    color: "#FB923C",
-    glow: "rgba(251, 146, 60, 0.08)",
-    border: "rgba(251, 146, 60, 0.20)",
-    description: "Auto-generates 90/60/30 day action checklists for upcoming renewals. Creates tasks, drafts outreach, and builds a timeline — so nothing falls through the cracks.",
-    route: "/app/agents/playbook",
-  },
-  {
-    id: "meeting-prep",
-    name: "Meeting Prep",
-    icon: Users,
-    color: "#22D3EE",
-    glow: "rgba(34, 211, 238, 0.08)",
-    border: "rgba(34, 211, 238, 0.20)",
-    description: "Prep briefs for any renewal meeting — talking points, risk summary, relationship context, and recommended asks. Walk in prepared, not scrambling.",
-    route: "/app/agents/meeting-prep",
-  },
-];
+function formatARR(num) {
+  if (!num) return "$0";
+  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
+  return `$${num.toLocaleString()}`;
+}
 
 export default function AgentHub() {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState({ activatedAgents: [] });
-  const [agentStatuses, setAgentStatuses] = useState({});
-  const [agentMetrics, setAgentMetrics] = useState({});
-  const activatedIds = settings.activatedAgents || [];
+  const [portfolioSummary, setPortfolioSummary] = useState(null);
 
   useEffect(() => {
-    renewalStore.getSettings().then(setSettings);
-    // Load agent statuses asynchronously
     (async () => {
-      const statuses = {};
-      const metrics = {};
-      // Autopilot
-      const actions = await renewalStore.getAutopilotActions();
-      const pending = actions.filter(a => a.status === "pending");
-      statuses.autopilot = pending.length > 0 ? `${pending.length} pending action${pending.length !== 1 ? "s" : ""}` : "No pending actions";
-      metrics.autopilot = pending.length;
-      // Forecast
-      try {
-        const cache = JSON.parse(localStorage.getItem(`bc2-${renewalStore._key("").split("-renewals-")[0].replace("bc2-", "")}-forecast`));
-        statuses.forecast = cache?.metrics?.grr ? `GRR: ${cache.metrics.grr}` : "Ready to generate";
-      } catch (_e) { statuses.forecast = "Ready to generate"; }
-      metrics.forecast = null;
-      // Intel
-      const expansionCache = await renewalStore.getExpansionCache();
-      if (expansionCache?.opportunities?.length > 0) {
-        statuses.intel = `${expansionCache.opportunities.length} signal${expansionCache.opportunities.length !== 1 ? "s" : ""} found`;
-        metrics.intel = expansionCache.opportunities.length;
-      } else {
-        statuses.intel = "Ready to scan";
-        metrics.intel = 0;
+      const accounts = await renewalStore.getAccounts();
+      if (accounts.length === 0) return;
+      const contextMap = {};
+      for (const a of accounts) {
+        try { const ctx = await renewalStore.getContext(a.id); if (ctx?.length) contextMap[a.id] = ctx; } catch { /* skip */ }
       }
-      // Briefs
-      const leadershipCache = await renewalStore.getLeadershipCache();
-      if (leadershipCache?._generatedAt) {
-        const m = Math.floor((Date.now() - leadershipCache._generatedAt) / 60000);
-        const ago = m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
-        statuses.briefs = `Updated ${ago}`;
-      } else {
-        statuses.briefs = "Ready to generate";
-      }
-      metrics.briefs = null;
-      setAgentStatuses(statuses);
-      setAgentMetrics(metrics);
+      const results = computePortfolioHealth(accounts, contextMap);
+      setPortfolioSummary(computePortfolioSummary(results));
     })();
   }, []);
 
-  async function activateAgent(agentId) {
-    const updated = { ...settings, activatedAgents: [...activatedIds, agentId] };
-    await renewalStore.saveSettings(updated);
-    setSettings(updated);
-  }
-
-  const activeAvailable = AVAILABLE_AGENTS.filter(a => activatedIds.includes(a.id));
-  const inactiveAvailable = AVAILABLE_AGENTS.filter(a => !activatedIds.includes(a.id));
-
   return (
     <PageLayout maxWidth={1100}>
-      {/* Active Agents */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-          <div style={{
-            width: 8, height: 8, borderRadius: "50%", background: "#34D399",
-            boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
-          }} />
-          <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>
-            Active Agents
-          </span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
-            {PRE_INSTALLED.length + activeAvailable.length}
-          </span>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }}>
-          {[...PRE_INSTALLED, ...activeAvailable].map(agent => {
-            const Icon = agent.icon;
-            const status = agentStatuses[agent.id] || "Active";
-            const metric = agentMetrics[agent.id] ?? null;
-
-            return (
-              <button
-                key={agent.id}
-                onClick={() => navigate(agent.route)}
-                style={{
-                  background: C.bgCard,
-                  border: `1px solid ${C.borderDefault}`,
-                  borderRadius: 14,
-                  padding: "24px 24px 20px",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  transition: "all 0.2s ease",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = agent.border;
-                  e.currentTarget.style.boxShadow = `0 8px 32px ${agent.glow}, inset 0 1px 0 ${agent.border}`;
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = C.borderDefault;
-                  e.currentTarget.style.boxShadow = "none";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                {/* Glow effect */}
-                <div style={{
-                  position: "absolute", top: -30, right: -30, width: 100, height: 100,
-                  borderRadius: "50%", background: `radial-gradient(circle, ${agent.glow} 0%, transparent 70%)`,
-                  pointerEvents: "none",
-                }} />
-
-                <div style={{ position: "relative" }}>
-                  {/* Icon + Name row */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                    <div style={{
-                      width: 42, height: 42, borderRadius: 11,
-                      background: agent.glow, border: `1px solid ${agent.border}`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      boxShadow: `0 4px 12px ${agent.glow}`,
-                    }}>
-                      <Icon size={20} color={agent.color} strokeWidth={1.75} />
-                    </div>
-                    <div>
-                      <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>
-                        {agent.name}
-                      </div>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: agent.color, marginTop: 1 }}>
-                        {status}
-                      </div>
-                    </div>
-                    {metric > 0 && (
-                      <div style={{
-                        marginLeft: "auto", fontFamily: FONT_MONO, fontSize: 18, fontWeight: 700,
-                        color: agent.color, opacity: 0.8,
-                      }}>{metric}</div>
-                    )}
-                  </div>
-
-                  {/* Description */}
-                  <div style={{
-                    fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
-                    lineHeight: 1.6, letterSpacing: "0.01em", opacity: 0.7, marginBottom: 14,
-                  }}>
-                    {agent.description}
-                  </div>
-
-                  {/* Open button */}
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: agent.color,
-                  }}>
-                    Open <ArrowRight size={12} />
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+      {/* Pipeline banner */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 4, marginBottom: 24,
+        padding: "10px 16px", background: C.bgCard, borderRadius: 8,
+        border: `1px solid ${C.borderDefault}`, overflowX: "auto",
+      }}>
+        {["Monitor", "Predict", "Generate", "Identify", "Orchestrate"].map((fn, i) => (
+          <div key={fn} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {i > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, opacity: 0.4, margin: "0 4px" }}>→</span>}
+            <span style={{
+              fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+              color: C.aiBlue, padding: "3px 10px", borderRadius: 4,
+              background: C.aiBlueMuted, whiteSpace: "nowrap",
+            }}>{fn}</span>
+          </div>
+        ))}
+        <div style={{ flex: 1 }} />
+        <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, whiteSpace: "nowrap" }}>
+          5-function AI pipeline
+        </span>
       </div>
 
-      {/* Available Agents */}
-      {inactiveAvailable.length > 0 && (
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-            <div style={{
-              width: 8, height: 8, borderRadius: "50%", background: C.textTertiary, opacity: 0.4,
-            }} />
-            <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textSecondary, letterSpacing: "-0.01em" }}>
-              Available Agents
-            </span>
-            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
-              {inactiveAvailable.length}
-            </span>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }}>
-            {inactiveAvailable.map(agent => {
-              const Icon = agent.icon;
-
-              return (
-                <div
-                  key={agent.id}
-                  style={{
-                    background: C.bgCard,
-                    border: `1px solid ${C.borderDefault}`,
-                    borderRadius: 14,
-                    padding: "24px 24px 20px",
-                    position: "relative",
-                    overflow: "hidden",
-                    opacity: 0.7,
-                    transition: "all 0.2s ease",
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.borderColor = agent.border; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = "0.7"; e.currentTarget.style.borderColor = C.borderDefault; }}
-                >
-                  {/* Icon + Name row */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                    <div style={{
-                      width: 42, height: 42, borderRadius: 11,
-                      background: "rgba(255,255,255,0.03)", border: `1px solid ${C.borderDefault}`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      <Icon size={20} color={C.textTertiary} strokeWidth={1.75} />
-                    </div>
-                    <div>
-                      <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textSecondary, letterSpacing: "-0.01em" }}>
-                        {agent.name}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <div style={{
-                    fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
-                    lineHeight: 1.6, letterSpacing: "0.01em", opacity: 0.7, marginBottom: 16,
-                  }}>
-                    {agent.description}
-                  </div>
-
-                  {/* Activate button */}
-                  <button
-                    onClick={() => activateAgent(agent.id)}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 6,
-                      padding: "8px 18px", borderRadius: 8,
-                      background: agent.glow, border: `1px solid ${agent.border}`,
-                      color: agent.color, fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600,
-                      cursor: "pointer", transition: "all 0.15s",
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = agent.color + "25"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = agent.glow; }}
-                  >
-                    <Sparkles size={14} /> Activate Agent
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+      {/* Portfolio health summary */}
+      {portfolioSummary && portfolioSummary.total > 0 && (
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 28,
+        }}>
+          {[
+            { label: "Accounts", value: portfolioSummary.total, color: C.textPrimary },
+            { label: "Avg Health", value: portfolioSummary.avgScore.toFixed(1), color: getSeverity(portfolioSummary.avgScore).color },
+            { label: "Portfolio ARR", value: formatARR(portfolioSummary.totalARR), color: C.textPrimary },
+            { label: "At-Risk ARR", value: formatARR(portfolioSummary.atRiskARR), color: portfolioSummary.atRiskARR > 0 ? C.red : C.green },
+          ].map((stat, i) => (
+            <div key={i} style={{
+              padding: "12px 16px", background: C.bgCard,
+              border: `1px solid ${C.borderDefault}`, borderRadius: 8,
+            }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>{stat.label}</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 700, color: stat.color, marginTop: 4 }}>{stat.value}</div>
+            </div>
+          ))}
         </div>
       )}
+
+      {/* Agent categories */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+        {CATEGORIES.map(category => (
+          <div key={category.id}>
+            {/* Category header */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <div style={{
+                width: 8, height: 8, borderRadius: "50%", background: category.color,
+                boxShadow: `0 0 8px ${category.color}60`,
+              }} />
+              <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>
+                {category.label}
+              </span>
+              <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>
+                {category.description}
+              </span>
+              <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
+              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
+                {category.agents.length}
+              </span>
+            </div>
+
+            {/* Agent cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              {category.agents.map(agent => {
+                const Icon = agent.icon;
+                return (
+                  <button
+                    key={agent.id}
+                    onClick={() => navigate(agent.route)}
+                    style={{
+                      background: C.bgCard,
+                      border: `1px solid ${C.borderDefault}`,
+                      borderRadius: 12,
+                      padding: "20px 20px 16px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.2s ease",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = agent.color + "50";
+                      e.currentTarget.style.boxShadow = `0 6px 24px ${agent.color}10`;
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = C.borderDefault;
+                      e.currentTarget.style.boxShadow = "none";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
+                  >
+                    {/* Glow */}
+                    <div style={{
+                      position: "absolute", top: -20, right: -20, width: 80, height: 80,
+                      borderRadius: "50%", background: `radial-gradient(circle, ${agent.color}10 0%, transparent 70%)`,
+                      pointerEvents: "none",
+                    }} />
+
+                    <div style={{ position: "relative" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                        <div style={{
+                          width: 36, height: 36, borderRadius: 9,
+                          background: agent.color + "14", border: `1px solid ${agent.color}25`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          <Icon size={18} color={agent.color} strokeWidth={1.75} />
+                        </div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>
+                          {agent.name}
+                        </div>
+                      </div>
+
+                      <div style={{
+                        fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary,
+                        lineHeight: 1.5, marginBottom: 12, minHeight: 36,
+                      }}>
+                        {agent.description}
+                      </div>
+
+                      <div style={{
+                        display: "flex", alignItems: "center", gap: 5,
+                        fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: agent.color,
+                      }}>
+                        Open <ArrowRight size={11} />
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
     </PageLayout>
   );
 }

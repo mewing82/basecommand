@@ -12,23 +12,42 @@ import { renewalStore } from "../../lib/storage";
 
 const WS_DEFAULT_ID = "ws_default";
 
-// ─── Agent definitions (shared with AgentHub) ────────────────────────────────
-const SIDEBAR_AGENTS = [
-  { id: "autopilot", label: "Autopilot", icon: Bot, color: "#6B8AFF", route: "agents/autopilot" },
-  { id: "forecast", label: "Forecast", icon: BarChart3, color: "#A78BFA", route: "agents/forecast" },
-  { id: "intel", label: "Intel", icon: Radio, color: "#34D399", route: "agents/intel" },
-  { id: "briefs", label: "Briefs", icon: Crown, color: "#D4A843", route: "agents/briefs" },
-  { id: "playbook", label: "Playbook", icon: FileText, color: "#FB923C", route: "agents/playbook" },
-  { id: "meeting-prep", label: "Meeting Prep", icon: Users, color: "#22D3EE", route: "agents/meeting-prep" },
+// ─── Agent Categories (Unified AI Revenue Architecture) ─────────────────────
+import { Activity, ShieldAlert, Mail as MailIcon, TrendingUp, DollarSign } from "lucide-react";
+
+const AGENT_CATEGORIES = [
+  {
+    id: "renewal", label: "Renewal", color: "#6B8AFF",
+    agents: [
+      { id: "health-monitor", label: "Health Monitor", icon: Activity, color: "#6B8AFF", route: "agents/renewal/health-monitor" },
+      { id: "rescue-planner", label: "Rescue Planner", icon: ShieldAlert, color: "#F87171", route: "agents/renewal/rescue-planner" },
+      { id: "outreach-drafter", label: "Outreach Drafter", icon: MailIcon, color: "#22D3EE", route: "agents/renewal/outreach-drafter" },
+    ],
+  },
+  {
+    id: "growth", label: "Growth", color: "#34D399",
+    agents: [
+      { id: "expansion-scout", label: "Expansion Scout", icon: TrendingUp, color: "#34D399", route: "agents/growth/expansion-scout" },
+      { id: "forecast-engine", label: "Forecast Engine", icon: BarChart3, color: "#A78BFA", route: "agents/growth/forecast-engine" },
+      { id: "opportunity-brief", label: "Opportunity Brief", icon: DollarSign, color: "#34D399", route: "agents/growth/opportunity-brief" },
+    ],
+  },
+  {
+    id: "coaching", label: "Coaching", color: "#D4A843",
+    agents: [
+      { id: "executive-brief", label: "Executive Brief", icon: Crown, color: "#D4A843", route: "agents/coaching/executive-brief" },
+      { id: "meeting-prep", label: "Meeting Prep", icon: Users, color: "#22D3EE", route: "agents/coaching/meeting-prep" },
+      { id: "playbook-builder", label: "Playbook Builder", icon: FileText, color: "#FB923C", route: "agents/coaching/playbook-builder" },
+    ],
+  },
 ];
 
-// Pre-installed agents are always active
-const PRE_INSTALLED_IDS = ["autopilot", "forecast", "intel", "briefs"];
+const ALL_SIDEBAR_AGENTS = AGENT_CATEGORIES.flatMap(c => c.agents);
 
 // ─── Nav Configuration ───────────────────────────────────────────────────────
 const NAV_SECTIONS = [
   { label: "Renewals", items: [
-    { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { id: "dashboard", icon: LayoutDashboard, label: "Command Center" },
     { id: "accounts", icon: MessageSquare, label: "Accounts" },
     { id: "agents", icon: Sparkles, label: "Agents", expandable: true },
     { id: "tasks", icon: CheckSquare, label: "Tasks" },
@@ -322,25 +341,12 @@ export default function Sidebar({ activeView, onNavigate }) {
   const { user, profile, signOut } = useAuthStore();
   const [hoveredItem, setHoveredItem] = useState(null);
   const [agentsExpanded, setAgentsExpanded] = useState(false);
-  const [activatedAgentIds, setActivatedAgentIds] = useState([]);
   const isExpanded = !sidebarCollapsed;
 
   // Auto-expand agents section when viewing an agent page
   useEffect(() => {
     if (activeView.startsWith("agents/")) setAgentsExpanded(true);
   }, [activeView]);
-
-  // Load activated agents from settings
-  useEffect(() => {
-    renewalStore.getSettings().then(s => {
-      setActivatedAgentIds(s?.activatedAgents || []);
-    });
-  }, []);
-
-  // Compute visible agents: pre-installed + activated
-  const visibleAgents = SIDEBAR_AGENTS.filter(
-    a => PRE_INSTALLED_IDS.includes(a.id) || activatedAgentIds.includes(a.id)
-  );
 
   const displayName = profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "";
@@ -442,7 +448,7 @@ export default function Sidebar({ activeView, onNavigate }) {
                     <div style={{ position: "relative", flexShrink: 0 }}>
                       <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.75 }} />
                       {/* Green dot indicator when collapsed — shows agents are active */}
-                      {isAgents && !isExpanded && visibleAgents.length > 0 && (
+                      {isAgents && !isExpanded && (
                         <div style={{
                           position: "absolute", top: -2, right: -2,
                           width: 6, height: 6, borderRadius: "50%",
@@ -461,7 +467,7 @@ export default function Sidebar({ activeView, onNavigate }) {
                           fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary,
                           background: "rgba(255,255,255,0.06)", padding: "1px 5px", borderRadius: 3,
                           lineHeight: "14px",
-                        }}>{visibleAgents.length}</span>
+                        }}>{ALL_SIDEBAR_AGENTS.length}</span>
                         <button
                           onClick={(e) => { e.stopPropagation(); setAgentsExpanded(prev => !prev); }}
                           style={{
@@ -479,49 +485,54 @@ export default function Sidebar({ activeView, onNavigate }) {
                     )}
                   </button>
 
-                  {/* Agent sub-items */}
+                  {/* Agent categories with sub-items */}
                   {isAgents && isExpanded && agentsExpanded && (
-                    <div style={{
-                      overflow: "hidden",
-                      transition: "max-height 0.2s ease",
-                      maxHeight: agentsExpanded ? visibleAgents.length * 36 + 8 : 0,
-                    }}>
-                      {visibleAgents.map(agent => {
-                        const agentActive = activeView === agent.route;
-                        const agentHovered = hoveredItem === agent.route;
-                        const AgentIcon = agent.icon;
-                        return (
-                          <button
-                            key={agent.id}
-                            className="bc-sidebar-nav-btn"
-                            onClick={() => onNavigate(agent.route)}
-                            onMouseEnter={() => setHoveredItem(agent.route)}
-                            onMouseLeave={() => setHoveredItem(null)}
-                            style={{
-                              width: "100%", border: "none", cursor: "pointer",
-                              display: "flex", alignItems: "center", gap: 10,
-                              padding: "7px 20px 7px 34px",
-                              background: agentActive ? "rgba(255,255,255,0.05)" : agentHovered ? "rgba(255,255,255,0.03)" : "transparent",
-                              borderRight: agentActive ? `2px solid ${agent.color}` : "2px solid transparent",
-                              transition: "all 0.12s ease",
-                              color: agentActive ? C.textPrimary : agentHovered ? C.textSecondary : C.textTertiary,
-                            }}
-                          >
-                            {/* Colored status dot */}
-                            <div style={{
-                              width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
-                              background: agentActive ? agent.color : agent.color + "80",
-                              boxShadow: agentActive ? `0 0 6px ${agent.color}60` : "none",
-                              transition: "all 0.15s",
-                            }} />
-                            <span className="bc-sidebar-text" style={{
-                              fontFamily: FONT_SANS, fontSize: 13,
-                              fontWeight: agentActive ? 600 : 400,
-                              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                            }}>{agent.label}</span>
-                          </button>
-                        );
-                      })}
+                    <div style={{ overflow: "hidden" }}>
+                      {AGENT_CATEGORIES.map(category => (
+                        <div key={category.id}>
+                          {/* Category label */}
+                          <div style={{
+                            fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600,
+                            color: category.color, textTransform: "uppercase",
+                            letterSpacing: "0.08em", padding: "8px 20px 3px 34px",
+                            opacity: 0.7,
+                          }}>{category.label}</div>
+                          {category.agents.map(agent => {
+                            const agentActive = activeView === agent.route;
+                            const agentHovered = hoveredItem === agent.route;
+                            return (
+                              <button
+                                key={agent.id}
+                                className="bc-sidebar-nav-btn"
+                                onClick={() => onNavigate(agent.route)}
+                                onMouseEnter={() => setHoveredItem(agent.route)}
+                                onMouseLeave={() => setHoveredItem(null)}
+                                style={{
+                                  width: "100%", border: "none", cursor: "pointer",
+                                  display: "flex", alignItems: "center", gap: 10,
+                                  padding: "6px 20px 6px 38px",
+                                  background: agentActive ? "rgba(255,255,255,0.05)" : agentHovered ? "rgba(255,255,255,0.03)" : "transparent",
+                                  borderRight: agentActive ? `2px solid ${agent.color}` : "2px solid transparent",
+                                  transition: "all 0.12s ease",
+                                  color: agentActive ? C.textPrimary : agentHovered ? C.textSecondary : C.textTertiary,
+                                }}
+                              >
+                                <div style={{
+                                  width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+                                  background: agentActive ? agent.color : agent.color + "60",
+                                  boxShadow: agentActive ? `0 0 6px ${agent.color}60` : "none",
+                                  transition: "all 0.15s",
+                                }} />
+                                <span className="bc-sidebar-text" style={{
+                                  fontFamily: FONT_SANS, fontSize: 12,
+                                  fontWeight: agentActive ? 600 : 400,
+                                  whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                }}>{agent.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
