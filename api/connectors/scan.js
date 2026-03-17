@@ -74,9 +74,13 @@ export default async function handler(req, res) {
     ).join("\n\n---\n\n");
 
     // Extract items via Claude
-    const extractionPrompt = `You are Base Command (BC), analyzing an executive's recent emails to extract actionable items.
+    const extractionPrompt = `You are Base Command (BC), analyzing an executive's recent emails to extract actionable items and assess relationship health signals.
 
-Review these ${allEmails.length} emails and extract tasks, decisions, and priorities that require attention.
+Review these ${allEmails.length} emails and:
+1. Extract tasks, decisions, and priorities that require attention
+2. Score the overall sentiment of the email activity (for account health monitoring)
+3. Flag any contraction signals (downsell mentions, scope reduction, budget concerns)
+4. Flag any expansion signals (growth mentions, new use cases, team expansion)
 
 EMAILS:
 ${digest}
@@ -88,6 +92,8 @@ RULES:
 - For decisions: include what needs to be decided and by when
 - For priorities: include why this is a priority and suggested timeframe
 - Be concise but specific — the executive needs to act on these
+- For sentiment: score from 0.0 (very negative/frustrated) to 1.0 (very positive/enthusiastic)
+- For contraction/expansion signals: only flag if clearly present in email content
 
 Return ONLY valid JSON:
 {
@@ -101,7 +107,11 @@ Return ONLY valid JSON:
       "source_subject": "original email subject"
     }
   ],
-  "summary": "2-3 sentence executive summary of email activity"
+  "summary": "2-3 sentence executive summary of email activity",
+  "sentiment": 0.65,
+  "sentiment_reason": "Brief explanation of sentiment assessment",
+  "contraction_signals": ["signal description if any, or empty array"],
+  "expansion_signals": ["signal description if any, or empty array"]
 }`;
 
     const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
