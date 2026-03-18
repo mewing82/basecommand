@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard, Sparkles, CheckSquare,
-  Settings as SettingsIcon, Upload,
+  Settings as SettingsIcon, Upload, Shield,
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp, LogOut, MessageSquare,
   Bot, BarChart3, Radio, Crown, FileText, Users,
 } from "lucide-react";
@@ -9,6 +9,7 @@ import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 import { useAppStore } from "../../store/appStore";
 import { useAuthStore } from "../../store/authStore";
 import { renewalStore } from "../../lib/storage";
+import { supabase } from "../../lib/supabase";
 
 const WS_DEFAULT_ID = "ws_default";
 
@@ -200,6 +201,7 @@ function WorkspaceSwitcher({ collapsed }) {
 // ─── Profile Dropdown ────────────────────────────────────────────────────────
 function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, activeView, onNavigate, signOut }) {
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -208,6 +210,13 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
+
+  // Check admin role on mount
+  useEffect(() => {
+    if (!user || !supabase) return;
+    supabase.from("subscriptions").select("role").eq("user_id", user.id).single()
+      .then(({ data }) => { if (data?.role === "admin") setIsAdmin(true); });
+  }, [user?.id]);
 
   if (!user) return null;
 
@@ -309,6 +318,29 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
               color: activeView === "settings" ? C.textPrimary : C.textSecondary,
             }}>Settings</span>
           </button>
+
+          {/* Admin (only for admin users) */}
+          {isAdmin && (
+            <button
+              onClick={() => { onNavigate("admin"); setOpen(false); }}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", gap: 10,
+                padding: "8px 12px", borderRadius: 6, cursor: "pointer",
+                background: activeView === "admin" ? `${C.red}14` : "transparent",
+                border: "none", textAlign: "left",
+                transition: "background 0.12s",
+              }}
+              onMouseEnter={e => { if (activeView !== "admin") e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+              onMouseLeave={e => { if (activeView !== "admin") e.currentTarget.style.background = "transparent"; }}
+            >
+              <Shield size={14} style={{ color: activeView === "admin" ? C.red : C.textTertiary }} />
+              <span style={{
+                fontFamily: FONT_SANS, fontSize: 13,
+                fontWeight: activeView === "admin" ? 600 : 400,
+                color: activeView === "admin" ? C.textPrimary : C.textSecondary,
+              }}>Admin</span>
+            </button>
+          )}
 
           {/* Divider */}
           <div style={{ height: 1, background: C.borderDefault, margin: "4px 8px" }} />
