@@ -115,6 +115,38 @@ export const AI_PROVIDERS = {
   },
 };
 
+// ─── Typography Scale ───────────────────────────────────────────────────────
+export const TYPE = {
+  displayLg: { fontFamily: FONT_DISPLAY, fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em" },
+  displayMd: { fontFamily: FONT_DISPLAY, fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" },
+  displaySm: { fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em" },
+  body: { fontFamily: FONT_BODY, fontSize: 14, fontWeight: 400, lineHeight: 1.6 },
+  bodySm: { fontFamily: FONT_BODY, fontSize: 13, fontWeight: 400, lineHeight: 1.5 },
+  mono: { fontFamily: FONT_MONO, fontSize: 12, fontWeight: 500 },
+  monoSm: { fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500 },
+  label: { fontFamily: FONT_DISPLAY, fontSize: 13, fontWeight: 500, letterSpacing: "-0.01em" },
+};
+
+// ─── Spacing Scale (4px base) ───────────────────────────────────────────────
+export const S = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 40 };
+
+// ─── Border Radius ──────────────────────────────────────────────────────────
+export const R = { sm: 4, md: 8, lg: 12, xl: 14 };
+
+// ─── Hover Levels ───────────────────────────────────────────────────────────
+export const HOVER = {
+  subtle: "rgba(255,255,255,0.04)",
+  default: "rgba(255,255,255,0.06)",
+  strong: "rgba(255,255,255,0.10)",
+};
+
+// ─── Breakpoints ────────────────────────────────────────────────────────────
+export const BP = { mobile: 640, tablet: 768, desktop: 1024, wide: 1280 };
+
+// ─── AI Response Styles ─────────────────────────────────────────────────────
+export const RESPONSE_STYLES = ["Direct", "Collaborative", "Diplomatic", "Firm", "Empathetic", "Executive"];
+export const RESPONSE_TONES = ["Formal", "Conversational", "Concise"];
+
 // ─── Mobile Responsive Helpers ──────────────────────────────────────────────
 // Standard mobile paddings (375px viewport):
 //   16px section padding → 343px content width

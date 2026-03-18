@@ -1,9 +1,8 @@
 // ─── Reusable UI Components ───────────────────────────────────────────────────
 import { useState, useEffect, useRef } from "react";
 import { Sparkles, AlertTriangle } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, S, R, HOVER } from "../theme/tokens.js";
-import { AI_PROVIDERS } from "../theme/constants.js";
-import { store } from "../lib/store.js";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, S, R, HOVER, AI_PROVIDERS } from "../lib/tokens";
+import { store } from "../lib/storage";
 import { getActiveAIConfig, getModelLabel } from "../lib/ai.js";
 import { healthColor } from "../lib/helpers.js";
 import { renderMarkdown } from "./Markdown.jsx";

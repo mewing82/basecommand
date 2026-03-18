@@ -1,6 +1,5 @@
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../theme/tokens.js";
-import { RANK_LEVELS } from "../theme/constants.js";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, RANK_LEVELS } from "./tokens";
 import mammoth from "mammoth";
 
 let _idCounter = 0;

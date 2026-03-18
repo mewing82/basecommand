@@ -1,7 +1,7 @@
 // ─── Project Filter (shared across views) ────────────────────────────────────
 import { useState, useEffect } from "react";
-import { C, FONT_SANS, R } from "../theme/tokens.js";
-import { store } from "../lib/store.js";
+import { C, FONT_SANS, R } from "../lib/tokens";
+import { store } from "../lib/storage";
 
 export function useProjectLinks(projects) {
   const [linkMap, setLinkMap] = useState({});

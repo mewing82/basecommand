@@ -1,4 +1,4 @@
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../theme/tokens.js";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 
 export function inlineMarkdown(text) {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
