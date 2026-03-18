@@ -108,8 +108,8 @@ Uses flat config (`eslint.config.js`). Notable rule: `no-unused-vars` ignores va
 
 ## Documentation
 
-- **`PLAN.md`** — Master plan (single source of truth): vision, business model, revenue gates, epic roadmap, decision log, AI Revenue Architecture
-- **`PLAN-ONE-PAGER.md`** — Compressed summary of the master plan
-- **`PLAN-FAMILY.md`** — Plain-language explanation for non-technical audience
-- **`AGENT-AI-BUILD-GUIDE.md`** — Configuration guide for agent.ai Knowledge Agents
+- **`docs/PLAN.md`** — Master plan (single source of truth): vision, business model, revenue gates, epic roadmap, decision log, AI Revenue Architecture
+- **`docs/PLAN-ONE-PAGER.md`** — Compressed summary of the master plan
+- **`docs/PLAN-FAMILY.md`** — Plain-language explanation for non-technical audience
+- **`docs/AGENT-AI-BUILD-GUIDE.md`** — Configuration guide for agent.ai Knowledge Agents
 - **`docs/archive/`** — Historical versions of plan documents

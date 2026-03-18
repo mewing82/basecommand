@@ -23,10 +23,10 @@ npm run dev                    # http://localhost:5173
 | File | Purpose |
 |------|---------|
 | `CLAUDE.md` | Technical guidance for Claude Code sessions |
-| `PLAN.md` | Master plan — vision, business model, epic roadmap, decision log |
-| `PLAN-ONE-PAGER.md` | Compressed summary of the master plan |
-| `PLAN-FAMILY.md` | Plain-language explanation for non-technical audience |
-| `AGENT-AI-BUILD-GUIDE.md` | Configuration guide for agent.ai Knowledge Agents |
+| `docs/PLAN.md` | Master plan — vision, business model, epic roadmap, decision log |
+| `docs/PLAN-ONE-PAGER.md` | Compressed summary of the master plan |
+| `docs/PLAN-FAMILY.md` | Plain-language explanation for non-technical audience |
+| `docs/AGENT-AI-BUILD-GUIDE.md` | Configuration guide for agent.ai Knowledge Agents |
 | `docs/archive/` | Historical versions of plan documents |
 
 ## License
