@@ -71,6 +71,18 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Stripe endpoints — not available in local dev
+  if (req.url.startsWith("/api/stripe/")) {
+    if (req.url.includes("/status")) {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ tier: "pro_trial", status: "trialing", trialDaysLeft: 14, note: "Local dev — simulated trial" }));
+      return;
+    }
+    res.writeHead(501, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Stripe requires deployment to Vercel. Use `vercel dev` for full billing testing." }));
+    return;
+  }
+
   // Integration keys — return empty list for local dev (keys live in KV)
   if (req.url.startsWith("/api/integration-keys")) {
     if (req.method === "GET") {

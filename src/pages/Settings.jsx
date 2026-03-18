@@ -9,12 +9,13 @@ import AISettings from "./settings/AISettings";
 import ConnectorSettings from "./settings/ConnectorSettings";
 import DataSettings from "./settings/DataSettings";
 import IntegrationSettings from "./settings/IntegrationSettings";
+import BillingSettings from "./settings/BillingSettings";
 
 const TABS = [
   { id: "company", label: "Company", icon: Building2 },
   { id: "profile", label: "Profile", icon: User },
   { id: "ai", label: "AI", icon: Sparkles },
-  { id: "billing", label: "Billing", icon: CreditCard, soon: true },
+  { id: "billing", label: "Billing", icon: CreditCard },
   { id: "team", label: "Team", icon: Users, soon: true },
   { id: "integrations", label: "Integrations", icon: Key },
   { id: "connectors", label: "Connectors", icon: Plug },
@@ -75,7 +76,7 @@ export default function Settings() {
           {activeTab === "company" && <CompanySettings />}
           {activeTab === "profile" && <ProfileSettings />}
           {activeTab === "ai" && <AISettings />}
-          {activeTab === "billing" && <BillingPlaceholder />}
+          {activeTab === "billing" && <BillingSettings />}
           {activeTab === "team" && <TeamPlaceholder />}
           {activeTab === "integrations" && <IntegrationSettings />}
           {activeTab === "connectors" && <ConnectorSettings />}
@@ -87,16 +88,6 @@ export default function Settings() {
 }
 
 // ─── Placeholder components for upcoming tabs ────────────────────────────────
-function BillingPlaceholder() {
-  return (
-    <div style={{ padding: 24, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, textAlign: "center" }}>
-      <CreditCard size={32} style={{ color: C.textTertiary, marginBottom: 12 }} />
-      <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>Billing & Subscription</div>
-      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6 }}>Manage your subscription, view usage, and update payment methods. Coming soon.</div>
-    </div>
-  );
-}
-
 function TeamPlaceholder() {
   return (
     <div style={{ padding: 24, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, textAlign: "center" }}>

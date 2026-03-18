@@ -44,8 +44,7 @@ export default async function handler(req, res) {
         const { data: { user }, error } = await supabase.auth.getUser(token);
         if (!error && user) {
           userId = user.id;
-          // TODO: Look up tier from Stripe subscription when billing is live
-          // For now, all authenticated users are "free" tier
+          userTier = await resolveTier(supabase, userId);
         }
       } catch (e) {
         console.error("[ai] Auth error:", e.message);
@@ -171,6 +170,36 @@ async function handleOpenAI(apiKey, model, maxTokens, system, messages) {
       },
     },
   };
+}
+
+// ─── Tier resolution from subscriptions table ───────────────────────────────
+
+async function resolveTier(supabase, userId) {
+  try {
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("tier, status, trial_end, stripe_subscription_id")
+      .eq("user_id", userId)
+      .single();
+
+    if (!sub) return "free";
+
+    // Active paid subscription → pro
+    if (sub.tier === "pro" && (sub.status === "active" || sub.status === "past_due")) {
+      return "pro";
+    }
+
+    // Active trial → pro
+    if (sub.status === "trialing" && sub.trial_end) {
+      const trialEnd = new Date(sub.trial_end);
+      if (trialEnd > new Date()) return "pro";
+    }
+
+    return "free";
+  } catch {
+    // Table may not exist yet — default to free
+    return "free";
+  }
 }
 
 // ─── Usage tracking via Supabase ─────────────────────────────────────────────
