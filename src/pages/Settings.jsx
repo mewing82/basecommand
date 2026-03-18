@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, Building2, Sparkles, Plug, Database, CreditCard, Users } from "lucide-react";
+import { User, Building2, Sparkles, Plug, Database, CreditCard, Users, Key } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { PageLayout } from "../components/layout/PageLayout";
@@ -8,6 +8,7 @@ import CompanySettings from "./settings/CompanySettings";
 import AISettings from "./settings/AISettings";
 import ConnectorSettings from "./settings/ConnectorSettings";
 import DataSettings from "./settings/DataSettings";
+import IntegrationSettings from "./settings/IntegrationSettings";
 
 const TABS = [
   { id: "company", label: "Company", icon: Building2 },
@@ -15,6 +16,7 @@ const TABS = [
   { id: "ai", label: "AI", icon: Sparkles },
   { id: "billing", label: "Billing", icon: CreditCard, soon: true },
   { id: "team", label: "Team", icon: Users, soon: true },
+  { id: "integrations", label: "Integrations", icon: Key },
   { id: "connectors", label: "Connectors", icon: Plug },
   { id: "data", label: "Data", icon: Database },
 ];
@@ -75,6 +77,7 @@ export default function Settings() {
           {activeTab === "ai" && <AISettings />}
           {activeTab === "billing" && <BillingPlaceholder />}
           {activeTab === "team" && <TeamPlaceholder />}
+          {activeTab === "integrations" && <IntegrationSettings />}
           {activeTab === "connectors" && <ConnectorSettings />}
           {activeTab === "data" && <DataSettings />}
         </div>

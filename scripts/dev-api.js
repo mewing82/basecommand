@@ -71,6 +71,25 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Integration keys — return empty list for local dev (keys live in KV)
+  if (req.url.startsWith("/api/integration-keys")) {
+    if (req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ keys: [], note: "Integration keys require Vercel KV. Use `vercel dev` for full testing." }));
+      return;
+    }
+    res.writeHead(501, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Integration key management requires deployment to Vercel." }));
+    return;
+  }
+
+  // External import — not available in local dev (requires KV + Supabase service role)
+  if (req.url.startsWith("/api/import/external")) {
+    res.writeHead(501, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "External import requires deployment to Vercel. Use `vercel dev` for full testing." }));
+    return;
+  }
+
   // AI key management — return empty list for local dev (keys live in KV)
   if (req.url.startsWith("/api/ai-keys")) {
     if (req.method === "GET") {

@@ -379,6 +379,102 @@ Once all 4 are live:
 
 ---
 
+## Workflow Agent: Save to BaseCommand
+
+This Workflow Agent enables "save to BaseCommand" from any Knowledge Agent chat. When a user says "save these to my portfolio," the Knowledge Agent invokes this Workflow Agent, which POSTs the structured data to the BaseCommand API.
+
+### Architecture
+
+```
+User chats with Knowledge Agent (e.g., CRM Data Parser)
+    ↓
+Agent parses data, structures accounts
+    ↓
+User: "save these to my portfolio"
+    ↓
+Knowledge Agent invokes Workflow Agent
+    ↓
+Workflow Agent POSTs to BaseCommand API with user's API key
+    ↓
+Accounts saved to user's BaseCommand portfolio
+```
+
+### Workflow Agent Configuration
+
+**Name:** `Save to BaseCommand`
+
+**Description:** Saves structured renewal accounts to a user's BaseCommand portfolio via API.
+
+**Trigger:** Invoked by Knowledge Agents when user requests to save data.
+
+**Steps:**
+
+1. **Receive Data** — Accept the structured accounts JSON from the calling Knowledge Agent
+2. **POST to BaseCommand API:**
+   ```
+   POST https://basecommand.ai/api/import/external
+   Authorization: Bearer {user_api_key}
+   Content-Type: application/json
+
+   {
+     "accounts": [
+       {
+         "name": "Acme Corp",
+         "arr": 150000,
+         "renewalDate": "2026-09-15",
+         "riskLevel": "medium",
+         "contacts": [{"name": "Jane", "role": "VP", "email": "jane@acme.com"}],
+         "notes": "Large account, expanding usage"
+       }
+     ]
+   }
+   ```
+3. **Return Result** — Report back to the user how many accounts were created vs skipped (duplicates)
+
+### API Response Shape
+
+```json
+{
+  "success": true,
+  "created": 3,
+  "skipped": 1,
+  "accounts": [
+    { "id": "acct-1710768000000_a7f3k2", "name": "Acme Corp" }
+  ],
+  "skippedDetails": [
+    { "name": "Existing Co", "reason": "duplicate" }
+  ]
+}
+```
+
+### API Key Setup
+
+Users generate an integration API key in **BaseCommand > Settings > Integrations**. The key format is `bc_live_xxx` and is shown once at generation time.
+
+On agent.ai, the user provides their API key as a per-agent credential, which the Workflow Agent passes in the `Authorization` header.
+
+### Knowledge Agent Prompt Addition
+
+Add this to each Knowledge Agent's system instructions to enable the save flow:
+
+```
+SAVE TO BASECOMMAND:
+If the user asks to "save", "add to BaseCommand", "import to my portfolio", or similar — tell them you can save these accounts directly to their BaseCommand portfolio if they have an API key configured. Invoke the "Save to BaseCommand" workflow agent with the structured account data.
+
+If they don't have BaseCommand yet, direct them to basecommand.ai/signup to create a free account, then Settings > Integrations to generate an API key.
+```
+
+### Error Handling
+
+| Status | Meaning | Workflow Agent Response |
+|--------|---------|----------------------|
+| 200 | Success | "Saved {n} accounts to your BaseCommand portfolio!" |
+| 401 | Bad/missing API key | "Your API key isn't configured or has been revoked. Generate one at basecommand.ai Settings > Integrations." |
+| 400 | Bad data | "Some accounts couldn't be saved — check that each has a name." |
+| 429 | Rate limit | "Too many requests — try again in a moment." |
+
+---
+
 ## v2 Enhancements (After v1 is Live)
 
 | Enhancement | Which Agents | What It Does |
