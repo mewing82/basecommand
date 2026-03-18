@@ -217,9 +217,10 @@ export default function HowItWorks() {
         }}>
           {/* Horizontal waterfall flow */}
           <div style={{
-            display: "flex", alignItems: "center", gap: 8,
+            display: "flex", alignItems: isMobile ? "stretch" : "center",
+            flexDirection: isMobile ? "column" : "row",
+            gap: isMobile ? 4 : 8,
             marginBottom: 32, justifyContent: "center", flexWrap: isMobile ? "nowrap" : "wrap",
-            overflowX: isMobile ? "auto" : "visible", WebkitOverflowScrolling: "touch",
           }}>
             {[
               { label: "Starting MRR", color: C.gold, bg: `${C.gold}20`, border: `${C.gold}30`, width: 140 },
@@ -229,8 +230,8 @@ export default function HowItWorks() {
               { label: "= Net MRR", color: "#34D399", bg: "rgba(52, 211, 153, 0.18)", border: "rgba(52, 211, 153, 0.35)", width: 140 },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                  {item.ai ? (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: isMobile ? 1 : undefined }}>
+                  {isMobile ? null : (item.ai ? (
                     <div style={{
                       fontFamily: FONT_MONO, fontSize: 10, color: C.aiBlue,
                       padding: "4px 10px", borderRadius: 6,
@@ -239,9 +240,9 @@ export default function HowItWorks() {
                     }}>
                       AI: {item.ai}
                     </div>
-                  ) : <div style={{ height: 28 }} />}
+                  ) : <div style={{ height: 28 }} />)}
                   <div style={{
-                    width: item.width, height: 56, borderRadius: 10,
+                    width: isMobile ? "100%" : item.width, height: isMobile ? 44 : 56, borderRadius: 10,
                     background: item.bg, border: `1px solid ${item.border}`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
@@ -254,7 +255,7 @@ export default function HowItWorks() {
                   </div>
                 </div>
                 {i < 4 && (
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, marginTop: 28 }}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, marginTop: isMobile ? 0 : 28, display: isMobile ? "none" : undefined }}>
                     <path d="M4 10h10M11 6l4 4-4 4" stroke={C.textTertiary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.35" />
                   </svg>
                 )}
@@ -328,7 +329,7 @@ export default function HowItWorks() {
           {/* Layer 4 */}
           <div style={{
             background: "rgba(52, 211, 153, 0.08)", border: "1px solid rgba(52, 211, 153, 0.20)",
-            borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px", display: "flex", alignItems: "center", gap: 20,
+            borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px", display: "flex", alignItems: "center", gap: isMobile ? 12 : 20,
           }}>
             <Users size={20} color="#34D399" style={{ flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
@@ -339,6 +340,7 @@ export default function HowItWorks() {
               padding: "4px 10px", borderRadius: 6,
               background: "rgba(52, 211, 153, 0.12)", border: "1px solid rgba(52, 211, 153, 0.20)",
               fontFamily: FONT_MONO, fontSize: 10, color: "#34D399", whiteSpace: "nowrap",
+              display: isMobile ? "none" : undefined,
             }}>BaseCommand</div>
           </div>
 
@@ -357,6 +359,7 @@ export default function HowItWorks() {
                 padding: "4px 10px", borderRadius: 6,
                 background: C.goldMuted, border: `1px solid ${C.gold}25`,
                 fontFamily: FONT_MONO, fontSize: 10, color: C.gold, whiteSpace: "nowrap",
+                display: isMobile ? "none" : undefined,
               }}>BaseCommand</div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 10, paddingLeft: isMobile ? 0 : 40 }}>
@@ -379,7 +382,7 @@ export default function HowItWorks() {
           {/* Layer 2 */}
           <div style={{
             background: "rgba(34, 211, 238, 0.06)", border: "1px solid rgba(34, 211, 238, 0.20)",
-            borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px", display: "flex", alignItems: "center", gap: 20,
+            borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px", display: "flex", alignItems: "center", gap: isMobile ? 12 : 20,
           }}>
             <Cpu size={20} color={C.aiBlue} style={{ flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
@@ -390,6 +393,7 @@ export default function HowItWorks() {
               padding: "4px 10px", borderRadius: 6,
               background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
               fontFamily: FONT_MONO, fontSize: 10, color: C.aiBlue, whiteSpace: "nowrap",
+              display: isMobile ? "none" : undefined,
             }}>BaseCommand</div>
           </div>
 
@@ -408,6 +412,7 @@ export default function HowItWorks() {
                 padding: "4px 10px", borderRadius: 6,
                 background: C.bgSurface, border: `1px solid ${C.borderSubtle}`,
                 fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, whiteSpace: "nowrap",
+                display: isMobile ? "none" : undefined,
               }}>You connect</div>
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", paddingLeft: isMobile ? 0 : 40 }}>
@@ -465,7 +470,7 @@ export default function HowItWorks() {
 
         <div style={{
           background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-          borderRadius: 16, padding: "32px",
+          borderRadius: 16, padding: isMobile ? "16px" : "32px",
         }}>
           {ARCHETYPES.map((arch, i) => (
             <div key={i} style={{

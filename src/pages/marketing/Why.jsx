@@ -179,59 +179,87 @@ export default function Why() {
           </p>
         </div>
 
-        <div style={{
-          background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-          borderRadius: 16, overflow: "hidden",
-        }}>
-          <div style={{
-            display: "grid", gridTemplateColumns: isMobile ? "80px 1fr 1fr" : "140px 1fr 1fr",
-            borderBottom: `1px solid ${C.borderDefault}`,
-          }}>
-            <div style={{ padding: isMobile ? "12px 10px" : "16px 24px" }} />
-            <div style={{
-              padding: isMobile ? "12px 10px" : "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
-              color: C.textTertiary, borderLeft: `1px solid ${C.borderDefault}`,
-            }}>
-              Traditional Renewals
-            </div>
-            <div style={{
-              padding: isMobile ? "12px 10px" : "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
-              color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
-              background: "rgba(34, 211, 238, 0.04)",
-            }}>
-              AI-Driven RevOps
-            </div>
-          </div>
-          {[
+        {(() => {
+          const rows = [
             { dimension: "Timing", old: "Reactive", oldSub: "30 days to renewal", new_: "Proactive", newSub: "Predictive signals 90–180 days out" },
             { dimension: "Data Scope", old: "Siloed", oldSub: "CRM notes, NPS surveys", new_: "Unified", newSub: "160 billion telemetry points" },
             { dimension: "Action Engine", old: "Manual", oldSub: "Spreadsheets, generic emails", new_: "Agentic", newSub: "Automated workflows, AI-drafted outreach" },
             { dimension: "Core Focus", old: "Firefighting", oldSub: "Saving the churn", new_: "Strategic Growth", newSub: "Surfacing the expansion" },
-          ].map((row, i) => (
-            <div key={i} style={{
-              display: "grid", gridTemplateColumns: isMobile ? "80px 1fr 1fr" : "140px 1fr 1fr",
-              borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
+          ];
+          return isMobile ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {rows.map((row, i) => (
+                <div key={i} style={{
+                  background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+                  borderRadius: 12, padding: "16px",
+                }}>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>
+                    {row.dimension}
+                  </div>
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: C.bgPrimary }}>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, opacity: 0.5, lineHeight: 1.4 }}>{row.oldSub}</div>
+                    </div>
+                    <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: "rgba(34, 211, 238, 0.04)", border: "1px solid rgba(34, 211, 238, 0.10)" }}>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.aiBlue, lineHeight: 1.4 }}>{row.newSub}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+              borderRadius: 16, overflow: "hidden",
             }}>
               <div style={{
-                padding: isMobile ? "14px 10px" : "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
-                color: C.gold, display: "flex", alignItems: "center",
+                display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+                borderBottom: `1px solid ${C.borderDefault}`,
               }}>
-                {row.dimension}
+                <div style={{ padding: "16px 24px" }} />
+                <div style={{
+                  padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+                  color: C.textTertiary, borderLeft: `1px solid ${C.borderDefault}`,
+                }}>
+                  Traditional Renewals
+                </div>
+                <div style={{
+                  padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+                  color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
+                  background: "rgba(34, 211, 238, 0.04)",
+                }}>
+                  AI-Driven RevOps
+                </div>
               </div>
-              <div style={{ padding: isMobile ? "14px 10px" : "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
-                <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
-                <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, opacity: 0.5 }}>{row.oldSub}</div>
-              </div>
-              <div style={{
-                padding: isMobile ? "14px 10px" : "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
-                background: "rgba(34, 211, 238, 0.04)",
-              }}>
-                <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
-                <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.aiBlue }}>{row.newSub}</div>
-              </div>
+              {rows.map((row, i) => (
+                <div key={i} style={{
+                  display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+                  borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
+                }}>
+                  <div style={{
+                    padding: "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+                    color: C.gold, display: "flex", alignItems: "center",
+                  }}>
+                    {row.dimension}
+                  </div>
+                  <div style={{ padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, opacity: 0.5 }}>{row.oldSub}</div>
+                  </div>
+                  <div style={{
+                    padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
+                    background: "rgba(34, 211, 238, 0.04)",
+                  }}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.aiBlue }}>{row.newSub}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          );
+        })()}
       </section>
 
       {/* ─── The Opportunity ──────────────────────────────────────────────── */}

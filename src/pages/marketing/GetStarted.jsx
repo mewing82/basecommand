@@ -56,7 +56,7 @@ export default function GetStarted() {
 
       {/* ─── Implementation Blueprint ─────────────────────────────────────── */}
       <section style={{ padding: isMobile ? "32px 20px 60px" : "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: isMobile ? 12 : 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(4, 1fr)", gap: isMobile ? 12 : 14 }}>
           {[
             {
               week: "Week 1", title: "Data Foundation", color: C.textTertiary,
@@ -246,11 +246,11 @@ export default function GetStarted() {
           borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px", textAlign: "center",
         }}>
           <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "8px 20px", borderRadius: 20, marginBottom: 20,
+            display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center",
+            padding: isMobile ? "8px 16px" : "8px 20px", borderRadius: 20, marginBottom: 20,
             background: C.goldMuted, border: `1px solid ${C.gold}20`,
-            fontSize: 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
-            letterSpacing: "0.03em", textTransform: "uppercase",
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            letterSpacing: "0.03em", textTransform: "uppercase", maxWidth: "100%", textAlign: "center",
           }}>
             Founding member pricing — first 100 customers
           </div>

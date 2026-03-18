@@ -25,10 +25,11 @@ export default function Landing() {
         padding: isMobile ? "60px 20px 48px" : "100px 40px 80px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
       }}>
         <div style={{
-          display: "inline-flex", alignItems: "center", gap: 8,
-          padding: "8px 20px", borderRadius: 20, marginBottom: 24,
+          display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center",
+          padding: isMobile ? "8px 16px" : "8px 20px", borderRadius: 20, marginBottom: 24,
           background: C.goldMuted, border: `1px solid ${C.gold}20`,
-          fontSize: 14, fontWeight: 500, color: C.gold, fontFamily: FONT_SANS,
+          fontSize: isMobile ? 12 : 14, fontWeight: 500, color: C.gold, fontFamily: FONT_SANS,
+          maxWidth: "100%", textAlign: "center",
         }}>
           <Bot size={14} />
           AI-powered renewal workflows — from co-pilot to fully autonomous
@@ -86,7 +87,7 @@ export default function Landing() {
       <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 1000, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 24 : 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             The shift is already happening
@@ -99,70 +100,102 @@ export default function Landing() {
           </p>
         </div>
 
-        <div style={{
-          background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-          borderRadius: 16, overflow: "hidden",
-        }}>
-          <div style={{
-            display: "grid", gridTemplateColumns: isMobile ? "80px 1fr 1fr" : "140px 1fr 1fr",
-            borderBottom: `1px solid ${C.borderDefault}`,
-          }}>
-            <div style={{ padding: isMobile ? "12px 10px" : "16px 24px" }} />
-            <div style={{
-              padding: isMobile ? "12px 10px" : "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
-              color: C.textTertiary, borderLeft: `1px solid ${C.borderDefault}`,
-            }}>
-              Traditional Renewals
-            </div>
-            <div style={{
-              padding: isMobile ? "12px 10px" : "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
-              color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
-              background: "rgba(34, 211, 238, 0.04)",
-            }}>
-              AI-Driven RevOps
-            </div>
-          </div>
-          {[
-            { dimension: "Timing", old: "Reactive", oldSub: "30 days to renewal", new_: "Proactive", newSub: "Predictive signals 90–180 days out" },
-            { dimension: "Data Scope", old: "Siloed", oldSub: "CRM notes, NPS surveys", new_: "Unified", newSub: "160 billion telemetry points" },
-            { dimension: "Action Engine", old: "Manual", oldSub: "Spreadsheets, generic emails", new_: "Agentic", newSub: "Automated workflows, AI-drafted outreach" },
-            { dimension: "Core Focus", old: "Firefighting", oldSub: "Saving the churn", new_: "Strategic Growth", newSub: "Surfacing the expansion" },
-          ].map((row, i) => (
-            <div key={i} style={{
-              display: "grid", gridTemplateColumns: isMobile ? "80px 1fr 1fr" : "140px 1fr 1fr",
-              borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
-            }}>
-              <div style={{
-                padding: isMobile ? "14px 10px" : "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
-                color: C.gold, display: "flex", alignItems: "center",
+        {isMobile ? (
+          /* Mobile: stacked cards per dimension */
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {[
+              { dimension: "Timing", old: "Reactive", oldSub: "30 days to renewal", new_: "Proactive", newSub: "Predictive signals 90–180 days out" },
+              { dimension: "Data Scope", old: "Siloed", oldSub: "CRM notes, NPS surveys", new_: "Unified", newSub: "160 billion telemetry points" },
+              { dimension: "Action Engine", old: "Manual", oldSub: "Spreadsheets, generic emails", new_: "Agentic", newSub: "Automated workflows, AI-drafted outreach" },
+              { dimension: "Core Focus", old: "Firefighting", oldSub: "Saving the churn", new_: "Strategic Growth", newSub: "Surfacing the expansion" },
+            ].map((row, i) => (
+              <div key={i} style={{
+                background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+                borderRadius: 12, padding: "16px",
               }}>
-                {row.dimension}
+                <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>
+                  {row.dimension}
+                </div>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: C.bgPrimary }}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, opacity: 0.5, lineHeight: 1.4 }}>{row.oldSub}</div>
+                  </div>
+                  <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: "rgba(34, 211, 238, 0.04)", border: "1px solid rgba(34, 211, 238, 0.10)" }}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.aiBlue, lineHeight: 1.4 }}>{row.newSub}</div>
+                  </div>
+                </div>
               </div>
-              <div style={{ padding: isMobile ? "14px 10px" : "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
-                <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
-                <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, opacity: 0.5 }}>{row.oldSub}</div>
+            ))}
+          </div>
+        ) : (
+          /* Desktop: comparison table */
+          <div style={{
+            background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+            borderRadius: 16, overflow: "hidden",
+          }}>
+            <div style={{
+              display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+              borderBottom: `1px solid ${C.borderDefault}`,
+            }}>
+              <div style={{ padding: "16px 24px" }} />
+              <div style={{
+                padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+                color: C.textTertiary, borderLeft: `1px solid ${C.borderDefault}`,
+              }}>
+                Traditional Renewals
               </div>
               <div style={{
-                padding: isMobile ? "14px 10px" : "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
+                padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+                color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
                 background: "rgba(34, 211, 238, 0.04)",
               }}>
-                <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
-                <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.aiBlue }}>{row.newSub}</div>
+                AI-Driven RevOps
               </div>
             </div>
-          ))}
-        </div>
+            {[
+              { dimension: "Timing", old: "Reactive", oldSub: "30 days to renewal", new_: "Proactive", newSub: "Predictive signals 90–180 days out" },
+              { dimension: "Data Scope", old: "Siloed", oldSub: "CRM notes, NPS surveys", new_: "Unified", newSub: "160 billion telemetry points" },
+              { dimension: "Action Engine", old: "Manual", oldSub: "Spreadsheets, generic emails", new_: "Agentic", newSub: "Automated workflows, AI-drafted outreach" },
+              { dimension: "Core Focus", old: "Firefighting", oldSub: "Saving the churn", new_: "Strategic Growth", newSub: "Surfacing the expansion" },
+            ].map((row, i) => (
+              <div key={i} style={{
+                display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+                borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
+              }}>
+                <div style={{
+                  padding: "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+                  color: C.gold, display: "flex", alignItems: "center",
+                }}>
+                  {row.dimension}
+                </div>
+                <div style={{ padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, opacity: 0.5 }}>{row.oldSub}</div>
+                </div>
+                <div style={{
+                  padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
+                  background: "rgba(34, 211, 238, 0.04)",
+                }}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.aiBlue }}>{row.newSub}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ─── The AI-Powered Renewal Workflow ──────────────────────────────── */}
       <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "8px 20px", borderRadius: 20, marginBottom: 16,
+            display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center",
+            padding: isMobile ? "8px 16px" : "8px 20px", borderRadius: 20, marginBottom: 16,
             background: C.goldMuted, border: `1px solid ${C.gold}20`,
-            fontSize: 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
-            letterSpacing: "0.03em", textTransform: "uppercase",
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            letterSpacing: "0.03em", textTransform: "uppercase", maxWidth: "100%", textAlign: "center",
           }}>
             The AI-Powered Renewal Workflow
           </div>
@@ -314,11 +347,11 @@ export default function Landing() {
           borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px", textAlign: "center",
         }}>
           <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "8px 20px", borderRadius: 20, marginBottom: 20,
+            display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center",
+            padding: isMobile ? "8px 16px" : "8px 20px", borderRadius: 20, marginBottom: 20,
             background: C.goldMuted, border: `1px solid ${C.gold}20`,
-            fontSize: 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
-            letterSpacing: "0.03em", textTransform: "uppercase",
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            letterSpacing: "0.03em", textTransform: "uppercase", maxWidth: "100%", textAlign: "center",
           }}>
             Founding member pricing — first 100 customers
           </div>
