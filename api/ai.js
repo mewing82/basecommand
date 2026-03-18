@@ -178,11 +178,14 @@ async function resolveTier(supabase, userId) {
   try {
     const { data: sub } = await supabase
       .from("subscriptions")
-      .select("tier, status, trial_end, stripe_subscription_id")
+      .select("tier, status, trial_end, stripe_subscription_id, role")
       .eq("user_id", userId)
       .single();
 
     if (!sub) return "free";
+
+    // Admin → always unlimited
+    if (sub.role === "admin") return "pro";
 
     // Active paid subscription → pro
     if (sub.tier === "pro" && (sub.status === "active" || sub.status === "past_due")) {

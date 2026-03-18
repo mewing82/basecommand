@@ -83,6 +83,13 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Admin API — not available in local dev
+  if (req.url.startsWith("/api/admin")) {
+    res.writeHead(501, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Admin requires deployment to Vercel." }));
+    return;
+  }
+
   // Integration keys — return empty list for local dev (keys live in KV)
   if (req.url.startsWith("/api/integration-keys")) {
     if (req.method === "GET") {

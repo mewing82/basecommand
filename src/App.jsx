@@ -37,6 +37,7 @@ import ExpansionScout from "./pages/agents/ExpansionScout";
 import ForecastEngine from "./pages/agents/ForecastEngine";
 import OpportunityBrief from "./pages/agents/OpportunityBrief";
 import PlaybookBuilder from "./pages/agents/PlaybookBuilder";
+import Admin from "./pages/Admin";
 
 // ─── Redirect authenticated users from marketing home to app ────────────────
 function AuthRedirect({ children }) {
@@ -203,6 +204,7 @@ function AppLayout() {
             <Route path="tasks" element={<Tasks />} />
             <Route path="import" element={<Import />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="admin" element={<Admin />} />
             {/* Backward-compatible redirects (old agent routes) */}
             <Route path="autopilot" element={<Navigate to="/app/agents/renewal/health-monitor" replace />} />
             <Route path="agents/autopilot" element={<Navigate to="/app/agents/renewal/health-monitor" replace />} />

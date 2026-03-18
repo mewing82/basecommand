@@ -29,16 +29,7 @@ async function handleCheckout(req, res) {
   if (!stripeKey) return res.status(500).json({ error: "Stripe not configured" });
 
   const userId = await resolveUser(req);
-  if (!userId) {
-    // Temporary debug — remove after fixing
-    const hasAuth = !!req.headers.authorization;
-    const hasUrl = !!(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL);
-    const hasKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
-    return res.status(401).json({
-      error: "Unauthorized",
-      debug: { hasAuthHeader: hasAuth, hasSupabaseUrl: hasUrl, hasServiceKey: hasKey },
-    });
-  }
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
   const body = await readJsonBody(req);
   const { plan } = body || {};
@@ -226,6 +217,16 @@ async function handleStatus(req, res) {
 
   let effectiveTier = sub.tier;
   let effectiveStatus = sub.status;
+
+  // Admin override — always pro
+  if (sub.role === "admin") {
+    return res.status(200).json({
+      tier: "pro", status: "active", role: "admin",
+      trialEnd: null, trialDaysLeft: 0,
+      billingCycle: null, cancelAtPeriodEnd: false,
+      currentPeriodEnd: null, hasStripeSubscription: false,
+    });
+  }
 
   if (trialExpired && sub.tier === "pro_trial") {
     effectiveTier = "free";
