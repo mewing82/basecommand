@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Crown, Sparkles, AlertTriangle, Zap, ArrowRight, Check, Copy, ClipboardCopy, BarChart3, Target, Lightbulb, Upload } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
 import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
@@ -10,6 +11,7 @@ import { RENEWAL_LEADERSHIP_PROMPT, buildCompanyContext } from "../lib/prompts";
 
 export default function Leadership() {
   const navigate = useNavigate();
+  const { isMobile } = useMediaQuery();
   const [accounts, setAccounts] = useState([]);
   const [cache, setCache] = useState(null);
 
@@ -68,10 +70,10 @@ export default function Leadership() {
   // Empty state
   if (accounts.length === 0) return (
     <PageLayout maxWidth={1200}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20, textAlign: "center", padding: "40px 20px" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: isMobile ? 200 : 400, gap: isMobile ? 16 : 20, textAlign: "center", padding: isMobile ? "24px 14px" : "40px 20px" }}>
         <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg, ${C.gold}20, ${C.aiBlue}20)`, display: "flex", alignItems: "center", justifyContent: "center" }}><Crown size={32} style={{ color: C.gold }} /></div>
         <div>
-          <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Your Renewal Command Center</h2>
+          <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 18, isMobile), fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Your Renewal Command Center</h2>
           <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Built for renewal leaders who need portfolio-level visibility, not account-level execution. Import your portfolio data to unlock executive briefs, forecasting, and strategic insights.</p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400, width: "100%" }}>
@@ -98,7 +100,7 @@ export default function Leadership() {
     <PageLayout maxWidth={1200}>
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         {/* Executive Brief */}
-        <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.gold}25`, borderLeft: `3px solid ${C.gold}`, borderRadius: 12, padding: "22px 26px", position: "relative", overflow: "hidden" }}>
+        <div style={{ background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.gold}25`, borderLeft: `3px solid ${C.gold}`, borderRadius: 12, padding: isMobile ? "16px 14px" : "22px 26px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: `radial-gradient(circle, ${C.gold}15 0%, transparent 70%)`, pointerEvents: "none" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, position: "relative" }}>
             <div style={{ width: 28, height: 28, borderRadius: 8, background: C.goldMuted, border: `1px solid ${C.gold}25`, display: "flex", alignItems: "center", justifyContent: "center" }}><Crown size={14} color={C.gold} /></div>
@@ -120,7 +122,7 @@ export default function Leadership() {
           ) : cache?.executiveBrief ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {/* Headline */}
-              <div style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 700, color: C.textPrimary, lineHeight: 1.4 }}>{cache.executiveBrief.headline}</div>
+              <div style={{ fontFamily: FONT_SANS, fontSize: fs(18, 16, isMobile), fontWeight: 700, color: C.textPrimary, lineHeight: 1.4 }}>{cache.executiveBrief.headline}</div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.7 }}>{cache.executiveBrief.forecastSummary}</div>
 
               {/* Key Narratives */}
@@ -172,7 +174,7 @@ export default function Leadership() {
 
         {/* Escalations */}
         {cache?.executiveBrief?.escalations?.length > 0 && (
-          <div style={{ background: C.bgCard, border: `1px solid ${C.red}25`, borderRadius: 10, padding: "16px 20px" }}>
+          <div style={{ background: C.bgCard, border: `1px solid ${C.red}25`, borderRadius: 10, padding: isMobile ? "14px 14px" : "16px 20px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><AlertTriangle size={14} style={{ color: C.red }} /><span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.red }}>Escalations</span></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {cache.executiveBrief.escalations.map((esc, i) => {
@@ -200,7 +202,7 @@ export default function Leadership() {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <BarChart3 size={16} style={{ color: C.textSecondary }} />
-              <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Forecast</span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Forecast</span>
               <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
               {cache.forecast.retentionRate && <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>Retention Rate</span>
@@ -208,15 +210,15 @@ export default function Leadership() {
                 {cache.forecast.retentionRateConfidence && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: { high: C.green, medium: C.amber, low: C.red }[cache.forecast.retentionRateConfidence] || C.textTertiary, textTransform: "uppercase" }}>{cache.forecast.retentionRateConfidence}</span>}
               </div>}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 8 : 10 }}>
               {[{ key: "thisMonth", label: "This Month" }, { key: "nextMonth", label: "Next Month" }, { key: "thisQuarter", label: "This Quarter" }, { key: "nextQuarter", label: "Next Quarter" }].map(period => {
                 const data = cache.forecast[period.key]; if (!data) return null;
                 const expanded = expandedForecast === period.key;
                 return (
-                  <button key={period.key} onClick={() => setExpandedForecast(expanded ? null : period.key)} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: "16px 18px", cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}
+                  <button key={period.key} onClick={() => setExpandedForecast(expanded ? null : period.key)} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: isMobile ? "12px 12px" : "16px 18px", cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; }} onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; }}>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{period.label}</div>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: C.textPrimary, marginBottom: 8 }}>{fmt$(data.total || 0)}</div>
+                    <div style={{ fontFamily: FONT_MONO, fontSize: fs(20, 18, isMobile), fontWeight: 600, color: C.textPrimary, marginBottom: 8 }}>{fmt$(data.total || 0)}</div>
                     <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 2 }}>{data.accounts || 0} accounts</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 8 }}>
                       {[{ label: "Committed", value: data.committed, color: C.green }, { label: "Best Case", value: data.bestCase, color: C.amber }, { label: "At Risk", value: data.atRisk, color: C.red }].map(bucket => (
@@ -237,12 +239,12 @@ export default function Leadership() {
         {/* Health Signals */}
         {cache?.healthSignals?.length > 0 && (
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><Target size={16} style={{ color: C.textSecondary }} /><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Portfolio Health</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><Target size={16} style={{ color: C.textSecondary }} /><span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Portfolio Health</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {cache.healthSignals.map((signal, i) => {
                 const color = severityColors[signal.severity] || C.textTertiary;
                 return (
-                  <div key={i} style={{ background: C.bgCard, border: `1px solid ${color}20`, borderLeft: `3px solid ${color}`, borderRadius: 10, padding: "14px 18px" }}>
+                  <div key={i} style={{ background: C.bgCard, border: `1px solid ${color}20`, borderLeft: `3px solid ${color}`, borderRadius: 10, padding: isMobile ? "12px 14px" : "14px 18px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                       <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color, background: color + "18", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase" }}>{signal.severity}</span>
                       <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{signal.signal}</span>
@@ -259,10 +261,10 @@ export default function Leadership() {
         {/* Strategic Recommendations */}
         {cache?.strategicRecs?.length > 0 && (
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><Lightbulb size={16} style={{ color: C.textSecondary }} /><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Strategic Recommendations</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /></div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><Lightbulb size={16} style={{ color: C.textSecondary }} /><span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Strategic Recommendations</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /></div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(340px, 1fr))", gap: isMobile ? 8 : 10 }}>
               {cache.strategicRecs.map((rec, i) => (
-                <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: "16px 20px" }}>
+                <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: isMobile ? "14px 14px" : "16px 20px" }}>
                   <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>{rec.title}</div>
                   <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5, marginBottom: 8 }}>{rec.rationale}</div>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 6 }}><Zap size={12} style={{ color: C.gold, flexShrink: 0, marginTop: 2 }} /><span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.gold, fontWeight: 500 }}>{rec.action}</span></div>

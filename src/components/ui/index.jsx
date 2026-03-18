@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Sparkles, AlertTriangle } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, AI_PROVIDERS, S, R, HOVER } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, AI_PROVIDERS, S, R, HOVER, APP_MOBILE_PX } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { store } from "../../lib/storage";
 import { getActiveAIConfig, getModelLabel } from "../../lib/ai";
 import { healthColor } from "../../lib/utils";
@@ -434,6 +435,32 @@ export function SkeletonCard() {
       <Skeleton height={14} width="60%" />
       <Skeleton height={12} width="80%" />
       <Skeleton height={12} width="40%" />
+    </div>
+  );
+}
+
+// ─── Responsive Grid ────────────────────────────────────────────────────────
+export function ResponsiveGrid({ cols = { desktop: 4, tablet: 2, mobile: 1 }, gap, children, style }) {
+  const { isMobile, isTablet } = useMediaQuery();
+  const count = isMobile ? cols.mobile : isTablet ? cols.tablet : cols.desktop;
+  const g = gap ?? (isMobile ? APP_MOBILE_PX : S.xl);
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${count}, 1fr)`, gap: g, ...style }}>
+      {children}
+    </div>
+  );
+}
+
+// ─── Agent Stat Grid (shorthand) ────────────────────────────────────────────
+export function AgentStatGrid({ children, style }) {
+  return <ResponsiveGrid cols={{ desktop: 4, tablet: 2, mobile: 2 }} gap={16} style={style}>{children}</ResponsiveGrid>;
+}
+
+// ─── Scrollable Table ───────────────────────────────────────────────────────
+export function ScrollableTable({ children, style }) {
+  return (
+    <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", ...style }}>
+      {children}
     </div>
   );
 }

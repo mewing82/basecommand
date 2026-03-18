@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Activity, AlertTriangle, TrendingUp, TrendingDown, Shield, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { Btn } from "../../components/ui/index";
@@ -49,15 +50,15 @@ function ArchetypeBadge({ archetype }) {
   );
 }
 
-function SignalBreakdown({ signals }) {
+function SignalBreakdown({ signals, isMobile }) {
   const sortedKeys = Object.keys(signals).sort((a, b) => signals[a].score - signals[b].score);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       {sortedKeys.map(key => {
         const s = signals[key];
         return (
-          <div key={key} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 120, fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, flexShrink: 0 }}>
+          <div key={key} style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 6 : 10, flexWrap: isMobile ? "wrap" : "nowrap" }}>
+            <div style={{ minWidth: isMobile ? "auto" : 120, width: isMobile ? "auto" : 120, fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, flexShrink: 0 }}>
               {s.label}
             </div>
             <div style={{ flex: 1 }}>
@@ -76,13 +77,14 @@ function SignalBreakdown({ signals }) {
   );
 }
 
-function AccountHealthCard({ account, health, defaultExpanded = false }) {
+function AccountHealthCard({ account, health, defaultExpanded = false, isMobile }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const ChevIcon = expanded ? ChevronUp : ChevronDown;
 
   return (
     <div style={{
       ...cardStyle,
+      padding: isMobile ? "14px 12px" : "18px 20px",
       borderLeft: `3px solid ${health.severity.color}40`,
       marginBottom: 8,
     }}>
@@ -135,7 +137,7 @@ function AccountHealthCard({ account, health, defaultExpanded = false }) {
           <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
             Signal Breakdown
           </div>
-          <SignalBreakdown signals={health.signals} />
+          <SignalBreakdown signals={health.signals} isMobile={isMobile} />
         </div>
       )}
     </div>
@@ -144,6 +146,7 @@ function AccountHealthCard({ account, health, defaultExpanded = false }) {
 
 // ─── Main Page ──────────────────────────────────────────────────────────────
 export default function HealthMonitor() {
+  const { isMobile } = useMediaQuery();
   const [healthResults, setHealthResults] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -198,18 +201,18 @@ export default function HealthMonitor() {
 
       {/* Summary cards */}
       {summary && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 8 : 10, marginBottom: 20 }}>
           {[
             { label: "Portfolio Health", value: summary.avgScore.toFixed(1), sub: `${summary.total} accounts`, color: getSeverity(summary.avgScore).color },
             { label: "At-Risk ARR", value: formatARR(summary.atRiskARR), sub: `of ${formatARR(summary.totalARR)}`, color: summary.atRiskARR > 0 ? C.red : C.green },
             { label: "Critical / High", value: `${summary.severityCounts.critical + summary.severityCounts.high}`, sub: "need attention", color: (summary.severityCounts.critical + summary.severityCounts.high) > 0 ? C.amber : C.green },
             { label: "Healthy", value: `${summary.severityCounts.healthy + summary.severityCounts.low}`, sub: "on track", color: C.green },
           ].map((stat, i) => (
-            <div key={i} style={cardStyle}>
+            <div key={i} style={{ ...cardStyle, padding: isMobile ? "14px 12px" : "18px 20px" }}>
               <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
                 {stat.label}
               </div>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 22, fontWeight: 700, color: stat.color, letterSpacing: "-0.02em" }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: stat.color, letterSpacing: "-0.02em" }}>
                 {stat.value}
               </div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, marginTop: 2 }}>
@@ -222,7 +225,7 @@ export default function HealthMonitor() {
 
       {/* Archetype distribution */}
       {summary && summary.total > 0 && (
-        <div style={{ ...cardStyle, marginBottom: 20 }}>
+        <div style={{ ...cardStyle, padding: isMobile ? "14px 12px" : "18px 20px", marginBottom: 20 }}>
           <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
             Behavioral Archetypes
           </div>
@@ -255,7 +258,7 @@ export default function HealthMonitor() {
       )}
 
       {/* Filter tabs */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
         {[
           { id: "all", label: "All" },
           { id: "critical", label: "Critical", color: "#F87171" },
@@ -306,6 +309,7 @@ export default function HealthMonitor() {
               account={account}
               health={health}
               defaultExpanded={health.score <= 4}
+              isMobile={isMobile}
             />
           ))}
         </div>

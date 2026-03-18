@@ -5,7 +5,8 @@ import {
   Trash2, Lightbulb, X, Bot, Clock, ThumbsUp, ThumbsDown, Pencil,
   Activity, History,
 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
 import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
@@ -65,6 +66,7 @@ const DEFAULT_SUGGESTIONS = [
 // ─── Action Center (Main Component) ─────────────────────────────────────────
 export default function Tasks() {
   const navigate = useNavigate();
+  const { isMobile } = useMediaQuery();
   const [activeTab, setActiveTab] = useState("queue");
 
   // Shared data
@@ -99,21 +101,24 @@ export default function Tasks() {
     <PageLayout maxWidth={1000}>
       {/* Tab bar */}
       <div style={{
-        display: "flex", gap: 4, marginBottom: 24,
+        display: "flex", gap: 4, marginBottom: isMobile ? 16 : 24,
         background: C.bgCard, borderRadius: 10, padding: 4,
         border: `1px solid ${C.borderDefault}`,
+        overflowX: isMobile ? "auto" : undefined,
+        flexWrap: isMobile ? "nowrap" : undefined,
+        WebkitOverflowScrolling: "touch",
       }}>
         {TABS.map(tab => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
           return (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              padding: "10px 16px", borderRadius: 8, border: "none", cursor: "pointer",
+              flex: isMobile ? "0 0 auto" : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              padding: isMobile ? "10px 14px" : "10px 16px", borderRadius: 8, border: "none", cursor: "pointer",
               background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
               color: isActive ? C.textPrimary : C.textSecondary,
               fontFamily: FONT_SANS, fontSize: 13, fontWeight: isActive ? 600 : 500,
-              transition: "all 0.15s",
+              transition: "all 0.15s", whiteSpace: "nowrap",
             }}>
               <Icon size={15} strokeWidth={isActive ? 2 : 1.5} />
               {tab.label}
@@ -136,6 +141,7 @@ export default function Tasks() {
           actions={pendingActions}
           onRefresh={refreshAll}
           navigate={navigate}
+          isMobile={isMobile}
         />
       )}
       {activeTab === "actions" && (
@@ -145,12 +151,14 @@ export default function Tasks() {
           accounts={accounts}
           persona={persona}
           navigate={navigate}
+          isMobile={isMobile}
         />
       )}
       {activeTab === "log" && (
         <ActivityLog
           completedTasks={completedTasks}
           resolvedActions={resolvedActions}
+          isMobile={isMobile}
         />
       )}
     </PageLayout>
@@ -158,7 +166,7 @@ export default function Tasks() {
 }
 
 // ─── Tab 1: Agent Queue ─────────────────────────────────────────────────────
-function AgentQueue({ actions, onRefresh, navigate }) {
+function AgentQueue({ actions, onRefresh, navigate, isMobile }) {
   const sorted = [...actions].sort((a, b) => (URGENCY_ORDER[a.urgency] || 2) - (URGENCY_ORDER[b.urgency] || 2));
 
   async function handleApprove(action) {
@@ -187,8 +195,8 @@ function AgentQueue({ actions, onRefresh, navigate }) {
       <div style={{ width: 56, height: 56, borderRadius: 14, background: C.greenMuted, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Check size={28} style={{ color: C.green }} />
       </div>
-      <div style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 600, color: C.textPrimary }}>Queue is clear</div>
-      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, maxWidth: 400, lineHeight: 1.6 }}>
+      <div style={{ fontFamily: FONT_SANS, fontSize: fs(18, 16, isMobile), fontWeight: 600, color: C.textPrimary }}>Queue is clear</div>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, maxWidth: 400, lineHeight: 1.6, padding: isMobile ? "0 8px" : 0 }}>
         No agent proposals waiting for review. Run your Renewal Agents to generate actions.
       </div>
       <Btn variant="ghost" onClick={() => navigate("/app/agents/renewal/health-monitor")}>
@@ -217,9 +225,9 @@ function AgentQueue({ actions, onRefresh, navigate }) {
               background: C.bgCard, border: `1px solid ${C.borderDefault}`,
               borderLeft: `3px solid ${urgColor}60`, borderRadius: 10, overflow: "hidden",
             }}>
-              <div style={{ padding: "16px 20px" }}>
+              <div style={{ padding: isMobile ? "12px 14px" : "16px 20px" }}>
                 {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: isMobile ? "wrap" : undefined }}>
                   <span style={{
                     fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600, textTransform: "uppercase",
                     color: urgColor, background: urgColor + "18", padding: "2px 6px", borderRadius: 3,
@@ -241,7 +249,7 @@ function AgentQueue({ actions, onRefresh, navigate }) {
                 </div>
 
                 {/* Title + description */}
-                <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 4 }}>
+                <div style={{ fontFamily: FONT_SANS, fontSize: fs(15, 14, isMobile), fontWeight: 600, color: C.textPrimary, marginBottom: 4 }}>
                   {action.title}
                 </div>
                 {action.description && (
@@ -301,7 +309,7 @@ function AgentQueue({ actions, onRefresh, navigate }) {
 }
 
 // ─── Tab 2: My Actions (preserved from original Tasks) ──────────────────────
-function MyActions({ tasks, setTasks, accounts, persona, navigate }) {
+function MyActions({ tasks, setTasks, accounts, persona, navigate, isMobile }) {
   const [filter, setFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("active");
   const [showCreate, setShowCreate] = useState(false);
@@ -416,9 +424,9 @@ function MyActions({ tasks, setTasks, accounts, persona, navigate }) {
               </button>
             )}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 10 }}>
             {visibleSuggestions.map((suggestion, i) => (
-              <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.gold}15`, borderRadius: 10, padding: "14px 16px", position: "relative", transition: "all 0.15s" }}
+              <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.gold}15`, borderRadius: 10, padding: isMobile ? "12px 14px" : "14px 16px", position: "relative", transition: "all 0.15s" }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold + "40"; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = C.gold + "15"; }}>
                 <button onClick={() => dismissSuggestion(suggestion.title)} style={{ position: "absolute", top: 8, right: 8, background: "none", border: "none", color: C.textTertiary, cursor: "pointer", padding: 2, opacity: 0.3, display: "flex" }}
@@ -437,7 +445,7 @@ function MyActions({ tasks, setTasks, accounts, persona, navigate }) {
       )}
 
       {/* Filters */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: isMobile ? 14 : 20, flexWrap: "wrap" }}>
         <div style={{ display: "flex", gap: 4, background: C.bgCard, borderRadius: 8, padding: 3, border: `1px solid ${C.borderDefault}` }}>
           {FILTERS.map(f => (
             <button key={f.id} onClick={() => setFilter(f.id)} style={{
@@ -481,7 +489,7 @@ function MyActions({ tasks, setTasks, accounts, persona, navigate }) {
                 background: C.bgCard, border: `1px solid ${C.borderDefault}`,
                 borderRadius: 12, overflow: "hidden", opacity: task.status === "complete" ? 0.6 : 1,
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px" }}>
+                <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 10 : 12, padding: isMobile ? "12px 14px" : "14px 18px", flexWrap: isMobile ? "wrap" : undefined }}>
                   <button onClick={() => cycleStatus(task)} style={{
                     width: 22, height: 22, borderRadius: 6, flexShrink: 0, cursor: "pointer",
                     border: `2px solid ${task.status === "complete" ? C.green : task.status === "in_progress" ? C.aiBlue : C.borderSubtle}`,
@@ -528,7 +536,7 @@ function MyActions({ tasks, setTasks, accounts, persona, navigate }) {
                   </div>
                 </div>
                 {hasAiOutput && (
-                  <div style={{ padding: "14px 18px", borderTop: `1px solid ${C.borderDefault}`, background: C.bgAI }}>
+                  <div style={{ padding: isMobile ? "12px 14px" : "14px 18px", borderTop: `1px solid ${C.borderDefault}`, background: C.bgAI }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                       <Sparkles size={12} style={{ color: C.aiBlue }} />
                       <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: C.aiBlue }}>AI Draft</span>
@@ -546,7 +554,7 @@ function MyActions({ tasks, setTasks, accounts, persona, navigate }) {
       )}
 
       {showCreate && (
-        <CreateTaskModal accounts={accounts} onClose={() => setShowCreate(false)} onCreate={async (task) => {
+        <CreateTaskModal accounts={accounts} isMobile={isMobile} onClose={() => setShowCreate(false)} onCreate={async (task) => {
           await renewalStore.saveTaskItem(task);
           setTasks(await renewalStore.getTaskItems());
           setShowCreate(false);
@@ -557,7 +565,7 @@ function MyActions({ tasks, setTasks, accounts, persona, navigate }) {
 }
 
 // ─── Tab 3: Activity Log ────────────────────────────────────────────────────
-function ActivityLog({ completedTasks, resolvedActions }) {
+function ActivityLog({ completedTasks, resolvedActions, isMobile }) {
   // Merge and sort reverse-chronologically
   const entries = [
     ...completedTasks.map(t => ({
@@ -581,8 +589,8 @@ function ActivityLog({ completedTasks, resolvedActions }) {
   if (entries.length === 0) return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 300, gap: 16, textAlign: "center" }}>
       <History size={32} style={{ color: C.textTertiary }} />
-      <div style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 600, color: C.textPrimary }}>No activity yet</div>
-      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, maxWidth: 400, lineHeight: 1.6 }}>
+      <div style={{ fontFamily: FONT_SANS, fontSize: fs(18, 16, isMobile), fontWeight: 600, color: C.textPrimary }}>No activity yet</div>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, maxWidth: 400, lineHeight: 1.6, padding: isMobile ? "0 8px" : 0 }}>
         Completed tasks and agent decisions will appear here — building your workflow history over time.
       </div>
     </div>
@@ -609,8 +617,8 @@ function ActivityLog({ completedTasks, resolvedActions }) {
 
           return (
             <div key={entry.id} style={{
-              display: "flex", alignItems: "center", gap: 12,
-              padding: "10px 16px", background: C.bgCard,
+              display: "flex", alignItems: "center", gap: isMobile ? 10 : 12,
+              padding: isMobile ? "10px 12px" : "10px 16px", background: C.bgCard,
               border: `1px solid ${C.borderDefault}`, borderRadius: 8,
               opacity: entry.type === "agent_dismissed" ? 0.6 : 1,
             }}>
@@ -643,7 +651,7 @@ function ActivityLog({ completedTasks, resolvedActions }) {
 }
 
 // ─── Create Task Modal (preserved from original) ────────────────────────────
-function CreateTaskModal({ accounts, onClose, onCreate }) {
+function CreateTaskModal({ accounts, isMobile, onClose, onCreate }) {
   const [type, setType] = useState("account");
   const [title, setTitle] = useState("");
   const [accountId, setAccountId] = useState("");
@@ -670,14 +678,14 @@ function CreateTaskModal({ accounts, onClose, onCreate }) {
   }
 
   return (
-    <Modal title="New Task" onClose={onClose} width={520}>
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+    <Modal title="New Task" onClose={onClose} width={isMobile ? "calc(100vw - 32px)" : 520}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexDirection: isMobile ? "column" : "row" }}>
         {[
           { id: "account", label: "Account Action", desc: "Tied to a specific account" },
           { id: "strategic", label: "Strategic", desc: "Portfolio-level renewal work" },
         ].map(t => (
           <button key={t.id} onClick={() => setType(t.id)} style={{
-            flex: 1, padding: "14px 16px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+            flex: 1, padding: isMobile ? "12px 14px" : "14px 16px", borderRadius: 10, cursor: "pointer", textAlign: "left",
             border: `1px solid ${type === t.id ? C.gold + "60" : C.borderDefault}`,
             background: type === t.id ? C.goldMuted : "transparent",
           }}>
@@ -703,7 +711,7 @@ function CreateTaskModal({ accounts, onClose, onCreate }) {
           </select>
         </FormField>
       )}
-      <div style={{ display: "grid", gridTemplateColumns: type === "strategic" ? "1fr 1fr 1fr" : "1fr 1fr", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : (type === "strategic" ? "1fr 1fr 1fr" : "1fr 1fr"), gap: 12 }}>
         <FormField label="Priority">
           <div style={{ display: "flex", gap: 6 }}>
             {["low", "medium", "high"].map(level => (

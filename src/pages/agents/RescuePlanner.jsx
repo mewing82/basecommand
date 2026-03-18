@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ShieldAlert, Sparkles, Loader, AlertTriangle, Clock, CheckCircle, ArrowRight } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
 import { PageLayout } from "../../components/layout/PageLayout";
@@ -31,6 +32,7 @@ Be specific and actionable. Reference the account's actual data. Explain WHY eac
 }
 
 export default function RescuePlanner() {
+  const { isMobile } = useMediaQuery();
   const [atRiskAccounts, setAtRiskAccounts] = useState([]);
   const [plans, setPlans] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -126,7 +128,7 @@ ${signals}`;
       ) : atRiskAccounts.length === 0 ? (
         <div style={{ textAlign: "center", padding: 60 }}>
           <CheckCircle size={32} style={{ color: C.green }} />
-          <div style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 600, color: C.textPrimary, marginTop: 16 }}>
+          <div style={{ fontFamily: FONT_SANS, fontSize: fs(18, 16, isMobile), fontWeight: 600, color: C.textPrimary, marginTop: 16 }}>
             Portfolio is healthy
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 4 }}>
@@ -140,14 +142,14 @@ ${signals}`;
             background: `linear-gradient(135deg, ${C.redMuted} 0%, ${C.bgCard} 100%)`,
             border: `1px solid ${C.red}25`,
             borderLeft: `3px solid ${C.red}`,
-            borderRadius: 12, padding: "20px 24px", marginBottom: 20,
+            borderRadius: 12, padding: isMobile ? "14px 12px" : "20px 24px", marginBottom: 20,
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: isMobile ? "wrap" : "nowrap" }}>
               <ShieldAlert size={18} style={{ color: C.red }} />
-              <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>
+              <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>
                 {atRiskAccounts.length} account{atRiskAccounts.length !== 1 ? "s" : ""} need intervention
               </span>
-              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.red, marginLeft: "auto" }}>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.red, marginLeft: isMobile ? 0 : "auto" }}>
                 {formatARR(totalAtRiskARR)} at risk
               </span>
             </div>
@@ -188,8 +190,8 @@ ${signals}`;
                   onClick={() => setExpandedPlan(isExpanded ? null : (plan.accountId || i))}
                   style={{
                     width: "100%", background: "none", border: "none", cursor: "pointer",
-                    display: "flex", alignItems: "center", gap: 12,
-                    padding: "16px 20px", textAlign: "left",
+                    display: "flex", alignItems: "center", gap: isMobile ? 8 : 12,
+                    padding: isMobile ? "12px 12px" : "16px 20px", textAlign: "left",
                   }}
                 >
                   <div style={{
@@ -217,7 +219,7 @@ ${signals}`;
 
                 {/* Expanded plan */}
                 {isExpanded && (
-                  <div style={{ padding: "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
+                  <div style={{ padding: isMobile ? "0 12px 14px" : "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
                     {/* Diagnosis */}
                     <div style={{ marginTop: 16, marginBottom: 16 }}>
                       <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>

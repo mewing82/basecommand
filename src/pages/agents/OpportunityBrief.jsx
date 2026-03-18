@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, Sparkles, Loader, DollarSign, Copy, Check, ArrowRight } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
 import { PageLayout } from "../../components/layout/PageLayout";
@@ -43,6 +44,7 @@ function CopyBtn({ text }) {
 }
 
 export default function OpportunityBrief() {
+  const { isMobile } = useMediaQuery();
   const navigate = useNavigate();
   const [healthResults, setHealthResults] = useState([]);
   const [briefs, setBriefs] = useState(null);
@@ -109,7 +111,7 @@ export default function OpportunityBrief() {
       ) : growthAccounts.length === 0 ? (
         <div style={{ textAlign: "center", padding: 60 }}>
           <TrendingUp size={32} style={{ color: C.textTertiary }} />
-          <div style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 600, color: C.textPrimary, marginTop: 16 }}>No expansion-ready accounts</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: fs(18, 16, isMobile), fontWeight: 600, color: C.textPrimary, marginTop: 16 }}>No expansion-ready accounts</div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 4 }}>
             Accounts classified as Power Users, Converts, or Enthusiastic Adopters will appear here.
           </div>
@@ -119,11 +121,11 @@ export default function OpportunityBrief() {
           <div style={{
             background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
             border: `1px solid ${C.green}25`, borderLeft: `3px solid ${C.green}`,
-            borderRadius: 12, padding: "20px 24px", marginBottom: 20,
+            borderRadius: 12, padding: isMobile ? "14px 12px" : "20px 24px", marginBottom: 20,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <DollarSign size={16} style={{ color: C.green }} />
-              <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>
+              <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>
                 {growthAccounts.length} expansion opportunities
               </span>
             </div>
@@ -148,7 +150,7 @@ export default function OpportunityBrief() {
               }}>
                 <button onClick={() => setExpandedBrief(isExpanded ? null : i)} style={{
                   width: "100%", background: "none", border: "none", cursor: "pointer",
-                  display: "flex", alignItems: "center", gap: 12, padding: "14px 20px", textAlign: "left",
+                  display: "flex", alignItems: "center", gap: isMobile ? 8 : 12, padding: isMobile ? "12px 12px" : "14px 20px", textAlign: "left",
                 }}>
                   <TrendingUp size={16} style={{ color: C.green, flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
@@ -159,7 +161,7 @@ export default function OpportunityBrief() {
                 </button>
 
                 {isExpanded && (
-                  <div style={{ padding: "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
+                  <div style={{ padding: isMobile ? "0 12px 14px" : "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
                     <div style={{ marginTop: 14, marginBottom: 14 }}>
                       <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", marginBottom: 6 }}>Opportunity</div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>{brief.opportunity_summary}</div>
@@ -177,7 +179,7 @@ export default function OpportunityBrief() {
                       </div>
                     )}
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 10, marginBottom: 14 }}>
                       <div style={{ padding: "10px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}` }}>
                         <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Pricing Approach</div>
                         <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.5 }}>{brief.pricing_approach}</div>

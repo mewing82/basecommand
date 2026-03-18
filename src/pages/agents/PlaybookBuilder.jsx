@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileText, Sparkles, Loader, Check, Clock, ChevronDown, ChevronUp } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
 import { PageLayout } from "../../components/layout/PageLayout";
@@ -34,6 +35,7 @@ Be specific. Reference account data. Explain WHY each action matters for this pa
 }
 
 export default function PlaybookBuilder() {
+  const { isMobile } = useMediaQuery();
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [playbooks, setPlaybooks] = useState(null);
@@ -98,7 +100,7 @@ export default function PlaybookBuilder() {
       ) : upcomingAccounts.length === 0 ? (
         <div style={{ textAlign: "center", padding: 60 }}>
           <FileText size={32} style={{ color: C.textTertiary }} />
-          <div style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 600, color: C.textPrimary, marginTop: 16 }}>No upcoming renewals</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: fs(18, 16, isMobile), fontWeight: 600, color: C.textPrimary, marginTop: 16 }}>No upcoming renewals</div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 4 }}>
             Accounts with renewals in the next 120 days will appear here for playbook generation.
           </div>
@@ -109,14 +111,14 @@ export default function PlaybookBuilder() {
           <div style={{
             background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
             border: `1px solid ${C.gold}25`, borderLeft: `3px solid ${C.gold}`,
-            borderRadius: 12, padding: "20px 24px", marginBottom: 20,
+            borderRadius: 12, padding: isMobile ? "14px 12px" : "20px 24px", marginBottom: 20,
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: isMobile ? "wrap" : "nowrap" }}>
               <FileText size={16} style={{ color: C.gold }} />
-              <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>
+              <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>
                 {upcomingAccounts.length} renewal{upcomingAccounts.length !== 1 ? "s" : ""} in next 120 days
               </span>
-              <span style={{ fontFamily: FONT_MONO, fontSize: 13, color: C.gold, fontWeight: 600, marginLeft: "auto" }}>
+              <span style={{ fontFamily: FONT_MONO, fontSize: isMobile ? 12 : 13, color: C.gold, fontWeight: 600, marginLeft: isMobile ? 0 : "auto" }}>
                 {formatARR(upcomingAccounts.reduce((s, a) => s + (a.arr || 0), 0))} at stake
               </span>
             </div>
@@ -142,7 +144,7 @@ export default function PlaybookBuilder() {
               }}>
                 <button onClick={() => setExpandedPlaybook(isExpanded ? null : i)} style={{
                   width: "100%", background: "none", border: "none", cursor: "pointer",
-                  display: "flex", alignItems: "center", gap: 12, padding: "14px 20px", textAlign: "left",
+                  display: "flex", alignItems: "center", gap: isMobile ? 8 : 12, padding: isMobile ? "12px 12px" : "14px 20px", textAlign: "left",
                 }}>
                   <FileText size={16} style={{ color: C.gold, flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
@@ -155,7 +157,7 @@ export default function PlaybookBuilder() {
                 </button>
 
                 {isExpanded && (
-                  <div style={{ padding: "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
+                  <div style={{ padding: isMobile ? "0 12px 14px" : "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
                     {pb.archetype_notes && (
                       <div style={{ marginTop: 14, padding: "10px 14px", background: C.bgAI, borderRadius: 8, border: `1px solid ${C.borderAI}`, marginBottom: 14 }}>
                         <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>Archetype Strategy</div>

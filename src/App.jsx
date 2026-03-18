@@ -4,7 +4,8 @@ import { Menu, Search } from "lucide-react";
 import { useAppStore } from "./store/appStore";
 import { useEntityStore } from "./store/entityStore";
 import { useAuthStore } from "./store/authStore";
-import { C, FONT_SANS, FONT_MONO } from "./lib/tokens";
+import { C, FONT_SANS, FONT_MONO, APP_MOBILE_PX } from "./lib/tokens";
+import { useMediaQuery } from "./lib/useMediaQuery";
 import Sidebar from "./components/layout/Sidebar";
 import TopBar from "./components/layout/TopBar";
 import CommandPalette from "./components/layout/CommandPalette";
@@ -51,6 +52,7 @@ function AppLayout() {
   const { loadAll } = useEntityStore();
   const [showPalette, setShowPalette] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const { isMobile } = useMediaQuery();
 
   // Derive current view from /app/... pathname
   const pathAfterApp = location.pathname.replace(/^\/app\/?/, "") || "dashboard";
@@ -148,7 +150,7 @@ function AppLayout() {
           position: "sticky", top: 0, zIndex: 50,
           background: `${C.bgPrimary}F2`, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
           borderBottom: `1px solid ${C.borderDefault}`,
-          padding: "0 24px", height: 56,
+          padding: isMobile ? "0 12px" : "0 24px", height: 56,
           display: "flex", alignItems: "center", gap: 12,
         }}>
           <button
@@ -178,7 +180,7 @@ function AppLayout() {
           </button>
         </div>
 
-        <div className="bc-app-content" style={{ minHeight: "calc(100vh - 56px)" }}>
+        <div className="bc-app-content" style={{ minHeight: "calc(100vh - 56px)", paddingBottom: isMobile ? 72 : 0 }}>
           <Routes>
             <Route index element={<Dashboard />} />
             <Route path="accounts" element={<Accounts />} />

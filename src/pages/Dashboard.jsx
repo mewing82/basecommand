@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sparkles, AlertTriangle, ArrowRight, Bot, Crown, Radio, Upload, Plus, Check, BarChart3 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { useMediaQuery } from "../lib/useMediaQuery";
 import { callAI } from "../lib/ai";
 import { renewalStore, store } from "../lib/storage";
 import { getGreeting } from "../lib/utils";
@@ -12,6 +13,7 @@ import { RENEWAL_AUTOPILOT_PROMPT } from "../lib/prompts";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { isMobile } = useMediaQuery();
   const { user } = useAuthStore();
   const userName = user?.user_metadata?.name || user?.user_metadata?.full_name || "there";
 
@@ -21,15 +23,15 @@ export default function Dashboard() {
 
   // If no accounts, show onboarding
   if (!hasAccounts) {
-    return <DashboardOnboarding userName={userName} onAccountsChanged={() => renewalStore.getAccounts().then(setAccounts)} />;
+    return <DashboardOnboarding userName={userName} isMobile={isMobile} onAccountsChanged={() => renewalStore.getAccounts().then(setAccounts)} />;
   }
 
   // Otherwise show command center
-  return <DashboardCommandCenter userName={userName} accounts={accounts} />;
+  return <DashboardCommandCenter userName={userName} accounts={accounts} isMobile={isMobile} />;
 }
 
 // ─── Onboarding (Zero Accounts) ──────────────────────────────────────────────
-function DashboardOnboarding({ userName, onAccountsChanged }) {
+function DashboardOnboarding({ userName, isMobile, onAccountsChanged }) {
   const navigate = useNavigate();
   const [rows, setRows] = useState([{ name: "", arr: "", renewalDate: "" }]);
   const [created, setCreated] = useState([]);
@@ -71,7 +73,7 @@ function DashboardOnboarding({ userName, onAccountsChanged }) {
   }
 
   return (
-    <PageLayout maxWidth={720} largePadding>
+    <PageLayout maxWidth={isMobile ? "100%" : 720} largePadding>
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <div style={{
           width: 64, height: 64, borderRadius: 16, margin: "0 auto 24px",
@@ -82,7 +84,7 @@ function DashboardOnboarding({ userName, onAccountsChanged }) {
           <Sparkles size={28} style={{ color: C.gold }} />
         </div>
         <h1 style={{
-          fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700, color: C.textPrimary,
+          fontFamily: FONT_SANS, fontSize: fs(28, 22, isMobile), fontWeight: 700, color: C.textPrimary,
           margin: "0 0 8px", letterSpacing: "-0.03em",
         }}>
           {getGreeting()}, {userName}
@@ -98,7 +100,7 @@ function DashboardOnboarding({ userName, onAccountsChanged }) {
       {/* Quick Add Form */}
       <div style={{
         background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-        borderRadius: 14, padding: "28px 28px 20px", marginBottom: 20,
+        borderRadius: 14, padding: isMobile ? "16px 12px 14px" : "28px 28px 20px", marginBottom: 20,
       }}>
         <div style={{
           fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary,
@@ -109,7 +111,7 @@ function DashboardOnboarding({ userName, onAccountsChanged }) {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {rows.map((row, idx) => (
-            <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <div key={idx} style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 8, alignItems: isMobile ? "stretch" : "center" }}>
               <input
                 value={row.name}
                 onChange={e => updateRow(idx, "name", e.target.value)}
@@ -273,7 +275,7 @@ function DashboardOnboarding({ userName, onAccountsChanged }) {
 }
 
 // ─── Command Center (Has Accounts) ───────────────────────────────────────────
-function DashboardCommandCenter({ userName, accounts }) {
+function DashboardCommandCenter({ userName, accounts, isMobile }) {
   const navigate = useNavigate();
 
   const CACHE_KEY = `bc2-${store._ws}-dashboard-renewal`;
@@ -363,11 +365,11 @@ RULES:
   const riskColors = { high: C.red, medium: C.amber, low: C.green };
 
   return (
-    <PageLayout maxWidth={960}>
+    <PageLayout maxWidth={isMobile ? "100%" : 960}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "stretch" : "flex-start", gap: isMobile ? 12 : 0, marginBottom: 28 }}>
         <div>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>
+          <div style={{ fontFamily: FONT_SANS, fontSize: fs(26, 20, isMobile), fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>
             {getGreeting()}, {userName}
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 6 }}>{dateStr}</div>
@@ -390,7 +392,7 @@ RULES:
       </div>
 
       {/* Portfolio Snapshot */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(5, 1fr)", gap: 12, marginBottom: 24 }}>
         {[
           { label: "Total ARR", value: fmt$(totalARR), color: C.textPrimary },
           { label: "Accounts", value: accounts.length, color: C.textPrimary },
@@ -413,7 +415,7 @@ RULES:
       <div style={{
         background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
         border: `1px solid ${C.borderAI}`, borderLeft: `2px solid ${C.aiBlue}40`,
-        borderRadius: 14, padding: "24px 26px", marginBottom: 24, position: "relative", overflow: "hidden",
+        borderRadius: 14, padding: isMobile ? "16px 14px" : "24px 26px", marginBottom: 24, position: "relative", overflow: "hidden",
       }}>
         <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: `radial-gradient(circle, ${C.aiBlueGlow} 0%, transparent 70%)`, pointerEvents: "none" }} />
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, position: "relative" }}>
@@ -444,9 +446,9 @@ RULES:
       </div>
 
       {/* Two-column: Pending Actions + Upcoming Renewals */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 24 }}>
         {/* Pending Autopilot Actions */}
-        <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 14, padding: "20px 22px" }}>
+        <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 14, padding: isMobile ? "16px 14px" : "20px 22px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <Bot size={16} style={{ color: C.aiBlue }} />
             <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>Pending Actions</span>
@@ -501,7 +503,7 @@ RULES:
         </div>
 
         {/* Upcoming Renewals */}
-        <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 14, padding: "20px 22px" }}>
+        <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 14, padding: isMobile ? "16px 14px" : "20px 22px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <AlertTriangle size={16} style={{ color: C.amber }} />
             <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>Upcoming Renewals</span>
@@ -564,7 +566,7 @@ RULES:
       </div>
 
       {/* Quick Links */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 12 }}>
         {[
           { icon: Sparkles, label: "Agents", desc: "AI agent hub", route: "/app/agents", color: C.gold },
           { icon: Bot, label: "Health Monitor", desc: "Portfolio health scores", route: "/app/agents/renewal/health-monitor", color: C.aiBlue },
@@ -578,7 +580,7 @@ RULES:
               onClick={() => navigate(link.route)}
               style={{
                 background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 12,
-                padding: "18px 16px", cursor: "pointer", textAlign: "left",
+                padding: isMobile ? "14px 12px" : "18px 16px", cursor: "pointer", textAlign: "left",
                 transition: "all 0.15s", display: "flex", flexDirection: "column", gap: 10,
               }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = link.color + "40"; e.currentTarget.style.transform = "translateY(-1px)"; }}

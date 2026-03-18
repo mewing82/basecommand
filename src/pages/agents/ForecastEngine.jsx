@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart3, Sparkles, AlertTriangle, Zap, ArrowRight, Check, ClipboardCopy, TrendingUp, TrendingDown, Minus, ShieldAlert, Loader, Target } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore, store } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
 import { safeParse } from "../../lib/utils";
@@ -60,6 +61,7 @@ function BenchmarkBar({ value, metric }) {
 }
 
 export default function ForecastEngine() {
+  const { isMobile } = useMediaQuery();
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   useEffect(() => { renewalStore.getAccounts().then(setAccounts); }, []);
@@ -159,7 +161,7 @@ export default function ForecastEngine() {
         <div style={{ width: 64, height: 64, borderRadius: 16, background: "#A78BFA18", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <BarChart3 size={32} style={{ color: "#A78BFA" }} />
         </div>
-        <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: 0 }}>Forecast Engine</h2>
+        <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: C.textPrimary, margin: 0 }}>Forecast Engine</h2>
         <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: 0 }}>
           Board-ready forecasts with GRR/NRR metrics, confidence tiers, scenario modeling, and industry benchmark comparisons.
         </p>
@@ -173,14 +175,14 @@ export default function ForecastEngine() {
   return (
     <PageLayout maxWidth={1100}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: isMobile ? 8 : 0 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
             <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Growth Agent</span>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {forecast && (
             <Btn variant="ghost" onClick={() => handleCopy(buildForecastText(), "all")}>
               {copiedSection === "all" ? <><Check size={14} /> Copied</> : <><ClipboardCopy size={14} /> Copy Forecast</>}
@@ -204,7 +206,7 @@ export default function ForecastEngine() {
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Key Metrics with Benchmarks */}
           {forecast.metrics && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 8 : 12 }}>
               {[
                 { label: "Gross Retention", value: forecast.metrics.grr, color: C.green, benchmark: "grr" },
                 { label: "Net Retention", value: forecast.metrics.nrr, color: parseFloat(forecast.metrics.nrr) >= 100 ? C.green : C.amber, benchmark: "nrr" },
@@ -213,10 +215,10 @@ export default function ForecastEngine() {
               ].map((m, i) => {
                 const TrendIcon = m.icon;
                 return (
-                  <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: "16px 18px" }}>
+                  <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: isMobile ? "12px 12px" : "16px 18px" }}>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{m.label}</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 22, fontWeight: 700, color: m.color, textTransform: "capitalize" }}>{m.value}</span>
+                      <span style={{ fontFamily: FONT_MONO, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: m.color, textTransform: "capitalize" }}>{m.value}</span>
                       {TrendIcon && <TrendIcon size={16} style={{ color: m.color }} />}
                     </div>
                     {m.benchmark && <BenchmarkBar value={m.value} metric={m.benchmark} />}
@@ -230,8 +232,8 @@ export default function ForecastEngine() {
           {forecast.metrics && healthSummary && (
             <div style={{
               background: C.bgCard, border: `1px solid ${C.green}20`,
-              borderRadius: 10, padding: "14px 18px",
-              display: "flex", alignItems: "center", gap: 12,
+              borderRadius: 10, padding: isMobile ? "12px 12px" : "14px 18px",
+              display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: 12,
             }}>
               <Target size={16} style={{ color: C.green, flexShrink: 0 }} />
               <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>
@@ -246,14 +248,14 @@ export default function ForecastEngine() {
             <div style={{
               background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
               border: "1px solid #A78BFA25", borderLeft: "3px solid #A78BFA",
-              borderRadius: 12, padding: "22px 26px", position: "relative", overflow: "hidden",
+              borderRadius: 12, padding: isMobile ? "14px 12px" : "22px 26px", position: "relative", overflow: "hidden",
             }}>
               <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, #A78BFA15 0%, transparent 70%)", pointerEvents: "none" }} />
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, position: "relative" }}>
                 <div style={{ width: 28, height: 28, borderRadius: 8, background: "#A78BFA18", border: "1px solid #A78BFA25", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <BarChart3 size={14} color="#A78BFA" />
                 </div>
-                <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Forecast Intelligence</span>
+                <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Forecast Intelligence</span>
               </div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.8 }}>{forecast.narrative}</div>
               {forecast.metrics?.forecastConfidenceReason && (
@@ -268,10 +270,10 @@ export default function ForecastEngine() {
           {forecast.periods && (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Forecast by Period</span>
+                <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Forecast by Period</span>
                 <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 8 : 12 }}>
                 {[
                   { key: "thisMonth", label: "This Month" },
                   { key: "nextMonth", label: "Next Month" },
@@ -285,10 +287,10 @@ export default function ForecastEngine() {
                   return (
                     <button key={period.key} onClick={() => setExpandedPeriod(expanded ? null : period.key)} style={{
                       background: C.bgCard, border: `1px solid ${expanded ? "#A78BFA40" : C.borderDefault}`,
-                      borderRadius: 12, padding: "18px 20px", cursor: "pointer", textAlign: "left", transition: "all 0.15s",
+                      borderRadius: 12, padding: isMobile ? "14px 12px" : "18px 20px", cursor: "pointer", textAlign: "left", transition: "all 0.15s",
                     }}>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{period.label}</div>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 22, fontWeight: 700, color: C.textPrimary, marginBottom: 4 }}>{fmt$(data.total || 0)}</div>
+                      <div style={{ fontFamily: FONT_MONO, fontSize: fs(22, 18, isMobile), fontWeight: 700, color: C.textPrimary, marginBottom: 4 }}>{fmt$(data.total || 0)}</div>
                       <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 10 }}>{data.accountCount || 0} accounts</div>
                       {totalBar > 0 && (
                         <div style={{ display: "flex", height: 6, borderRadius: 3, overflow: "hidden", marginBottom: 12, background: "rgba(255,255,255,0.04)" }}>
@@ -330,7 +332,7 @@ export default function ForecastEngine() {
           {forecast.scenarios && (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Scenario Analysis</span>
+                <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Scenario Analysis</span>
                 <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
               </div>
               <div style={{ display: "flex", gap: 4, marginBottom: 14, background: C.bgCard, borderRadius: 8, padding: 3, border: `1px solid ${C.borderDefault}`, width: "fit-content" }}>
@@ -348,8 +350,8 @@ export default function ForecastEngine() {
                 ))}
               </div>
               {forecast.scenarios[scenarioView] && (
-                <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 12, padding: "20px 24px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14 }}>
+                <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 12, padding: isMobile ? "14px 12px" : "20px 24px" }}>
+                  <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 16, marginBottom: 14, flexWrap: "wrap" }}>
                     <div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 4 }}>Forecasted ARR</div>
                       <div style={{ fontFamily: FONT_MONO, fontSize: 28, fontWeight: 700, color: C.textPrimary }}>{fmt$(forecast.scenarios[scenarioView].totalARR || 0)}</div>
@@ -374,13 +376,13 @@ export default function ForecastEngine() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                 <ShieldAlert size={16} style={{ color: C.red }} />
-                <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Forecast Risks</span>
+                <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Forecast Risks</span>
                 <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
                 <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.red }}>{fmt$(forecast.riskCallouts.reduce((s, r) => s + (r.arr || 0), 0))} at risk</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {forecast.riskCallouts.map((risk, i) => (
-                  <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.red}20`, borderLeft: `3px solid ${C.red}`, borderRadius: 10, padding: "14px 18px" }}>
+                  <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.red}20`, borderLeft: `3px solid ${C.red}`, borderRadius: 10, padding: isMobile ? "12px 12px" : "14px 18px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                       <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{risk.accountName}</span>
                       <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.red, fontWeight: 600 }}>{fmt$(risk.arr || 0)}</span>
@@ -401,12 +403,12 @@ export default function ForecastEngine() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                 <Zap size={16} style={{ color: C.gold }} />
-                <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Actions to Improve Forecast</span>
+                <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Actions to Improve Forecast</span>
                 <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {forecast.actions.map((action, i) => (
-                  <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: "14px 18px" }}>
+                  <div key={i} style={{ display: "flex", gap: isMobile ? 10 : 14, alignItems: "flex-start", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: isMobile ? "12px 12px" : "14px 18px" }}>
                     <div style={{
                       width: 28, height: 28, borderRadius: 8, flexShrink: 0,
                       background: C.goldMuted, border: `1px solid ${C.gold}20`,

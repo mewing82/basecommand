@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { HardDrive, Download, Upload, AlertTriangle, Info } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { store, getWorkspaces, getActiveWorkspaceId } from "../../lib/storage";
 import { Btn } from "../../components/ui/index";
 import { SettingsRow } from "./SettingsShared";
@@ -10,6 +11,7 @@ const cardHeaderStyle = { display: "flex", alignItems: "center", gap: 8, marginB
 const cardLabelStyle = { fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
 
 export default function DataSettings() {
+  const { isMobile } = useMediaQuery();
   const [clearConfirm, setClearConfirm] = useState(false);
 
   function exportData() {
@@ -37,7 +39,7 @@ export default function DataSettings() {
           <HardDrive size={16} style={{ color: C.gold }} />
           <span style={cardLabelStyle}>Backup & Restore</span>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 12 }}>
           {/* Export card */}
           <div style={{ flex: 1, padding: "14px 16px", background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>

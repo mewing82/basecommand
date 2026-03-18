@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Mail, Sparkles, Loader, Copy, Check, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
 import { PageLayout } from "../../components/layout/PageLayout";
@@ -50,6 +51,7 @@ function CopyButton({ text }) {
 }
 
 export default function OutreachDrafter() {
+  const { isMobile } = useMediaQuery();
   const [healthResults, setHealthResults] = useState([]);
   const [drafts, setDrafts] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -153,12 +155,12 @@ export default function OutreachDrafter() {
       {/* Outreach type selector */}
       <div style={{
         background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-        borderRadius: 10, padding: "16px 20px", marginBottom: 20,
+        borderRadius: 10, padding: isMobile ? "12px 12px" : "16px 20px", marginBottom: 20,
       }}>
         <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
           Outreach Type
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexDirection: isMobile ? "column" : "row" }}>
           {[
             { id: "renewal", label: "Renewal Follow-up", desc: "Accounts renewing within 90 days", color: C.gold },
             { id: "re-engage", label: "Re-engagement", desc: "Silent or at-risk accounts", color: C.red },
@@ -192,7 +194,7 @@ export default function OutreachDrafter() {
             background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
             border: `1px solid ${C.borderAI}`,
             borderLeft: `3px solid ${C.aiBlue}`,
-            borderRadius: 12, padding: "18px 24px", marginBottom: 20,
+            borderRadius: 12, padding: isMobile ? "14px 12px" : "18px 24px", marginBottom: 20,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <Mail size={16} style={{ color: C.aiBlue }} />
@@ -232,8 +234,8 @@ export default function OutreachDrafter() {
                   onClick={() => setExpandedDraft(isExpanded ? null : i)}
                   style={{
                     width: "100%", background: "none", border: "none", cursor: "pointer",
-                    display: "flex", alignItems: "center", gap: 12,
-                    padding: "14px 20px", textAlign: "left",
+                    display: "flex", alignItems: "center", gap: isMobile ? 8 : 12,
+                    padding: isMobile ? "12px 12px" : "14px 20px", textAlign: "left",
                   }}
                 >
                   <Mail size={16} style={{ color: C.aiBlue, flexShrink: 0 }} />
@@ -254,7 +256,7 @@ export default function OutreachDrafter() {
                 </button>
 
                 {isExpanded && (
-                  <div style={{ padding: "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
+                  <div style={{ padding: isMobile ? "0 12px 14px" : "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
                     {/* Subject line */}
                     <div style={{ marginTop: 14, marginBottom: 12 }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -291,7 +293,7 @@ export default function OutreachDrafter() {
                     </div>
 
                     {/* Context + timing */}
-                    <div style={{ display: "flex", gap: 12 }}>
+                    <div style={{ display: "flex", gap: 12, flexDirection: isMobile ? "column" : "row" }}>
                       {draft.context_used && (
                         <div style={{ flex: 1, padding: "8px 12px", background: C.bgAI, borderRadius: 6, border: `1px solid ${C.borderAI}` }}>
                           <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>

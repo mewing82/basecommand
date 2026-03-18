@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { User, Building2, Sparkles, Plug, Database, CreditCard, Users } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { useMediaQuery } from "../lib/useMediaQuery";
 import { PageLayout } from "../components/layout/PageLayout";
 import ProfileSettings from "./settings/ProfileSettings";
 import CompanySettings from "./settings/CompanySettings";
@@ -19,43 +20,56 @@ const TABS = [
 ];
 
 export default function Settings() {
+  const { isMobile } = useMediaQuery();
   const [activeTab, setActiveTab] = useState("company");
 
   return (
     <PageLayout maxWidth={920}>
-      <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", marginBottom: 28 }}>Settings</div>
+      <div style={{ fontFamily: FONT_SANS, fontSize: fs(26, 20, isMobile), fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", marginBottom: isMobile ? 16 : 28 }}>Settings</div>
 
-      <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }} className="bc-settings-layout">
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 32, alignItems: "flex-start" }} className="bc-settings-layout">
         {/* Sidebar Nav */}
         <nav className="bc-settings-nav" style={{
-          width: 180, minWidth: 180, flexShrink: 0,
+          width: isMobile ? "100%" : 180,
+          minWidth: isMobile ? undefined : 180,
+          flexShrink: 0,
+          display: "flex",
+          flexDirection: isMobile ? "row" : "column",
+          overflowX: isMobile ? "auto" : undefined,
+          WebkitOverflowScrolling: "touch",
+          gap: isMobile ? 2 : 0,
         }}>
           {TABS.map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
               <button key={tab.id} onClick={() => !tab.soon && setActiveTab(tab.id)} style={{
-                display: "flex", alignItems: "center", gap: 10, width: "100%",
-                padding: "9px 12px", borderRadius: 8, cursor: tab.soon ? "default" : "pointer",
+                display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
+                width: isMobile ? "auto" : "100%",
+                padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8,
+                cursor: tab.soon ? "default" : "pointer",
                 background: isActive ? "rgba(255,255,255,0.07)" : "transparent",
-                border: "none", borderLeft: isActive ? `2px solid ${C.gold}` : "2px solid transparent",
+                border: "none",
+                borderLeft: isMobile ? "none" : (isActive ? `2px solid ${C.gold}` : "2px solid transparent"),
+                borderBottom: isMobile ? (isActive ? `2px solid ${C.gold}` : "2px solid transparent") : "none",
                 color: tab.soon ? C.textTertiary + "60" : (isActive ? C.textPrimary : C.textSecondary),
                 fontFamily: FONT_SANS, fontSize: 13, fontWeight: isActive ? 600 : 400,
                 transition: "all 0.15s", opacity: tab.soon ? 0.5 : 1,
+                whiteSpace: "nowrap", flexShrink: 0,
               }}
                 onMouseEnter={e => { if (!isActive && !tab.soon) { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = C.textPrimary; } }}
                 onMouseLeave={e => { if (!isActive && !tab.soon) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textSecondary; } }}
               >
                 <Icon size={15} strokeWidth={1.75} />
-                <span style={{ flex: 1 }}>{tab.label}</span>
-                {tab.soon && <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, padding: "1px 5px", borderRadius: 3, border: `1px solid ${C.borderDefault}` }}>SOON</span>}
+                <span style={{ flex: isMobile ? undefined : 1 }}>{tab.label}</span>
+                {tab.soon && !isMobile && <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, padding: "1px 5px", borderRadius: 3, border: `1px solid ${C.borderDefault}` }}>SOON</span>}
               </button>
             );
           })}
         </nav>
 
         {/* Content Panel */}
-        <div style={{ flex: 1, minWidth: 0, maxWidth: 660 }}>
+        <div style={{ flex: 1, minWidth: 0, maxWidth: isMobile ? "100%" : 660 }}>
           {activeTab === "company" && <CompanySettings />}
           {activeTab === "profile" && <ProfileSettings />}
           {activeTab === "ai" && <AISettings />}

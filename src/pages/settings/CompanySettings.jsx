@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Building2, Plus, X, Loader, Globe, Sparkles, Package, Shield, Swords, TrendingUp, HandshakeIcon, FileText, Check } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
 import { COMPANY_EXTRACT_PROMPT } from "../../lib/prompts";
@@ -22,6 +23,7 @@ const WANT_PRESETS = ["Multi-year commitment", "New product adoption", "Upfront 
 const GIVE_PRESETS = ["Lower annual price lifts", "Waived implementation fees", "Extended support hours", "Early access to features", "Dedicated CSM", "Volume discount", "Flexible payment terms"];
 
 export default function CompanySettings() {
+  const { isMobile } = useMediaQuery();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [extractRaw, setExtractRaw] = useState("");
@@ -129,7 +131,7 @@ export default function CompanySettings() {
         </div>
         <input value={profile?.companyName || ""} onChange={e => updateProfile({ companyName: e.target.value })} placeholder="Company name" style={{ ...inputStyle, marginBottom: 8, fontWeight: 600 }} />
         <textarea value={profile?.productDescription || ""} onChange={e => updateProfile({ productDescription: e.target.value })} placeholder="What does your company sell? (1-2 sentences)" rows={2} style={{ ...textareaStyle, marginBottom: 8 }} />
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexDirection: isMobile ? "column" : "row" }}>
           <input value={profile?.senderName || ""} onChange={e => updateProfile({ senderName: e.target.value })} placeholder="Your name (for email signatures)" style={{ ...inputStyle, flex: 1 }} />
           <input value={profile?.senderTitle || ""} onChange={e => updateProfile({ senderTitle: e.target.value })} placeholder="Your title" style={{ ...inputStyle, flex: 1 }} />
         </div>
@@ -175,7 +177,7 @@ export default function CompanySettings() {
           Configure what you want from customers at renewal and what you're willing to offer in exchange. AI will use this to craft strategically accurate proposals.
         </div>
 
-        <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+        <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 16, marginBottom: 16 }}>
           {/* What We Want */}
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
@@ -201,7 +203,7 @@ export default function CompanySettings() {
             </div>
           </div>
 
-          <div style={{ width: 1, background: C.borderDefault, flexShrink: 0 }} />
+          <div style={{ width: isMobile ? "100%" : 1, height: isMobile ? 1 : undefined, background: C.borderDefault, flexShrink: 0 }} />
 
           {/* What We Give */}
           <div style={{ flex: 1 }}>

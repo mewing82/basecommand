@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { MessageSquare, Sparkles, Plus, Send, X, ChevronDown, FileText, Type, Image, Trash2, Eye, Upload, Pencil } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
 import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
 import { renderMarkdown, Btn, Input, Modal, FormField } from "../components/ui/index";
 
-function AddAccountModal({ onClose, onCreate }) {
+function AddAccountModal({ onClose, onCreate, isMobile }) {
   const [name, setName] = useState(""); const [arr, setArr] = useState(""); const [renewalDate, setRenewalDate] = useState(""); const [riskLevel, setRiskLevel] = useState("medium");
   function handleSubmit() { if (!name.trim() || !arr || !renewalDate) return; onCreate({ name, arr, renewalDate, riskLevel }); }
   const riskColors = { low: C.green, medium: C.amber, high: C.red };
   return (
-    <Modal title="Add Account" onClose={onClose} width={480}>
+    <Modal title="Add Account" onClose={onClose} width={isMobile ? "calc(100vw - 32px)" : 480}>
       <FormField label="Account Name" required><Input value={name} onChange={setName} placeholder="Company name" onKeyDown={e => e.key === "Enter" && handleSubmit()} /></FormField>
       <FormField label="ARR" required>
         <div style={{ position: "relative" }}>
@@ -34,8 +35,10 @@ function AddAccountModal({ onClose, onCreate }) {
 }
 
 export default function Accounts() {
+  const { isMobile } = useMediaQuery();
   const location = useLocation();
   const [accounts, setAccounts] = useState([]);
+  const [mobilePane, setMobilePane] = useState("list");
   useEffect(() => { renewalStore.getAccounts().then(setAccounts); }, []);
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const selectedAccount = selectedAccountId ? accounts.find(a => a.id === selectedAccountId) || null : null;
@@ -59,13 +62,14 @@ export default function Accounts() {
   useEffect(() => {
     if (location.state?.accountId) {
       setSelectedAccountId(location.state.accountId);
+      if (isMobile) setMobilePane("chat");
     }
   }, [location.state?.accountId]);
 
   async function handleCreateAccount(data) {
     const account = { id: `acct-${Date.now()}_${Math.random().toString(36).slice(2, 8)}`, name: data.name.trim(), arr: parseFloat(data.arr) || 0, renewalDate: data.renewalDate, riskLevel: data.riskLevel || "medium", contacts: [], summary: "", tags: [], lastActivity: new Date().toISOString(), createdAt: new Date().toISOString() };
     await renewalStore.saveAccount(account); setAccounts(await renewalStore.getAccounts());
-    setShowAddAccount(false); setSelectedAccountId(account.id);
+    setShowAddAccount(false); setSelectedAccountId(account.id); if (isMobile) setMobilePane("chat");
   }
 
   const [activeThreadId, setActiveThreadId] = useState(null);
@@ -146,15 +150,23 @@ export default function Accounts() {
             <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textTertiary, maxWidth: 360, lineHeight: 1.5, margin: "8px 0 0", textAlign: "center" }}>Add your first account to start working with the Account Intelligence co-pilot.</p></div>
           <Btn variant="primary" onClick={() => setShowAddAccount(true)}><Plus size={14} /> Add Account</Btn>
         </div>
-      ) : (
-        <div style={{ display: "flex", gap: 0, minHeight: 500, height: "calc(100vh - 280px)" }}>
+      ) : (<>
+        {isMobile && (
+          <div style={{ background: C.bgCard, borderRadius: 8, padding: 3, display: "flex", gap: 2, marginBottom: 12 }}>
+            {[{ key: "list", label: "Accounts" }, { key: "chat", label: "Chat" }, { key: "context", label: "Context" }].map(tab => (
+              <button key={tab.key} onClick={() => setMobilePane(tab.key)} style={{ flex: 1, padding: "8px 0", border: "none", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: FONT_SANS, background: mobilePane === tab.key ? C.gold : "transparent", color: mobilePane === tab.key ? "#fff" : C.textSecondary }}>{tab.label}</button>
+            ))}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 0, minHeight: isMobile ? 0 : 500, height: isMobile ? "calc(100vh - 352px)" : "calc(100vh - 280px)" }}>
           {/* Account list sidebar */}
-          <div style={{ width: 240, flexShrink: 0, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: "12px 0 0 12px", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+          {(!isMobile || mobilePane === "list") && (
+          <div style={{ width: isMobile ? "100%" : 240, flexShrink: 0, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: isMobile ? 12 : "12px 0 0 12px", overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.borderDefault}`, fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textSecondary }}>Accounts ({accounts.length})</div>
             <div style={{ flex: 1, overflow: "auto" }}>
               {accounts.map(account => {
                 const selected = selectedAccount?.id === account.id; const rc = { high: C.red, medium: C.amber, low: C.green };
-                return (<button key={account.id} onClick={() => setSelectedAccountId(account.id)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer", textAlign: "left", background: selected ? "rgba(255,255,255,0.07)" : "transparent", border: "none", borderLeft: `3px solid ${selected ? C.gold : "transparent"}`, transition: "all 0.12s" }}
+                return (<button key={account.id} onClick={() => { setSelectedAccountId(account.id); if (isMobile) setMobilePane("chat"); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer", textAlign: "left", background: selected ? "rgba(255,255,255,0.07)" : "transparent", border: "none", borderLeft: `3px solid ${selected ? C.gold : "transparent"}`, transition: "all 0.12s" }}
                   onMouseEnter={e => { if (!selected) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }} onMouseLeave={e => { if (!selected) e.currentTarget.style.background = "transparent"; }}>
                   <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0, background: rc[account.riskLevel] || C.textTertiary }} />
                   <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: selected ? 600 : 500, color: selected ? C.textPrimary : C.textSecondary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{account.name}</div>
@@ -163,14 +175,16 @@ export default function Accounts() {
               })}
             </div>
           </div>
+          )}
 
           {/* Chat area */}
-          <div style={{ flex: 1, background: C.bgCard, borderTop: `1px solid ${C.borderDefault}`, borderBottom: `1px solid ${C.borderDefault}`, ...(showContext ? {} : { borderRight: `1px solid ${C.borderDefault}`, borderRadius: "0 12px 12px 0" }), display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          {(!isMobile || mobilePane === "chat") && (
+          <div style={{ flex: 1, background: C.bgCard, borderTop: `1px solid ${C.borderDefault}`, borderBottom: `1px solid ${C.borderDefault}`, ...(isMobile ? { border: `1px solid ${C.borderDefault}`, borderRadius: 12 } : showContext ? {} : { borderRight: `1px solid ${C.borderDefault}`, borderRadius: "0 12px 12px 0" }), display: "flex", flexDirection: "column", overflow: "hidden" }}>
             {selectedAccount ? (<>
               {/* Account header */}
-              <div style={{ padding: "12px 20px", borderBottom: `1px solid ${C.borderDefault}`, display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-                <h2 style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, margin: 0, flex: 1 }}>{selectedAccount.name}</h2>
-                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ padding: isMobile ? "10px 14px" : "12px 20px", borderBottom: `1px solid ${C.borderDefault}`, display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 8 : 12, flexShrink: 0, flexWrap: isMobile ? "wrap" : "nowrap" }}>
+                <h2 style={{ fontFamily: FONT_SANS, fontSize: isMobile ? 15 : 17, fontWeight: 600, color: C.textPrimary, margin: 0, flex: isMobile ? "1 1 100%" : 1 }}>{selectedAccount.name}</h2>
+                <div style={{ display: "flex", gap: isMobile ? 6 : 8, alignItems: "center", flexWrap: isMobile ? "wrap" : "nowrap" }}>
                   {[{ label: `$${(selectedAccount.arr || 0).toLocaleString()}`, color: C.textPrimary }, { label: selectedAccount.renewalDate || "No date", color: C.textSecondary }, { label: selectedAccount.riskLevel, color: { high: C.red, medium: C.amber, low: C.green }[selectedAccount.riskLevel] }].map((chip, i) => (
                     <span key={i} style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: chip.color, background: C.bgPrimary, padding: "3px 10px", borderRadius: 4, border: `1px solid ${C.borderDefault}`, textTransform: "capitalize" }}>{chip.label}</span>
                   ))}
@@ -179,11 +193,11 @@ export default function Accounts() {
                     onMouseEnter={e => e.currentTarget.style.color = C.textPrimary} onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}><Pencil size={12} /></button>
                   <button onClick={() => setConfirmDeleteId(selectedAccount.id)} title="Delete account" style={{ display: "flex", alignItems: "center", padding: "3px 6px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", color: C.textTertiary, transition: "color 0.15s" }}
                     onMouseEnter={e => e.currentTarget.style.color = C.red} onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}><Trash2 size={12} /></button>
-                  <button onClick={() => setShowContext(!showContext)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 10px", background: showContext ? "rgba(255,255,255,0.07)" : "transparent", border: `1px solid ${showContext ? C.aiBlue + "40" : C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: showContext ? C.aiBlue : C.textTertiary }}><Eye size={12} /> Context{contextItems.length > 0 ? ` (${contextItems.length})` : ""}</button>
+                  {!isMobile && <button onClick={() => setShowContext(!showContext)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 10px", background: showContext ? "rgba(255,255,255,0.07)" : "transparent", border: `1px solid ${showContext ? C.aiBlue + "40" : C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: showContext ? C.aiBlue : C.textTertiary }}><Eye size={12} /> Context{contextItems.length > 0 ? ` (${contextItems.length})` : ""}</button>}
                 </div>
               </div>
               {/* Thread bar */}
-              <div style={{ padding: "8px 20px", borderBottom: `1px solid ${C.borderDefault}`, display: "flex", alignItems: "center", gap: 8, flexShrink: 0, background: C.bgPrimary }}>
+              <div style={{ padding: isMobile ? "8px 14px" : "8px 20px", borderBottom: `1px solid ${C.borderDefault}`, display: "flex", alignItems: "center", gap: 8, flexShrink: 0, background: C.bgPrimary }}>
                 <button onClick={() => setShowThreadList(!showThreadList)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", background: showThreadList ? "rgba(255,255,255,0.07)" : "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.textSecondary }}>
                   <MessageSquare size={13} />{activeThreadId ? (threads.find(t => t.id === activeThreadId)?.title || "Conversation") : "No conversation"}<ChevronDown size={12} style={{ transform: showThreadList ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
                 </button>
@@ -206,7 +220,7 @@ export default function Accounts() {
                 </div>
               )}
               {/* Messages */}
-              <div style={{ flex: 1, overflow: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ flex: 1, overflow: "auto", padding: isMobile ? "12px 14px" : "16px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
                 {!activeThreadId && messages.length === 0 && (
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: 16, padding: "40px 0", textAlign: "center" }}>
                     <div style={{ width: 48, height: 48, borderRadius: 12, background: `linear-gradient(135deg, ${C.gold}20, ${C.aiBlue}20)`, display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkles size={24} style={{ color: C.aiBlue }} /></div>
@@ -235,7 +249,7 @@ export default function Accounts() {
                 <div ref={messagesEndRef} />
               </div>
               {/* Input */}
-              <div style={{ padding: "12px 20px", borderTop: `1px solid ${C.borderDefault}`, flexShrink: 0, background: C.bgPrimary }}>
+              <div style={{ padding: isMobile ? "10px 14px" : "12px 20px", borderTop: `1px solid ${C.borderDefault}`, flexShrink: 0, background: C.bgPrimary }}>
                 <div style={{ display: "flex", gap: 8 }}>
                   <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }} placeholder={`Ask about ${selectedAccount.name}...`} disabled={sending}
                     style={{ flex: 1, padding: "10px 14px", borderRadius: 8, background: C.bgCard, border: `1px solid ${C.borderDefault}`, color: C.textPrimary, fontFamily: FONT_BODY, fontSize: 13, outline: "none" }}
@@ -245,13 +259,14 @@ export default function Accounts() {
               </div>
             </>) : (<div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: 12 }}><MessageSquare size={32} style={{ color: C.textTertiary, opacity: 0.5 }} /><p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Select an account to start working</p></div>)}
           </div>
+          )}
 
           {/* Context Panel */}
-          {showContext && selectedAccount && (
-            <div style={{ width: 300, flexShrink: 0, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderLeft: "none", borderRadius: "0 12px 12px 0", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          {(isMobile ? mobilePane === "context" && selectedAccount : showContext && selectedAccount) && (
+            <div style={{ width: isMobile ? "100%" : 300, flexShrink: 0, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderLeft: isMobile ? `1px solid ${C.borderDefault}` : "none", borderRadius: isMobile ? 12 : "0 12px 12px 0", display: "flex", flexDirection: "column", overflow: "hidden" }}>
               <div style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderDefault}`, display: "flex", alignItems: "center", gap: 8 }}>
                 <Eye size={14} style={{ color: C.aiBlue }} /><span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, flex: 1 }}>Account Context</span>
-                <button onClick={() => setShowContext(false)} style={{ background: "transparent", border: "none", cursor: "pointer", color: C.textTertiary, display: "flex", padding: 2 }}><X size={14} /></button>
+                {!isMobile && <button onClick={() => setShowContext(false)} style={{ background: "transparent", border: "none", cursor: "pointer", color: C.textTertiary, display: "flex", padding: 2 }}><X size={14} /></button>}
               </div>
               <div style={{ flex: 1, overflow: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 16 }}>
                 {/* Summary */}
@@ -311,9 +326,9 @@ export default function Accounts() {
             </div>
           )}
         </div>
-      )}
+      </>)}
 
-      {showAddAccount && <AddAccountModal onClose={() => setShowAddAccount(false)} onCreate={handleCreateAccount} />}
+      {showAddAccount && <AddAccountModal onClose={() => setShowAddAccount(false)} onCreate={handleCreateAccount} isMobile={isMobile} />}
 
       {/* Edit Account Modal */}
       {editingAccount && (

@@ -4,7 +4,8 @@ import {
   Activity, ShieldAlert, Mail, TrendingUp, BarChart3, DollarSign,
   Crown, Users, FileText, ArrowRight, Sparkles,
 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
 import { PageLayout } from "../components/layout/PageLayout";
 import { computePortfolioHealth, computePortfolioSummary, getSeverity } from "../lib/healthScore";
@@ -52,6 +53,7 @@ const CATEGORIES = [
 
 export default function AgentHub() {
   const navigate = useNavigate();
+  const { isMobile } = useMediaQuery();
   const [portfolioSummary, setPortfolioSummary] = useState(null);
 
   useEffect(() => {
@@ -71,8 +73,8 @@ export default function AgentHub() {
     <PageLayout maxWidth={1100}>
       {/* Pipeline banner */}
       <div style={{
-        display: "flex", alignItems: "center", gap: 4, marginBottom: 24,
-        padding: "10px 16px", background: C.bgCard, borderRadius: 8,
+        display: "flex", alignItems: "center", gap: 4, marginBottom: isMobile ? 16 : 24,
+        padding: isMobile ? "8px 10px" : "10px 16px", background: C.bgCard, borderRadius: 8,
         border: `1px solid ${C.borderDefault}`, overflowX: "auto",
       }}>
         {["Monitor", "Predict", "Generate", "Identify", "Orchestrate"].map((fn, i) => (
@@ -94,7 +96,7 @@ export default function AgentHub() {
       {/* Portfolio health summary */}
       {portfolioSummary && portfolioSummary.total > 0 && (
         <div style={{
-          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 28,
+          display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 8 : 10, marginBottom: isMobile ? 20 : 28,
         }}>
           {[
             { label: "Accounts", value: portfolioSummary.total, color: C.textPrimary },
@@ -103,18 +105,18 @@ export default function AgentHub() {
             { label: "At-Risk ARR", value: formatARR(portfolioSummary.atRiskARR), color: portfolioSummary.atRiskARR > 0 ? C.red : C.green },
           ].map((stat, i) => (
             <div key={i} style={{
-              padding: "12px 16px", background: C.bgCard,
+              padding: isMobile ? "10px 12px" : "12px 16px", background: C.bgCard,
               border: `1px solid ${C.borderDefault}`, borderRadius: 8,
             }}>
               <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>{stat.label}</div>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 700, color: stat.color, marginTop: 4 }}>{stat.value}</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: fs(20, 17, isMobile), fontWeight: 700, color: stat.color, marginTop: 4 }}>{stat.value}</div>
             </div>
           ))}
         </div>
       )}
 
       {/* Agent categories */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 20 : 28 }}>
         {CATEGORIES.map(category => (
           <div key={category.id}>
             {/* Category header */}
@@ -123,7 +125,7 @@ export default function AgentHub() {
                 width: 8, height: 8, borderRadius: "50%", background: category.color,
                 boxShadow: `0 0 8px ${category.color}60`,
               }} />
-              <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>
+              <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>
                 {category.label}
               </span>
               <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>
@@ -136,7 +138,7 @@ export default function AgentHub() {
             </div>
 
             {/* Agent cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: isMobile ? 10 : 12 }}>
               {category.agents.map(agent => {
                 const Icon = agent.icon;
                 return (
@@ -147,7 +149,7 @@ export default function AgentHub() {
                       background: C.bgCard,
                       border: `1px solid ${C.borderDefault}`,
                       borderRadius: 12,
-                      padding: "20px 20px 16px",
+                      padding: isMobile ? "14px 14px 12px" : "20px 20px 16px",
                       cursor: "pointer",
                       textAlign: "left",
                       transition: "all 0.2s ease",

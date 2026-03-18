@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Settings as SettingsIcon, User } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { useAuthStore } from "../../store/authStore";
 import { renewalStore } from "../../lib/storage";
 
@@ -46,6 +47,7 @@ export default function TopBar({ currentView, onCommandPalette }) {
   const meta = VIEW_META[currentView] || { title: currentView };
   const navigate = useNavigate();
   const { user, signOut } = useAuthStore();
+  const { isMobile } = useMediaQuery();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [avatarHovered, setAvatarHovered] = useState(false);
@@ -88,11 +90,11 @@ export default function TopBar({ currentView, onCommandPalette }) {
   return (
     <>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>
+        <div style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>
           {meta.title}
         </div>
-        {meta.subtitle && (
-          <div className="bc-hide-mobile" style={{
+        {meta.subtitle && !isMobile && (
+          <div style={{
             fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
             marginTop: 2, letterSpacing: "0.02em", opacity: 0.7,
           }}>
@@ -105,7 +107,7 @@ export default function TopBar({ currentView, onCommandPalette }) {
         className="bc-search-trigger"
         onClick={onCommandPalette}
         style={{
-          display: "flex", alignItems: "center", gap: 10,
+          display: isMobile ? "none" : "flex", alignItems: "center", gap: 10,
           background: "rgba(255,255,255,0.04)", border: `1px solid ${C.borderDefault}`,
           borderRadius: 8, padding: "6px 14px", cursor: "pointer",
           color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 13,
@@ -172,7 +174,8 @@ export default function TopBar({ currentView, onCommandPalette }) {
               position: "absolute",
               top: "calc(100% + 8px)",
               right: 0,
-              minWidth: 220,
+              minWidth: isMobile ? 180 : 220,
+              maxWidth: isMobile ? "calc(100vw - 32px)" : undefined,
               background: C.bgElevated,
               border: `1px solid ${C.borderSubtle}`,
               borderRadius: 10,

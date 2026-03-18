@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, Sparkles, AlertTriangle, Zap, ArrowRight, Search, Loader } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
 import { PageLayout } from "../../components/layout/PageLayout";
@@ -22,6 +23,7 @@ const SIGNAL_LABELS = {
 };
 
 export default function ExpansionScout() {
+  const { isMobile } = useMediaQuery();
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [healthResults, setHealthResults] = useState([]);
@@ -102,7 +104,7 @@ export default function ExpansionScout() {
         <div style={{ width: 64, height: 64, borderRadius: 16, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <TrendingUp size={32} style={{ color: C.green }} />
         </div>
-        <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: 0 }}>Expansion Scout</h2>
+        <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: C.textPrimary, margin: 0 }}>Expansion Scout</h2>
         <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: 0 }}>
           Import your accounts to detect expansion opportunities, PQL triggers, and upsell signals hiding in your data.
         </p>
@@ -126,15 +128,15 @@ export default function ExpansionScout() {
         <div style={{
           background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
           border: `1px solid ${C.green}25`, borderLeft: `3px solid ${C.green}`,
-          borderRadius: 12, padding: "18px 24px", marginBottom: 20,
+          borderRadius: 12, padding: isMobile ? "14px 12px" : "18px 24px", marginBottom: 20,
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: isMobile ? "wrap" : "nowrap" }}>
             <TrendingUp size={16} style={{ color: C.green }} />
-            <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>
+            <span style={{ fontFamily: FONT_SANS, fontSize: fs(15, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>
               {growthAccounts.length} growth-ready account{growthAccounts.length !== 1 ? "s" : ""}
             </span>
             {totalExpansionValue && (
-              <span style={{ fontFamily: FONT_MONO, fontSize: 14, fontWeight: 700, color: C.green, marginLeft: "auto" }}>
+              <span style={{ fontFamily: FONT_MONO, fontSize: isMobile ? 12 : 14, fontWeight: 700, color: C.green, marginLeft: isMobile ? 0 : "auto" }}>
                 {totalExpansionValue} estimated expansion
               </span>
             )}
@@ -158,7 +160,7 @@ export default function ExpansionScout() {
       )}
 
       {/* Scan controls */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
         <Btn variant="ai" onClick={analyzeExpansion} disabled={loading}>
           {loading
             ? <><Loader size={14} style={{ animation: "spin 1s linear infinite" }} /> Scanning...</>
@@ -173,7 +175,7 @@ export default function ExpansionScout() {
       {cache?.portfolioInsights && (
         <div style={{
           background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-          borderRadius: 10, padding: "14px 18px", marginBottom: 20,
+          borderRadius: 10, padding: isMobile ? "12px 12px" : "14px 18px", marginBottom: 20,
         }}>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.7 }}>
             {cache.portfolioInsights}
@@ -217,11 +219,11 @@ export default function ExpansionScout() {
             return (
               <div key={i} style={{
                 background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-                borderLeft: `3px solid ${color}`, borderRadius: 10, padding: "16px 20px",
+                borderLeft: `3px solid ${color}`, borderRadius: 10, padding: isMobile ? "12px 12px" : "16px 20px",
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 10, marginBottom: 8, flexWrap: "wrap" }}>
                   <TrendingUp size={14} style={{ color }} />
-                  <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>{opp.accountName}</span>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: fs(15, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>{opp.accountName}</span>
                   <span style={{
                     fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color,
                     background: color + "18", padding: "2px 6px", borderRadius: 3,

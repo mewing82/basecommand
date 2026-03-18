@@ -160,3 +160,10 @@ export const MOBILE_CARD_PY = 16;
  * Usage: fontSize: fs(17, 15, isMobile)
  */
 export const fs = (desktop, mobile, isMobile) => isMobile ? mobile : desktop;
+
+// ─── App Layout Mobile Constants ────────────────────────────────────────────
+export const APP_MOBILE_PX = 12;
+export const APP_MODAL_MAX_W = "calc(100vw - 32px)";
+
+/** Text truncation style object — spread into any element that needs ellipsis */
+export const TRUNCATE = { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };

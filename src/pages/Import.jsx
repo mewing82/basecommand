@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Mail, Upload, Database, Phone, Video } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { useMediaQuery } from "../lib/useMediaQuery";
 import { PageLayout } from "../components/layout/PageLayout";
 import { useAuthStore } from "../store/authStore";
 import ManualImport from "./import/ManualImport";
@@ -20,6 +21,7 @@ const SOURCES = [
 // ─── Data Sources & Import Hub ───────────────────────────────────────────────
 export default function Import() {
   const { user } = useAuthStore();
+  const { isMobile } = useMediaQuery();
   const [activeSource, setActiveSource] = useState("gmail");
   const [connectorStatuses, setConnectorStatuses] = useState({});
 
@@ -53,19 +55,28 @@ export default function Import() {
 
   return (
     <PageLayout maxWidth={960}>
-      <div style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", marginBottom: 28 }}>
+      <div style={{ fontFamily: FONT_SANS, fontSize: fs(26, 20, isMobile), fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", marginBottom: isMobile ? 16 : 28 }}>
         Data Sources & Import
       </div>
 
-      <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }} className="bc-import-layout">
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 32, alignItems: "flex-start" }} className="bc-import-layout">
         {/* ─── Left Sidebar Nav ─────────────────────────────────────────── */}
-        <nav className="bc-import-nav" style={{ width: 180, minWidth: 180, flexShrink: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+        <nav className="bc-import-nav" style={{
+          width: isMobile ? "100%" : 180,
+          minWidth: isMobile ? undefined : 180,
+          flexShrink: 0,
+          display: "flex",
+          flexDirection: isMobile ? "row" : "column",
+          gap: 2,
+          overflowX: isMobile ? "auto" : undefined,
+          WebkitOverflowScrolling: "touch",
+        }}>
           {/* Connected Sources section */}
-          <div style={{
+          {!isMobile && <div style={{
             fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary,
             textTransform: "uppercase", letterSpacing: "0.08em",
             padding: "0 12px 6px", marginBottom: 2,
-          }}>Connected Sources</div>
+          }}>Connected Sources</div>}
 
           {connectedSources.map(source => {
             const Icon = source.icon;
@@ -76,19 +87,23 @@ export default function Import() {
                 key={source.id}
                 onClick={() => setActiveSource(source.id)}
                 style={{
-                  display: "flex", alignItems: "center", gap: 10, width: "100%",
-                  padding: "9px 12px", borderRadius: 8, cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
+                  width: isMobile ? "auto" : "100%",
+                  padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8, cursor: "pointer",
                   background: isActive ? "rgba(255,255,255,0.07)" : "transparent",
-                  border: "none", borderLeft: isActive ? `2px solid ${C.gold}` : "2px solid transparent",
+                  border: "none",
+                  borderLeft: isMobile ? "none" : (isActive ? `2px solid ${C.gold}` : "2px solid transparent"),
+                  borderBottom: isMobile ? (isActive ? `2px solid ${C.gold}` : "2px solid transparent") : "none",
                   color: isActive ? C.textPrimary : C.textSecondary,
                   fontFamily: FONT_SANS, fontSize: 13, fontWeight: isActive ? 600 : 400,
                   transition: "all 0.15s",
+                  whiteSpace: "nowrap", flexShrink: 0,
                 }}
                 onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = C.textPrimary; } }}
                 onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textSecondary; } }}
               >
                 <Icon size={15} strokeWidth={1.75} style={{ color: source.color }} />
-                <span style={{ flex: 1 }}>{source.label}</span>
+                <span style={{ flex: isMobile ? undefined : 1 }}>{source.label}</span>
                 {status?.connected && (
                   <div style={{ width: 6, height: 6, borderRadius: 3, background: C.green, boxShadow: `0 0 4px ${C.green}60` }} />
                 )}
@@ -97,11 +112,11 @@ export default function Import() {
           })}
 
           {/* Coming Soon section */}
-          <div style={{
+          {!isMobile && <div style={{
             fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary,
             textTransform: "uppercase", letterSpacing: "0.08em",
             padding: "12px 12px 6px", marginTop: 4,
-          }}>Coming Soon</div>
+          }}>Coming Soon</div>}
 
           {comingSoonSources.map(source => {
             const Icon = source.icon;
@@ -111,53 +126,61 @@ export default function Import() {
                 key={source.id}
                 onClick={() => setActiveSource(source.id)}
                 style={{
-                  display: "flex", alignItems: "center", gap: 10, width: "100%",
-                  padding: "9px 12px", borderRadius: 8, cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
+                  width: isMobile ? "auto" : "100%",
+                  padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8, cursor: "pointer",
                   background: isActive ? "rgba(255,255,255,0.07)" : "transparent",
-                  border: "none", borderLeft: isActive ? `2px solid ${C.gold}` : "2px solid transparent",
+                  border: "none",
+                  borderLeft: isMobile ? "none" : (isActive ? `2px solid ${C.gold}` : "2px solid transparent"),
+                  borderBottom: isMobile ? (isActive ? `2px solid ${C.gold}` : "2px solid transparent") : "none",
                   color: isActive ? C.textPrimary + "60" : C.textTertiary + "80",
                   fontFamily: FONT_SANS, fontSize: 13, fontWeight: isActive ? 600 : 400,
                   transition: "all 0.15s", opacity: isActive ? 0.8 : 0.5,
+                  whiteSpace: "nowrap", flexShrink: 0,
                 }}
                 onMouseEnter={e => { e.currentTarget.style.opacity = "0.8"; }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.opacity = "0.5"; }}
               >
                 <Icon size={15} strokeWidth={1.75} style={{ color: source.color, opacity: 0.6 }} />
-                <span style={{ flex: 1 }}>{source.label}</span>
-                <span style={{
+                <span style={{ flex: isMobile ? undefined : 1 }}>{source.label}</span>
+                {!isMobile && <span style={{
                   fontFamily: FONT_MONO, fontSize: 8, color: C.textTertiary,
                   padding: "1px 4px", borderRadius: 2,
                   border: `1px solid ${C.borderDefault}`,
-                }}>SOON</span>
+                }}>SOON</span>}
               </button>
             );
           })}
 
           {/* Divider */}
-          <div style={{ height: 1, background: C.borderDefault, margin: "10px 12px" }} />
+          {!isMobile && <div style={{ height: 1, background: C.borderDefault, margin: "10px 12px" }} />}
 
           {/* Manual Import */}
           <button
             onClick={() => setActiveSource("manual")}
             style={{
-              display: "flex", alignItems: "center", gap: 10, width: "100%",
-              padding: "9px 12px", borderRadius: 8, cursor: "pointer",
+              display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
+              width: isMobile ? "auto" : "100%",
+              padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8, cursor: "pointer",
               background: activeSource === "manual" ? "rgba(255,255,255,0.07)" : "transparent",
-              border: "none", borderLeft: activeSource === "manual" ? `2px solid ${C.gold}` : "2px solid transparent",
+              border: "none",
+              borderLeft: isMobile ? "none" : (activeSource === "manual" ? `2px solid ${C.gold}` : "2px solid transparent"),
+              borderBottom: isMobile ? (activeSource === "manual" ? `2px solid ${C.gold}` : "2px solid transparent") : "none",
               color: activeSource === "manual" ? C.textPrimary : C.textSecondary,
               fontFamily: FONT_SANS, fontSize: 13, fontWeight: activeSource === "manual" ? 600 : 400,
               transition: "all 0.15s",
+              whiteSpace: "nowrap", flexShrink: 0,
             }}
             onMouseEnter={e => { if (activeSource !== "manual") { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = C.textPrimary; } }}
             onMouseLeave={e => { if (activeSource !== "manual") { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textSecondary; } }}
           >
             <Upload size={15} strokeWidth={1.75} />
-            <span style={{ flex: 1 }}>Manual Import</span>
+            <span style={{ flex: isMobile ? undefined : 1 }}>Manual Import</span>
           </button>
         </nav>
 
         {/* ─── Right Content Panel ─────────────────────────────────────── */}
-        <div style={{ flex: 1, minWidth: 0, maxWidth: 660 }}>
+        <div style={{ flex: 1, minWidth: 0, maxWidth: isMobile ? "100%" : 660 }}>
           {activeSource === "gmail" && <EmailSource provider="gmail" label="Gmail" color="#EA4335" userId={user?.id} />}
           {activeSource === "outlook" && <EmailSource provider="outlook" label="Outlook" color="#0078D4" userId={user?.id} />}
           {activeSource === "manual" && <ManualImport />}
