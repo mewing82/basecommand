@@ -37,7 +37,7 @@ const TIERS = [
       "Early access to new agents",
     ],
     cta: "Start 14-Day Pro Trial",
-    ctaLink: "/signup",
+    ctaLink: "/signup?plan=monthly",
     highlight: true,
     badge: "Founding Member",
     annualNote: "Or $39/mo billed annually ($468/yr)",

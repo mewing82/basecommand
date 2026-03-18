@@ -1,16 +1,25 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useAuthStore } from "../../store/authStore";
 
 export default function Signup() {
   const { signUp, signInWithGoogle } = useAuthStore();
+  const [searchParams] = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  // Store plan param so we can redirect to checkout after auth
+  useEffect(() => {
+    const plan = searchParams.get("plan");
+    if (plan === "monthly" || plan === "annual") {
+      localStorage.setItem("bc-signup-plan", plan);
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -89,7 +98,8 @@ export default function Signup() {
           type="button"
           onClick={() => {
             setError("");
-            signInWithGoogle().catch(err => setError(err.message || "Google sign-in failed"));
+            const plan = searchParams.get("plan");
+            signInWithGoogle(plan).catch(err => setError(err.message || "Google sign-in failed"));
           }}
           style={{
             width: "100%", padding: "12px 0", borderRadius: 10, border: `1px solid ${C.borderDefault}`,

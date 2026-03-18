@@ -61,7 +61,7 @@ export default function Landing() {
         </p>
 
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : undefined }}>
-          <Link to="/signup" style={{
+          <Link to="/signup?plan=monthly" style={{
             padding: "14px 32px", borderRadius: 10, border: "none",
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
             color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
