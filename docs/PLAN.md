@@ -105,8 +105,8 @@ Every major spending decision is unlocked by hitting a revenue milestone. No mil
 |------|-----------|---------------|---------|------------|
 | **0** | Pre-revenue | — | Your time + minimal infra + AI API costs | ~$50-150/mo (scales with free users) |
 | **1** | $1K MRR (~21 early adopter Pro) | People will pay. Multiple customers, not a fluke. | Basic business ops: Stripe, ToS, monitoring | ~$500 one-time + $50/mo |
-| **2** | $5K MRR (~50 early + new Pro mix) | Repeatable demand. Funnel converts. PMF signal. | Growth: contractor help, pen test, paid marketing. Raise new customer price to $99. | ~$10-15K one-time + $1-2K/mo |
-| **3** | $25-50K total revenue | Real business. Customers retaining, not just trying. | "Trusted" compliance: SOC 2, legal, DPA | ~$30-50K one-time |
+| **2** | $5K MRR (~50 early + new Pro mix) | Repeatable demand. Funnel converts. PMF signal. | Growth: contractor help, pen test, paid marketing, native mobile app (iOS + Android). Raise new customer price to $99. | ~$10-15K one-time + $1-2K/mo |
+| **3** | $25-50K total revenue | Real business. Customers retaining, not just trying. | "Trusted" compliance: SOC 2, legal, DPA. Mobile app v2 with push notifications. | ~$30-50K one-time |
 | **4** | $10K MRR (~70 Pro) | Unit economics work. Growth is predictable. | Scale: first hire, CRM integrations, enterprise features | ~$5-10K/mo |
 | **5** | $25K+ MRR | This could be more than a side-hustle. | Revisit full-time. Raise or reinvest aggressively. | TBD |
 
@@ -134,12 +134,13 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 10 | **HubSpot connector** | 15 | First CRM integration. agent.ai has native HubSpot connector (per-agent auth). Critical for telemetry data layer. |
 | 11 | **Stress test with real data** | — | 20-account dummy portfolio matching real user uploads. Validate the full workflow end-to-end with realistic data. |
 | 12 | **Marketing site complete** | 14 (done) | AI Revenue Engine positioning, 6 pages, agent.ai integration |
+| 13 | **Mobile-responsive marketing site** | 14 | Marketing pages and landing must render well on mobile. Most agent.ai traffic will be mobile. |
 
-**Estimated work:** Stripe, legal, agent.ai pipeline, HubSpot connector, and stress testing are the remaining blockers. Marketing site is done.
+**Estimated work:** Stripe, legal, agent.ai pipeline, HubSpot connector, mobile optimization, and stress testing are the remaining blockers. Marketing site is done but needs mobile responsiveness.
 
 **Target: End of week (2026-03-21)** — ready to start taking customers.
 
-**Sequence:** agent.ai pipeline + HubSpot connector → stress test with real data → Stripe + legal → end-to-end verification → request agent.ai promotion.
+**Sequence:** agent.ai pipeline + HubSpot connector → mobile optimization → stress test with real data → Stripe + legal → end-to-end verification → request agent.ai promotion.
 
 ### Decision Log Addition
 
@@ -312,6 +313,8 @@ This data accumulates into the **workflow graph** — the knowledge of how renew
 | 65 | HubSpot as first CRM connector (via agent.ai native connector) | agent.ai has native HubSpot connector with per-agent auth. First telemetry data integration. Builds credibility on "coming soon" promise. | 2026-03-17 |
 | 66 | Stress test with 20-account dummy portfolio before launch | Must validate the full workflow with realistic data before taking real customers. Catches data model issues, UI edge cases, and AI prompt failures. | 2026-03-17 |
 | 67 | Target end of week (2026-03-21) for customer readiness | Gate 0 advertising readiness checklist must be complete. agent.ai pipeline, HubSpot, Stripe, legal, and stress testing all by Friday. | 2026-03-17 |
+| 68 | Mobile-responsive marketing site required for Gate 0 | Most agent.ai traffic will be mobile. Marketing pages must render well on phones before driving traffic. | 2026-03-17 |
+| 69 | Native mobile app (iOS + Android) deferred to Gate 2 | PWA/responsive web is sufficient for Gate 0-1. Native apps are a Gate 2 investment when PMF is proven and revenue supports the dev cost. | 2026-03-17 |
 
 ---
 
