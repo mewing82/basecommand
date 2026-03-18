@@ -4,7 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Base Command is an executive productivity app — a React SPA with serverless API functions deployed on Vercel. It provides AI-powered decision support with email connector integration (Gmail, Outlook) for extracting actionable items from inboxes.
+BaseCommand is an AI-powered renewal intelligence platform — a React SPA with serverless API functions deployed on Vercel. It provides a fleet of specialized AI agents organized into Renewal, Growth, and Coaching categories that run the entire renewal workflow, from data import to execution, with human oversight at every step.
+
+**Current version:** 0.5.0
+**Positioning:** AI-Powered Renewal Intelligence — "AI-powered renewal workflows, from co-pilot to fully autonomous"
 
 ## Commands
 
@@ -20,21 +23,80 @@ Base Command is an executive productivity app — a React SPA with serverless AP
 - **Entry:** `index.html` → `src/main.jsx` → `src/App.jsx`
 - **Stack:** React 19, React Router v7, Zustand for state management
 - **Language:** JavaScript (JSX), no TypeScript
-- **Routing:** BrowserRouter with four top-level routes: Decisions (`/`), Tasks, Priorities, Renewals
-- **Styling:** CSS with custom properties, dark theme default (`#0a0f1e` background), fonts: DM Sans + DM Mono
-- **Placeholder directories:** `src/components/`, `src/pages/`, `src/store/`, `src/lib/` exist but are empty — build features here
+- **Styling:** Inline styles with design tokens from `src/lib/tokens.js` (Command Indigo theme). Dark background (`#0F1013`), indigo primary (`#6366F1`), cyan AI accent (`#22D3EE`). Fonts: Space Grotesk (display/headings), Inter (body), JetBrains Mono (code/data).
+
+### Routing
+
+**Marketing site (public, uses `MarketingLayout`):**
+- `/` — Landing page (hero, shift table, workflow, agent.ai, pricing)
+- `/pricing` — Free/Pro tiers with 14-day trial, FAQ
+- `/agents` — agent.ai free agents + full agent fleet by category
+- `/why` — "The Problem" — problem stats, failure modes, opportunity proof
+- `/how-it-works` — Flywheel, NRR Waterfall, architecture, archetypes
+- `/get-started` — Implementation blueprint, ROI calculator, agent.ai, pricing CTA
+- `/login`, `/signup` — Auth pages
+
+**App (authenticated, uses Sidebar + TopBar layout at `/app/*`):**
+- `/app` — Dashboard (Command Center)
+- `/app/accounts` — Account portfolio
+- `/app/agents` — Agent Hub (categorized agent launcher)
+- `/app/agents/health-monitor`, `/rescue-planner`, `/outreach-drafter` — Renewal Agents
+- `/app/agents/expansion-scout`, `/forecast-engine`, `/opportunity-brief` — Growth Agents
+- `/app/agents/executive-brief`, `/meeting-prep`, `/playbook-builder` — Coaching Agents
+- `/app/leadership` — Executive briefs
+- `/app/tasks` — Action Center
+- `/app/import` — Data import
+- `/app/settings` — Settings (profile, company, API keys, billing)
+
+### Key Directories
+
+```
+src/
+  components/
+    layout/       — Sidebar, TopBar, MarketingLayout, BottomTabBar, CommandPalette
+    auth/         — AuthGate
+    renewals/     — Renewal-specific components
+    ui/           — Shared UI components
+  pages/
+    marketing/    — Landing, Why, HowItWorks, GetStarted, Agents, Pricing
+    agents/       — HealthMonitor, RescuePlanner, OutreachDrafter, ExpansionScout,
+                    ForecastEngine, OpportunityBrief, PlaybookBuilder (+ ExecutiveBrief, MeetingPrep via Leadership)
+    auth/         — Login, Signup
+    Dashboard, Accounts, AgentHub, Leadership, Tasks, Import, Settings
+  store/
+    appStore.js   — UI state (sidebar, theme)
+    authStore.js  — Auth state (Supabase user)
+    entityStore.js — Legacy entity CRUD (decisions, tasks, priorities)
+  lib/
+    tokens.js     — Design tokens (colors, fonts, constants)
+    healthScore.js — Account health scoring engine (composite 0-10 scores, archetypes)
+    prompts.js    — AI system prompts for each agent
+    ai.js         — AI call helpers
+    supabase.js   — Supabase client
+    storage.js    — Storage adapter (local ↔ Supabase)
+    helpers.js, utils.js — Shared utilities
+```
 
 ### Backend (Vercel Serverless Functions)
 - **`api/ai.js`** — Main AI proxy. Routes to Anthropic or OpenAI based on `provider` field. Normalizes all responses to Anthropic message format. Resolves API keys from Vercel KV first, falls back to env vars.
 - **`api/claude.js`** — Simple Anthropic-only proxy (legacy/direct endpoint).
-- **`api/ai-keys.js`** — CRUD for user API keys stored in Vercel KV. Keys are validated on submission and never returned to the client after storage.
-- **`api/connectors/`** — Gmail and Outlook OAuth2 flows (auth, callback, disconnect, status) plus `scan.js` which fetches emails and extracts actionable items via Claude.
-- **`scripts/dev-api.js`** — Standalone Node HTTP server (port 3001) that mocks the serverless functions for local dev. Reads `.env.local` manually. Connector and key-management endpoints return stubs.
+- **`api/ai-keys.js`** — CRUD for user API keys stored in Vercel KV.
+- **`api/connectors/`** — Gmail and Outlook OAuth2 flows (auth, callback, disconnect, status) plus `scan.js` for email extraction.
+- **`scripts/dev-api.js`** — Local dev API server (port 3001).
 
 ### Key Patterns
-- All AI responses are normalized to Anthropic's `{ content: [{ text }], stop_reason, model, usage }` shape, even for OpenAI calls
-- Vercel KV is used for persistent storage (OAuth tokens, API keys) with a `bc2-` key prefix convention
-- Email scanning deduplicates via hash of `id:subject:sender`; newsletters are filtered by `List-Unsubscribe` header
+- All AI responses normalized to Anthropic's `{ content: [{ text }], stop_reason, model, usage }` shape
+- Vercel KV for persistent storage (OAuth tokens, API keys) with `bc2-` key prefix
+- Design tokens define the entire visual system — no CSS files, all inline styles
+- Account health scoring engine (`src/lib/healthScore.js`) produces composite 0-10 scores with archetype classification (Power User → Disconnected)
+- Agent architecture: 3 categories (Renewal/Growth/Coaching) with a growing fleet of sub-agents sharing a unified reasoning engine
+
+### Marketing Site Patterns
+- Section subtitles use `color: C.textPrimary, fontWeight: 400, opacity: 0.75` (premium hierarchy via weight, not color dimming)
+- Pill badges: `fontSize: 14, padding: "8px 20px"`, mono font, uppercase
+- "Traditional Renewals" (not "Traditional CS") — positioning against renewal workflow
+- agent.ai woven throughout as zero-friction entry point
+- 14-day Pro trial + $49/mo founding member pricing (first 100 customers)
 
 ## Environment
 
@@ -43,3 +105,11 @@ Copy `.env.example` to `.env.local`. Required for local AI calls: `ANTHROPIC_API
 ## ESLint
 
 Uses flat config (`eslint.config.js`). Notable rule: `no-unused-vars` ignores variables starting with uppercase or underscore (`varsIgnorePattern: '^[A-Z_]'`).
+
+## Documentation
+
+- **`PLAN.md`** — Master plan (single source of truth): vision, business model, revenue gates, epic roadmap, decision log, AI Revenue Architecture
+- **`PLAN-ONE-PAGER.md`** — Compressed summary of the master plan
+- **`PLAN-FAMILY.md`** — Plain-language explanation for non-technical audience
+- **`AGENT-AI-BUILD-GUIDE.md`** — Configuration guide for agent.ai Knowledge Agents
+- **`docs/archive/`** — Historical versions of plan documents

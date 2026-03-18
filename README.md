@@ -1,16 +1,34 @@
-# React + Vite
+# BaseCommand
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**AI-Powered Renewal Intelligence** — a fleet of specialized AI agents that run renewal operations continuously, from co-pilot to fully autonomous.
 
-Currently, two official plugins are available:
+## Quick Start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+cp .env.example .env.local    # Add ANTHROPIC_API_KEY
+npm run dev                    # http://localhost:5173
+```
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend:** React 19, React Router v7, Zustand, Vite
+- **Backend:** Vercel Serverless Functions
+- **AI:** Anthropic Claude (primary), OpenAI (optional)
+- **Auth:** Supabase (planned)
+- **Styling:** Inline styles with design tokens (Command Indigo theme)
 
-## Expanding the ESLint configuration
+## Documentation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| File | Purpose |
+|------|---------|
+| `CLAUDE.md` | Technical guidance for Claude Code sessions |
+| `PLAN.md` | Master plan — vision, business model, epic roadmap, decision log |
+| `PLAN-ONE-PAGER.md` | Compressed summary of the master plan |
+| `PLAN-FAMILY.md` | Plain-language explanation for non-technical audience |
+| `AGENT-AI-BUILD-GUIDE.md` | Configuration guide for agent.ai Knowledge Agents |
+| `docs/archive/` | Historical versions of plan documents |
+
+## License
+
+Private — all rights reserved.

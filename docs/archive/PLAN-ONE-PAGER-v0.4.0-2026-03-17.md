@@ -1,8 +1,6 @@
 # BASECOMMAND — THE PLAN
 
-**Version:** 0.5.0 | **Last updated:** 2026-03-17
-
-**BHAG: The Autonomous Revenue Intelligence Layer**
+**BHAG: The Autonomous Revenue Operations Layer**
 Co-pilot → Supervised Autopilot → Full Autonomous
 
 ---
@@ -39,10 +37,7 @@ Co-pilot → Supervised Autopilot → Full Autonomous
 [x] 5. Forecast Intelligence         GRR/NRR, confidence tiers, scenarios
 [x] 6. AI-Initiated Value            Persona-driven suggestions
 [x] 7. Agent Hub                     Agents as the product experience
-[x] 2. agent.ai Integration          4 agents live on agent.ai
-[x] 12. My Company                   Company Profile & Renewal Strategy
-[x] 13. Agent Architecture Overhaul  3 categories, sub-agents, industry naming
-[x] 14. Marketing Site Overhaul      Landing page, positioning, conversion flow
+[ ] 2. agent.ai Integration          4 agents live on agent.ai
 [ ] 8. Autonomous Agents             Gmail send, rules engine, execution log
 [ ] 9. Security & Foundation         Supabase Auth, Postgres, RLS
 [ ] 10. AI Access & Monetization     Zero-friction AI, usage metering, free→paid
@@ -58,7 +53,6 @@ Co-pilot → Supervised Autopilot → Full Autonomous
 [ ] Stripe billing live
 [ ] AI works without API key
 [ ] Usage metering + free tier limits
-[x] Marketing site overhaul complete
 [ ] Early adopter pricing ($49/mo) purchasable
 [ ] Privacy policy + ToS published
 → THEN request agent.ai featured placement
@@ -82,13 +76,10 @@ Co-pilot → Supervised Autopilot → Full Autonomous
 ## PRICING
 
 ```
-  FREE        $0        10 accounts, 50 AI calls/mo (after 14-day Pro trial)
+  FREE        $0        10 accounts, 50 AI calls/mo (Sonnet)
   PRO         $149/mo   Unlimited accounts + AI (Opus)
-  PRO ANNUAL  $39/mo    $468/yr billed annually
-  FOUNDING    $49/mo    First 100 customers — locked for life
+  EARLY PRO   $49/mo    First 100 customers — locked for life
   TEAM        $299+/mo  Multi-user, full autonomous, BYOK option
-
-  Every signup → 14-day Pro trial, no credit card required.
 ```
 
 ---

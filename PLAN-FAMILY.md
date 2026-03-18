@@ -6,7 +6,7 @@ BaseCommand is software that helps companies keep their existing customers.
 
 When a software company sells a subscription, that subscription comes up for renewal every year. Someone has to manage that — track when renewals are due, reach out to customers, identify who might cancel, and report to leadership. Today, most companies do this with spreadsheets, gut feel, and overworked salespeople.
 
-BaseCommand uses AI to do that work automatically. It reads messy customer data, figures out what needs attention, drafts the outreach emails, flags the risks, and builds the reports — in minutes instead of days.
+BaseCommand is an AI agent platform that does that work automatically. Its AI agents read messy customer data, figure out what needs attention, draft the outreach emails, flag the risks, and build the reports — in minutes instead of days.
 
 ## Why Will People Pay For This?
 
@@ -15,7 +15,7 @@ Renewal management is a **high-stakes, high-pain** job:
 - Companies pay $150K-250K/year to hire someone to do this work
 - There's no dominant software solution for small and mid-size companies
 
-BaseCommand does the job of a renewal operations team for **$149/month**. That's an easy yes for any company managing renewals.
+BaseCommand's AI agents do the job of a renewal operations team for **$149/month**. That's an easy yes for any company managing renewals.
 
 ## How Do People Find It?
 
@@ -30,7 +30,9 @@ We have a distribution advantage: a partnership with **agent.ai**, a platform wi
 | **Early Adopter Pro** | $49/mo | Same as Pro — discounted rate locked in forever for first 100 customers |
 | **Team** | $299-499/mo | Multiple users, advanced features |
 
-The AI is built into the product — users never have to configure anything technical. They sign up, add their customer data, and the AI just works. This is how every modern AI software product operates (Notion AI, Grammarly, etc.).
+The AI agents are built into the platform — users never have to configure anything technical. They sign up, add their customer data, and the agents just work. This is how every modern AI software product operates (Notion AI, Grammarly, etc.).
+
+**How signups work:** Everyone starts with a **14-day free trial** of the full product — no credit card required. After the trial, they can keep using a limited free version or upgrade to Pro at $49/mo.
 
 **Pricing strategy:** We start at $49/mo for our first 100 customers to prove demand quickly. That price is locked in for them forever as a thank-you for being early. As the product matures, new customers pay more ($99, then $149). This is a common strategy — reward early believers, raise prices as value increases.
 
@@ -77,7 +79,7 @@ BEYOND        If $25K+/month — have the full-time conversation
 
 ## The Bottom Line
 
-We're building a product that solves an expensive problem for thousands of companies, with a free marketing channel to 3 million potential users, and a financial plan that doesn't risk anything we can't afford to lose.
+We're building an AI agent platform that solves an expensive problem for thousands of companies, with a free marketing channel to 3 million potential users, and a financial plan that doesn't risk anything we can't afford to lose.
 
 The worst case: we spend some evenings building something cool and learn a lot.
 The best case: it replaces an income.
@@ -85,3 +87,4 @@ The best case: it replaces an income.
 ---
 
 *BaseCommand — basecommand.ai — Started March 2026*
+*Last updated: 2026-03-17*

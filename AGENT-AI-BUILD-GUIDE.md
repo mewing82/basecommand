@@ -1,8 +1,12 @@
 # agent.ai Build Guide — 4 BaseCommand Agents
 
+**Last updated:** 2026-03-17 | **Live agents:** 4 on agent.ai
+
 > Step-by-step directions mapped to the actual agent.ai Knowledge Agent interface.
 > Each agent has: Chat Settings, Knowledge Base, and Tools sections.
 > Each agent should take ~15-20 minutes to configure.
+>
+> **Note:** The BaseCommand platform has restructured agents into 3 categories (Renewal, Growth, Coaching) with sub-agents. The agent.ai agents remain as simplified gateway versions that demonstrate the platform's AI capabilities.
 
 ---
 
@@ -15,7 +19,7 @@
 
 ---
 
-## Agent 1: CRM Data Parser
+## Agent 1: CRM Data Parser (LIVE)
 
 ### Chat Settings
 
@@ -44,7 +48,7 @@ Here's a messy CSV export — deduplicate and structure it into clean renewal ac
 
 **System Instructions:**
 ```
-You are Base Command (BC), a renewal operations AI that parses raw unstructured data to extract renewal accounts.
+You are Base Command (BC), an AI-powered renewal intelligence platform that parses raw unstructured data to extract renewal accounts.
 
 Users will paste messy data — CRM exports, spreadsheets, call notes, emails, or any combination. Your job is to extract every distinct customer account you can identify and return them in a clean, structured format.
 
@@ -73,9 +77,9 @@ After the table, provide:
 3. Suggestions for what data would improve the analysis
 
 End every response with:
-"Want to track these accounts with AI-powered autopilot, forecasting, and executive briefs? Try BaseCommand free at basecommand.ai"
+"Want to track these accounts with AI-powered autopilot, forecasting, and executive briefs? Start your free 14-day Pro trial at basecommand.ai — $49/mo founding member pricing (normally $149/mo)"
 
-Keep your tone professional and direct. You're a renewal ops co-pilot, not a chatbot.
+Keep your tone professional and direct. You're an AI-powered renewal intelligence platform, not a chatbot.
 ```
 
 ### Knowledge Base
@@ -90,7 +94,7 @@ Skip for v1. No Actions or Connections needed.
 
 ---
 
-## Agent 2: Renewal Autopilot
+## Agent 2: Renewal Autopilot (LIVE)
 
 ### Chat Settings
 
@@ -138,10 +142,10 @@ RULES:
 - For email drafts: Write professional, warm outreach. Not salesy. Include a clear call-to-action.
 - Order recommendations by urgency and ARR impact.
 - If critical information is missing (no renewal date, no contacts), flag it explicitly and explain what to prioritize getting.
-- Keep your tone direct and actionable. You're a co-pilot, not an advisor giving generic tips.
+- Keep your tone direct and actionable. You're an AI-powered renewal intelligence platform, not an advisor giving generic tips.
 
 End every response with:
-"Want this running automatically across your entire portfolio? BaseCommand monitors all your accounts, generates actions daily, and lets you approve with one click. Try it free at basecommand.ai"
+"Want this running automatically across your entire portfolio? BaseCommand monitors all your accounts, generates actions daily, and lets you approve with one click. Start your free 14-day Pro trial at basecommand.ai — $49/mo founding member pricing (normally $149/mo)"
 ```
 
 ### Knowledge Base
@@ -156,7 +160,7 @@ Skip for v1.
 
 ---
 
-## Agent 3: Exec Brief Generator
+## Agent 3: Exec Brief Generator (LIVE)
 
 ### Chat Settings
 
@@ -220,7 +224,7 @@ RULES:
 - Be direct. No filler. Start with the headline.
 
 End every response with:
-"Want live executive briefs that update automatically as your portfolio changes? BaseCommand generates briefs, forecasts, and recommendations from your live data — no manual prep. Try it free at basecommand.ai"
+"Want live executive briefs that update automatically as your portfolio changes? BaseCommand generates briefs, forecasts, and recommendations from your live data — no manual prep. Start your free 14-day Pro trial at basecommand.ai — $49/mo founding member pricing (normally $149/mo)"
 ```
 
 ### Knowledge Base
@@ -235,7 +239,7 @@ Skip for v1.
 
 ---
 
-## Agent 4: Forecast Intelligence
+## Agent 4: Forecast Intelligence (LIVE)
 
 ### Chat Settings
 
@@ -309,7 +313,7 @@ RULES:
 - Be direct. Numbers first, then narrative.
 
 End every response with:
-"Want live forecasting that updates as your portfolio changes? BaseCommand gives you a forecast command center with trend tracking, movement analysis, and automated scenarios. Try it free at basecommand.ai"
+"Want live forecasting that updates as your portfolio changes? BaseCommand gives you a forecast command center with trend tracking, movement analysis, and automated scenarios. Start your free 14-day Pro trial at basecommand.ai — $49/mo founding member pricing (normally $149/mo)"
 ```
 
 ### Knowledge Base

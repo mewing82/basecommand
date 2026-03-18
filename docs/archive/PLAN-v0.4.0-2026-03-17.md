@@ -1,8 +1,7 @@
 # BaseCommand Master Plan
 
 > **Living document.** Updated as decisions are made. Single source of truth for vision, business model, and what we're building.
-> **Last updated:** 2026-03-17 | **Version:** 0.5.0
-> **Previous versions:** `docs/archive/PLAN-v0.4.0-2026-03-17.md`
+> **Last updated:** 2026-03-16
 
 ---
 
@@ -54,24 +53,21 @@ BaseCommand is a **side-hustle**, not a VC-backed startup. Michael has no intent
 
 ### Pricing
 
-**Conversion model: 14-day Pro trial → Free forever or upgrade to founding member pricing.**
-
-| Tier | List Price | Founding Member Price | Includes | Target |
-|------|-----------|----------------------|----------|--------|
-| **Free** | $0 | $0 | 10 accounts, 50 AI calls/mo (Sonnet), all agent categories, co-pilot mode | Founders trying it, agent.ai converts |
-| **Pro** | $149/mo | **$49/mo locked for life** | Unlimited accounts, unlimited AI (Opus), supervised autopilot, email connectors, cloud sync | Individual revenue leaders, small teams |
+| Tier | List Price | Early Adopter Price | Includes | Target |
+|------|-----------|-------------------|----------|--------|
+| **Free** | $0 | $0 | 10 accounts, 50 AI calls/mo (Sonnet), co-pilot agents | Founders trying it, agent.ai converts |
+| **Pro** | $149/mo | **$49/mo locked for life** | Unlimited accounts, unlimited AI (Opus), supervised autopilot | Individual revenue leaders, small teams |
 | **Pro Annual** | $149/mo | **$39/mo ($468/yr) locked for life** | Same as Pro | Cost-conscious early adopters |
 | **Team** | $299–499/mo | TBD (post-Gate 2) | Multi-user, shared portfolio, full autonomous, API, BYOK option | RevOps teams, CS organizations |
 | **Enterprise** | Custom | TBD (post-SOC 2) | Custom agents, SSO, BYOK required, dedicated support | Mid-market (post-SOC 2) |
 
-### 14-Day Pro Trial + Founding Member Program
+### Early Adopter Program
 
-**Every signup starts with 14 days of full Pro access — no credit card required.** After the trial, users choose: keep the free tier forever, or lock in founding member pricing.
+**First 100 customers get founding member pricing — locked in for life.**
 
-- **14-day Pro trial** — automatic on every signup, no credit card needed
-- **Free forever tier** after trial — 10 accounts, 50 AI calls/mo, all agent categories
-- **Founding member pricing** — first 100 Pro customers get $49/mo locked for life (normally $149/mo)
+- $49/mo (normally $149/mo) — 67% off, locked for as long as they're a customer
 - $39/mo billed annually ($468/yr) — best deal we'll ever offer, 74% off
+- Limited to first 100 customers — creates real scarcity (we only want 50-80 in Phase 1 anyway)
 - Framed as exclusive, not desperate: "You're getting in early. Help shape what we build next."
 
 **Pricing evolution:**
@@ -148,7 +144,7 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | Epic | Name | Status | Description |
 |------|------|--------|-------------|
 | 1 | Navigation & Feature Overhaul | **Completed** | Cut generic features, promote renewals to core nav |
-| 2 | agent.ai Integration | **Completed** | 4 agents live on agent.ai + /agents marketing page + Quick Add |
+| 2 | agent.ai Integration | **Planned** | 4 agents on agent.ai + /agents marketing page + Quick Add |
 | 3 | Post-Login Experience & Onboarding | **Completed** | Smart routing, dashboard rewrite, onboarding flow |
 | 4 | Tasks Overhaul | **Completed** | AI-powered renewal task engine (account actions + strategic) |
 | 5 | Forecast Intelligence | **Completed** | Standalone forecast with GRR/NRR, confidence tiers, scenarios |
@@ -159,8 +155,7 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 10 | AI Access & Monetization | **Roadmap** | BaseCommand-provided AI (no API key needed), usage metering, free/pro model gate |
 | 11 | Brand & Operations | **Deferred** | Google Workspace, social media campaigns, content marketing, demo videos (post-launch) |
 | 12 | My Company — Company Profile & Renewal Strategy | **In Progress** | AI-first company data ingestion, product catalog, renewal strategy, negotiation exchange framework |
-| 13 | Agent Architecture Overhaul | **Completed** | Restructure into Renewal/Growth/Coaching categories, health scoring, industry-standard naming, unified intelligence layer |
-| 14 | Marketing Site Overhaul | **Completed** | AI Revenue Engine positioning, 6 marketing pages, agent.ai integration, 14-day trial model |
+| 13 | Agent Architecture Overhaul | **In Progress** | Restructure into Renewal/Growth/Coaching categories, health scoring, industry-standard naming, unified intelligence layer |
 
 ---
 
@@ -296,44 +291,6 @@ This data accumulates into the **workflow graph** — the knowledge of how renew
 | 56 | Add computed Account Health Score (0–10) as the shared data point across all agents | Without a shared health score, agents operate in silos. The score enables: trigger-based automation, archetype classification, cross-agent intelligence. | 2026-03-17 |
 | 57 | Reframe Dashboard as Command Center with NRR Waterfall as primary visualization | The Command Center is the Orchestration layer — it shows where money flows and where agents are intervening. A stat dashboard doesn't convey the intelligence. | 2026-03-17 |
 | 58 | Track all human approve/reject/edit actions on agent suggestions as feedback loop data | This data becomes the "workflow graph" moat — accumulated knowledge of how renewals get worked. Collect now, leverage for ML later. | 2026-03-17 |
-| 59 | 14-day Pro trial for every signup, no credit card required | Reduces friction to zero. Users experience full value before deciding. Free tier catches users who don't convert — they're still in the funnel. | 2026-03-17 |
-| 60 | "Traditional Renewals" not "Traditional CS" in all positioning | We compete with renewal workflows, not CS platforms. Gainsight/ChurnZero own "CS" — we own "AI-powered renewal workflow." | 2026-03-17 |
-| 61 | Split marketing into 3 education pages: /why, /how-it-works, /get-started | One long page tried to serve 3 reader intents. VPs need the wake-up call, RevOps needs the architecture, champions need the blueprint + ROI. | 2026-03-17 |
-| 62 | Coming soon data connectors: HubSpot, Salesforce, Snowflake, BigQuery, Zendesk, Intercom | Telemetry data is the foundation layer. Show the roadmap to build confidence. HubSpot first (agent.ai has native connector). | 2026-03-17 |
-| 63 | Marketing text hierarchy: textPrimary + fontWeight 400 + opacity 0.75 for subtitles | Premium sites use weight differentiation, not color dimming. Prevents subtitle text from getting swallowed on dark backgrounds. | 2026-03-17 |
-
----
-
-## Epic 14: Marketing Site Overhaul (v0.5.0)
-
-**Status: Completed (2026-03-17)**
-
-Complete rewrite of all marketing pages based on AI Revenue Engine research ("Architecting Intelligence: The AI-Driven Revenue Engine").
-
-### What was built
-
-**6 marketing pages with distinct jobs:**
-
-| Page | Route | Job | Key Content |
-|------|-------|-----|-------------|
-| Landing | `/` | Convert (30-60 sec) | Hero, Shift table, 5-function workflow, agent.ai, pricing |
-| The Problem | `/why` | Wake-up call (2-3 min) | Problem stats, 6 failure mode cards, Shift table, opportunity proof |
-| How It Works | `/how-it-works` | Show the system (5 min) | Agentic Flywheel, NRR Waterfall, 4-layer architecture, archetypes |
-| Get Started | `/get-started` | Remove objections, drive action | 4-week blueprint, ROI calculator, agent.ai, pricing CTA |
-| Agents | `/agents` | agent.ai gateway | 4 live agents + full fleet by category |
-| Pricing | `/pricing` | Pricing details | Free/Pro tiers, 14-day trial, FAQ |
-
-**Key frameworks visualized from AI Revenue Engine slides:**
-- Slide 5: Traditional Renewals vs AI-Driven RevOps (comparison table)
-- Slide 11: AI-Powered Renewal Workflow (5-function pipeline)
-- Slide 15: The Agentic Flywheel (3-stage continuous loop)
-- Slide 16: AI-Optimized NRR Waterfall (3 intervention points)
-- Slide 17: Unified AI Revenue Architecture (4-layer stack)
-- Slide 18: Implementation Blueprint (4-week ramp)
-
-**Pricing model updated:** 14-day Pro trial → Free forever or $49/mo founding member
-
-**Nav:** Pricing | Agents | The Problem | How It Works
 
 ---
 ---
@@ -1222,7 +1179,7 @@ AI is included in the product. Users never see an API key unless they want to.
 | Tier | Model | Limits | How It Works |
 |------|-------|--------|-------------|
 | **Free** | Claude Sonnet | 50 AI calls/month | BaseCommand API key on server, metered per user |
-| **Pro** | Claude Opus | Unlimited | BaseCommand API key, included in $49/mo (founding) / $149/mo (standard) |
+| **Pro** | Claude Opus | Unlimited | BaseCommand API key, included in $149/mo |
 | **Team/Enterprise** | Claude Opus + BYOK option | Unlimited | Use ours or bring your own for compliance |
 
 ### Why This Is A Big Deal
@@ -1573,12 +1530,10 @@ Contextual banners on agent pages: "Your email drafts would be more specific wit
 - **Incorrect:** "Base Command" (two words — legacy, being phased out)
 
 ### Taglines & Descriptions
-- **Primary tagline:** "AI-Powered Renewal Intelligence"
-- **Hero subtitle:** "Your entire renewal workflow — powered by AI agents that work alongside you or run autonomously."
-- **Pill badge:** "AI-powered renewal workflows — from co-pilot to fully autonomous"
+- **Primary tagline:** "The AI-Powered Renewal Operations Platform"
 - **Dashboard empty state:** "Your renewal command center is ready"
 - **Dashboard description:** "Import your portfolio, automate renewal workflows, and surface expansion opportunities — all from one platform."
-- **AI persona:** "BC" — described as "AI-powered renewal intelligence co-pilot"
+- **AI persona:** "BC" — described as "AI-powered renewal operations co-pilot"
 - **Renewals subtitle:** "AI-powered renewal automation, expansion intelligence, and executive reporting"
 
 ### Navigation Labels
