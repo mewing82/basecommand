@@ -1,75 +1,40 @@
 import { Link } from "react-router-dom";
-import { RefreshCw, Shield, TrendingUp, Sparkles, BarChart3, Zap } from "lucide-react";
+import {
+  Sparkles, ArrowRight, Brain, Target, FileText, Users,
+  Activity, ChevronRight, Bot, CheckCircle2,
+} from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 
-const FEATURES = [
-  {
-    icon: RefreshCw,
-    title: "See every renewal at a glance",
-    description: "One AI-powered dashboard for your entire portfolio. Risk signals, next actions, and renewal timelines — no more hunting through spreadsheets.",
-    color: "#3B82F6",
-    bg: "rgba(59, 130, 246, 0.12)",
-    border: "rgba(59, 130, 246, 0.20)",
-    glow: "rgba(59, 130, 246, 0.08)",
-  },
-  {
-    icon: Shield,
-    title: "Catch churn before it happens",
-    description: "AI analyzes engagement patterns, support tickets, and usage trends to flag at-risk accounts weeks before renewal — so you can act, not react.",
-    color: "#F87171",
-    bg: "rgba(248, 113, 113, 0.12)",
-    border: "rgba(248, 113, 113, 0.20)",
-    glow: "rgba(248, 113, 113, 0.08)",
-  },
-  {
-    icon: TrendingUp,
-    title: "Never miss a renewal again",
-    description: "AI tracks every renewal date, stakeholder change, and contract detail so nothing slips through the cracks — even across hundreds of accounts.",
-    color: "#34D399",
-    bg: "rgba(52, 211, 153, 0.12)",
-    border: "rgba(52, 211, 153, 0.20)",
-    glow: "rgba(52, 211, 153, 0.08)",
-  },
-  {
-    icon: BarChart3,
-    title: "Know your numbers in real time",
-    description: "GRR, NRR, and renewal rates updated live. AI-powered forecasts and health scores give you confidence walking into any QBR.",
-    color: "#A78BFA",
-    bg: "rgba(167, 139, 250, 0.12)",
-    border: "rgba(167, 139, 250, 0.20)",
-    glow: "rgba(167, 139, 250, 0.08)",
-  },
-  {
-    icon: Zap,
-    title: "Automate the busywork",
-    description: "AI generates renewal playbooks, stakeholder briefs, and risk assessments automatically. Spend your time on relationships, not admin.",
-    color: "#FB923C",
-    bg: "rgba(251, 146, 60, 0.12)",
-    border: "rgba(251, 146, 60, 0.20)",
-    glow: "rgba(251, 146, 60, 0.08)",
-  },
-  {
-    icon: Sparkles,
-    title: "An AI partner for every view",
-    description: "Built on Claude and GPT-4. Every screen has an AI co-pilot that understands your full portfolio context and speaks your language.",
-    color: "#22D3EE",
-    bg: "rgba(34, 211, 238, 0.12)",
-    border: "rgba(34, 211, 238, 0.20)",
-    glow: "rgba(34, 211, 238, 0.08)",
-  },
+// ─── Free Agent.ai Agents ────────────────────────────────────────────────────
+
+const FREE_AGENTS = [
+  { name: "CRM Data Parser", desc: "Paste messy data, get clean accounts", link: "https://agent.ai/agent/basecommand-crm-parser" },
+  { name: "Renewal Autopilot", desc: "Account details in, action plan out", link: "https://agent.ai/agent/basecommand-autopilot" },
+  { name: "Exec Brief Generator", desc: "Portfolio data to board-ready brief", link: "https://agent.ai/agent/basecommand-exec-brief" },
+  { name: "Forecast Intelligence", desc: "Renewal data to GRR/NRR forecast", link: "https://agent.ai/agent/basecommand-forecast" },
 ];
 
 export default function Landing() {
   return (
     <div>
-      {/* Hero */}
-      <section className="bc-hero" style={{
+      {/* ─── Hero ─────────────────────────────────────────────────────────── */}
+      <section style={{
         padding: "100px 40px 80px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
       }}>
-        <h1 className="bc-hero-title" style={{
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          padding: "8px 20px", borderRadius: 20, marginBottom: 24,
+          background: C.goldMuted, border: `1px solid ${C.gold}20`,
+          fontSize: 14, fontWeight: 500, color: C.gold, fontFamily: FONT_SANS,
+        }}>
+          <Bot size={14} />
+          AI-powered renewal workflows — from co-pilot to fully autonomous
+        </div>
+
+        <h1 style={{
           fontFamily: FONT_SANS, fontSize: 56, fontWeight: 700,
           letterSpacing: "-0.04em", lineHeight: 1.1,
-          margin: "0 auto 16px", maxWidth: 800,
+          margin: "0 auto 20px", maxWidth: 820,
           background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover}, ${C.aiBlue})`,
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
         }}>
@@ -77,21 +42,21 @@ export default function Landing() {
         </h1>
 
         <p style={{
-          fontFamily: FONT_SANS, fontSize: 32, fontWeight: 600,
-          color: C.textPrimary, letterSpacing: "-0.03em",
-          margin: "0 auto 24px",
+          fontFamily: FONT_SANS, fontSize: 24, fontWeight: 500,
+          color: C.textPrimary, letterSpacing: "-0.02em",
+          margin: "0 auto 16px", maxWidth: 700,
         }}>
-          Your renewal portfolio, under control.
+          Your entire renewal workflow — powered by AI agents that work alongside you or run autonomously.
         </p>
 
-        <p className="bc-hero-sub" style={{
-          fontFamily: FONT_BODY, fontSize: 18, color: C.textTertiary, lineHeight: 1.7,
-          maxWidth: 520, margin: "0 auto 40px",
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
+          maxWidth: 560, margin: "0 auto 36px",
         }}>
-          Stop chasing renewals through spreadsheets and CRM tabs. One view for risk scores, renewal timelines, next actions, and automated playbooks across your entire book.
+          BaseCommand gives you the AI reasoning engine, specialized agents, and a human escalation layer — everything you need to run renewals at AI speed with human judgment.
         </p>
 
-        <div className="bc-hero-buttons" style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link to="/signup" style={{
             padding: "14px 32px", borderRadius: 10, border: "none",
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
@@ -99,90 +64,311 @@ export default function Landing() {
             textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
             transition: "all 0.15s",
           }}>
-            Get Started Free
+            Start 14-Day Pro Trial
+          </Link>
+          <Link to="/why" style={{
+            padding: "14px 32px", borderRadius: 10,
+            background: "transparent", border: `1px solid ${C.borderSubtle}`,
+            color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 500,
+            textDecoration: "none", transition: "all 0.15s",
+            display: "inline-flex", alignItems: "center", gap: 8,
+          }}>
+            See why the playbook is broken <ChevronRight size={14} />
           </Link>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="bc-features-section" style={{ padding: "40px 40px 100px", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <h2 className="bc-features-heading" style={{
+      {/* ─── The Shift ──────────────────────────────────────────────────────── */}
+      <section style={{ padding: "20px 40px 80px", maxWidth: 1000, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <h2 style={{
             fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
-            Smarter renewals at every step
+            The shift is already happening
           </h2>
-          <p style={{ fontFamily: FONT_BODY, fontSize: 16, color: C.textTertiary, lineHeight: 1.6 }}>
-            Six AI-powered modules that replace spreadsheets, guesswork, and manual tracking.
+          <p style={{
+            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            maxWidth: 520, margin: "0 auto 8px",
+          }}>
+            Traditional Renewals is reactive, siloed, and manual. AI-Driven RevOps is proactive, unified, and agentic. Which side are you on?
           </p>
         </div>
 
-        <div className="bc-feature-grid" style={{
-          display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16,
+        <div style={{
+          background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+          borderRadius: 16, overflow: "hidden",
         }}>
-          {FEATURES.map((feature, i) => (
+          <div style={{
+            display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+            borderBottom: `1px solid ${C.borderDefault}`,
+          }}>
+            <div style={{ padding: "16px 24px" }} />
+            <div style={{
+              padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+              color: C.textTertiary, borderLeft: `1px solid ${C.borderDefault}`,
+            }}>
+              Traditional Renewals
+            </div>
+            <div style={{
+              padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+              color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
+              background: "rgba(34, 211, 238, 0.04)",
+            }}>
+              AI-Driven RevOps
+            </div>
+          </div>
+          {[
+            { dimension: "Timing", old: "Reactive", oldSub: "30 days to renewal", new_: "Proactive", newSub: "Predictive signals 90–180 days out" },
+            { dimension: "Data Scope", old: "Siloed", oldSub: "CRM notes, NPS surveys", new_: "Unified", newSub: "160 billion telemetry points" },
+            { dimension: "Action Engine", old: "Manual", oldSub: "Spreadsheets, generic emails", new_: "Agentic", newSub: "Automated workflows, AI-drafted outreach" },
+            { dimension: "Core Focus", old: "Firefighting", oldSub: "Saving the churn", new_: "Strategic Growth", newSub: "Surfacing the expansion" },
+          ].map((row, i) => (
             <div key={i} style={{
-              background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-              borderRadius: 14, padding: "28px 24px",
-              transition: "border-color 0.15s, transform 0.15s, box-shadow 0.15s",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = feature.border; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 8px 32px ${feature.glow}`; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
-            >
+              display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+              borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
+            }}>
               <div style={{
-                width: 48, height: 48, borderRadius: 12, marginBottom: 18,
-                background: feature.bg, border: `1px solid ${feature.border}`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: `0 4px 16px ${feature.glow}`,
+                padding: "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+                color: C.gold, display: "flex", alignItems: "center",
               }}>
-                <feature.icon size={22} color={feature.color} strokeWidth={1.75} />
+                {row.dimension}
+              </div>
+              <div style={{ padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
+                <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, opacity: 0.5 }}>{row.oldSub}</div>
               </div>
               <div style={{
-                fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600,
-                color: C.textPrimary, marginBottom: 8, letterSpacing: "-0.01em",
+                padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
+                background: "rgba(34, 211, 238, 0.04)",
               }}>
-                {feature.title}
-              </div>
-              <div style={{
-                fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, lineHeight: 1.7,
-              }}>
-                {feature.description}
+                <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
+                <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.aiBlue }}>{row.newSub}</div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bc-cta-section" style={{
-        padding: "60px 40px", maxWidth: 800, margin: "0 auto", textAlign: "center",
-      }}>
-        <div className="bc-cta-box" style={{
-          background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
-          border: `1px solid ${C.borderAI}`, borderRadius: 16, padding: "48px 40px",
-        }}>
-          <h2 className="bc-cta-heading" style={{
-            fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+      {/* ─── The AI-Powered Renewal Workflow ──────────────────────────────── */}
+      <section style={{ padding: "20px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "8px 20px", borderRadius: 20, marginBottom: 16,
+            background: C.goldMuted, border: `1px solid ${C.gold}20`,
+            fontSize: 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            letterSpacing: "0.03em", textTransform: "uppercase",
+          }}>
+            The AI-Powered Renewal Workflow
+          </div>
+          <h2 style={{
+            fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
-            Ready to take command of your renewals?
+            Five continuous functions. One agentic system.
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 15, color: C.textTertiary, marginBottom: 28, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            maxWidth: 580, margin: "0 auto 8px",
           }}>
-            Free to start. Bring your own AI keys. No credit card required. Works alongside your CRM.
+            A properly configured agentic system executes five continuous functions — replacing manual effort with AI speed while keeping humans focused on strategic conversations.
           </p>
-          <Link to="/signup" style={{
-            display: "inline-block", padding: "14px 36px", borderRadius: 10,
-            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-            color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
-            textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
+          {[
+            { fn: "Monitor", desc: "Scans health signals 24/7 across unified systems.", icon: Activity, color: "#34D399" },
+            { fn: "Predict", desc: "Scores churn risk 90–180 days before the renewal.", icon: Brain, color: "#6366F1" },
+            { fn: "Generate", desc: "Drafts hyper-personalized, context-rich outreach.", icon: FileText, color: "#22D3EE" },
+            { fn: "Identify", desc: "Flags expansion and upsell triggers automatically.", icon: Target, color: "#F59E0B" },
+            { fn: "Orchestrate", desc: "Keeps humans focused solely on high-value, strategic conversations.", icon: Users, color: "#A78BFA" },
+          ].map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <div key={i} style={{
+                background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+                borderRadius: 14, padding: "28px 18px", textAlign: "center",
+                position: "relative",
+              }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: 12, margin: "0 auto 14px",
+                  background: `${item.color}14`, border: `1px solid ${item.color}25`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <Icon size={20} color={item.color} />
+                </div>
+                <div style={{
+                  fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600,
+                  color: item.color, letterSpacing: "0.06em", textTransform: "uppercase",
+                  marginBottom: 8,
+                }}>
+                  {item.fn}
+                </div>
+                <div style={{
+                  fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.6,
+                }}>
+                  {item.desc}
+                </div>
+                {i < 4 && (
+                  <div style={{
+                    position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)",
+                    color: C.borderSubtle, fontSize: 16, zIndex: 1, opacity: 0.6,
+                  }}>
+                    ›
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <Link to="/how-it-works" style={{
+            fontFamily: FONT_BODY, fontSize: 14, color: C.aiBlue,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
           }}>
-            Create Free Account
+            See the full architecture: Flywheel, NRR Waterfall, and more <ArrowRight size={14} />
           </Link>
         </div>
       </section>
+
+      {/* ─── Try Free on agent.ai ─────────────────────────────────────────── */}
+      <section style={{ padding: "20px 40px 80px", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{
+          background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
+          border: `1px solid ${C.borderAI}`, borderRadius: 20, padding: "48px 40px",
+        }}>
+          <div style={{ textAlign: "center", marginBottom: 36 }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "8px 20px", borderRadius: 20, marginBottom: 16,
+              background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
+              fontSize: 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
+              letterSpacing: "0.03em", textTransform: "uppercase",
+            }}>
+              <Sparkles size={12} />
+              No signup required
+            </div>
+            <h2 style={{
+              fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+              color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 8px",
+            }}>
+              Try our agents free on agent.ai
+            </h2>
+            <p style={{
+              fontFamily: FONT_BODY, fontSize: 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+              maxWidth: 480, margin: "0 auto",
+            }}>
+              Paste your data. Get instant results. No account needed. These standalone agents give you a taste of what the full platform does at scale.
+            </p>
+          </div>
+
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12,
+            maxWidth: 720, margin: "0 auto",
+          }}>
+            {FREE_AGENTS.map((agent, i) => (
+              <a key={i} href={agent.link} target="_blank" rel="noopener noreferrer" style={{
+                display: "flex", alignItems: "center", gap: 14,
+                padding: "16px 20px", borderRadius: 12,
+                background: C.bgPrimary, border: `1px solid ${C.borderDefault}`,
+                textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(34, 211, 238, 0.30)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(34, 211, 238, 0.06)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.boxShadow = "none"; }}
+              >
+                <Bot size={20} color={C.aiBlue} style={{ flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{agent.name}</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>{agent.desc}</div>
+                </div>
+                <ArrowRight size={14} color={C.textTertiary} style={{ marginLeft: "auto", flexShrink: 0 }} />
+              </a>
+            ))}
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 20 }}>
+            <Link to="/agents" style={{
+              fontFamily: FONT_BODY, fontSize: 13, color: C.aiBlue,
+              textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4,
+            }}>
+              See all agents <ArrowRight size={12} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Early Adopter Pricing ────────────────────────────────────────── */}
+      <section style={{ padding: "20px 40px 80px", maxWidth: 900, margin: "0 auto" }}>
+        <div style={{
+          background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+          borderRadius: 20, padding: "48px 40px", textAlign: "center",
+        }}>
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "8px 20px", borderRadius: 20, marginBottom: 20,
+            background: C.goldMuted, border: `1px solid ${C.gold}20`,
+            fontSize: 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            letterSpacing: "0.03em", textTransform: "uppercase",
+          }}>
+            Founding member pricing — first 100 customers
+          </div>
+
+          <h2 style={{
+            fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
+            color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
+          }}>
+            <span style={{ textDecoration: "line-through", opacity: 0.4 }}>$149</span>{" "}
+            <span style={{
+              background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            }}>$49/mo</span>{" "}
+            <span style={{ fontSize: 16, fontWeight: 400, color: C.textTertiary }}>locked for life</span>
+          </h2>
+
+          <p style={{
+            fontFamily: FONT_BODY, fontSize: 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
+            maxWidth: 520, margin: "0 auto 28px",
+          }}>
+            Start with a 14-day Pro trial — full access, no credit card. Then choose free forever or lock in founding member pricing before it's gone.
+          </p>
+
+          <div style={{
+            display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 28,
+          }}>
+            {["14-day Pro trial — no credit card", "AI included — no API key needed", "Free forever tier after trial", "Upgrade anytime, cancel anytime"].map((item, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 6,
+                fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary,
+              }}>
+                <CheckCircle2 size={14} color={C.green} />
+                {item}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <Link to="/signup" style={{
+              padding: "14px 36px", borderRadius: 10,
+              background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+              color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
+              textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
+            }}>
+              Start Free
+            </Link>
+            <Link to="/pricing" style={{
+              padding: "14px 36px", borderRadius: 10,
+              background: "transparent", border: `1px solid ${C.borderSubtle}`,
+              color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 500,
+              textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+            }}>
+              Compare plans <ChevronRight size={14} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

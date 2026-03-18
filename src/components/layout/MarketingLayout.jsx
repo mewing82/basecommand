@@ -61,6 +61,32 @@ export default function MarketingLayout() {
           >
             Agents
           </Link>
+          <Link
+            to="/why"
+            className="bc-nav-hide-mobile"
+            style={{
+              padding: "8px 16px", borderRadius: 8, fontSize: 14, fontWeight: 500,
+              color: hoveredLink === "why" ? C.textPrimary : C.textSecondary,
+              textDecoration: "none", transition: "color 0.15s",
+            }}
+            onMouseEnter={() => setHoveredLink("why")}
+            onMouseLeave={() => setHoveredLink(null)}
+          >
+            The Problem
+          </Link>
+          <Link
+            to="/how-it-works"
+            className="bc-nav-hide-mobile"
+            style={{
+              padding: "8px 16px", borderRadius: 8, fontSize: 14, fontWeight: 500,
+              color: hoveredLink === "how" ? C.textPrimary : C.textSecondary,
+              textDecoration: "none", transition: "color 0.15s",
+            }}
+            onMouseEnter={() => setHoveredLink("how")}
+            onMouseLeave={() => setHoveredLink(null)}
+          >
+            How It Works
+          </Link>
 
           {isAuthenticated ? (
             <button
@@ -131,6 +157,18 @@ export default function MarketingLayout() {
             padding: "10px 12px", borderRadius: 8, fontSize: 15, fontWeight: 500,
             color: C.textSecondary, textDecoration: "none",
           }}>Agents</Link>
+          <Link to="/why" onClick={() => setMobileMenuOpen(false)} style={{
+            padding: "10px 12px", borderRadius: 8, fontSize: 15, fontWeight: 500,
+            color: C.textSecondary, textDecoration: "none",
+          }}>The Problem</Link>
+          <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)} style={{
+            padding: "10px 12px", borderRadius: 8, fontSize: 15, fontWeight: 500,
+            color: C.textSecondary, textDecoration: "none",
+          }}>How It Works</Link>
+          <Link to="/get-started" onClick={() => setMobileMenuOpen(false)} style={{
+            padding: "10px 12px", borderRadius: 8, fontSize: 15, fontWeight: 500,
+            color: C.textSecondary, textDecoration: "none",
+          }}>Get Started</Link>
           {!isAuthenticated && (
             <>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} style={{
@@ -161,6 +199,8 @@ export default function MarketingLayout() {
         <div style={{ display: "flex", gap: 24 }}>
           <Link to="/pricing" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Pricing</Link>
           <Link to="/agents" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Agents</Link>
+          <Link to="/why" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>The Problem</Link>
+          <Link to="/how-it-works" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>How It Works</Link>
           <Link to="/login" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Sign in</Link>
         </div>
       </footer>

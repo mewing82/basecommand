@@ -21,6 +21,9 @@ import Settings from "./pages/Settings";
 import Landing from "./pages/marketing/Landing";
 import Pricing from "./pages/marketing/Pricing";
 import Agents from "./pages/marketing/Agents";
+import Why from "./pages/marketing/Why";
+import HowItWorks from "./pages/marketing/HowItWorks";
+import GetStarted from "./pages/marketing/GetStarted";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 // ─── New Agent Architecture (Epic 13) ────────────────────────────────────────
@@ -238,6 +241,9 @@ export default function App() {
           <Route path="/" element={<AuthRedirect><Landing /></AuthRedirect>} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/agents" element={<Agents />} />
+          <Route path="/why" element={<Why />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/get-started" element={<GetStarted />} />
         </Route>
 
         {/* Auth routes */}
