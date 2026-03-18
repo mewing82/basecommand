@@ -27,7 +27,7 @@ export default function GetStarted() {
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 20px", borderRadius: 20, marginBottom: 24,
           background: C.goldMuted, border: `1px solid ${C.gold}20`,
-          fontSize: 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+          fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
           letterSpacing: "0.03em", textTransform: "uppercase",
         }}>
           <Calendar size={12} />
@@ -81,7 +81,7 @@ export default function GetStarted() {
           ].map((item, i) => (
             <div key={i} style={{
               background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-              borderRadius: 14, padding: "24px 20px", position: "relative",
+              borderRadius: 14, padding: isMobile ? "18px 14px" : "24px 20px", position: "relative",
             }}>
               <div style={{
                 fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
@@ -138,7 +138,7 @@ export default function GetStarted() {
             What does this mean for your portfolio?
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 480, margin: "0 auto 28px",
           }}>
             A small retention improvement compounds into serious revenue. Here's the math on three portfolio sizes.
@@ -183,7 +183,7 @@ export default function GetStarted() {
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "8px 20px", borderRadius: 20, marginBottom: 16,
               background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-              fontSize: 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
+              fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
               letterSpacing: "0.03em", textTransform: "uppercase",
             }}>
               <Sparkles size={12} />
@@ -196,7 +196,7 @@ export default function GetStarted() {
               Try our agents free on agent.ai
             </h2>
             <p style={{
-              fontFamily: FONT_BODY, fontSize: 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+              fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
               maxWidth: 480, margin: "0 auto",
             }}>
               Paste your data. Get instant results. No account needed. See the AI quality before committing.
@@ -268,7 +268,7 @@ export default function GetStarted() {
           </h2>
 
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
             maxWidth: 520, margin: "0 auto 28px",
           }}>
             Start with a 14-day Pro trial — full access, no credit card. Then choose free forever or lock in founding member pricing before it's gone.

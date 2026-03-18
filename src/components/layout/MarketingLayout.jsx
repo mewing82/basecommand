@@ -36,7 +36,7 @@ export default function MarketingLayout() {
       {/* Nav */}
       <nav className="bc-marketing-nav" style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "16px 40px", maxWidth: 1200, margin: "0 auto",
+        padding: isMobile ? "12px 16px" : "16px 40px", maxWidth: 1200, margin: "0 auto",
         borderBottom: `1px solid ${C.borderDefault}`,
       }}>
         <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
@@ -207,13 +207,15 @@ export default function MarketingLayout() {
       {/* Footer */}
       <footer className="bc-footer" style={{
         borderTop: `1px solid ${C.borderDefault}`,
-        padding: "32px 40px", maxWidth: 1200, margin: "0 auto",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: isMobile ? "24px 16px" : "32px 40px", maxWidth: 1200, margin: "0 auto",
+        display: "flex", flexDirection: isMobile ? "column" : "row",
+        justifyContent: isMobile ? "center" : "space-between", alignItems: "center",
+        gap: isMobile ? 16 : 0, textAlign: isMobile ? "center" : undefined,
       }}>
         <span style={{ fontSize: 13, color: C.textTertiary }}>
           Base Command &copy; {new Date().getFullYear()}
         </span>
-        <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: isMobile ? 16 : 24, flexWrap: "wrap", justifyContent: isMobile ? "center" : undefined }}>
           <Link to="/pricing" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Pricing</Link>
           <Link to="/agents" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Agents</Link>
           <Link to="/why" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>The Problem</Link>

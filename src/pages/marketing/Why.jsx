@@ -20,7 +20,8 @@ export default function Why() {
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 20px", borderRadius: 20, marginBottom: 24,
           background: "rgba(248, 113, 113, 0.10)", border: "1px solid rgba(248, 113, 113, 0.20)",
-          fontSize: 14, fontWeight: 500, color: C.red, fontFamily: FONT_SANS,
+          fontSize: isMobile ? 12 : 14, fontWeight: 500, color: C.red, fontFamily: FONT_SANS,
+          flexWrap: "wrap", justifyContent: "center", maxWidth: "100%", textAlign: "center",
         }}>
           <AlertTriangle size={14} />
           The data is clear. The playbook has changed.
@@ -56,7 +57,7 @@ export default function Why() {
             Sound familiar?
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 520, margin: "0 auto",
           }}>
             Every renewal team hits the same walls. The question is whether you keep pushing harder or change the architecture.
@@ -107,7 +108,7 @@ export default function Why() {
             return (
               <div key={i} style={{
                 background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-                borderRadius: 14, padding: "24px 22px",
+                borderRadius: 14, padding: isMobile ? "16px 14px" : "24px 22px",
                 borderLeft: `3px solid ${item.color}50`,
               }}>
                 <div style={{
@@ -147,8 +148,8 @@ export default function Why() {
               display: "flex", alignItems: "center", gap: 14,
             }}>
               <div style={{
-                fontFamily: FONT_MONO, fontSize: 20, fontWeight: 700,
-                color: stat.color, flexShrink: 0, minWidth: 70,
+                fontFamily: FONT_MONO, fontSize: isMobile ? 16 : 20, fontWeight: 700,
+                color: stat.color, flexShrink: 0, minWidth: isMobile ? "auto" : 70,
               }}>
                 {stat.value}
               </div>
@@ -172,7 +173,7 @@ export default function Why() {
             Traditional Renewals vs. AI-Driven RevOps
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 520, margin: "0 auto",
           }}>
             The industry is shifting from reactive firefighting to proactive, agentic revenue operations. Where does your team fall?
@@ -272,7 +273,7 @@ export default function Why() {
             Now the good news
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 480, margin: "0 auto",
           }}>
             Small retention improvements compound into massive results. And AI can predict churn before humans even see it coming.
@@ -316,7 +317,7 @@ export default function Why() {
               </div>
               <div>
                 <div style={{
-                  fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700,
+                  fontFamily: FONT_SANS, fontSize: isMobile ? 14 : 16, fontWeight: 700,
                   color: C.textPrimary, marginBottom: 4, letterSpacing: "-0.01em",
                 }}>
                   {stat.headline}
@@ -337,7 +338,7 @@ export default function Why() {
           borderRadius: 14, padding: isMobile ? "20px 20px" : "24px 32px", marginTop: 20, textAlign: "center",
         }}>
           <p style={{
-            fontFamily: FONT_SANS, fontSize: 18, fontWeight: 600,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 15 : 18, fontWeight: 600,
             color: C.textPrimary, margin: 0, lineHeight: 1.6,
           }}>
             "AI doesn't replace Customer Success — it makes them superhuman."
@@ -352,7 +353,7 @@ export default function Why() {
         }}>
           <Link to="/how-it-works" style={{
             background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-            borderRadius: 16, padding: "32px 28px",
+            borderRadius: 16, padding: isMobile ? "20px 16px" : "32px 28px",
             textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
             minHeight: 44,
           }}
@@ -367,13 +368,13 @@ export default function Why() {
               Next: How it works
             </div>
             <div style={{
-              fontFamily: FONT_SANS, fontSize: 20, fontWeight: 700,
+              fontFamily: FONT_SANS, fontSize: isMobile ? 17 : 20, fontWeight: 700,
               color: C.textPrimary, marginBottom: 8, letterSpacing: "-0.02em",
             }}>
               The AI Revenue Engine
             </div>
             <div style={{
-              fontFamily: FONT_BODY, fontSize: 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6, marginBottom: 16,
+              fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6, marginBottom: 16,
             }}>
               See the Agentic Flywheel, NRR Waterfall, unified architecture, and behavioral archetypes that power BaseCommand.
             </div>
@@ -387,7 +388,7 @@ export default function Why() {
 
           <Link to="/get-started" style={{
             background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-            borderRadius: 16, padding: "32px 28px",
+            borderRadius: 16, padding: isMobile ? "20px 16px" : "32px 28px",
             textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
             minHeight: 44,
           }}
@@ -402,13 +403,13 @@ export default function Why() {
               Ready to act?
             </div>
             <div style={{
-              fontFamily: FONT_SANS, fontSize: 20, fontWeight: 700,
+              fontFamily: FONT_SANS, fontSize: isMobile ? 17 : 20, fontWeight: 700,
               color: C.textPrimary, marginBottom: 8, letterSpacing: "-0.02em",
             }}>
               Get Started in 4 Weeks
             </div>
             <div style={{
-              fontFamily: FONT_BODY, fontSize: 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6, marginBottom: 16,
+              fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6, marginBottom: 16,
             }}>
               Implementation blueprint, ROI calculator, free agents on agent.ai, and founding member pricing.
             </div>

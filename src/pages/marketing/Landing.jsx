@@ -54,7 +54,7 @@ export default function Landing() {
         </p>
 
         <p style={{
-          fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
+          fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
           maxWidth: 560, margin: "0 auto 36px",
         }}>
           BaseCommand gives you the AI reasoning engine, specialized agents, and a human escalation layer — everything you need to run renewals at AI speed with human judgment.
@@ -93,7 +93,7 @@ export default function Landing() {
             The shift is already happening
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 520, margin: "0 auto 8px",
           }}>
             Traditional Renewals is reactive, siloed, and manual. AI-Driven RevOps is proactive, unified, and agentic. Which side are you on?
@@ -206,7 +206,7 @@ export default function Landing() {
             Five continuous functions. One agentic system.
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 580, margin: "0 auto 8px",
           }}>
             A properly configured agentic system executes five continuous functions — replacing manual effort with AI speed while keeping humans focused on strategic conversations.
@@ -225,7 +225,7 @@ export default function Landing() {
             return (
               <div key={i} style={{
                 background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-                borderRadius: 14, padding: "28px 18px", textAlign: "center",
+                borderRadius: 14, padding: isMobile ? "20px 14px" : "28px 18px", textAlign: "center",
                 position: "relative",
               }}>
                 <div style={{
@@ -283,7 +283,7 @@ export default function Landing() {
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "8px 20px", borderRadius: 20, marginBottom: 16,
               background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-              fontSize: 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
+              fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
               letterSpacing: "0.03em", textTransform: "uppercase",
             }}>
               <Sparkles size={12} />
@@ -296,7 +296,7 @@ export default function Landing() {
               Try our agents free on agent.ai
             </h2>
             <p style={{
-              fontFamily: FONT_BODY, fontSize: 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+              fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
               maxWidth: 480, margin: "0 auto",
             }}>
               Paste your data. Get instant results. No account needed. These standalone agents give you a taste of what the full platform does at scale.
@@ -369,7 +369,7 @@ export default function Landing() {
           </h2>
 
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
             maxWidth: 520, margin: "0 auto 28px",
           }}>
             Start with a 14-day Pro trial — full access, no credit card. Then choose free forever or lock in founding member pricing before it's gone.

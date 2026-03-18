@@ -31,8 +31,9 @@ export default function HowItWorks() {
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 20px", borderRadius: 20, marginBottom: 24,
           background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-          fontSize: 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
+          fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
           letterSpacing: "0.03em", textTransform: "uppercase",
+          maxWidth: "100%", textAlign: "center",
         }}>
           The AI Revenue Engine
         </div>
@@ -64,8 +65,9 @@ export default function HowItWorks() {
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 20px", borderRadius: 20, marginBottom: 16,
             background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-            fontSize: 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
             letterSpacing: "0.03em", textTransform: "uppercase",
+            maxWidth: "100%", textAlign: "center",
           }}>
             The Agentic Flywheel
           </div>
@@ -76,7 +78,7 @@ export default function HowItWorks() {
             Agents handle the heavy lifting. You close the loop.
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 600, margin: "0 auto",
           }}>
             A continuous cycle that gets smarter with every revolution. Agents parse data, detect signals, and draft actions. Orchestration routes and prioritizes. Humans close the loop on strategy and relationships.
@@ -114,7 +116,7 @@ export default function HowItWorks() {
               const card = (
                 <div key={`card-${i}`} style={{
                   background: item.bg, border: `1px solid ${item.border}`,
-                  borderRadius: 16, padding: "28px 22px",
+                  borderRadius: 16, padding: isMobile ? "20px 14px" : "28px 22px",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                     <div style={{
@@ -192,19 +194,20 @@ export default function HowItWorks() {
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 20px", borderRadius: 20, marginBottom: 16,
             background: "rgba(52, 211, 153, 0.10)", border: "1px solid rgba(52, 211, 153, 0.20)",
-            fontSize: 14, fontWeight: 600, color: "#34D399", fontFamily: FONT_MONO,
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: "#34D399", fontFamily: FONT_MONO,
             letterSpacing: "0.03em", textTransform: "uppercase",
+            maxWidth: "100%", textAlign: "center",
           }}>
             AI-Optimized NRR Waterfall
           </div>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             Three AI intervention points across your revenue waterfall
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 600, margin: "0 auto",
           }}>
             Without AI, revenue leaks at every stage. With BaseCommand, agents intervene at three critical points — boosting expansion, reducing contraction, and catching churn 90 days before renewal.
@@ -306,8 +309,9 @@ export default function HowItWorks() {
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 20px", borderRadius: 20, marginBottom: 16,
             background: C.goldMuted, border: `1px solid ${C.gold}20`,
-            fontSize: 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
             letterSpacing: "0.03em", textTransform: "uppercase",
+            maxWidth: "100%", textAlign: "center",
           }}>
             Unified AI Revenue Architecture
           </div>
@@ -318,7 +322,7 @@ export default function HowItWorks() {
             You bring the data. We bring the intelligence.
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 640, margin: "0 auto",
           }}>
             Four layers working together. Your telemetry data is the foundation — BaseCommand provides the reasoning engine, the agents, and the human escalation layer on top.
@@ -461,7 +465,7 @@ export default function HowItWorks() {
             Not all accounts are the same
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 560, margin: "0 auto",
           }}>
             The AI Reasoning Engine auto-classifies each account into behavioral archetypes — each requiring a fundamentally different renewal strategy.
@@ -517,7 +521,7 @@ export default function HowItWorks() {
             Ready to see the implementation plan?
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             marginBottom: 28,
           }}>
             4 weeks to live. ROI math on your actual portfolio. Free agents to try right now.

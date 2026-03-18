@@ -100,7 +100,8 @@ export default function Agents() {
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 20px", borderRadius: 20, marginBottom: 24,
           background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-          fontSize: 14, fontWeight: 500, color: C.aiBlue, fontFamily: FONT_SANS,
+          fontSize: isMobile ? 12 : 14, fontWeight: 500, color: C.aiBlue, fontFamily: FONT_SANS,
+          flexWrap: "wrap", maxWidth: "100%",
         }}>
           <Bot size={14} />
           Powered by BaseCommand AI
@@ -136,9 +137,9 @@ export default function Agents() {
             background: C.green, boxShadow: `0 0 8px ${C.green}80`,
           }} />
           <span style={{
-            fontFamily: FONT_MONO, fontSize: 14, fontWeight: 600,
+            fontFamily: FONT_MONO, fontSize: isMobile ? 12 : 14, fontWeight: 600,
             color: C.green, letterSpacing: "0.05em", textTransform: "uppercase",
-            padding: "8px 20px",
+            padding: isMobile ? "8px 0" : "8px 20px",
           }}>
             Live on agent.ai — try now
           </span>
@@ -165,7 +166,7 @@ export default function Agents() {
                     <Icon size={20} color={agent.color} />
                   </div>
                   <h3 style={{
-                    fontFamily: FONT_SANS, fontSize: 18, fontWeight: 700,
+                    fontFamily: FONT_SANS, fontSize: isMobile ? 16 : 18, fontWeight: 700,
                     color: C.textPrimary, margin: 0, letterSpacing: "-0.02em",
                   }}>
                     {agent.name}
@@ -218,7 +219,7 @@ export default function Agents() {
         }}>
           <div style={{ flex: 1 }}>
             <h3 style={{
-              fontFamily: FONT_SANS, fontSize: 20, fontWeight: 700,
+              fontFamily: FONT_SANS, fontSize: isMobile ? 16 : 20, fontWeight: 700,
               color: C.textPrimary, letterSpacing: "-0.02em", margin: "0 0 8px",
             }}>
               Like what you see? The full platform runs these continuously.
@@ -263,7 +264,7 @@ export default function Agents() {
             The Full Agent Fleet
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
             maxWidth: 540, margin: "0 auto",
           }}>
             A growing library of specialized agents organized into 3 mission categories — all sharing intelligence through a unified scoring engine.
@@ -275,14 +276,14 @@ export default function Agents() {
             <div key={i}>
               {/* Category header */}
               <div style={{
-                display: "flex", alignItems: "center", gap: 12, marginBottom: 16,
+                display: "flex", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap",
               }}>
                 <div style={{
                   width: 4, height: 24, borderRadius: 2,
                   background: cat.color,
                 }} />
                 <span style={{
-                  fontFamily: FONT_SANS, fontSize: 20, fontWeight: 700,
+                  fontFamily: FONT_SANS, fontSize: isMobile ? 17 : 20, fontWeight: 700,
                   color: cat.color, letterSpacing: "-0.02em",
                 }}>
                   {cat.title}
@@ -326,7 +327,7 @@ export default function Agents() {
                         fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
                         padding: "8px 10px", background: C.bgPrimary,
                         borderRadius: 6, border: `1px solid ${C.borderDefault}`,
-                        lineHeight: 1.5, opacity: 0.8,
+                        lineHeight: 1.5, opacity: 0.8, overflowWrap: "break-word",
                       }}>
                         Outputs: {agent.outputs}
                       </div>
@@ -354,7 +355,7 @@ export default function Agents() {
             Ready to put your renewals on autopilot?
           </h2>
           <p style={{
-            fontFamily: FONT_BODY, fontSize: 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, marginBottom: 28, lineHeight: 1.6,
+            fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 15, color: C.textPrimary, fontWeight: 400, opacity: 0.75, marginBottom: 28, lineHeight: 1.6,
           }}>
             Free to start. AI included. Founding member pricing: $49/mo locked for life.
           </p>

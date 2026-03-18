@@ -58,7 +58,7 @@ export default function Pricing() {
           Start free. Upgrade when you're ready.
         </h1>
         <p style={{
-          fontFamily: FONT_BODY, fontSize: 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
+          fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
           maxWidth: 560, margin: "0 auto",
         }}>
           Every signup starts with 14 days of full Pro access — no credit card required. After that, keep the free tier forever or lock in founding member pricing.

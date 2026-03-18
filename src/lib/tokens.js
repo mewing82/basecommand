@@ -114,3 +114,17 @@ export const AI_PROVIDERS = {
     keyPlaceholder: "sk-proj-...",
   },
 };
+
+// ─── Mobile Responsive Helpers ──────────────────────────────────────────────
+// Standard mobile paddings (375px viewport):
+//   16px section padding → 343px content width
+//   14px card padding inside section → 315px inner content
+export const MOBILE_SECTION_PX = 16;
+export const MOBILE_CARD_PX = 14;
+export const MOBILE_CARD_PY = 16;
+
+/**
+ * Responsive font-size helper.
+ * Usage: fontSize: fs(17, 15, isMobile)
+ */
+export const fs = (desktop, mobile, isMobile) => isMobile ? mobile : desktop;

@@ -91,10 +91,25 @@ body {
     display: none !important; /* hide ESC/⌘K labels on mobile */
   }
 
-  /* Marketing nav: stack on small screens */
-  .bc-marketing-nav {
-    padding: 12px 16px !important;
+  /* ─── Marketing Mobile Safety Net ──────────────────────────────────── */
+
+  /* Global overflow protection — prevents any horizontal scroll */
+  body {
+    overflow-x: hidden;
   }
+
+  /* Force all elements to respect container boundaries */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  /* Force all marketing text to wrap within containers */
+  #root {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+
+  /* ─── Marketing Nav & Footer (inline styles handle responsive) ───── */
   .bc-marketing-nav-links {
     gap: 4px !important;
   }
@@ -103,67 +118,6 @@ body {
   }
   .bc-mobile-nav-toggle {
     display: flex !important;
-  }
-
-  /* Landing hero */
-  .bc-hero {
-    padding: 60px 20px 48px !important;
-    overflow-x: hidden;
-  }
-  .bc-hero-buttons {
-    max-width: 100%;
-  }
-  .bc-hero-buttons a {
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  .bc-hero h1,
-  .bc-hero-title {
-    font-size: 36px !important;
-  }
-  .bc-hero .bc-hero-sub {
-    font-size: 16px !important;
-  }
-
-  /* Feature grid: single column on mobile */
-  .bc-feature-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .bc-features-section {
-    padding: 24px 16px 60px !important;
-  }
-  .bc-features-heading {
-    font-size: 24px !important;
-  }
-
-  /* CTA section */
-  .bc-cta-section {
-    padding: 40px 16px !important;
-  }
-  .bc-cta-box {
-    padding: 32px 20px !important;
-  }
-  .bc-cta-heading {
-    font-size: 22px !important;
-  }
-
-  /* Pricing grid: single column */
-  .bc-pricing-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .bc-pricing-section {
-    padding: 48px 16px !important;
-  }
-  .bc-pricing-heading {
-    font-size: 28px !important;
-  }
-
-  /* Footer */
-  .bc-footer {
-    flex-direction: column !important;
-    gap: 12px !important;
-    padding: 24px 16px !important;
-    text-align: center;
   }
 
   /* Auth pages */
