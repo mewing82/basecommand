@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Sparkles, AlertTriangle } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, AI_PROVIDERS } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, FONT_MONO, AI_PROVIDERS, S, R, HOVER } from "../../lib/tokens";
 import { store } from "../../lib/storage";
 import { getActiveAIConfig, getModelLabel } from "../../lib/ai";
 import { healthColor } from "../../lib/utils";
@@ -326,4 +326,114 @@ function inlineMarkdownJsx(text) {
     }
     return part;
   });
+}
+
+// ─── AI Config Picker ───────────────────────────────────────────────────────
+export function AIConfigPicker({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [configs, setConfigs] = useState([]);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    store.list("ai-config").then(setConfigs);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  if (configs.length === 0) return null;
+
+  const active = value ? configs.find(c => c.id === value.id) : (getActiveAIConfig() || null);
+  const label = active ? `${getModelLabel(active.provider, active.model)}` : "Default";
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-flex" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        aria-label="Switch AI model"
+        aria-expanded={open}
+        style={{
+          display: "flex", alignItems: "center", gap: 4,
+          padding: "3px 8px", borderRadius: R.sm, cursor: "pointer",
+          background: "transparent", border: `1px solid ${C.borderDefault}`,
+          fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
+          transition: "all 0.12s",
+        }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.color = C.textSecondary; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textTertiary; }}
+      >
+        <Sparkles size={8} color={C.aiBlue} />
+        {label}
+        <span style={{ fontSize: 7, opacity: 0.5 }}>&#9662;</span>
+      </button>
+      {open && (
+        <div role="listbox" style={{
+          position: "absolute", bottom: "100%", right: 0, zIndex: 200,
+          background: C.bgElevated, border: `1px solid ${C.borderSubtle}`,
+          borderRadius: R.sm + 2, padding: 3, marginBottom: 4, minWidth: 180,
+          boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
+        }}>
+          <button
+            role="option"
+            aria-selected={!value && !active}
+            onClick={() => { onChange(null); setOpen(false); }}
+            style={{
+              width: "100%", padding: "6px 8px", borderRadius: R.sm, cursor: "pointer",
+              background: !value && !active ? HOVER.strong : "transparent",
+              border: "none", textAlign: "left", fontFamily: FONT_MONO, fontSize: 11,
+              color: !value && !active ? C.textPrimary : C.textSecondary,
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = HOVER.subtle}
+            onMouseLeave={e => { if (value || active) e.currentTarget.style.background = "transparent"; }}
+          >
+            Workspace Default
+          </button>
+          {configs.map(cfg => {
+            const isSelected = value ? cfg.id === value.id : (active?.id === cfg.id);
+            return (
+              <button
+                key={cfg.id}
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => { onChange(cfg); setOpen(false); }}
+                style={{
+                  width: "100%", padding: "6px 8px", borderRadius: R.sm, cursor: "pointer",
+                  background: isSelected ? HOVER.strong : "transparent",
+                  border: "none", textAlign: "left", display: "flex", flexDirection: "column", gap: 1,
+                }}
+                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = HOVER.subtle; }}
+                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = "transparent"; }}
+              >
+                <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: C.textPrimary }}>{cfg.name}</span>
+                <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
+                  {AI_PROVIDERS[cfg.provider]?.label} · {getModelLabel(cfg.provider, cfg.model)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Skeleton ───────────────────────────────────────────────────────────────
+export function Skeleton({ width, height = 16, style: extraStyle }) {
+  return (
+    <div className="skeleton" style={{ width: width || "100%", height, ...extraStyle }} aria-hidden="true" />
+  );
+}
+
+export function SkeletonCard() {
+  return (
+    <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: R.lg, padding: S.lg + 2, display: "flex", flexDirection: "column", gap: S.md }}>
+      <Skeleton height={14} width="60%" />
+      <Skeleton height={12} width="80%" />
+      <Skeleton height={12} width="40%" />
+    </div>
+  );
 }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import { C, FONT_SANS, FONT_MONO, S, R } from "../lib/tokens";
 import { callAIForEntity } from "../lib/ai.js";
-import { AIPanel, AIConfigPicker } from "./ui.jsx";
+import { AIPanel, AIConfigPicker } from "./ui/index";
 
 export default function AIChat({ entityType, entityId, contextBuilder, placeholder }) {
   const [customPrompt, setCustomPrompt] = useState("");
