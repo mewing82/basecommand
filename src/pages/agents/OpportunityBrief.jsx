@@ -8,13 +8,7 @@ import { PageLayout } from "../../components/layout/PageLayout";
 import { Btn } from "../../components/ui/index";
 import { computePortfolioHealth, ARCHETYPES } from "../../lib/healthScore";
 import { buildCompanyContext } from "../../lib/prompts";
-
-function formatARR(num) {
-  if (!num) return "$0";
-  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
-  return `$${num.toLocaleString()}`;
-}
+import { formatARR } from "../../lib/utils";
 
 function OPPORTUNITY_BRIEF_PROMPT(accountData, companyContext) {
   return `You are a strategic expansion advisor for SaaS renewal operations. Generate pre-call expansion briefs.

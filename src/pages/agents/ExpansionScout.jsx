@@ -8,13 +8,7 @@ import { PageLayout } from "../../components/layout/PageLayout";
 import { Btn } from "../../components/ui/index";
 import { computePortfolioHealth, ARCHETYPES } from "../../lib/healthScore";
 import { RENEWAL_EXPANSION_PROMPT, buildCompanyContext } from "../../lib/prompts";
-
-function formatARR(num) {
-  if (!num) return "$0";
-  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
-  return `$${num.toLocaleString()}`;
-}
+import { formatARR } from "../../lib/utils";
 
 const SIGNAL_COLORS = {
   usage_growth: "#34D399", feature_request: "#22D3EE", team_expansion: "#6366F1",

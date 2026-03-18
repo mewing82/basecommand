@@ -7,13 +7,7 @@ import { PageLayout } from "../../components/layout/PageLayout";
 import { Btn } from "../../components/ui/index";
 import { computePortfolioHealth, getSeverity, ARCHETYPES, ARCHETYPE_RENEWAL_PROB } from "../../lib/healthScore";
 import { buildCompanyContext } from "../../lib/prompts";
-
-function formatARR(num) {
-  if (!num) return "$0";
-  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
-  return `$${num.toLocaleString()}`;
-}
+import { formatARR } from "../../lib/utils";
 
 function RESCUE_PROMPT(accountData, companyContext) {
   return `You are an expert renewal strategist AI. Generate a rescue intervention plan for at-risk accounts.

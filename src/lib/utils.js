@@ -1,6 +1,14 @@
 import mammoth from "mammoth";
 import { C, RANK_LEVELS } from "./tokens";
 
+// ─── Currency Formatting ────────────────────────────────────────────────────
+export function formatARR(num) {
+  if (!num) return "$0";
+  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
+  return `$${num}`;
+}
+
 // ─── ID Generation ───────────────────────────────────────────────────────────
 let _idCounter = 0;
 export const genId = (prefix) => `${prefix}_${Date.now()}_${_idCounter++}`;

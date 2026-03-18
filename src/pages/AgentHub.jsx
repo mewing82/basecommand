@@ -8,6 +8,7 @@ import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../lib/tokens";
 import { renewalStore } from "../lib/storage";
 import { PageLayout } from "../components/layout/PageLayout";
 import { computePortfolioHealth, computePortfolioSummary, getSeverity } from "../lib/healthScore";
+import { formatARR } from "../lib/utils";
 
 // ─── Agent Category Definitions ─────────────────────────────────────────────
 const CATEGORIES = [
@@ -48,13 +49,6 @@ const CATEGORIES = [
     ],
   },
 ];
-
-function formatARR(num) {
-  if (!num) return "$0";
-  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
-  return `$${num.toLocaleString()}`;
-}
 
 export default function AgentHub() {
   const navigate = useNavigate();

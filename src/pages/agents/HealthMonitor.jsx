@@ -5,15 +5,9 @@ import { renewalStore } from "../../lib/storage";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { Btn } from "../../components/ui/index";
 import { computePortfolioHealth, computePortfolioSummary, getSeverity, ARCHETYPES } from "../../lib/healthScore";
+import { formatARR } from "../../lib/utils";
 
 const cardStyle = { padding: "18px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 12 };
-
-function formatARR(num) {
-  if (!num) return "$0";
-  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
-  return `$${num.toLocaleString()}`;
-}
 
 function ScoreBar({ score, size = "md" }) {
   const sev = getSeverity(score);
