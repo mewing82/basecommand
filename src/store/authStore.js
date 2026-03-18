@@ -79,14 +79,14 @@ export const useAuthStore = create((set, get) => ({
     return data;
   },
 
-  signInWithGoogle: async (plan) => {
+  signInWithGoogle: async (plan, redirectPath) => {
     if (!supabase) throw new Error("Supabase not configured");
     // Store plan for post-auth checkout redirect
     if (plan) localStorage.setItem("bc-signup-plan", plan);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/app`,
+        redirectTo: `${window.location.origin}${redirectPath || "/app"}`,
       },
     });
     if (error) throw error;

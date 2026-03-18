@@ -38,6 +38,8 @@ import ForecastEngine from "./pages/agents/ForecastEngine";
 import OpportunityBrief from "./pages/agents/OpportunityBrief";
 import PlaybookBuilder from "./pages/agents/PlaybookBuilder";
 import Admin from "./pages/Admin";
+import Personalize from "./pages/onboarding/Personalize";
+import Setup from "./pages/onboarding/Setup";
 
 // ─── Redirect authenticated users from marketing home to app ────────────────
 function AuthRedirect({ children }) {
@@ -257,6 +259,10 @@ export default function App() {
         {/* Auth routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+
+        {/* Onboarding routes (standalone, auth-guarded internally) */}
+        <Route path="/onboarding/personalize" element={<Personalize />} />
+        <Route path="/onboarding/setup" element={<Setup />} />
 
         {/* Authenticated app routes */}
         <Route path="/app/*" element={

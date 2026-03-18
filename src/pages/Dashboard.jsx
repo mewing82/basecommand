@@ -11,6 +11,7 @@ import { supabase } from "../lib/supabase";
 import { PageLayout } from "../components/layout/PageLayout";
 import { Btn } from "../components/ui/index";
 import { RENEWAL_AUTOPILOT_PROMPT } from "../lib/prompts";
+import { OnboardingChecklist, TrialBanner, DemoDataBanner } from "../components/onboarding/OnboardingWidgets";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -390,6 +391,11 @@ RULES:
 
   return (
     <PageLayout maxWidth={isMobile ? "100%" : 960}>
+      {/* Onboarding widgets */}
+      <TrialBanner trialDaysLeft={14} />
+      <DemoDataBanner />
+      <OnboardingChecklist />
+
       {/* Header */}
       <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "stretch" : "flex-start", gap: isMobile ? 12 : 0, marginBottom: 28 }}>
         <div>
