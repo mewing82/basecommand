@@ -202,7 +202,14 @@ export default function Signup() {
           </button>
         </form>
 
-        <div style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: C.textTertiary, fontFamily: FONT_BODY }}>
+        <p style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: C.textTertiary, fontFamily: FONT_BODY, lineHeight: 1.6 }}>
+          By creating an account, you agree to our{" "}
+          <Link to="/terms" style={{ color: C.textSecondary, textDecoration: "underline" }}>Terms of Service</Link>
+          {" "}and{" "}
+          <Link to="/privacy" style={{ color: C.textSecondary, textDecoration: "underline" }}>Privacy Policy</Link>.
+        </p>
+
+        <div style={{ textAlign: "center", marginTop: 16, fontSize: 14, color: C.textTertiary, fontFamily: FONT_BODY }}>
           Already have an account?{" "}
           <Link to="/login" style={{ color: C.gold, textDecoration: "none", fontWeight: 500 }}>
             Sign in

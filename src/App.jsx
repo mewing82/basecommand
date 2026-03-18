@@ -25,6 +25,8 @@ import Agents from "./pages/marketing/Agents";
 import Why from "./pages/marketing/Why";
 import HowItWorks from "./pages/marketing/HowItWorks";
 import GetStarted from "./pages/marketing/GetStarted";
+import Privacy from "./pages/marketing/Privacy";
+import Terms from "./pages/marketing/Terms";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 // ─── New Agent Architecture (Epic 13) ────────────────────────────────────────
@@ -246,6 +248,8 @@ export default function App() {
           <Route path="/why" element={<Why />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/get-started" element={<GetStarted />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
         </Route>
 
         {/* Auth routes */}

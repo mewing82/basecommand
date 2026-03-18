@@ -220,6 +220,8 @@ export default function MarketingLayout() {
           <Link to="/agents" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Agents</Link>
           <Link to="/why" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>The Problem</Link>
           <Link to="/how-it-works" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>How It Works</Link>
+          <Link to="/privacy" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Privacy</Link>
+          <Link to="/terms" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Terms</Link>
           <Link to="/login" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Sign in</Link>
         </div>
       </footer>
