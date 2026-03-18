@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Check, Sparkles, ArrowRight, ChevronRight, Zap } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 
 const TIERS = [
   {
@@ -44,12 +45,14 @@ const TIERS = [
 ];
 
 export default function Pricing() {
+  const { isMobile } = useMediaQuery();
+
   return (
-    <div style={{ padding: "80px 40px", maxWidth: 1000, margin: "0 auto" }}>
+    <div style={{ padding: isMobile ? "60px 20px" : "80px 40px", maxWidth: 1000, margin: "0 auto" }}>
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 56 }}>
         <h1 style={{
-          fontFamily: FONT_SANS, fontSize: 40, fontWeight: 700,
+          fontFamily: FONT_SANS, fontSize: isMobile ? 28 : 40, fontWeight: 700,
           color: C.textPrimary, letterSpacing: "-0.04em", margin: "0 0 14px",
         }}>
           Start free. Upgrade when you're ready.
@@ -66,9 +69,11 @@ export default function Pricing() {
       <div style={{
         background: `linear-gradient(135deg, ${C.bgAI}, ${C.bgCard})`,
         border: `1px solid ${C.borderAI}`, borderRadius: 14,
-        padding: "24px 32px", marginBottom: 32,
-        display: "flex", alignItems: "center", gap: 16,
-        maxWidth: 760, margin: "0 auto 32px",
+        padding: isMobile ? "20px 16px" : "24px 32px",
+        display: "flex", alignItems: isMobile ? "flex-start" : "center",
+        flexDirection: isMobile ? "column" : "row",
+        gap: isMobile ? 12 : 16, textAlign: isMobile ? "center" : "left",
+        maxWidth: 760, margin: isMobile ? "0 auto 24px" : "0 auto 32px",
       }}>
         <Zap size={24} color={C.aiBlue} style={{ flexShrink: 0 }} />
         <div style={{ flex: 1 }}>
@@ -88,14 +93,14 @@ export default function Pricing() {
 
       {/* Tier cards */}
       <div style={{
-        display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20,
-        maxWidth: 760, margin: "0 auto 60px",
+        display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20,
+        maxWidth: 760, margin: isMobile ? "0 auto 40px" : "0 auto 60px",
       }}>
         {TIERS.map((tier) => (
           <div key={tier.name} style={{
             background: C.bgCard,
             border: `1px solid ${tier.highlight ? C.gold + "40" : C.borderDefault}`,
-            borderRadius: 16, padding: "32px 28px", position: "relative",
+            borderRadius: 16, padding: isMobile ? "24px 20px" : "32px 28px", position: "relative",
             boxShadow: tier.highlight ? `0 0 40px ${C.goldGlow}` : "none",
           }}>
             {tier.badge && (
@@ -118,7 +123,7 @@ export default function Pricing() {
 
             <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
               <span style={{
-                fontFamily: FONT_MONO, fontSize: 40, fontWeight: 700,
+                fontFamily: FONT_MONO, fontSize: isMobile ? 32 : 40, fontWeight: 700,
                 color: C.textPrimary, letterSpacing: "-0.02em",
               }}>
                 {tier.price}
@@ -154,7 +159,7 @@ export default function Pricing() {
 
             <Link to={tier.ctaLink} style={{
               display: "block", textAlign: "center",
-              padding: "12px 0", borderRadius: 10, textDecoration: "none",
+              padding: "12px 0", borderRadius: 10, textDecoration: "none", minHeight: 44,
               background: tier.highlight
                 ? `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`
                 : "transparent",
@@ -188,7 +193,7 @@ export default function Pricing() {
       {/* FAQ / Details */}
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
         <h2 style={{
-          fontFamily: FONT_SANS, fontSize: 24, fontWeight: 700,
+          fontFamily: FONT_SANS, fontSize: isMobile ? 20 : 24, fontWeight: 700,
           color: C.textPrimary, letterSpacing: "-0.02em",
           textAlign: "center", margin: "0 0 32px",
         }}>
@@ -220,7 +225,7 @@ export default function Pricing() {
           ].map((faq, i) => (
             <div key={i} style={{
               background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-              borderRadius: 12, padding: "20px 24px",
+              borderRadius: 12, padding: isMobile ? "16px 16px" : "20px 24px",
             }}>
               <div style={{
                 fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
@@ -241,7 +246,7 @@ export default function Pricing() {
         {/* agent.ai callout */}
         <div style={{
           textAlign: "center", marginTop: 40,
-          padding: "32px", borderRadius: 14,
+          padding: isMobile ? "24px 20px" : "32px", borderRadius: 14,
           background: `linear-gradient(135deg, ${C.bgAI}, ${C.bgCard})`,
           border: `1px solid ${C.borderAI}`,
         }}>
@@ -259,7 +264,7 @@ export default function Pricing() {
           </div>
           <Link to="/agents" style={{
             fontFamily: FONT_SANS, fontSize: 14, color: C.aiBlue,
-            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, minHeight: 44,
           }}>
             See all free agents <ArrowRight size={14} />
           </Link>

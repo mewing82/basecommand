@@ -4,6 +4,7 @@ import {
   ChevronRight, ExternalLink,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 
 // ─── Free Agent.ai Agents ────────────────────────────────────────────────────
 
@@ -15,11 +16,12 @@ const FREE_AGENTS = [
 ];
 
 export default function GetStarted() {
+  const { isMobile } = useMediaQuery();
   return (
     <div>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section style={{
-        padding: "100px 40px 60px", maxWidth: 900, margin: "0 auto", textAlign: "center",
+        padding: isMobile ? "60px 20px 40px" : "100px 40px 60px", maxWidth: 900, margin: "0 auto", textAlign: "center",
       }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
@@ -33,7 +35,7 @@ export default function GetStarted() {
         </div>
 
         <h1 style={{
-          fontFamily: FONT_SANS, fontSize: 48, fontWeight: 700,
+          fontFamily: FONT_SANS, fontSize: isMobile ? 32 : 48, fontWeight: 700,
           letterSpacing: "-0.04em", lineHeight: 1.15,
           color: C.textPrimary, margin: "0 0 20px",
         }}>
@@ -45,7 +47,7 @@ export default function GetStarted() {
         </h1>
 
         <p style={{
-          fontFamily: FONT_BODY, fontSize: 18, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.8,
+          fontFamily: FONT_BODY, fontSize: isMobile ? 16 : 18, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.8,
           maxWidth: 560, margin: "0 auto",
         }}>
           You don't need a 6-month implementation. BaseCommand delivers value incrementally — each week activates a new layer of the architecture.
@@ -53,8 +55,8 @@ export default function GetStarted() {
       </section>
 
       {/* ─── Implementation Blueprint ─────────────────────────────────────── */}
-      <section style={{ padding: "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+      <section style={{ padding: isMobile ? "32px 20px 60px" : "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: isMobile ? 12 : 14 }}>
           {[
             {
               week: "Week 1", title: "Data Foundation", color: C.textTertiary,
@@ -112,6 +114,7 @@ export default function GetStarted() {
                 <div style={{
                   position: "absolute", right: -10, top: "50%", transform: "translateY(-50%)",
                   fontSize: 18, color: C.textTertiary, opacity: 0.3, zIndex: 1,
+                  display: isMobile ? "none" : "block",
                 }}>
                   →
                 </div>
@@ -122,14 +125,14 @@ export default function GetStarted() {
       </section>
 
       {/* ─── ROI Calculator ───────────────────────────────────────────────── */}
-      <section style={{ padding: "0 40px 80px", maxWidth: 900, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "0 20px 60px" : "0 40px 80px", maxWidth: 900, margin: "0 auto" }}>
         <div style={{
           background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(99, 102, 241, 0.08))`,
           border: `1px solid rgba(52, 211, 153, 0.15)`,
-          borderRadius: 20, padding: "48px 40px", textAlign: "center",
+          borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px", textAlign: "center",
         }}>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             What does this mean for your portfolio?
@@ -142,7 +145,7 @@ export default function GetStarted() {
           </p>
 
           <div style={{
-            display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20,
+            display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: isMobile ? 12 : 20,
             maxWidth: 700, margin: "0 auto 24px",
           }}>
             {[
@@ -170,10 +173,10 @@ export default function GetStarted() {
       </section>
 
       {/* ─── Try Free on agent.ai ─────────────────────────────────────────── */}
-      <section style={{ padding: "0 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "0 20px 60px" : "0 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{
           background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
-          border: `1px solid ${C.borderAI}`, borderRadius: 20, padding: "48px 40px",
+          border: `1px solid ${C.borderAI}`, borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px",
         }}>
           <div style={{ textAlign: "center", marginBottom: 36 }}>
             <div style={{
@@ -187,7 +190,7 @@ export default function GetStarted() {
               No signup required
             </div>
             <h2 style={{
-              fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+              fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
               color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 8px",
             }}>
               Try our agents free on agent.ai
@@ -201,7 +204,7 @@ export default function GetStarted() {
           </div>
 
           <div style={{
-            display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12,
+            display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 12,
             maxWidth: 720, margin: "0 auto",
           }}>
             {FREE_AGENTS.map((agent, i) => (
@@ -228,6 +231,7 @@ export default function GetStarted() {
             <Link to="/agents" style={{
               fontFamily: FONT_BODY, fontSize: 13, color: C.aiBlue,
               textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4,
+              minHeight: 44,
             }}>
               See all agents <ArrowRight size={12} />
             </Link>
@@ -236,10 +240,10 @@ export default function GetStarted() {
       </section>
 
       {/* ─── Pricing CTA ──────────────────────────────────────────────────── */}
-      <section style={{ padding: "0 40px 80px", maxWidth: 900, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "0 20px 60px" : "0 40px 80px", maxWidth: 900, margin: "0 auto" }}>
         <div style={{
           background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-          borderRadius: 20, padding: "48px 40px", textAlign: "center",
+          borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px", textAlign: "center",
         }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
@@ -252,7 +256,7 @@ export default function GetStarted() {
           </div>
 
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 24 : 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             <span style={{ textDecoration: "line-through", opacity: 0.4 }}>$149</span>{" "}
@@ -271,7 +275,7 @@ export default function GetStarted() {
           </p>
 
           <div style={{
-            display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 28,
+            display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 8 : 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 28,
           }}>
             {["14-day Pro trial — no credit card", "AI included — no API key needed", "Free forever tier after trial", "Upgrade anytime, cancel anytime"].map((item, i) => (
               <div key={i} style={{
@@ -284,12 +288,13 @@ export default function GetStarted() {
             ))}
           </div>
 
-          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 12, justifyContent: "center" }}>
             <Link to="/signup" style={{
               padding: "14px 36px", borderRadius: 10,
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
               color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
               textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
+              textAlign: "center", minHeight: 44,
             }}>
               Start Free
             </Link>
@@ -297,7 +302,8 @@ export default function GetStarted() {
               padding: "14px 36px", borderRadius: 10,
               background: "transparent", border: `1px solid ${C.borderSubtle}`,
               color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 500,
-              textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+              textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+              textAlign: "center", minHeight: 44,
             }}>
               Compare plans <ChevronRight size={14} />
             </Link>

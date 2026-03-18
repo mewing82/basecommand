@@ -7,6 +7,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 
 // ─── Agent.ai Free Agents (live now) ─────────────────────────────────────────
 
@@ -87,11 +88,13 @@ const PLATFORM_CATEGORIES = [
 ];
 
 export default function Agents() {
+  const { isMobile } = useMediaQuery();
+
   return (
     <div>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section style={{
-        padding: "100px 40px 60px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
+        padding: isMobile ? "60px 20px 40px" : "100px 40px 60px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
       }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
@@ -104,7 +107,7 @@ export default function Agents() {
         </div>
 
         <h1 style={{
-          fontFamily: FONT_SANS, fontSize: 48, fontWeight: 700,
+          fontFamily: FONT_SANS, fontSize: isMobile ? 32 : 48, fontWeight: 700,
           color: C.textPrimary, letterSpacing: "-0.04em", lineHeight: 1.1,
           margin: "0 auto 16px", maxWidth: 750,
         }}>
@@ -116,7 +119,7 @@ export default function Agents() {
         </h1>
 
         <p style={{
-          fontFamily: FONT_BODY, fontSize: 18, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
+          fontFamily: FONT_BODY, fontSize: isMobile ? 16 : 18, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
           maxWidth: 580, margin: "0 auto 12px",
         }}>
           No signup. No API key. Just paste your data and get instant results. These standalone agents are a taste of what BaseCommand does continuously across your entire portfolio.
@@ -124,7 +127,7 @@ export default function Agents() {
       </section>
 
       {/* ─── Live Free Agents ─────────────────────────────────────────────── */}
-      <section style={{ padding: "0 40px 60px", maxWidth: 1200, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "0 20px 48px" : "0 40px 60px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{
           display: "flex", alignItems: "center", gap: 12, marginBottom: 24,
         }}>
@@ -141,13 +144,13 @@ export default function Agents() {
           </span>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 16 }}>
           {LIVE_AGENTS.map((agent, i) => {
             const Icon = agent.icon;
             return (
               <div key={i} style={{
                 background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-                borderRadius: 16, padding: "28px 28px",
+                borderRadius: 16, padding: isMobile ? "20px 16px" : "28px 28px",
                 transition: "border-color 0.15s, box-shadow 0.15s",
               }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = `${agent.color}40`; e.currentTarget.style.boxShadow = `0 8px 32px ${agent.color}10`; }}
@@ -191,7 +194,7 @@ export default function Agents() {
                   rel="noopener noreferrer"
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "10px 20px", borderRadius: 10,
+                    padding: "10px 20px", borderRadius: 10, minHeight: 44,
                     background: `${agent.color}18`, border: `1px solid ${agent.color}30`,
                     color: agent.color, fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600,
                     textDecoration: "none", transition: "all 0.15s",
@@ -206,12 +209,12 @@ export default function Agents() {
       </section>
 
       {/* ─── Conversion Bridge ────────────────────────────────────────────── */}
-      <section style={{ padding: "20px 40px 60px", maxWidth: 1200, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "16px 20px 48px" : "20px 40px 60px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{
           background: `linear-gradient(135deg, ${C.bgAI}, ${C.bgCard})`,
           border: `1px solid ${C.borderAI}`, borderRadius: 16,
-          padding: "36px 40px",
-          display: "flex", alignItems: "center", gap: 32,
+          padding: isMobile ? "24px 20px" : "36px 40px",
+          display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "center", gap: isMobile ? 20 : 32,
         }}>
           <div style={{ flex: 1 }}>
             <h3 style={{
@@ -227,21 +230,22 @@ export default function Agents() {
               The agents above give you a snapshot. BaseCommand runs a growing fleet of specialized agents across your entire renewal workflow 24/7 — from data import to renewal execution, with you in control at every step.
             </p>
           </div>
-          <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 12, flexShrink: isMobile ? "unset" : 0, width: isMobile ? "100%" : "auto" }}>
             <Link to="/signup" style={{
-              padding: "12px 24px", borderRadius: 10,
+              padding: "12px 24px", borderRadius: 10, minHeight: 44,
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
               color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
-              textDecoration: "none", whiteSpace: "nowrap",
+              textDecoration: "none", whiteSpace: "nowrap", textAlign: "center",
             }}>
               Start Free
             </Link>
             <Link to="/why" style={{
-              padding: "12px 24px", borderRadius: 10,
+              padding: "12px 24px", borderRadius: 10, minHeight: 44,
               background: "transparent", border: `1px solid ${C.borderSubtle}`,
               color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500,
-              textDecoration: "none", whiteSpace: "nowrap",
-              display: "inline-flex", alignItems: "center", gap: 6,
+              textDecoration: "none", whiteSpace: "nowrap", textAlign: "center",
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
             }}>
               Learn why <ChevronRight size={14} />
             </Link>
@@ -250,10 +254,10 @@ export default function Agents() {
       </section>
 
       {/* ─── Full Platform Agents ─────────────────────────────────────────── */}
-      <section style={{ padding: "40px 40px 80px", maxWidth: 1200, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "32px 20px 60px" : "40px 40px 80px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 24 : 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             The Full Agent Fleet
@@ -291,13 +295,13 @@ export default function Agents() {
               </div>
 
               {/* Agent cards */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 14 }}>
                 {cat.agents.map((agent, j) => {
                   const Icon = agent.icon;
                   return (
                     <div key={j} style={{
                       background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-                      borderRadius: 14, padding: "24px 22px",
+                      borderRadius: 14, padding: isMobile ? "20px 16px" : "24px 22px",
                       transition: "border-color 0.15s",
                     }}
                       onMouseEnter={e => e.currentTarget.style.borderColor = cat.border}
@@ -337,14 +341,14 @@ export default function Agents() {
 
       {/* ─── Bottom CTA ───────────────────────────────────────────────────── */}
       <section style={{
-        padding: "20px 40px 80px", maxWidth: 800, margin: "0 auto", textAlign: "center",
+        padding: isMobile ? "16px 20px 60px" : "20px 40px 80px", maxWidth: 800, margin: "0 auto", textAlign: "center",
       }}>
         <div style={{
           background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-          borderRadius: 20, padding: "48px 40px",
+          borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px",
         }}>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             Ready to put your renewals on autopilot?
@@ -355,7 +359,8 @@ export default function Agents() {
             Free to start. AI included. Founding member pricing: $49/mo locked for life.
           </p>
           <Link to="/signup" style={{
-            display: "inline-block", padding: "14px 36px", borderRadius: 10,
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            padding: "14px 36px", borderRadius: 10, minHeight: 44,
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
             color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
             textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,

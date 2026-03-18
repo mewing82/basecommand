@@ -4,6 +4,7 @@ import {
   Activity, ChevronRight, Bot, CheckCircle2,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 
 // ─── Free Agent.ai Agents ────────────────────────────────────────────────────
 
@@ -15,11 +16,13 @@ const FREE_AGENTS = [
 ];
 
 export default function Landing() {
+  const { isMobile } = useMediaQuery();
+
   return (
     <div>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section style={{
-        padding: "100px 40px 80px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
+        padding: isMobile ? "60px 20px 48px" : "100px 40px 80px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
       }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
@@ -32,7 +35,7 @@ export default function Landing() {
         </div>
 
         <h1 style={{
-          fontFamily: FONT_SANS, fontSize: 56, fontWeight: 700,
+          fontFamily: FONT_SANS, fontSize: isMobile ? 32 : 56, fontWeight: 700,
           letterSpacing: "-0.04em", lineHeight: 1.1,
           margin: "0 auto 20px", maxWidth: 820,
           background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover}, ${C.aiBlue})`,
@@ -42,7 +45,7 @@ export default function Landing() {
         </h1>
 
         <p style={{
-          fontFamily: FONT_SANS, fontSize: 24, fontWeight: 500,
+          fontFamily: FONT_SANS, fontSize: isMobile ? 18 : 24, fontWeight: 500,
           color: C.textPrimary, letterSpacing: "-0.02em",
           margin: "0 auto 16px", maxWidth: 700,
         }}>
@@ -56,13 +59,13 @@ export default function Landing() {
           BaseCommand gives you the AI reasoning engine, specialized agents, and a human escalation layer — everything you need to run renewals at AI speed with human judgment.
         </p>
 
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : undefined }}>
           <Link to="/signup" style={{
             padding: "14px 32px", borderRadius: 10, border: "none",
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
             color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
             textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
-            transition: "all 0.15s",
+            transition: "all 0.15s", textAlign: "center", minHeight: 44,
           }}>
             Start 14-Day Pro Trial
           </Link>
@@ -72,6 +75,7 @@ export default function Landing() {
             color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 500,
             textDecoration: "none", transition: "all 0.15s",
             display: "inline-flex", alignItems: "center", gap: 8,
+            textAlign: "center", minHeight: 44, justifyContent: "center",
           }}>
             See why the playbook is broken <ChevronRight size={14} />
           </Link>
@@ -79,7 +83,7 @@ export default function Landing() {
       </section>
 
       {/* ─── The Shift ──────────────────────────────────────────────────────── */}
-      <section style={{ padding: "20px 40px 80px", maxWidth: 1000, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 1000, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <h2 style={{
             fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
@@ -100,18 +104,18 @@ export default function Landing() {
           borderRadius: 16, overflow: "hidden",
         }}>
           <div style={{
-            display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+            display: "grid", gridTemplateColumns: isMobile ? "80px 1fr 1fr" : "140px 1fr 1fr",
             borderBottom: `1px solid ${C.borderDefault}`,
           }}>
-            <div style={{ padding: "16px 24px" }} />
+            <div style={{ padding: isMobile ? "12px 10px" : "16px 24px" }} />
             <div style={{
-              padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+              padding: isMobile ? "12px 10px" : "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
               color: C.textTertiary, borderLeft: `1px solid ${C.borderDefault}`,
             }}>
               Traditional Renewals
             </div>
             <div style={{
-              padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+              padding: isMobile ? "12px 10px" : "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
               color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
               background: "rgba(34, 211, 238, 0.04)",
             }}>
@@ -125,21 +129,21 @@ export default function Landing() {
             { dimension: "Core Focus", old: "Firefighting", oldSub: "Saving the churn", new_: "Strategic Growth", newSub: "Surfacing the expansion" },
           ].map((row, i) => (
             <div key={i} style={{
-              display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+              display: "grid", gridTemplateColumns: isMobile ? "80px 1fr 1fr" : "140px 1fr 1fr",
               borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
             }}>
               <div style={{
-                padding: "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+                padding: isMobile ? "14px 10px" : "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
                 color: C.gold, display: "flex", alignItems: "center",
               }}>
                 {row.dimension}
               </div>
-              <div style={{ padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
+              <div style={{ padding: isMobile ? "14px 10px" : "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, opacity: 0.5 }}>{row.oldSub}</div>
               </div>
               <div style={{
-                padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
+                padding: isMobile ? "14px 10px" : "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
                 background: "rgba(34, 211, 238, 0.04)",
               }}>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
@@ -151,7 +155,7 @@ export default function Landing() {
       </section>
 
       {/* ─── The AI-Powered Renewal Workflow ──────────────────────────────── */}
-      <section style={{ padding: "20px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
@@ -163,7 +167,7 @@ export default function Landing() {
             The AI-Powered Renewal Workflow
           </div>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 24 : 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             Five continuous functions. One agentic system.
@@ -176,7 +180,7 @@ export default function Landing() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(5, 1fr)", gap: isMobile ? 12 : 10 }}>
           {[
             { fn: "Monitor", desc: "Scans health signals 24/7 across unified systems.", icon: Activity, color: "#34D399" },
             { fn: "Predict", desc: "Scores churn risk 90–180 days before the renewal.", icon: Brain, color: "#6366F1" },
@@ -214,6 +218,7 @@ export default function Landing() {
                   <div style={{
                     position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)",
                     color: C.borderSubtle, fontSize: 16, zIndex: 1, opacity: 0.6,
+                    display: isMobile ? "none" : "block",
                   }}>
                     ›
                   </div>
@@ -227,6 +232,7 @@ export default function Landing() {
           <Link to="/how-it-works" style={{
             fontFamily: FONT_BODY, fontSize: 14, color: C.aiBlue,
             textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+            minHeight: 44,
           }}>
             See the full architecture: Flywheel, NRR Waterfall, and more <ArrowRight size={14} />
           </Link>
@@ -234,10 +240,10 @@ export default function Landing() {
       </section>
 
       {/* ─── Try Free on agent.ai ─────────────────────────────────────────── */}
-      <section style={{ padding: "20px 40px 80px", maxWidth: 1200, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{
           background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
-          border: `1px solid ${C.borderAI}`, borderRadius: 20, padding: "48px 40px",
+          border: `1px solid ${C.borderAI}`, borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px",
         }}>
           <div style={{ textAlign: "center", marginBottom: 36 }}>
             <div style={{
@@ -251,7 +257,7 @@ export default function Landing() {
               No signup required
             </div>
             <h2 style={{
-              fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+              fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
               color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 8px",
             }}>
               Try our agents free on agent.ai
@@ -265,7 +271,7 @@ export default function Landing() {
           </div>
 
           <div style={{
-            display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12,
+            display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 12,
             maxWidth: 720, margin: "0 auto",
           }}>
             {FREE_AGENTS.map((agent, i) => (
@@ -274,6 +280,7 @@ export default function Landing() {
                 padding: "16px 20px", borderRadius: 12,
                 background: C.bgPrimary, border: `1px solid ${C.borderDefault}`,
                 textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
+                minHeight: 44,
               }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(34, 211, 238, 0.30)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(34, 211, 238, 0.06)"; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.boxShadow = "none"; }}
@@ -292,6 +299,7 @@ export default function Landing() {
             <Link to="/agents" style={{
               fontFamily: FONT_BODY, fontSize: 13, color: C.aiBlue,
               textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4,
+              minHeight: 44,
             }}>
               See all agents <ArrowRight size={12} />
             </Link>
@@ -300,10 +308,10 @@ export default function Landing() {
       </section>
 
       {/* ─── Early Adopter Pricing ────────────────────────────────────────── */}
-      <section style={{ padding: "20px 40px 80px", maxWidth: 900, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 900, margin: "0 auto" }}>
         <div style={{
           background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-          borderRadius: 20, padding: "48px 40px", textAlign: "center",
+          borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px", textAlign: "center",
         }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
@@ -316,7 +324,7 @@ export default function Landing() {
           </div>
 
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 24 : 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             <span style={{ textDecoration: "line-through", opacity: 0.4 }}>$149</span>{" "}
@@ -335,7 +343,8 @@ export default function Landing() {
           </p>
 
           <div style={{
-            display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 28,
+            display: "flex", gap: isMobile ? 8 : 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 28,
+            flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "center",
           }}>
             {["14-day Pro trial — no credit card", "AI included — no API key needed", "Free forever tier after trial", "Upgrade anytime, cancel anytime"].map((item, i) => (
               <div key={i} style={{
@@ -348,12 +357,13 @@ export default function Landing() {
             ))}
           </div>
 
-          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : undefined }}>
             <Link to="/signup" style={{
               padding: "14px 36px", borderRadius: 10,
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
               color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
               textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
+              textAlign: "center", minHeight: 44,
             }}>
               Start Free
             </Link>
@@ -362,6 +372,7 @@ export default function Landing() {
               background: "transparent", border: `1px solid ${C.borderSubtle}`,
               color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 500,
               textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+              textAlign: "center", minHeight: 44, justifyContent: "center",
             }}>
               Compare plans <ChevronRight size={14} />
             </Link>

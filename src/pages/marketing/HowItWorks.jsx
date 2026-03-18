@@ -5,6 +5,7 @@ import {
   Upload, Mail, Table, Cloud,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 
 // ─── Archetypes ──────────────────────────────────────────────────────────────
 
@@ -18,11 +19,13 @@ const ARCHETYPES = [
 ];
 
 export default function HowItWorks() {
+  const { isMobile } = useMediaQuery();
+
   return (
     <div>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section style={{
-        padding: "100px 40px 60px", maxWidth: 900, margin: "0 auto", textAlign: "center",
+        padding: isMobile ? "60px 20px 40px" : "100px 40px 60px", maxWidth: 900, margin: "0 auto", textAlign: "center",
       }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
@@ -35,7 +38,7 @@ export default function HowItWorks() {
         </div>
 
         <h1 style={{
-          fontFamily: FONT_SANS, fontSize: 48, fontWeight: 700,
+          fontFamily: FONT_SANS, fontSize: isMobile ? 32 : 48, fontWeight: 700,
           letterSpacing: "-0.04em", lineHeight: 1.15,
           color: C.textPrimary, margin: "0 0 20px",
         }}>
@@ -47,7 +50,7 @@ export default function HowItWorks() {
         </h1>
 
         <p style={{
-          fontFamily: FONT_BODY, fontSize: 18, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.8,
+          fontFamily: FONT_BODY, fontSize: isMobile ? 16 : 18, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.8,
           maxWidth: 600, margin: "0 auto",
         }}>
           A unified intelligence layer — not a dashboard with AI bolted on. Four architectural layers, a continuous flywheel, and AI interventions at every critical revenue moment.
@@ -55,7 +58,7 @@ export default function HowItWorks() {
       </section>
 
       {/* ─── The Agentic Flywheel ─────────────────────────────────────────── */}
-      <section style={{ padding: "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "32px 20px 60px" : "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
@@ -67,7 +70,7 @@ export default function HowItWorks() {
             The Agentic Flywheel
           </div>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 24 : 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             Agents handle the heavy lifting. You close the loop.
@@ -82,7 +85,7 @@ export default function HowItWorks() {
 
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div style={{
-            display: "grid", gridTemplateColumns: "1fr 48px 1fr 48px 1fr", alignItems: "center",
+            display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 48px 1fr 48px 1fr", alignItems: "center", gap: isMobile ? 16 : 0,
           }}>
             {[
               {
@@ -152,7 +155,7 @@ export default function HowItWorks() {
               );
               if (i < 2) {
                 return [card, (
-                  <div key={`arrow-${i}`} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div key={`arrow-${i}`} style={{ display: isMobile ? "none" : "flex", alignItems: "center", justifyContent: "center" }}>
                     <svg width="32" height="24" viewBox="0 0 32 24" fill="none">
                       <path d="M4 12h20M20 6l6 6-6 6" stroke={C.textTertiary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.4" />
                     </svg>
@@ -166,7 +169,7 @@ export default function HowItWorks() {
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: "20px 0 8px",
           }}>
-            <svg width="460" height="40" viewBox="0 0 460 40" fill="none" style={{ display: "block" }}>
+            <svg width="460" height="40" viewBox="0 0 460 40" fill="none" style={{ display: isMobile ? "none" : "block" }}>
               <path d="M420 4 C440 4, 450 14, 450 20 C450 26, 440 36, 420 36 L40 36 C20 36, 10 26, 10 20 C10 14, 20 4, 40 4" stroke={C.textTertiary} strokeWidth="1.5" strokeLinecap="round" strokeDasharray="6 4" opacity="0.3" fill="none" />
               <polygon points="44,0 36,4 44,8" fill={C.textTertiary} opacity="0.4" transform="translate(-2, 0)" />
             </svg>
@@ -183,7 +186,7 @@ export default function HowItWorks() {
       </section>
 
       {/* ─── AI-Optimized NRR Waterfall ───────────────────────────────────── */}
-      <section style={{ padding: "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "32px 20px 60px" : "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
@@ -210,12 +213,13 @@ export default function HowItWorks() {
 
         <div style={{
           background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-          borderRadius: 20, padding: "40px 36px",
+          borderRadius: 20, padding: isMobile ? "24px 16px" : "40px 36px",
         }}>
           {/* Horizontal waterfall flow */}
           <div style={{
             display: "flex", alignItems: "center", gap: 8,
-            marginBottom: 32, justifyContent: "center", flexWrap: "wrap",
+            marginBottom: 32, justifyContent: "center", flexWrap: isMobile ? "nowrap" : "wrap",
+            overflowX: isMobile ? "auto" : "visible", WebkitOverflowScrolling: "touch",
           }}>
             {[
               { label: "Starting MRR", color: C.gold, bg: `${C.gold}20`, border: `${C.gold}30`, width: 140 },
@@ -259,7 +263,7 @@ export default function HowItWorks() {
           </div>
 
           {/* Intervention cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 14 }}>
             {[
               { num: "1", title: "Expansion Scout identifies PQLs", desc: "Agent detects upsell signals — new use cases, team growth, budget expansion language — and triggers expansion workflows before the opportunity window closes.", impact: "Drives NRR above 100%", color: "#34D399" },
               { num: "2", title: "AI detects scope reduction signals", desc: "Agent catches contraction indicators in emails, usage patterns, and support interactions. Prescribes value-reinforcement outreach before the customer downsells.", impact: "Reduces contraction losses", color: C.amber },
@@ -295,7 +299,7 @@ export default function HowItWorks() {
       </section>
 
       {/* ─── Unified AI Revenue Architecture ──────────────────────────────── */}
-      <section style={{ padding: "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "32px 20px 60px" : "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 48 }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
@@ -307,7 +311,7 @@ export default function HowItWorks() {
             Unified AI Revenue Architecture
           </div>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 24 : 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             You bring the data. We bring the intelligence.
@@ -324,7 +328,7 @@ export default function HowItWorks() {
           {/* Layer 4 */}
           <div style={{
             background: "rgba(52, 211, 153, 0.08)", border: "1px solid rgba(52, 211, 153, 0.20)",
-            borderRadius: 14, padding: "20px 28px", display: "flex", alignItems: "center", gap: 20,
+            borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px", display: "flex", alignItems: "center", gap: 20,
           }}>
             <Users size={20} color="#34D399" style={{ flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
@@ -341,7 +345,7 @@ export default function HowItWorks() {
           {/* Layer 3 */}
           <div style={{
             background: C.goldMuted, border: `1px solid ${C.gold}25`,
-            borderRadius: 14, padding: "20px 28px",
+            borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 14 }}>
               <Bot size={20} color={C.gold} style={{ flexShrink: 0 }} />
@@ -355,7 +359,7 @@ export default function HowItWorks() {
                 fontFamily: FONT_MONO, fontSize: 10, color: C.gold, whiteSpace: "nowrap",
               }}>BaseCommand</div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, paddingLeft: 40 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 10, paddingLeft: isMobile ? 0 : 40 }}>
               {[
                 { name: "Renewal Agents", agents: "Health Monitor, Rescue Planner, Outreach Drafter", color: "#34D399" },
                 { name: "Growth Agents", agents: "Expansion Scout, Forecast Engine, Opportunity Brief", color: "#6366F1" },
@@ -375,7 +379,7 @@ export default function HowItWorks() {
           {/* Layer 2 */}
           <div style={{
             background: "rgba(34, 211, 238, 0.06)", border: "1px solid rgba(34, 211, 238, 0.20)",
-            borderRadius: 14, padding: "20px 28px", display: "flex", alignItems: "center", gap: 20,
+            borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px", display: "flex", alignItems: "center", gap: 20,
           }}>
             <Cpu size={20} color={C.aiBlue} style={{ flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
@@ -392,7 +396,7 @@ export default function HowItWorks() {
           {/* Layer 1 */}
           <div style={{
             background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-            borderRadius: 14, padding: "20px 28px",
+            borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 14 }}>
               <Database size={20} color={C.textTertiary} style={{ flexShrink: 0 }} />
@@ -406,7 +410,7 @@ export default function HowItWorks() {
                 fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, whiteSpace: "nowrap",
               }}>You connect</div>
             </div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", paddingLeft: 40 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", paddingLeft: isMobile ? 0 : 40 }}>
               {[
                 { name: "CSV / Paste", icon: Upload, live: true },
                 { name: "Gmail", icon: Mail, live: true },
@@ -443,10 +447,10 @@ export default function HowItWorks() {
       </section>
 
       {/* ─── Behavioral Archetypes ────────────────────────────────────────── */}
-      <section style={{ padding: "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "32px 20px 60px" : "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             Not all accounts are the same
@@ -465,12 +469,14 @@ export default function HowItWorks() {
         }}>
           {ARCHETYPES.map((arch, i) => (
             <div key={i} style={{
-              display: "flex", alignItems: "center", gap: 20,
+              display: "flex", alignItems: isMobile ? "flex-start" : "center",
+              flexDirection: isMobile ? "column" : "row",
+              gap: isMobile ? 8 : 20,
               padding: "16px 0",
               borderBottom: i < ARCHETYPES.length - 1 ? `1px solid ${C.borderDefault}` : "none",
             }}>
-              <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: arch.color, minWidth: 180 }}>{arch.name}</div>
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: arch.color, minWidth: isMobile ? "auto" : 180 }}>{arch.name}</div>
+              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, width: isMobile ? "100%" : undefined }}>
                 <div style={{ flex: 1, height: 8, borderRadius: 4, background: C.bgPrimary }}>
                   <div style={{
                     width: `${arch.probability}%`, height: "100%", borderRadius: 4,
@@ -479,11 +485,12 @@ export default function HowItWorks() {
                 </div>
                 <span style={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, color: arch.color, minWidth: 40, textAlign: "right" }}>{arch.probability}%</span>
               </div>
-              <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, minWidth: 180, textAlign: "right" }}>{arch.strategy}</div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, minWidth: isMobile ? "auto" : 180, textAlign: isMobile ? "left" : "right" }}>{arch.strategy}</div>
             </div>
           ))}
           <div style={{
             display: "flex", justifyContent: "space-between",
+            flexDirection: isMobile ? "column" : "row", gap: isMobile ? 4 : 0,
             marginTop: 16, paddingTop: 16, borderTop: `1px solid ${C.borderDefault}`,
           }}>
             <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>Behavioral archetype</span>
@@ -493,13 +500,13 @@ export default function HowItWorks() {
       </section>
 
       {/* ─── Next Step ────────────────────────────────────────────────────── */}
-      <section style={{ padding: "0 40px 80px", maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
+      <section style={{ padding: isMobile ? "0 20px 60px" : "0 40px 80px", maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
         <div style={{
           background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-          borderRadius: 20, padding: "48px 40px",
+          borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px",
         }}>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             Ready to see the implementation plan?
@@ -516,7 +523,7 @@ export default function HowItWorks() {
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
               color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
               textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
-              display: "inline-flex", alignItems: "center", gap: 8,
+              display: "inline-flex", alignItems: "center", gap: 8, minHeight: 44,
             }}>
               Get Started <ArrowRight size={14} />
             </Link>

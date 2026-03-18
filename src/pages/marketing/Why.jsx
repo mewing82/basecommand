@@ -5,13 +5,16 @@ import {
   Brain,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 
 export default function Why() {
+  const { isMobile } = useMediaQuery();
+
   return (
     <div>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section style={{
-        padding: "100px 40px 60px", maxWidth: 900, margin: "0 auto", textAlign: "center",
+        padding: isMobile ? "60px 20px 40px" : "100px 40px 60px", maxWidth: 900, margin: "0 auto", textAlign: "center",
       }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
@@ -24,7 +27,7 @@ export default function Why() {
         </div>
 
         <h1 style={{
-          fontFamily: FONT_SANS, fontSize: 48, fontWeight: 700,
+          fontFamily: FONT_SANS, fontSize: isMobile ? 32 : 48, fontWeight: 700,
           letterSpacing: "-0.04em", lineHeight: 1.15,
           color: C.textPrimary, margin: "0 0 20px",
         }}>
@@ -36,7 +39,7 @@ export default function Why() {
         </h1>
 
         <p style={{
-          fontFamily: FONT_BODY, fontSize: 18, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.8,
+          fontFamily: FONT_BODY, fontSize: isMobile ? 16 : 18, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.8,
           maxWidth: 640, margin: "0 auto",
         }}>
           SaaS companies are spending more on Customer Success than ever — and retention rates are still declining. The problem isn't effort. It's architecture. You need a unified intelligence layer, not more headcount.
@@ -44,10 +47,10 @@ export default function Why() {
       </section>
 
       {/* ─── The Problem ──────────────────────────────────────────────────── */}
-      <section style={{ padding: "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "32px 20px 60px" : "40px 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 48 }}>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             Sound familiar?
@@ -61,7 +64,7 @@ export default function Why() {
         </div>
 
         {/* Failure mode cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 32 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 16, marginBottom: 32 }}>
           {[
             {
               icon: Activity,
@@ -131,7 +134,7 @@ export default function Why() {
 
         {/* Supporting stats — horizontal strip */}
         <div style={{
-          display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12,
+          display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 12,
         }}>
           {[
             { value: "58%", label: "of SaaS companies report declining NRR", color: C.red },
@@ -160,10 +163,10 @@ export default function Why() {
       </section>
 
       {/* ─── The Shift ──────────────────────────────────────────────────────── */}
-      <section style={{ padding: "0 40px 80px", maxWidth: 1000, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "0 20px 60px" : "0 40px 80px", maxWidth: 1000, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             Traditional Renewals vs. AI-Driven RevOps
@@ -181,18 +184,18 @@ export default function Why() {
           borderRadius: 16, overflow: "hidden",
         }}>
           <div style={{
-            display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+            display: "grid", gridTemplateColumns: isMobile ? "80px 1fr 1fr" : "140px 1fr 1fr",
             borderBottom: `1px solid ${C.borderDefault}`,
           }}>
-            <div style={{ padding: "16px 24px" }} />
+            <div style={{ padding: isMobile ? "12px 10px" : "16px 24px" }} />
             <div style={{
-              padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+              padding: isMobile ? "12px 10px" : "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
               color: C.textTertiary, borderLeft: `1px solid ${C.borderDefault}`,
             }}>
               Traditional Renewals
             </div>
             <div style={{
-              padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
+              padding: isMobile ? "12px 10px" : "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
               color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
               background: "rgba(34, 211, 238, 0.04)",
             }}>
@@ -206,21 +209,21 @@ export default function Why() {
             { dimension: "Core Focus", old: "Firefighting", oldSub: "Saving the churn", new_: "Strategic Growth", newSub: "Surfacing the expansion" },
           ].map((row, i) => (
             <div key={i} style={{
-              display: "grid", gridTemplateColumns: "140px 1fr 1fr",
+              display: "grid", gridTemplateColumns: isMobile ? "80px 1fr 1fr" : "140px 1fr 1fr",
               borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
             }}>
               <div style={{
-                padding: "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+                padding: isMobile ? "14px 10px" : "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
                 color: C.gold, display: "flex", alignItems: "center",
               }}>
                 {row.dimension}
               </div>
-              <div style={{ padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
+              <div style={{ padding: isMobile ? "14px 10px" : "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, opacity: 0.5 }}>{row.oldSub}</div>
               </div>
               <div style={{
-                padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
+                padding: isMobile ? "14px 10px" : "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
                 background: "rgba(34, 211, 238, 0.04)",
               }}>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
@@ -232,10 +235,10 @@ export default function Why() {
       </section>
 
       {/* ─── The Opportunity ──────────────────────────────────────────────── */}
-      <section style={{ padding: "0 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "0 20px 60px" : "0 40px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <h2 style={{
-            fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
           }}>
             Now the good news
@@ -248,7 +251,7 @@ export default function Why() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 16 }}>
           {[
             {
               value: "+5%", headline: "retention improvement",
@@ -273,11 +276,11 @@ export default function Why() {
           ].map((stat, i) => (
             <div key={i} style={{
               background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-              borderRadius: 14, padding: "28px 28px",
-              display: "flex", alignItems: "flex-start", gap: 20,
+              borderRadius: 14, padding: isMobile ? "20px 16px" : "28px 28px",
+              display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "flex-start", gap: isMobile ? 8 : 20,
             }}>
               <div style={{
-                fontFamily: FONT_MONO, fontSize: 28, fontWeight: 700,
+                fontFamily: FONT_MONO, fontSize: isMobile ? 24 : 28, fontWeight: 700,
                 color: stat.color, letterSpacing: "-0.03em",
                 flexShrink: 0, minWidth: 80,
               }}>
@@ -303,7 +306,7 @@ export default function Why() {
         <div style={{
           background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(99, 102, 241, 0.08))`,
           border: `1px solid rgba(52, 211, 153, 0.15)`,
-          borderRadius: 14, padding: "24px 32px", marginTop: 20, textAlign: "center",
+          borderRadius: 14, padding: isMobile ? "20px 20px" : "24px 32px", marginTop: 20, textAlign: "center",
         }}>
           <p style={{
             fontFamily: FONT_SANS, fontSize: 18, fontWeight: 600,
@@ -315,14 +318,15 @@ export default function Why() {
       </section>
 
       {/* ─── Next Steps ───────────────────────────────────────────────────── */}
-      <section style={{ padding: "0 40px 80px", maxWidth: 900, margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "0 20px 60px" : "0 40px 80px", maxWidth: 900, margin: "0 auto" }}>
         <div style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16,
+          display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16,
         }}>
           <Link to="/how-it-works" style={{
             background: C.bgCard, border: `1px solid ${C.borderDefault}`,
             borderRadius: 16, padding: "32px 28px",
             textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
+            minHeight: 44,
           }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(34, 211, 238, 0.30)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(34, 211, 238, 0.06)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.boxShadow = "none"; }}
@@ -347,7 +351,7 @@ export default function Why() {
             </div>
             <div style={{
               fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.aiBlue,
-              display: "flex", alignItems: "center", gap: 6,
+              display: "flex", alignItems: "center", gap: 6, minHeight: 44,
             }}>
               Explore the framework <ArrowRight size={14} />
             </div>
@@ -357,6 +361,7 @@ export default function Why() {
             background: C.bgCard, border: `1px solid ${C.borderDefault}`,
             borderRadius: 16, padding: "32px 28px",
             textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
+            minHeight: 44,
           }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = `${C.gold}40`; e.currentTarget.style.boxShadow = `0 8px 32px ${C.goldGlow}`; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.boxShadow = "none"; }}
@@ -381,7 +386,7 @@ export default function Why() {
             </div>
             <div style={{
               fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.gold,
-              display: "flex", alignItems: "center", gap: 6,
+              display: "flex", alignItems: "center", gap: 6, minHeight: 44,
             }}>
               See the plan <ArrowRight size={14} />
             </div>
