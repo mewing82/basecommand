@@ -130,10 +130,16 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 6 | **Onboarding flow (Quick Add)** | 3 (done) | agent.ai converts need a zero-friction entry point |
 | 7 | **Early adopter pricing live** | 10 | $49/mo offer must be visible and purchasable |
 | 8 | **Privacy policy + ToS published** | 9 | Legal minimum before accepting payments |
+| 9 | **agent.ai workflow pipeline** | 15 | "Save to BaseCommand" from agent.ai chat. Knowledge Agent → Workflow Agent → BaseCommand API. |
+| 10 | **HubSpot connector** | 15 | First CRM integration. agent.ai has native HubSpot connector (per-agent auth). Critical for telemetry data layer. |
+| 11 | **Stress test with real data** | — | 20-account dummy portfolio matching real user uploads. Validate the full workflow end-to-end with realistic data. |
+| 12 | **Marketing site complete** | 14 (done) | AI Revenue Engine positioning, 6 pages, agent.ai integration |
 
-**Estimated work:** Epics 9 (Postgres migration) and 10 (AI access + Stripe) are the blockers. Everything else is done or nearly done.
+**Estimated work:** Stripe, legal, agent.ai pipeline, HubSpot connector, and stress testing are the remaining blockers. Marketing site is done.
 
-**Sequence:** Build Postgres + Stripe + AI access → test end-to-end funnel → then request agent.ai promotion.
+**Target: End of week (2026-03-21)** — ready to start taking customers.
+
+**Sequence:** agent.ai pipeline + HubSpot connector → stress test with real data → Stripe + legal → end-to-end verification → request agent.ai promotion.
 
 ### Decision Log Addition
 
@@ -161,6 +167,7 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 12 | My Company — Company Profile & Renewal Strategy | **In Progress** | AI-first company data ingestion, product catalog, renewal strategy, negotiation exchange framework |
 | 13 | Agent Architecture Overhaul | **Completed** | Restructure into Renewal/Growth/Coaching categories, health scoring, industry-standard naming, unified intelligence layer |
 | 14 | Marketing Site Overhaul | **Completed** | AI Revenue Engine positioning, 6 marketing pages, agent.ai integration, 14-day trial model |
+| 15 | agent.ai Deep Integration + HubSpot | **In Progress** | Workflow agent pipeline (save to BaseCommand from agent.ai), HubSpot CRM connector, stress testing with real data |
 
 ---
 
@@ -301,6 +308,54 @@ This data accumulates into the **workflow graph** — the knowledge of how renew
 | 61 | Split marketing into 3 education pages: /why, /how-it-works, /get-started | One long page tried to serve 3 reader intents. VPs need the wake-up call, RevOps needs the architecture, champions need the blueprint + ROI. | 2026-03-17 |
 | 62 | Coming soon data connectors: HubSpot, Salesforce, Snowflake, BigQuery, Zendesk, Intercom | Telemetry data is the foundation layer. Show the roadmap to build confidence. HubSpot first (agent.ai has native connector). | 2026-03-17 |
 | 63 | Marketing text hierarchy: textPrimary + fontWeight 400 + opacity 0.75 for subtitles | Premium sites use weight differentiation, not color dimming. Prevents subtitle text from getting swallowed on dark backgrounds. | 2026-03-17 |
+| 64 | Build agent.ai workflow pipeline for "save to BaseCommand" | Knowledge Agent → Workflow Agent → BaseCommand API. Enables users to save parsed accounts to their portfolio from inside agent.ai chat. | 2026-03-17 |
+| 65 | HubSpot as first CRM connector (via agent.ai native connector) | agent.ai has native HubSpot connector with per-agent auth. First telemetry data integration. Builds credibility on "coming soon" promise. | 2026-03-17 |
+| 66 | Stress test with 20-account dummy portfolio before launch | Must validate the full workflow with realistic data before taking real customers. Catches data model issues, UI edge cases, and AI prompt failures. | 2026-03-17 |
+| 67 | Target end of week (2026-03-21) for customer readiness | Gate 0 advertising readiness checklist must be complete. agent.ai pipeline, HubSpot, Stripe, legal, and stress testing all by Friday. | 2026-03-17 |
+
+---
+
+## Epic 15: agent.ai Deep Integration + HubSpot Connector
+
+**Status: In Progress**
+**Target: 2026-03-21 (end of week)**
+
+### agent.ai Workflow Pipeline
+
+Enable "save to BaseCommand" from inside agent.ai chat. Architecture:
+
+```
+User chats with Knowledge Agent (e.g., CRM Data Parser)
+    → Agent parses data, structures accounts
+    → User says "save these to my portfolio"
+    → Knowledge Agent invokes Workflow Agent
+    → Workflow Agent POSTs to BaseCommand API with auth token
+    → Accounts saved to user's portfolio in Supabase
+```
+
+**What we need to build:**
+- Public API endpoint: `POST /api/import/external` accepting structured account JSON
+- Auth: API key header (generated per user in Settings)
+- Workflow Agent configuration on agent.ai (Matthew can guide this on the call)
+- Update Knowledge Agent prompts to offer the "save" action
+
+### HubSpot Connector
+
+First CRM integration. Leverages agent.ai's native HubSpot connector.
+
+**What we need to build:**
+- Data mapping: HubSpot Deals/Companies → BaseCommand account model
+- Import flow: user authorizes HubSpot on agent.ai → agent pulls deal data → structures as BaseCommand accounts
+- Sync strategy: one-time import first, recurring sync later
+
+### Stress Testing with Real Data
+
+Create a realistic 20-account dummy portfolio that matches what a user would actually upload:
+- Mix of account sizes ($10K to $500K ARR)
+- Mix of health states (healthy, at-risk, churning, expanding)
+- Realistic renewal dates (some past due, some 30/60/90/180 days out)
+- Realistic contact data, product info, engagement history
+- Test: CSV import, health scoring, agent outputs, dashboard views, forecast
 
 ---
 
