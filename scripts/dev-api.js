@@ -58,7 +58,7 @@ const server = createServer(async (req, res) => {
   }
 
   // Connector status endpoints — return "not connected" for local dev
-  if (req.url.includes("/api/connectors/") && req.url.includes("/status")) {
+  if (req.url.includes("/api/connectors/") && req.url.includes("action=status")) {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ connected: false, reason: "local_dev" }));
     return;
@@ -72,8 +72,8 @@ const server = createServer(async (req, res) => {
   }
 
   // Stripe endpoints — not available in local dev
-  if (req.url.startsWith("/api/stripe/")) {
-    if (req.url.includes("/status")) {
+  if (req.url.startsWith("/api/stripe")) {
+    if (req.url.includes("action=status")) {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ tier: "pro_trial", status: "trialing", trialDaysLeft: 14, note: "Local dev — simulated trial" }));
       return;

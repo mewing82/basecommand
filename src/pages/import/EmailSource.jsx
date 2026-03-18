@@ -48,14 +48,14 @@ export default function EmailSource({ provider, label, color, userId }) {
   // Fetch connection status on mount
   useEffect(() => {
     if (!userId) { setStatusLoading(false); return; }
-    fetch(`/api/connectors/${provider}/status?userId=${userId}`)
+    fetch(`/api/connectors/${provider}?action=status&userId=${userId}`)
       .then(r => r.json())
       .then(data => { setStatus(data); setStatusLoading(false); })
       .catch(() => { setStatus({ connected: false }); setStatusLoading(false); });
   }, [provider, userId]);
 
   async function handleConnect() {
-    window.location.href = `/api/connectors/${provider}/auth?userId=${userId}`;
+    window.location.href = `/api/connectors/${provider}?action=auth&userId=${userId}`;
   }
 
   async function handleScan() {
@@ -88,7 +88,7 @@ export default function EmailSource({ provider, label, color, userId }) {
   async function handleDisconnect() {
     setDisconnecting(true);
     try {
-      await fetch(`/api/connectors/${provider}/disconnect`, {
+      await fetch(`/api/connectors/${provider}?action=disconnect`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),

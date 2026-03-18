@@ -22,7 +22,7 @@ export default function BillingSettings() {
       const token = await getToken();
       if (!token) { setLoading(false); return; }
       try {
-        const res = await fetch("/api/stripe/status", {
+        const res = await fetch("/api/stripe?action=status", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -39,7 +39,7 @@ export default function BillingSettings() {
     setUpgrading(true);
     try {
       const token = await getToken();
-      const res = await fetch("/api/stripe/create-checkout", {
+      const res = await fetch("/api/stripe?action=checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ plan }),
@@ -56,7 +56,7 @@ export default function BillingSettings() {
   async function handleManageBilling() {
     try {
       const token = await getToken();
-      const res = await fetch("/api/stripe/portal", {
+      const res = await fetch("/api/stripe?action=portal", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -29,7 +29,7 @@ export default function Import() {
   useEffect(() => {
     if (!user?.id) return;
     for (const provider of ["gmail", "outlook"]) {
-      fetch(`/api/connectors/${provider}/status?userId=${user.id}`)
+      fetch(`/api/connectors/${provider}?action=status&userId=${user.id}`)
         .then(r => r.json())
         .then(data => setConnectorStatuses(prev => ({ ...prev, [provider]: data })))
         .catch(() => {});
