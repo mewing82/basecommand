@@ -98,6 +98,32 @@ src/
 - agent.ai woven throughout as zero-friction entry point
 - 14-day Pro trial + $49/mo founding member pricing (first 100 customers)
 
+## Code Quality Rules
+
+### No Dead Code
+- Never leave unused files, components, or imports in the codebase. If something is replaced, delete the old version in the same commit.
+- Before creating a new file, check if an existing file already serves the same purpose.
+
+### Single Source of Truth
+- **Tokens:** `src/lib/tokens.js` is the ONLY source for design tokens (colors, fonts, constants). Never create parallel token files.
+- **UI Components:** `src/components/ui/index.jsx` is the ONLY shared component library. Never create parallel component files.
+- **Storage:** `src/lib/storage.js` (localStorage) and `src/lib/supabaseStorage.js` (Supabase) are the two storage adapters. No other storage files.
+
+### DRY Patterns
+- Utility functions used by 2+ files must live in `src/lib/` (helpers.js, utils.js, or a descriptive filename). Never duplicate a helper across page files.
+- Shared UI patterns used 3+ times must be extracted into a component in `src/components/`.
+- Marketing pages should import shared patterns (pill badges, section wrappers, CTA buttons) from `src/components/marketing/` rather than duplicating inline styles.
+
+### Mobile-First Responsive
+- Every `fontSize` above 14px in marketing pages MUST have an `isMobile` ternary using the `useMediaQuery()` hook.
+- Every card/section `padding` MUST have mobile scaling to prevent compounding (outer 16px + inner 14px max on mobile).
+- Use `fs(desktop, mobile, isMobile)` from `src/lib/tokens.js` for font sizes.
+- The CSS safety net in `index.css` (overflow-x hidden, box-sizing, overflow-wrap) must not be removed.
+
+### File Size Limits
+- No single file should exceed 500 lines. If it does, split into sub-components or extract logic into hooks/utilities.
+- Page components should import sub-components rather than defining everything inline.
+
 ## Environment
 
 Copy `.env.example` to `.env.local`. Required for local AI calls: `ANTHROPIC_API_KEY`. Optional: `OPENAI_API_KEY`. Vercel KV and OAuth credentials are only needed for connector features (use `vercel dev` for those).
