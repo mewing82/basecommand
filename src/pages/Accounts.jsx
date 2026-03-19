@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { MessageSquare, Sparkles, Plus, Send, X, ChevronDown, FileText, Type, Image, Trash2, Eye, Upload, Pencil } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { MessageSquare, Sparkles, Plus, Send, X, ChevronDown, FileText, Type, Image, Trash2, Eye, Upload, Pencil, ShieldAlert, Mail, TrendingUp, Calendar, Activity, AlertTriangle } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
 import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
 import { renderMarkdown, Btn, Input, Modal, FormField } from "../components/ui/index";
+import { computePortfolioHealth, getSeverity, ARCHETYPES } from "../lib/healthScore";
+import { formatARR } from "../lib/utils";
 
 function AddAccountModal({ onClose, onCreate, isMobile }) {
   const [name, setName] = useState(""); const [arr, setArr] = useState(""); const [renewalDate, setRenewalDate] = useState(""); const [riskLevel, setRiskLevel] = useState("medium");
@@ -222,17 +224,7 @@ export default function Accounts() {
               {/* Messages */}
               <div style={{ flex: 1, overflow: "auto", padding: isMobile ? "12px 14px" : "16px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
                 {!activeThreadId && messages.length === 0 && (
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: 16, padding: "40px 0", textAlign: "center" }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: `linear-gradient(135deg, ${C.gold}20, ${C.aiBlue}20)`, display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkles size={24} style={{ color: C.aiBlue }} /></div>
-                    <div><h3 style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, margin: "0 0 6px" }}>Account Co-Pilot</h3>
-                      <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, maxWidth: 380, lineHeight: 1.5, margin: 0 }}>Start a conversation about {selectedAccount.name}.</p></div>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginTop: 4 }}>
-                      {["Draft a renewal outreach email", "Analyze risk signals", "What's my best expansion play?"].map((s, i) => (
-                        <button key={i} onClick={() => { setInput(s); inputRef.current?.focus(); }} style={{ padding: "7px 12px", borderRadius: 8, cursor: "pointer", background: "transparent", border: `1px solid ${C.borderDefault}`, color: C.textSecondary, fontFamily: FONT_BODY, fontSize: 12, transition: "all 0.15s" }}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.color = C.textPrimary; }} onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textSecondary; }}>{s}</button>
-                      ))}
-                    </div>
-                  </div>
+                  <AccountIntelPanel account={selectedAccount} contextItems={contextItems} onStartChat={(prompt) => { setInput(prompt); inputRef.current?.focus(); }} />
                 )}
                 {messages.map((msg, i) => (
                   <div key={i} style={{ display: "flex", gap: 10, flexDirection: msg.role === "user" ? "row-reverse" : "row" }}>
@@ -386,5 +378,160 @@ export default function Accounts() {
         </Modal>
       )}
     </PageLayout>
+  );
+}
+
+// ─── Account Intelligence Panel (replaces blank co-pilot state) ──────────────
+function AccountIntelPanel({ account, contextItems, onStartChat }) {
+  const navigate = useNavigate();
+  const daysToRenewal = account.renewalDate ? Math.ceil((new Date(account.renewalDate) - new Date()) / 86400000) : null;
+  const isAtRisk = account.riskLevel === "high";
+  const isUpcoming = daysToRenewal !== null && daysToRenewal >= 0 && daysToRenewal <= 90;
+  const isOverdue = daysToRenewal !== null && daysToRenewal < 0;
+  const riskColors = { high: C.red, medium: C.amber, low: C.green };
+
+  // Extract key signals from summary
+  const signals = [];
+  const summary = account.summary || "";
+  if (summary.includes("left") || summary.includes("departed") || summary.includes("resigned")) signals.push({ icon: AlertTriangle, text: "Champion departure detected", color: C.red });
+  if (summary.includes("competitor") || summary.includes("evaluating") || summary.includes("alternative")) signals.push({ icon: AlertTriangle, text: "Competitive threat identified", color: C.red });
+  if (summary.includes("support ticket") || summary.includes("escalation") || summary.includes("frustrated")) signals.push({ icon: AlertTriangle, text: "Support issues flagged", color: C.amber });
+  if (summary.includes("expansion") || summary.includes("additional") || summary.includes("more seats")) signals.push({ icon: TrendingUp, text: "Expansion opportunity", color: C.green });
+  if (summary.includes("advocate") || summary.includes("referred") || summary.includes("champion")) signals.push({ icon: TrendingUp, text: "Strong internal champion", color: C.green });
+  if (summary.includes("budget") || summary.includes("discount") || summary.includes("cost")) signals.push({ icon: AlertTriangle, text: "Budget sensitivity", color: C.amber });
+
+  // Recommended actions based on account state
+  const actions = [];
+  if (isAtRisk || isOverdue) {
+    actions.push({ label: "Generate Rescue Plan", icon: ShieldAlert, color: C.red, onClick: () => navigate("/app/agents/renewal/rescue-planner") });
+    actions.push({ label: "Draft Re-engagement Email", icon: Mail, color: C.amber, onClick: () => navigate("/app/agents/renewal/outreach-drafter") });
+  }
+  if (isUpcoming && !isAtRisk) {
+    actions.push({ label: "Build Renewal Playbook", icon: Calendar, color: C.gold, onClick: () => navigate("/app/agents/coaching/playbook-builder") });
+    actions.push({ label: "Draft Renewal Outreach", icon: Mail, color: C.aiBlue, onClick: () => navigate("/app/agents/renewal/outreach-drafter") });
+  }
+  if (!isAtRisk && account.riskLevel === "low") {
+    actions.push({ label: "Find Expansion Opportunities", icon: TrendingUp, color: C.green, onClick: () => navigate("/app/agents/growth/expansion-scout") });
+    actions.push({ label: "Draft Check-in Email", icon: Mail, color: C.aiBlue, onClick: () => navigate("/app/agents/renewal/outreach-drafter") });
+  }
+  if (account.riskLevel === "medium") {
+    actions.push({ label: "Analyze Risk Signals", icon: Activity, color: C.amber, onClick: () => navigate("/app/agents/renewal/health-monitor") });
+    actions.push({ label: "Draft Outreach", icon: Mail, color: C.aiBlue, onClick: () => navigate("/app/agents/renewal/outreach-drafter") });
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14, padding: "8px 0", flex: 1, overflow: "auto" }}>
+      {/* Quick stats row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+        <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>ARR</div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 18, fontWeight: 700, color: C.textPrimary }}>{formatARR(account.arr)}</div>
+        </div>
+        <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Renewal</div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 18, fontWeight: 700, color: isOverdue ? C.red : daysToRenewal <= 30 ? C.amber : C.textPrimary }}>
+            {daysToRenewal !== null ? (isOverdue ? `${Math.abs(daysToRenewal)}d overdue` : `${daysToRenewal}d`) : "—"}
+          </div>
+        </div>
+        <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${riskColors[account.riskLevel]}20` }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Risk</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: riskColors[account.riskLevel], textTransform: "capitalize" }}>{account.riskLevel}</div>
+        </div>
+      </div>
+
+      {/* AI Signals */}
+      {signals.length > 0 && (
+        <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Key Signals</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {signals.map((s, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <s.icon size={12} style={{ color: s.color, flexShrink: 0 }} />
+                <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary }}>{s.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Summary */}
+      {account.summary && (
+        <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Account Summary</div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.6 }}>{account.summary}</div>
+        </div>
+      )}
+
+      {/* Contacts */}
+      {account.contacts?.length > 0 && (
+        <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Contacts</div>
+          {account.contacts.map((c, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: i < account.contacts.length - 1 ? 6 : 0 }}>
+              <div style={{ width: 24, height: 24, borderRadius: 6, background: C.goldMuted, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: C.gold, flexShrink: 0 }}>
+                {(c.name || "?")[0]}
+              </div>
+              <div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.textPrimary }}>{c.name}</div>
+                <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{c.role || c.email || ""}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Recommended Actions */}
+      <div style={{ padding: "12px 14px", borderRadius: 8, background: `${C.aiBlue}06`, border: `1px solid ${C.aiBlue}15` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+          <Sparkles size={12} style={{ color: C.aiBlue }} />
+          <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Recommended Actions</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {actions.map((a, i) => (
+            <button key={i} onClick={a.onClick} style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "8px 12px", borderRadius: 8, cursor: "pointer",
+              background: "transparent", border: `1px solid ${C.borderDefault}`,
+              color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500,
+              transition: "all 0.12s", textAlign: "left",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = a.color + "60"; e.currentTarget.style.color = C.textPrimary; e.currentTarget.style.background = a.color + "08"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textSecondary; e.currentTarget.style.background = "transparent"; }}
+            >
+              <a.icon size={14} style={{ color: a.color, flexShrink: 0 }} />
+              {a.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Co-Pilot quick prompts */}
+      <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+          <MessageSquare size={12} style={{ color: C.gold }} />
+          <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Ask Co-Pilot</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {[
+            "What are the biggest risks for this account?",
+            "Draft a renewal outreach email",
+            "What's my best expansion play?",
+            "Summarize recent activity",
+          ].map((prompt, i) => (
+            <button key={i} onClick={() => onStartChat(prompt)} style={{
+              padding: "6px 10px", borderRadius: 6, cursor: "pointer",
+              background: "transparent", border: `1px solid ${C.borderDefault}`,
+              color: C.textTertiary, fontFamily: FONT_BODY, fontSize: 11,
+              textAlign: "left", transition: "all 0.12s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold + "40"; e.currentTarget.style.color = C.textSecondary; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textTertiary; }}
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
