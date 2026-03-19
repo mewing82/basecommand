@@ -5,7 +5,7 @@ import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { callAI } from "../lib/ai";
 import { renewalStore, store } from "../lib/storage";
-import { getGreeting } from "../lib/utils";
+import { getGreeting, formatARR } from "../lib/utils";
 import { useAuthStore } from "../store/authStore";
 import { PageLayout } from "../components/layout/PageLayout";
 import { Btn } from "../components/ui/index";
@@ -303,8 +303,6 @@ function DashboardCommandCenter({ userName, accounts, isMobile }) {
   const due30 = accounts.filter(a => { const d = new Date(a.renewalDate); const diff = (d - now) / 86400000; return diff >= 0 && diff <= 30; });
   const due60 = accounts.filter(a => { const d = new Date(a.renewalDate); const diff = (d - now) / 86400000; return diff > 30 && diff <= 60; });
   const due90 = accounts.filter(a => { const d = new Date(a.renewalDate); const diff = (d - now) / 86400000; return diff > 60 && diff <= 90; });
-  const fmt$ = (n) => n >= 1000000 ? `$${(n / 1000000).toFixed(1)}M` : n >= 1000 ? `$${(n / 1000).toFixed(0)}K` : `$${n}`;
-
   const upcomingRenewals = [...accounts]
     .filter(a => a.renewalDate)
     .sort((a, b) => new Date(a.renewalDate) - new Date(b.renewalDate))
@@ -332,7 +330,7 @@ function DashboardCommandCenter({ userName, accounts, isMobile }) {
 
       const prompt = `You are BC, an AI-powered renewal operations co-pilot. Analyze this renewal portfolio and return a JSON dashboard brief.
 
-PORTFOLIO (${accounts.length} accounts, ${fmt$(totalARR)} total ARR):
+PORTFOLIO (${accounts.length} accounts, ${formatARR(totalARR)} total ARR):
 ${JSON.stringify(portfolioData)}
 
 PENDING AUTOPILOT ACTIONS: ${autopilotActions.length}
@@ -403,9 +401,9 @@ RULES:
       {/* Portfolio Snapshot */}
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(5, 1fr)", gap: 12, marginBottom: 24 }}>
         {[
-          { label: "Total ARR", value: fmt$(totalARR), color: C.textPrimary },
+          { label: "Total ARR", value: formatARR(totalARR), color: C.textPrimary },
           { label: "Accounts", value: accounts.length, color: C.textPrimary },
-          { label: "At-Risk ARR", value: fmt$(atRiskARR), color: atRiskARR > 0 ? C.red : C.green },
+          { label: "At-Risk ARR", value: formatARR(atRiskARR), color: atRiskARR > 0 ? C.red : C.green },
           { label: "Due 30 Days", value: due30.length, color: due30.length > 0 ? C.red : C.green },
           { label: "Due 60–90 Days", value: due60.length + due90.length, color: due60.length + due90.length > 0 ? C.amber : C.textTertiary },
         ].map((stat, i) => (
@@ -544,7 +542,7 @@ RULES:
                       {acct.name}
                     </span>
                     <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>
-                      {fmt$(acct.arr)}
+                      {formatARR(acct.arr)}
                     </span>
                     <span style={{
                       fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,

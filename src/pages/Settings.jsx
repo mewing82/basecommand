@@ -50,7 +50,7 @@ export default function Settings() {
                 display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
                 width: isMobile ? "auto" : "100%",
                 padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8,
-                cursor: tab.soon ? "default" : "pointer",
+                cursor: tab.soon ? "not-allowed" : "pointer",
                 background: isActive ? "rgba(255,255,255,0.07)" : "transparent",
                 border: "none",
                 borderLeft: isMobile ? "none" : (isActive ? `2px solid ${C.gold}` : "2px solid transparent"),
