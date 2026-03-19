@@ -7,6 +7,7 @@ import {
 import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 import { useAppStore } from "../../store/appStore";
 import { useAuthStore } from "../../store/authStore";
+import { renewalStore } from "../../lib/storage";
 import { supabase } from "../../lib/supabase";
 import { PILLARS, isPillarActive, getActivePillarCount } from "../../lib/pillars";
 
@@ -280,6 +281,14 @@ export default function Sidebar({ activeView, onNavigate }) {
     return m;
   });
 
+  // Pending actions count for Actions badge
+  const [pendingCount, setPendingCount] = useState(0);
+  useEffect(() => {
+    renewalStore.getAutopilotActions().then(actions => {
+      setPendingCount(actions.filter(a => a.status === "pending").length);
+    });
+  }, []);
+
   const displayName = profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "";
   const initials = displayName ? displayName.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?";
@@ -378,6 +387,14 @@ export default function Sidebar({ activeView, onNavigate }) {
                 </div>
                 {isExpanded && (
                   <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: active ? 600 : 500, whiteSpace: "nowrap", flex: 1 }}>{item.label}</span>
+                )}
+                {/* Pending count badge on Actions */}
+                {item.id === "tasks" && isExpanded && pendingCount > 0 && (
+                  <span style={{
+                    fontFamily: FONT_MONO, fontSize: 9, color: C.amber,
+                    background: C.amberMuted, padding: "1px 6px", borderRadius: 3,
+                    lineHeight: "14px", fontWeight: 600, marginLeft: "auto",
+                  }}>{pendingCount}</span>
                 )}
                 {isAgents && isExpanded && (
                   <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: "auto" }}>

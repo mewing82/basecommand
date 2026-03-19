@@ -11,6 +11,7 @@ import { renewalStore } from "../lib/storage";
 import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
 import { Btn, Modal, FormField, Input } from "../components/ui/index";
+import { getPillarForAction, getPillarRecommendations } from "../lib/pillars";
 
 const PRIORITY_COLORS = { high: C.red, medium: C.amber, low: C.green, critical: C.red };
 const URGENCY_COLORS = { critical: C.red, high: C.amber, medium: C.textTertiary };
@@ -227,6 +228,7 @@ function AgentQueue({ actions, onRefresh, navigate, isMobile }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {sorted.map(action => {
           const urgColor = URGENCY_COLORS[action.urgency] || C.textTertiary;
+          const pillar = getPillarForAction(action);
           return (
             <div key={action.id} style={{
               background: C.bgCard, border: `1px solid ${C.borderDefault}`,
@@ -240,6 +242,13 @@ function AgentQueue({ actions, onRefresh, navigate, isMobile }) {
                     color: urgColor, background: urgColor + "18", padding: "2px 6px", borderRadius: 3,
                     letterSpacing: "0.04em",
                   }}>{action.urgency}</span>
+                  {pillar && (
+                    <span style={{
+                      fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600, textTransform: "uppercase",
+                      color: pillar.color, background: pillar.color + "14", padding: "2px 6px", borderRadius: 3,
+                      letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 3,
+                    }}><pillar.icon size={9} /> {pillar.label}</span>
+                  )}
                   <span style={{
                     fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600, textTransform: "uppercase",
                     color: C.aiBlue, background: C.aiBlueMuted, padding: "2px 6px", borderRadius: 3,
@@ -419,37 +428,65 @@ function MyActions({ tasks, setTasks, accounts, persona, navigate, isMobile }) {
         <Btn variant="primary" onClick={() => setShowCreate(true)} size="sm"><Plus size={14} /> New Task</Btn>
       </div>
 
-      {/* Suggestions */}
-      {visibleSuggestions.length > 0 && accounts.length > 0 && (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-            <Lightbulb size={16} style={{ color: C.gold }} />
-            <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.gold }}>Suggested for you</span>
-            {!persona && (
-              <button onClick={() => navigate("/app/settings")} style={{ marginLeft: "auto", fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, background: "none", border: `1px solid ${C.borderDefault}`, borderRadius: 4, padding: "3px 10px", cursor: "pointer" }}>
-                Set your role for better suggestions
-              </button>
-            )}
+      {/* Pillar-aware recommendations */}
+      {accounts.length > 0 && (() => {
+        const pillarRecs = getPillarRecommendations(accounts).slice(0, 4);
+        if (pillarRecs.length === 0 && visibleSuggestions.length === 0) return null;
+        return (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <Lightbulb size={16} style={{ color: C.gold }} />
+              <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.gold }}>
+                {pillarRecs.length > 0 ? "Your AI engine recommends" : "Suggested for you"}
+              </span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 10 }}>
+              {/* Pillar recommendations first */}
+              {pillarRecs.map((rec, i) => {
+                const PIcon = rec.pillar.icon;
+                return (
+                  <div key={`pillar-${i}`} style={{
+                    background: C.bgCard, border: `1px solid ${rec.pillar.color}20`, borderRadius: 10,
+                    padding: isMobile ? "12px 14px" : "14px 16px", transition: "all 0.15s",
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = rec.pillar.color + "40"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = rec.pillar.color + "20"; }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                      <PIcon size={12} style={{ color: rec.pillar.color }} />
+                      <span style={{ fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600, color: rec.pillar.color, textTransform: "uppercase", letterSpacing: "0.04em" }}>{rec.pillar.label}</span>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: rec.priority === "high" ? C.red : rec.priority === "medium" ? C.amber : C.textTertiary, marginLeft: "auto" }} />
+                    </div>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 4 }}>{rec.title}</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 12 }}>{rec.desc}</div>
+                    <button onClick={() => navigate(rec.route)} style={{
+                      display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 6,
+                      background: rec.pillar.color + "14", border: `1px solid ${rec.pillar.color}30`,
+                      color: rec.pillar.color, fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                    }}><PIcon size={12} /> Go to {rec.pillar.label} <ArrowRight size={10} /></button>
+                  </div>
+                );
+              })}
+              {/* Fallback to persona suggestions if no pillar recs */}
+              {pillarRecs.length === 0 && visibleSuggestions.map((suggestion, i) => (
+                <div key={`sug-${i}`} style={{ background: C.bgCard, border: `1px solid ${C.gold}15`, borderRadius: 10, padding: isMobile ? "12px 14px" : "14px 16px", position: "relative", transition: "all 0.15s" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold + "40"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = C.gold + "15"; }}>
+                  <button onClick={() => dismissSuggestion(suggestion.title)} style={{ position: "absolute", top: 8, right: 8, background: "none", border: "none", color: C.textTertiary, cursor: "pointer", padding: 2, opacity: 0.3, display: "flex" }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = "0.8"} onMouseLeave={e => e.currentTarget.style.opacity = "0.3"}><X size={12} /></button>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 4, paddingRight: 20 }}>{suggestion.title}</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 12 }}>{suggestion.desc}</div>
+                  <button onClick={() => createFromSuggestion(suggestion)} style={{
+                    display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 6,
+                    background: C.goldMuted, border: `1px solid ${C.gold}30`, color: C.gold,
+                    fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                  }}><Sparkles size={12} /> Let AI do this</button>
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 10 }}>
-            {visibleSuggestions.map((suggestion, i) => (
-              <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.gold}15`, borderRadius: 10, padding: isMobile ? "12px 14px" : "14px 16px", position: "relative", transition: "all 0.15s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold + "40"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = C.gold + "15"; }}>
-                <button onClick={() => dismissSuggestion(suggestion.title)} style={{ position: "absolute", top: 8, right: 8, background: "none", border: "none", color: C.textTertiary, cursor: "pointer", padding: 2, opacity: 0.3, display: "flex" }}
-                  onMouseEnter={e => e.currentTarget.style.opacity = "0.8"} onMouseLeave={e => e.currentTarget.style.opacity = "0.3"}><X size={12} /></button>
-                <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 4, paddingRight: 20 }}>{suggestion.title}</div>
-                <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 12 }}>{suggestion.desc}</div>
-                <button onClick={() => createFromSuggestion(suggestion)} style={{
-                  display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 6,
-                  background: C.goldMuted, border: `1px solid ${C.gold}30`, color: C.gold,
-                  fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, cursor: "pointer",
-                }}><Sparkles size={12} /> Let AI do this</button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Filters */}
       <div style={{ display: "flex", gap: 8, marginBottom: isMobile ? 14 : 20, flexWrap: "wrap" }}>
@@ -583,7 +620,7 @@ function ActivityLog({ completedTasks, resolvedActions, isMobile }) {
       id: a.id, type: a.status === "approved" ? "agent_approved" : "agent_dismissed",
       title: a.title, accountName: a.accountName,
       timestamp: a.updatedAt || a.createdAt, source: "agent",
-      agentType: a.type,
+      agentType: a.type, pillar: getPillarForAction(a),
     })),
   ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
@@ -644,6 +681,7 @@ function ActivityLog({ completedTasks, resolvedActions, isMobile }) {
                   {entry.accountName && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{entry.accountName}</span>}
                   <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: info.color }}>{info.label}</span>
                   {entry.source === "agent" && <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.aiBlue, background: C.aiBlueMuted, padding: "1px 5px", borderRadius: 3 }}>Agent</span>}
+                  {entry.pillar && <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: entry.pillar.color, background: entry.pillar.color + "14", padding: "1px 5px", borderRadius: 3, display: "flex", alignItems: "center", gap: 2 }}><entry.pillar.icon size={8} /> {entry.pillar.label}</span>}
                 </div>
               </div>
               <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, flexShrink: 0 }}>
