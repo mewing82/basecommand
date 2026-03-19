@@ -9,6 +9,7 @@ import { Btn } from "../../components/ui/index";
 import { computePortfolioHealth, getSeverity, ARCHETYPES } from "../../lib/healthScore";
 import { buildCompanyContext } from "../../lib/prompts";
 import { formatARR } from "../../lib/utils";
+import { AILoadingProgress } from "../../components/ui/AgentWidgets";
 
 function OUTREACH_PROMPT(accountData, companyContext, outreachType) {
   return `You are an expert renewal outreach AI. Draft hyper-personalized, context-rich ${outreachType} emails.
@@ -56,6 +57,7 @@ export default function OutreachDrafter() {
   const [drafts, setDrafts] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [genStartedAt, setGenStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [outreachType, setOutreachType] = useState("renewal"); // renewal | check-in | re-engage
   const [expandedDraft, setExpandedDraft] = useState(null);
@@ -99,6 +101,7 @@ export default function OutreachDrafter() {
     const targets = getTargetAccounts();
     if (targets.length === 0) return;
     setGenerating(true);
+    setGenStartedAt(Date.now());
     setError(null);
     try {
       const settings = await renewalStore.getSettings();
@@ -205,13 +208,24 @@ export default function OutreachDrafter() {
             <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 12 }}>
               AI will draft personalized emails calibrated to each account's health score, behavioral archetype, and relationship context. Every draft explains why this outreach matters now.
             </div>
-            <Btn variant="ai" onClick={generateDrafts} disabled={generating || targets.length === 0}>
-              {generating
-                ? <><Loader size={14} style={{ animation: "spin 1s linear infinite" }} /> Drafting emails...</>
-                : <><Sparkles size={14} /> Generate {targets.length} Draft{targets.length !== 1 ? "s" : ""}</>
-              }
-            </Btn>
+            {!generating && (
+              <Btn variant="ai" onClick={generateDrafts} disabled={targets.length === 0}>
+                <Sparkles size={14} /> Generate {targets.length} Draft{targets.length !== 1 ? "s" : ""}
+              </Btn>
+            )}
           </div>
+
+          {generating && (
+            <AILoadingProgress
+              startedAt={genStartedAt}
+              phases={[
+                { label: `Analyzing ${targets.length} accounts...`, duration: 4000 },
+                { label: "Reading relationship context...", duration: 6000 },
+                { label: "Drafting personalized emails...", duration: 10000 },
+                { label: "Calibrating tone and timing...", duration: 10000 },
+              ]}
+            />
+          )}
 
           {error && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: C.red, fontFamily: FONT_BODY, fontSize: 13 }}>

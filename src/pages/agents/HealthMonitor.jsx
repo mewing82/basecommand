@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Activity, AlertTriangle, TrendingUp, TrendingDown, Shield, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Activity, AlertTriangle, TrendingUp, TrendingDown, Shield, RefreshCw, ChevronDown, ChevronUp, ShieldAlert, Sparkles, Mail, MessageSquare } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
@@ -7,6 +8,7 @@ import { PageLayout } from "../../components/layout/PageLayout";
 import { Btn } from "../../components/ui/index";
 import { computePortfolioHealth, computePortfolioSummary, getSeverity, ARCHETYPES } from "../../lib/healthScore";
 import { formatARR } from "../../lib/utils";
+import { ActionMenu } from "../../components/ui/AgentWidgets";
 
 const cardStyle = { padding: "18px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 12 };
 
@@ -77,7 +79,7 @@ function SignalBreakdown({ signals, isMobile }) {
   );
 }
 
-function AccountHealthCard({ account, health, defaultExpanded = false, isMobile }) {
+function AccountHealthCard({ account, health, defaultExpanded = false, isMobile, onNavigate }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const ChevIcon = expanded ? ChevronUp : ChevronDown;
 
@@ -131,13 +133,24 @@ function AccountHealthCard({ account, health, defaultExpanded = false, isMobile 
         <ChevIcon size={14} style={{ color: C.textTertiary, flexShrink: 0 }} />
       </button>
 
-      {/* Expanded: signal breakdown */}
+      {/* Expanded: signal breakdown + actions */}
       {expanded && (
         <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.borderDefault}` }}>
           <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
             Signal Breakdown
           </div>
           <SignalBreakdown signals={health.signals} isMobile={isMobile} />
+
+          {/* Quick actions */}
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.borderDefault}`, display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {health.score <= 5 ? (
+              <>
+                <ActionMenu accountName={account.name} accountId={account.id} actionText={`Review ${account.name} — health score ${health.score}/10`} />
+              </>
+            ) : (
+              <ActionMenu accountName={account.name} accountId={account.id} actionText={`Check in with ${account.name} — healthy account`} />
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -146,6 +159,7 @@ function AccountHealthCard({ account, health, defaultExpanded = false, isMobile 
 
 // ─── Main Page ──────────────────────────────────────────────────────────────
 export default function HealthMonitor() {
+  const navigate = useNavigate();
   const { isMobile } = useMediaQuery();
   const [healthResults, setHealthResults] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -253,6 +267,38 @@ export default function HealthMonitor() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Action bar — show when there are at-risk accounts */}
+      {summary && (summary.severityCounts.critical + summary.severityCounts.high) > 0 && (
+        <div style={{
+          display: "flex", alignItems: isMobile ? "stretch" : "center",
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? 10 : 16,
+          padding: isMobile ? "14px 12px" : "16px 20px", borderRadius: 12, marginBottom: 20,
+          background: `linear-gradient(135deg, ${C.redMuted} 0%, ${C.bgCard} 100%)`,
+          border: `1px solid ${C.red}20`, borderLeft: `3px solid ${C.red}60`,
+        }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <ShieldAlert size={16} style={{ color: C.red }} />
+              <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>
+                {summary.severityCounts.critical + summary.severityCounts.high} account{(summary.severityCounts.critical + summary.severityCounts.high) !== 1 ? "s" : ""} need attention
+              </span>
+            </div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>
+              {formatARR(summary.atRiskARR)} at risk — generate rescue plans or draft outreach
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+            <Btn variant="ai" onClick={() => navigate("/app/agents/renewal/rescue-planner")} style={{ fontSize: 12 }}>
+              <ShieldAlert size={13} /> Rescue Plans
+            </Btn>
+            <Btn variant="ghost" onClick={() => navigate("/app/agents/renewal/outreach-drafter")} style={{ fontSize: 12 }}>
+              <Mail size={13} /> Draft Outreach
+            </Btn>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ShieldAlert, Sparkles, Loader, AlertTriangle, Clock, CheckCircle, ArrowRight } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
@@ -9,6 +9,7 @@ import { Btn } from "../../components/ui/index";
 import { computePortfolioHealth, getSeverity, ARCHETYPES, ARCHETYPE_RENEWAL_PROB } from "../../lib/healthScore";
 import { buildCompanyContext } from "../../lib/prompts";
 import { formatARR } from "../../lib/utils";
+import { AILoadingProgress, ActionMenu } from "../../components/ui/AgentWidgets";
 
 function RESCUE_PROMPT(accountData, companyContext) {
   return `You are an expert renewal strategist AI. Generate a rescue intervention plan for at-risk accounts.
@@ -37,6 +38,7 @@ export default function RescuePlanner() {
   const [plans, setPlans] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [genStartedAt, setGenStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [expandedPlan, setExpandedPlan] = useState(null);
 
@@ -62,6 +64,7 @@ export default function RescuePlanner() {
   async function generatePlans() {
     if (atRiskAccounts.length === 0) return;
     setGenerating(true);
+    setGenStartedAt(Date.now());
     setError(null);
     try {
       const settings = await renewalStore.getSettings();
@@ -156,15 +159,24 @@ ${signals}`;
             <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>
               These accounts have health scores of 5.0 or below. AI will generate personalized rescue plans with archetype-aware strategies.
             </div>
-            {!plans && (
-              <Btn variant="ai" onClick={generatePlans} disabled={generating} style={{ marginTop: 12 }}>
-                {generating
-                  ? <><Loader size={14} style={{ animation: "spin 1s linear infinite" }} /> Generating rescue plans...</>
-                  : <><Sparkles size={14} /> Generate Rescue Plans</>
-                }
+            {!plans && !generating && (
+              <Btn variant="ai" onClick={generatePlans} style={{ marginTop: 12 }}>
+                <Sparkles size={14} /> Generate Rescue Plans
               </Btn>
             )}
           </div>
+
+          {generating && (
+            <AILoadingProgress
+              startedAt={genStartedAt}
+              phases={[
+                { label: `Analyzing ${atRiskAccounts.length} at-risk accounts...`, duration: 5000 },
+                { label: "Diagnosing risk signals...", duration: 8000 },
+                { label: "Building rescue strategies...", duration: 10000 },
+                { label: "Crafting action plans...", duration: 12000 },
+              ]}
+            />
+          )}
 
           {error && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: C.red, fontFamily: FONT_BODY, fontSize: 13 }}>
@@ -278,6 +290,11 @@ ${signals}`;
                                     </span>
                                   )}
                                 </div>
+                                <ActionMenu
+                                  accountName={plan.accountName}
+                                  accountId={plan.accountId}
+                                  actionText={action.action}
+                                />
                               </div>
                             </div>
                           );
