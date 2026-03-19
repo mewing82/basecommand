@@ -1,6 +1,6 @@
 # BASECOMMAND — THE PLAN
 
-**Version:** 0.5.0 | **Last updated:** 2026-03-17
+**Version:** 0.7.0 | **Last updated:** 2026-03-19
 
 **BHAG: The Autonomous Revenue Intelligence Layer**
 Co-pilot → Supervised Autopilot → Full Autonomous
@@ -43,9 +43,10 @@ Co-pilot → Supervised Autopilot → Full Autonomous
 [x] 12. My Company                   Company Profile & Renewal Strategy
 [x] 13. Agent Architecture Overhaul  3 categories, sub-agents, industry naming
 [x] 14. Marketing Site Overhaul      Landing page, positioning, conversion flow
+[x] 15. agent.ai Deep Integration    Workflow pipeline, external import API
+[x] 16. Unified App Redesign         Sidebar, Mission Control, Intelligence Hub
+[x] 17. Org & Team Model (Phase 1)  Org-scoped data, auto-create org, team-ready
 [ ] 8. Autonomous Agents             Gmail send, rules engine, execution log
-[ ] 9. Security & Foundation         Supabase Auth, Postgres, RLS
-[ ] 10. AI Access & Monetization     Zero-friction AI, usage metering, free→paid
 [ ] 11. Brand & Operations           Google Workspace, social, content (post-launch)
 ```
 
@@ -82,13 +83,14 @@ Co-pilot → Supervised Autopilot → Full Autonomous
 ## PRICING
 
 ```
-  FREE        $0        10 accounts, 50 AI calls/mo (after 14-day Pro trial)
-  PRO         $149/mo   Unlimited accounts + AI (Opus)
-  PRO ANNUAL  $39/mo    $468/yr billed annually
-  FOUNDING    $49/mo    First 100 customers — locked for life
-  TEAM        $299+/mo  Multi-user, full autonomous, BYOK option
+  FREE          $0        10 accounts, 50 AI calls/mo (after 14-day Pro trial)
+  INDIVIDUAL    $149/mo   1 user, unlimited accounts + AI (Opus)
+  IND. ANNUAL   $39/mo    $468/yr billed annually
+  FOUNDING      $49/mo    First 100 customers — locked for life
+  TEAM          $299/mo   Unlimited users, shared portfolio ($149/mo founding)
 
   Every signup → 14-day Pro trial, no credit card required.
+  Team tier: flat price, no seat counting.
 ```
 
 ---

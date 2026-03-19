@@ -1,7 +1,7 @@
 # BaseCommand Master Plan
 
 > **Living document.** Updated as decisions are made. Single source of truth for vision, business model, and what we're building.
-> **Last updated:** 2026-03-19 | **Version:** 0.6.0
+> **Last updated:** 2026-03-19 (Epic 17 — Org & Team Model) | **Version:** 0.7.0
 > **Previous versions:** `docs/archive/PLAN-v0.4.0-2026-03-17.md`
 
 ---
@@ -59,9 +59,9 @@ BaseCommand is a **side-hustle**, not a VC-backed startup. Michael has no intent
 | Tier | List Price | Founding Member Price | Includes | Target |
 |------|-----------|----------------------|----------|--------|
 | **Free** | $0 | $0 | 10 accounts, 50 AI calls/mo (Sonnet), all agent categories, co-pilot mode | Founders trying it, agent.ai converts |
-| **Pro** | $149/mo | **$49/mo locked for life** | Unlimited accounts, unlimited AI (Opus), supervised autopilot, email connectors, cloud sync | Individual revenue leaders, small teams |
-| **Pro Annual** | $149/mo | **$39/mo ($468/yr) locked for life** | Same as Pro | Cost-conscious early adopters |
-| **Team** | $299–499/mo | TBD (post-Gate 2) | Multi-user, shared portfolio, full autonomous, API, BYOK option | RevOps teams, CS organizations |
+| **Individual** | $149/mo | **$49/mo locked for life** | 1 user, unlimited accounts, unlimited AI (Opus), supervised autopilot, email connectors, cloud sync | Solo revenue leaders |
+| **Individual Annual** | $149/mo | **$39/mo ($468/yr) locked for life** | Same as Individual | Cost-conscious early adopters |
+| **Team** | $299/mo | **$149/mo flat** | Unlimited users, shared portfolio, all Individual features, org-level billing | RevOps teams, CS organizations |
 | **Enterprise** | Custom | TBD (post-SOC 2) | Custom agents, SSO, BYOK required, dedicated support | Mid-market (post-SOC 2) |
 
 ### 14-Day Pro Trial + Founding Member Program
@@ -120,27 +120,25 @@ Every major spending decision is unlocked by hitting a revenue milestone. No mil
 
 Before asking for featured placement on agent.ai or driving significant traffic, **all of these must be checked off:**
 
-| # | Requirement | Epic | Why |
-|---|-------------|------|-----|
-| 1 | **User auth working end-to-end** | 9 (done) | Users must be able to sign up and log in |
-| 2 | **Data persists server-side (Postgres)** | 9 | Users who sign up from agent.ai must not lose data on browser switch |
-| 3 | **Stripe billing live** | 10 | Must be able to accept payments when free users want to upgrade |
-| 4 | **AI works without API key** | 10 | Users must get AI value immediately — no BYOK friction |
-| 5 | **Usage metering + free tier limits** | 10 | Must enforce 50-call limit and show upgrade prompts |
-| 6 | **Onboarding flow (Quick Add)** | 3 (done) | agent.ai converts need a zero-friction entry point |
-| 7 | **Early adopter pricing live** | 10 | $49/mo offer must be visible and purchasable |
-| 8 | **Privacy policy + ToS published** | 9 | Legal minimum before accepting payments |
-| 9 | **agent.ai workflow pipeline** | 15 | "Save to BaseCommand" from agent.ai chat. Knowledge Agent → Workflow Agent → BaseCommand API. |
-| 10 | **HubSpot connector** | 15 | First CRM integration. agent.ai has native HubSpot connector (per-agent auth). Critical for telemetry data layer. |
-| 11 | **Stress test with real data** | — | 20-account dummy portfolio matching real user uploads. Validate the full workflow end-to-end with realistic data. |
-| 12 | **Marketing site complete** | 14 (done) | AI Revenue Engine positioning, 6 pages, agent.ai integration |
-| 13 | **Mobile-responsive marketing site** | 14 | Marketing pages and landing must render well on mobile. Most agent.ai traffic will be mobile. |
+| # | Requirement | Epic | Status |
+|---|-------------|------|--------|
+| 1 | **User auth working end-to-end** | 9 | **Done** |
+| 2 | **Data persists server-side (Postgres)** | 9 | **Done** (`5284f80`) |
+| 3 | **Stripe billing live** | 10 | **Done** (`6dfcf0d`) — checkout, webhooks, tier enforcement, billing UI |
+| 4 | **AI works without API key** | 10 | **Done** — server-side key fallback, BYOK optional in Settings |
+| 5 | **Usage metering + free tier limits** | 10 | **Done** — 50 calls/mo free, HTTP 429 enforcement, usage meter in Settings |
+| 6 | **Onboarding flow (Quick Add)** | 3 | **Done** (`8ff8cf7`) — multi-step signup + onboarding |
+| 7 | **Early adopter pricing live** | 10 | **Done** (`cbdda51`) — plan toggle Free Trial vs Pro $49/mo |
+| 8 | **Privacy policy + ToS published** | 9 | **Done** (`4ff20ed`) |
+| 9 | **agent.ai workflow pipeline** | 15 | **Done** (`af0b0d9`) — external import API + integration keys |
+| 10 | **HubSpot connector** | 15 | **Blocked** — waiting on Matthew Stein call (2026-03-19) for agent.ai HubSpot connector details |
+| 11 | **Stress test with real data** | — | **Done** (`5e7d1aa`) — 20 realistic accounts with context |
+| 12 | **Marketing site complete** | 14 | **Done** |
+| 13 | **Mobile-responsive marketing site** | 14 | **Done** (`a9e310c` + `561fde0` + `331d4c9`) — all 6 marketing pages + 21 app pages |
 
-**Estimated work:** Stripe, legal, agent.ai pipeline, HubSpot connector, mobile optimization, and stress testing are the remaining blockers. Marketing site is done but needs mobile responsiveness.
+**Status: 12 of 13 complete.** Only HubSpot connector remains, blocked on external dependency (Matthew Stein / agent.ai).
 
-**Target: End of week (2026-03-21)** — ready to start taking customers.
-
-**Sequence:** agent.ai pipeline + HubSpot connector → mobile optimization → stress test with real data → Stripe + legal → end-to-end verification → request agent.ai promotion.
+**Target: End of week (2026-03-21)** — ready to start taking customers. HubSpot can ship post-launch if Matthew call doesn't unblock in time.
 
 ### Decision Log Addition
 
@@ -162,14 +160,15 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 6 | AI-Initiated Value Delivery | **Completed** | Persona-driven task suggestions + persona picker |
 | 7 | Agent Hub | **Completed** | AI agents as the product experience, hub + workspaces |
 | 8 | Premium Autonomous Agents | **Roadmap** | Supervised autopilot → full autonomous (Gmail send, rules engine, execution log) |
-| 9 | Security & Foundation | **Roadmap** | Auth, server-side data, compliance milestones mapped to revenue gates |
-| 10 | AI Access & Monetization | **Roadmap** | BaseCommand-provided AI (no API key needed), usage metering, free/pro model gate |
+| 9 | Security & Foundation | **Completed** | Auth (Supabase), server-side data persistence, Privacy Policy + ToS, admin dashboard + RBAC |
+| 10 | AI Access & Monetization | **Completed** | Server-side AI (no API key needed), 50-call/mo free tier metering, Stripe billing + checkout + webhooks, plan toggle, tier enforcement |
 | 11 | Brand & Operations | **Deferred** | Google Workspace, social media campaigns, content marketing, demo videos (post-launch) |
 | 12 | My Company — Company Profile & Renewal Strategy | **In Progress** | AI-first company data ingestion, product catalog, renewal strategy, negotiation exchange framework |
 | 13 | Agent Architecture Overhaul | **Completed** | Restructure into Renewal/Growth/Coaching categories, health scoring, industry-standard naming, unified intelligence layer |
 | 14 | Marketing Site Overhaul | **Completed** | AI Revenue Engine positioning, 6 marketing pages, agent.ai integration, 14-day trial model |
-| 15 | agent.ai Deep Integration + HubSpot | **In Progress** | Workflow agent pipeline (save to BaseCommand from agent.ai), HubSpot CRM connector, stress testing with real data |
+| 15 | agent.ai Deep Integration + HubSpot | **Near Complete** | Workflow pipeline done (`af0b0d9`), stress test done (`5e7d1aa`). HubSpot connector blocked on Matthew call. |
 | 16 | v2 Design — Unified App Redesign | **Completed** | Sidebar restructure (5 groups), Mission Control dashboard, Intelligence Hub, Agent Hub (Active/Catalog + autonomy dial), portfolio filtering, archetype badges, NRR waterfall, export toolbar |
+| 17 | Organization & Team Model (Phase 1) | **Completed** | Org/team data model, org-scoped queries, auto-create org on signup, backfill existing users, billing scoped to org, workspace CRUD replaced with org display |
 
 ---
 
@@ -316,6 +315,62 @@ This data accumulates into the **workflow graph** — the knowledge of how renew
 | 67 | Target end of week (2026-03-21) for customer readiness | Gate 0 advertising readiness checklist must be complete. agent.ai pipeline, HubSpot, Stripe, legal, and stress testing all by Friday. | 2026-03-17 |
 | 68 | Mobile-responsive marketing site required for Gate 0 | Most agent.ai traffic will be mobile. Marketing pages must render well on phones before driving traffic. | 2026-03-17 |
 | 69 | Native mobile app (iOS + Android) deferred to Gate 2 | PWA/responsive web is sufficient for Gate 0-1. Native apps are a Gate 2 investment when PMF is proven and revenue supports the dev cost. | 2026-03-17 |
+| 70 | Org model replaces workspaces entirely; portfolio filtering handles data segmentation | Workspaces were a localStorage concept. Orgs are the billing/collaboration container. Adding workspace-like filtering within an org is simpler than managing workspace→org migration later. | 2026-03-19 |
+| 71 | Team tier: $149/mo flat (unlimited users), no seat counting | Seat-based pricing adds entitlement complexity, billing edge cases, and sales friction. Flat tier is operationally simple and aligns with "runs itself" constraint. | 2026-03-19 |
+| 72 | Keep user_id on all tables as created_by provenance, never drop it | Provenance (who created what) is essential for audit trails and coaching agents. org_id is for access scoping, user_id is for attribution. Both serve different purposes. | 2026-03-19 |
+| 73 | Auto-create personal org on signup via Postgres trigger | Every user gets an org immediately. No "orgless" state to handle. Simplifies all downstream code — can always assume org_id exists. | 2026-03-19 |
+| 74 | user_settings and ai_usage stay user-scoped (no org_id) | Personal preferences (theme, persona, AI config) and per-user metering are inherently individual. Org-scoping them would create confusing shared state. | 2026-03-19 |
+| 75 | Phase 1 org model is invisible to users — no team UI, no invites | Lay the data foundation now so there's no migration nightmare. Team features (invite flow, role management UI) come in Phase 2 when Team tier launches. | 2026-03-19 |
+
+---
+
+## Epic 17: Organization & Team Model (Phase 1)
+
+**Status: Completed (2026-03-19)**
+
+Invisible org/team foundation so the data model supports teams from day one. No user-facing team features yet — all infrastructure.
+
+### What was built
+
+**Database layer:**
+- `organizations` table (billing/collaboration container)
+- `org_members` table (user→org mapping with roles: owner/admin/manager/member)
+- `org_invites` table (Phase 2 schema, created now to avoid future migration)
+- `org_id` column added to all data tables (renewal_accounts, context_items, conversation_threads, conversation_messages, task_items, autopilot_actions, kb_documents, analysis_cache, renewal_metrics, subscriptions)
+- `assigned_to` column added to renewal_accounts, task_items, autopilot_actions
+- `founding_member` boolean added to subscriptions
+- `user_org_ids()` RLS helper function for org-scoped access policies
+- Auto-create org on signup trigger
+- Backfill SQL for existing users
+
+**API layer:**
+- Shared auth helper (`api/lib/auth.js`) with `resolveUser()` and `resolveOrgMember()`
+- Org API endpoint (`api/org.js`) for info + settings update
+- All API endpoints updated to resolve org context from `X-Org-Id` header
+- Stripe checkout/webhooks scoped to org
+- Integration keys scoped to org in Vercel KV
+
+**Frontend layer:**
+- `authStore` tracks `activeOrgId` and `userOrgs`
+- `supabaseStorage` queries by `org_id` (with `user_id` fallback for pre-migration data)
+- Workspace CRUD removed from `appStore`
+- Sidebar: workspace switcher replaced with org name display
+- CompanySettings reads/writes from `organizations.settings`
+- AI calls include `X-Org-Id` header
+
+### Pricing model update
+
+| Tier | Price | Users | Notes |
+|------|-------|-------|-------|
+| **Individual** | $49/mo founding, $149/mo list | 1 | Renamed from "Pro" for clarity |
+| **Team** | $149/mo flat | Unlimited | No seat counting. Outcome-framed. |
+
+### Phase 2 (future)
+- Invite flow UI (send email, accept token, join org)
+- Role management UI (promote/demote members)
+- Org switcher in sidebar (for users in multiple orgs)
+- Team activity feed
+- Portfolio filtering by assigned_to
 
 ---
 

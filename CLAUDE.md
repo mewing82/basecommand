@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 BaseCommand is an AI-powered renewal intelligence platform — a React SPA with serverless API functions deployed on Vercel. It provides a fleet of specialized AI agents organized into Renewal, Growth, and Coaching categories that run the entire renewal workflow, from data import to execution, with human oversight at every step.
 
-**Current version:** 0.6.0
+**Current version:** 0.7.0
 **Positioning:** AI-Powered Renewal Intelligence — "AI-powered renewal workflows, from co-pilot to fully autonomous"
 
 ## Commands
@@ -67,7 +67,7 @@ src/
     Dashboard, Accounts, AgentHub, Leadership, Tasks, Import, Settings
   store/
     appStore.js   — UI state (sidebar, theme)
-    authStore.js  — Auth state (Supabase user)
+    authStore.js  — Auth state (Supabase user, org context)
     entityStore.js — Legacy entity CRUD (decisions, tasks, priorities)
   lib/
     tokens.js     — Design tokens (colors, fonts, constants)
@@ -80,9 +80,11 @@ src/
 ```
 
 ### Backend (Vercel Serverless Functions)
-- **`api/ai.js`** — Main AI proxy. Routes to Anthropic or OpenAI based on `provider` field. Normalizes all responses to Anthropic message format. Resolves API keys from Vercel KV first, falls back to env vars.
+- **`api/ai.js`** — Main AI proxy. Routes to Anthropic or OpenAI based on `provider` field. Normalizes all responses to Anthropic message format. Resolves tier from org subscription.
 - **`api/claude.js`** — Simple Anthropic-only proxy (legacy/direct endpoint).
 - **`api/ai-keys.js`** — CRUD for user API keys stored in Vercel KV.
+- **`api/lib/auth.js`** — Shared auth helpers: `resolveUser()`, `resolveOrgMember()`, `getSupabaseAdmin()`.
+- **`api/org.js`** — Organization API: get info + members, update name/settings.
 - **`api/connectors/`** — Gmail and Outlook OAuth2 flows (auth, callback, disconnect, status) plus `scan.js` for email extraction.
 - **`scripts/dev-api.js`** — Local dev API server (port 3001).
 
@@ -92,13 +94,14 @@ src/
 - Design tokens define the entire visual system — no CSS files, all inline styles
 - Account health scoring engine (`src/lib/healthScore.js`) produces composite 0-10 scores with archetype classification (Power User → Disconnected)
 - Agent architecture: 3 categories (Renewal/Growth/Coaching) with a growing fleet of sub-agents sharing a unified reasoning engine
+- **Organization model:** All data tables have `org_id` for team scoping. `user_id` retained as created-by provenance. Auto-created org per signup. `user_settings` and `ai_usage` stay user-scoped. Org context tracked in `authStore.activeOrgId` and sent via `X-Org-Id` header to API.
 
 ### Marketing Site Patterns
 - Section subtitles use `color: C.textPrimary, fontWeight: 400, opacity: 0.75` (premium hierarchy via weight, not color dimming)
 - Pill badges: `fontSize: 14, padding: "8px 20px"`, mono font, uppercase
 - "Traditional Renewals" (not "Traditional CS") — positioning against renewal workflow
 - agent.ai woven throughout as zero-friction entry point
-- 14-day Pro trial + $49/mo founding member pricing (first 100 customers)
+- 14-day Pro trial + $49/mo founding member pricing (first 100 customers). Team tier: $149/mo flat, unlimited users.
 
 ## Code Quality Rules
 

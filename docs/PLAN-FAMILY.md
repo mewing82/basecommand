@@ -26,9 +26,9 @@ We have a distribution advantage: a partnership with **agent.ai**, a platform wi
 | | Price | What They Get |
 |---|---|---|
 | **Free** | $0/mo | Try it with up to 10 accounts and 50 AI actions/month |
-| **Pro** | $149/mo | Unlimited accounts, unlimited AI (our most powerful model) |
-| **Early Adopter Pro** | $49/mo | Same as Pro — discounted rate locked in forever for first 100 customers |
-| **Team** | $299-499/mo | Multiple users, advanced features |
+| **Individual** | $149/mo | 1 user, unlimited accounts, unlimited AI (our most powerful model) |
+| **Early Adopter** | $49/mo | Same as Individual — discounted rate locked in forever for first 100 customers |
+| **Team** | $149/mo flat | Unlimited users, shared portfolio — no per-seat pricing |
 
 The AI agents are built into the platform — users never have to configure anything technical. They sign up, add their customer data, and the agents just work. This is how every modern AI software product operates (Notion AI, Grammarly, etc.).
 
@@ -87,4 +87,4 @@ The best case: it replaces an income.
 ---
 
 *BaseCommand — basecommand.ai — Started March 2026*
-*Last updated: 2026-03-17*
+*Last updated: 2026-03-19*
