@@ -48,9 +48,9 @@ export default function ExpansionScout() {
       setCache(await renewalStore.getExpansionCache());
       // Compute health for archetype-enriched expansion analysis
       const contextMap = {};
-      for (const a of accts) {
+      await Promise.all(accts.map(async (a) => {
         try { const ctx = await renewalStore.getContext(a.id); if (ctx?.length) contextMap[a.id] = ctx; } catch { /* skip */ }
-      }
+      }));
       setHealthResults(computePortfolioHealth(accts, contextMap));
     })();
   }, []);
@@ -67,10 +67,10 @@ export default function ExpansionScout() {
       ? accounts.filter(a => a.id === targetAccountId)
       : accounts;
     const accountsWithContext = [];
-    for (const a of sourceAccounts) {
+    await Promise.all(sourceAccounts.map(async (a) => {
       const ctx = await renewalStore.getContext(a.id);
       if (ctx.length > 0) accountsWithContext.push(a);
-    }
+    }));
     if (accountsWithContext.length === 0) return;
     setLoading(true); setLoadStartedAt(Date.now()); setError(null);
     try {

@@ -59,9 +59,9 @@ export default function OpportunityBrief() {
     (async () => {
       const accounts = await renewalStore.getAccounts();
       const contextMap = {};
-      for (const a of accounts) {
+      await Promise.all(accounts.map(async (a) => {
         try { const ctx = await renewalStore.getContext(a.id); if (ctx?.length) contextMap[a.id] = ctx; } catch { /* skip */ }
-      }
+      }));
       setHealthResults(computePortfolioHealth(accounts, contextMap));
       setLoading(false);
     })();

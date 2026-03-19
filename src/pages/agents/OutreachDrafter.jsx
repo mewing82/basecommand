@@ -138,12 +138,12 @@ export default function OutreachDrafter() {
     setLoading(true);
     const accounts = await renewalStore.getAccounts();
     const contextMap = {};
-    for (const acct of accounts) {
+    await Promise.all(accounts.map(async (acct) => {
       try {
         const ctx = await renewalStore.getContext(acct.id);
         if (ctx?.length) contextMap[acct.id] = ctx;
       } catch { /* skip */ }
-    }
+    }));
     const results = computePortfolioHealth(accounts, contextMap);
     setHealthResults(results);
 

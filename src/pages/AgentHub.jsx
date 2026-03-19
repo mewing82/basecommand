@@ -61,9 +61,9 @@ export default function AgentHub() {
       const accounts = await renewalStore.getAccounts();
       if (accounts.length === 0) return;
       const contextMap = {};
-      for (const a of accounts) {
+      await Promise.all(accounts.map(async (a) => {
         try { const ctx = await renewalStore.getContext(a.id); if (ctx?.length) contextMap[a.id] = ctx; } catch { /* skip */ }
-      }
+      }));
       const results = computePortfolioHealth(accounts, contextMap);
       setPortfolioSummary(computePortfolioSummary(results));
     })();
