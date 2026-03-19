@@ -133,8 +133,17 @@ export function OnboardingChecklist() {
 }
 
 // ─── Trial Banner ────────────────────────────────────────────────────────────
+const TRIAL_BANNER_DISMISSED_KEY = "bc-trial-banner-dismissed";
+
 export function TrialBanner({ trialDaysLeft }) {
-  if (!trialDaysLeft || trialDaysLeft <= 0) return null;
+  const [dismissed, setDismissed] = useState(() => localStorage.getItem(TRIAL_BANNER_DISMISSED_KEY) === "true");
+
+  if (!trialDaysLeft || trialDaysLeft <= 0 || dismissed) return null;
+
+  function handleDismiss() {
+    localStorage.setItem(TRIAL_BANNER_DISMISSED_KEY, "true");
+    setDismissed(true);
+  }
 
   return (
     <div style={{
@@ -143,9 +152,15 @@ export function TrialBanner({ trialDaysLeft }) {
       background: `${C.aiBlue}08`, border: `1px solid ${C.aiBlue}20`,
     }}>
       <Zap size={14} style={{ color: C.aiBlue, flexShrink: 0 }} />
-      <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.aiBlue }}>
+      <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.aiBlue, flex: 1 }}>
         {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} of Pro trial — all agents unlocked
       </span>
+      <button onClick={handleDismiss} style={{
+        background: "none", border: "none", cursor: "pointer", padding: 4,
+        color: C.textTertiary, opacity: 0.5, flexShrink: 0,
+      }}>
+        <X size={12} />
+      </button>
     </div>
   );
 }
