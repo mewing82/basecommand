@@ -116,6 +116,7 @@ export function NRRWaterfall({ accounts, isMobile }) {
 // ─── Approval Queue ─────────────────────────────────────────────────────────
 export function ApprovalQueue({ items, onApprove, onDismiss, onViewAll }) {
   const { isMobile } = useMediaQuery();
+  const [executedIds, setExecutedIds] = useState(new Set());
   const uColors = { critical: C.red, high: C.amber, medium: C.blue };
   const cardPad = isMobile ? "16px 14px" : "20px 22px";
 
@@ -132,18 +133,24 @@ export function ApprovalQueue({ items, onApprove, onDismiss, onViewAll }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {items.slice(0, 4).map(action => {
             const c = uColors[action.urgency] || C.textTertiary;
+            const wasExecuted = executedIds.has(action.id);
             return (
-              <div key={action.id} style={{ padding: "10px 12px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}`, borderLeft: `3px solid ${c}` }}>
+              <div key={action.id} style={{ padding: "10px 12px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}`, borderLeft: `3px solid ${wasExecuted ? C.green : c}` }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                  <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>{action.accountName}</span>
-                  <div style={{ display: "flex", gap: 4 }}>
-                    <button onClick={() => onApprove?.(action.id)} style={{ padding: "3px 8px", borderRadius: 5, border: "none", background: C.greenMuted, color: C.green, fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
-                      <CheckCircle size={10} /> Approve
-                    </button>
-                    <button onClick={() => onDismiss?.(action.id)} style={{ padding: "3px 8px", borderRadius: 5, border: "none", background: "transparent", color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 11, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
-                      <X size={10} /> Dismiss
-                    </button>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>{action.accountName}</span>
+                    {wasExecuted && <span style={{ fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600, color: C.green, background: C.greenMuted, padding: "1px 5px", borderRadius: 3 }}>EXECUTED</span>}
                   </div>
+                  {!wasExecuted && (
+                    <div style={{ display: "flex", gap: 4 }}>
+                      <button onClick={() => { onApprove?.(action.id); setExecutedIds(prev => new Set([...prev, action.id])); }} style={{ padding: "3px 8px", borderRadius: 5, border: "none", background: C.greenMuted, color: C.green, fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
+                        <CheckCircle size={10} /> Approve
+                      </button>
+                      <button onClick={() => onDismiss?.(action.id)} style={{ padding: "3px 8px", borderRadius: 5, border: "none", background: "transparent", color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 11, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
+                        <X size={10} /> Dismiss
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.4 }}>{action.title}</div>
               </div>

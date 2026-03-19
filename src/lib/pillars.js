@@ -134,3 +134,16 @@ export function getPillarRecommendations(accounts) {
 export function getActivePillarCount(wsPrefix) {
   return PILLARS.filter(p => isPillarActive(p, wsPrefix)).length;
 }
+
+// ─── Agent → Action Type mapping (for autonomy controls) ────────────────────
+export const AGENT_ACTION_TYPES = {
+  "outreach-drafter": ["email_draft"],
+  "rescue-planner": ["risk_assessment", "next_action"],
+  "health-monitor": ["risk_assessment"],
+  "expansion-scout": ["next_action"],
+  "forecast-engine": ["next_action"],
+  "executive-brief": ["next_action"],
+  "meeting-prep": ["next_action"],
+  "playbook-builder": ["next_action"],
+  "opportunity-brief": ["next_action"],
+};

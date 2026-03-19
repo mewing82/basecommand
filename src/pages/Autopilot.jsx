@@ -9,6 +9,7 @@ import { PageLayout } from "../components/layout/PageLayout";
 import { safeParse } from "../lib/utils";
 import { Btn } from "../components/ui/index";
 import { RENEWAL_AUTOPILOT_PROMPT, buildCompanyContext } from "../lib/prompts";
+import { executeAction, dismissAction, shouldAutoExecute } from "../lib/executionEngine";
 
 export default function Autopilot() {
   const navigate = useNavigate();
@@ -52,16 +53,46 @@ export default function Autopilot() {
       const response = await callAI([{ role: "user", content: "Generate autopilot actions for my renewal portfolio." }], RENEWAL_AUTOPILOT_PROMPT(portfolioData, today, companyContext), 4000);
       let text = String(response).trim(); if (text.startsWith("```")) text = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
       const parsed = JSON.parse(text); parsed._generatedAt = Date.now(); setAutopilot(parsed); localStorage.setItem(CACHE_KEY, JSON.stringify(parsed));
-      // Save new actions
+      // Save new actions + check auto-execute
       if (parsed.actions?.length > 0) {
+        const autonomySettings = await renewalStore.getAutonomySettings();
         const newActions = parsed.actions.map(a => ({ id: `action_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, accountId: a.accountId || "", accountName: a.accountName, type: a.type, title: a.title, description: a.description, draft: a.draft || "", urgency: a.urgency, reasoning: a.reasoning || "", status: "pending", createdAt: new Date().toISOString() }));
+
+        // Log all generated actions to execution log
+        for (const action of newActions) {
+          await renewalStore.createExecution({
+            id: `exec-${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+            agentId: "autopilot", actionType: action.type || "next_action",
+            actionId: action.id, accountId: action.accountId, accountName: action.accountName,
+            inputSummary: action.title, outputSummary: "",
+            status: "generated", metadata: { urgency: action.urgency },
+            createdAt: new Date().toISOString(),
+          });
+        }
+
+        // Auto-execute actions where autonomy settings allow
+        for (const action of newActions) {
+          if (shouldAutoExecute(action, autonomySettings)) {
+            action.status = "approved";
+            await executeAction(action);
+          }
+        }
+
         await renewalStore.saveAutopilotActions(newActions); setActions(newActions);
       }
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   }
 
   async function handleActionStatus(actionId, status) {
-    await renewalStore.updateAutopilotAction(actionId, { status }); setActions(await renewalStore.getAutopilotActions());
+    const action = actions.find(a => a.id === actionId);
+    if (action && status === "approved") {
+      await executeAction(action);
+    } else if (action && status === "dismissed") {
+      await dismissAction(action);
+    } else {
+      await renewalStore.updateAutopilotAction(actionId, { status });
+    }
+    setActions(await renewalStore.getAutopilotActions());
   }
   function handleCopy(text, id) { navigator.clipboard.writeText(text); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); }
 

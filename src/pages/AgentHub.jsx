@@ -1,37 +1,74 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Lock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
 import { PageLayout } from "../components/layout/PageLayout";
 import { computePortfolioHealth, computePortfolioSummary, getSeverity } from "../lib/healthScore";
 import { formatARR } from "../lib/utils";
-import { PILLARS, AGENT_DETAILS, isPillarActive, isAgentCached } from "../lib/pillars";
+import { PILLARS, AGENT_DETAILS, AGENT_ACTION_TYPES, isPillarActive, isAgentCached } from "../lib/pillars";
 
-// ─── Autonomy Dial ──────────────────────────────────────────────────────────
-function AutonomyDial() {
-  const modes = [
-    { id: "suggest", label: "Suggest", active: true },
-    { id: "draft", label: "Draft", active: false },
-    { id: "execute", label: "Execute", active: false },
-  ];
+const AUTONOMY_LEVELS = ["suggest", "draft", "execute"];
+const LEVEL_COLORS = { suggest: C.textTertiary, draft: C.gold, execute: C.amber };
+
+// ─── Autonomy Dial (functional) ─────────────────────────────────────────────
+function AutonomyDial({ agentId, autonomySettings, onUpdate }) {
+  const actionTypes = AGENT_ACTION_TYPES[agentId] || ["next_action"];
+
+  // Compute effective level — highest among the agent's action types
+  function getEffectiveLevel() {
+    if (!autonomySettings) return "suggest";
+    let highest = 0;
+    for (const at of actionTypes) {
+      const level = autonomySettings[at] || "draft";
+      const idx = AUTONOMY_LEVELS.indexOf(level);
+      if (idx > highest) highest = idx;
+    }
+    return AUTONOMY_LEVELS[highest];
+  }
+
+  const effectiveLevel = getEffectiveLevel();
+
+  function cycleLevel() {
+    const currentIdx = AUTONOMY_LEVELS.indexOf(effectiveLevel);
+    const nextIdx = (currentIdx + 1) % AUTONOMY_LEVELS.length;
+    const nextLevel = AUTONOMY_LEVELS[nextIdx];
+
+    if (nextLevel === "execute") {
+      if (!confirm(`Set ${agentId.replace(/-/g, " ")} to Execute mode? Actions will be auto-approved.`)) return;
+    }
+
+    const updates = { ...autonomySettings };
+    for (const at of actionTypes) updates[at] = nextLevel;
+    onUpdate(updates);
+  }
+
   return (
     <div style={{ display: "flex", gap: 3, marginTop: 10 }}>
-      {modes.map(m => (
-        <div key={m.id} style={{
-          display: "flex", alignItems: "center", gap: 3,
-          padding: "3px 8px", borderRadius: 4,
-          background: m.active ? C.goldMuted : "rgba(255,255,255,0.03)",
-          border: `1px solid ${m.active ? C.gold + "30" : C.borderDefault}`,
-          fontFamily: FONT_MONO, fontSize: 9, fontWeight: m.active ? 600 : 400,
-          color: m.active ? C.gold : C.textTertiary,
-          opacity: m.active ? 1 : 0.5,
-        }}>
-          {!m.active && <Lock size={8} />}
-          {m.label}
-        </div>
-      ))}
+      {AUTONOMY_LEVELS.map(level => {
+        const isActive = level === effectiveLevel;
+        const isBeyond = AUTONOMY_LEVELS.indexOf(level) > AUTONOMY_LEVELS.indexOf(effectiveLevel);
+        const color = LEVEL_COLORS[level];
+        return (
+          <button
+            key={level}
+            onClick={cycleLevel}
+            style={{
+              display: "flex", alignItems: "center", gap: 3,
+              padding: "3px 8px", borderRadius: 4, cursor: "pointer",
+              background: isActive ? color + "18" : "rgba(255,255,255,0.03)",
+              border: `1px solid ${isActive ? color + "30" : C.borderDefault}`,
+              fontFamily: FONT_MONO, fontSize: 9, fontWeight: isActive ? 600 : 400,
+              color: isActive ? color : C.textTertiary,
+              opacity: isBeyond ? 0.4 : isActive ? 1 : 0.6,
+              transition: "all 0.15s",
+            }}
+          >
+            {level.charAt(0).toUpperCase() + level.slice(1)}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -41,19 +78,27 @@ export default function AgentHub() {
   const navigate = useNavigate();
   const { isMobile } = useMediaQuery();
   const [portfolioSummary, setPortfolioSummary] = useState(null);
+  const [autonomySettings, setAutonomySettings] = useState(null);
 
   useEffect(() => {
     (async () => {
       const accounts = await renewalStore.getAccounts();
-      if (accounts.length === 0) return;
-      const contextMap = {};
-      await Promise.all(accounts.map(async (a) => {
-        try { const ctx = await renewalStore.getContext(a.id); if (ctx?.length) contextMap[a.id] = ctx; } catch { /* skip */ }
-      }));
-      const results = computePortfolioHealth(accounts, contextMap);
-      setPortfolioSummary(computePortfolioSummary(results));
+      if (accounts.length > 0) {
+        const contextMap = {};
+        await Promise.all(accounts.map(async (a) => {
+          try { const ctx = await renewalStore.getContext(a.id); if (ctx?.length) contextMap[a.id] = ctx; } catch { /* skip */ }
+        }));
+        const results = computePortfolioHealth(accounts, contextMap);
+        setPortfolioSummary(computePortfolioSummary(results));
+      }
+      setAutonomySettings(await renewalStore.getAutonomySettings());
     })();
   }, []);
+
+  async function handleAutonomyUpdate(newSettings) {
+    setAutonomySettings(newSettings);
+    await renewalStore.saveAutonomySettings(newSettings);
+  }
 
   const activePillars = PILLARS.filter(p => isPillarActive(p)).length;
 
@@ -122,7 +167,7 @@ export default function AgentHub() {
       <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 24 : 32 }}>
         {PILLARS.map(pillar => {
           const on = isPillarActive(pillar);
-          const agents = pillar.agents.map(id => AGENT_DETAILS[id]).filter(Boolean);
+          const agents = pillar.agents.map(id => ({ ...AGENT_DETAILS[id], agentId: id })).filter(Boolean);
           const PIcon = pillar.icon;
           return (
             <div key={pillar.id}>
@@ -216,7 +261,13 @@ export default function AgentHub() {
                         }}>
                           {agent.description}
                         </div>
-                        <AutonomyDial />
+                        <div onClick={e => e.stopPropagation()}>
+                          <AutonomyDial
+                            agentId={agent.agentId}
+                            autonomySettings={autonomySettings}
+                            onUpdate={handleAutonomyUpdate}
+                          />
+                        </div>
                         <div style={{
                           display: "flex", alignItems: "center", gap: 5, marginTop: 12,
                           fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: agent.color,

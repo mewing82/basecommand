@@ -320,6 +320,38 @@ export const _localRenewalStore = {
     if (idx >= 0) { actions[idx] = { ...actions[idx], ...updates }; this.saveAutopilotActions(actions); }
   },
 
+  // Agent Executions (localStorage fallback)
+  getExecutions(filters = {}) {
+    const all = safeParse(localStorage.getItem(this._key("executions")), []);
+    let filtered = all;
+    if (filters.status && filters.status !== "all") filtered = filtered.filter(e => e.status === filters.status);
+    if (filters.agentId) filtered = filtered.filter(e => e.agentId === filters.agentId);
+    if (filters.accountId) filtered = filtered.filter(e => e.accountId === filters.accountId);
+    filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const offset = filters.offset || 0;
+    const limit = filters.limit || 50;
+    return filtered.slice(offset, offset + limit);
+  },
+  createExecution(execution) {
+    const all = safeParse(localStorage.getItem(this._key("executions")), []);
+    all.push(execution);
+    localStorage.setItem(this._key("executions"), JSON.stringify(all));
+    return execution;
+  },
+  updateExecution(id, updates) {
+    const all = safeParse(localStorage.getItem(this._key("executions")), []);
+    const idx = all.findIndex(e => e.id === id);
+    if (idx >= 0) { all[idx] = { ...all[idx], ...updates }; localStorage.setItem(this._key("executions"), JSON.stringify(all)); }
+  },
+
+  // Autonomy Settings (localStorage fallback)
+  getAutonomySettings() {
+    return safeParse(localStorage.getItem(this._key("autonomy-settings")), { email_draft: "draft", risk_assessment: "draft", next_action: "draft", auto_approve_critical: false });
+  },
+  saveAutonomySettings(settings) {
+    localStorage.setItem(this._key("autonomy-settings"), JSON.stringify(settings));
+  },
+
   // Expansion Cache
   getExpansionCache() { return safeParse(localStorage.getItem(this._key("expansion-cache")), null); },
   saveExpansionCache(data) { localStorage.setItem(this._key("expansion-cache"), JSON.stringify(data)); },
@@ -512,6 +544,15 @@ export const renewalStore = {
   // Leadership Cache
   getLeadershipCache: makeAsyncMethod(() => db.getAnalysisCache("leadership"), () => _localRenewalStore.getLeadershipCache()),
   saveLeadershipCache: makeAsyncMethod((d) => db.saveAnalysisCache("leadership", d), (d) => _localRenewalStore.saveLeadershipCache(d)),
+
+  // Agent Executions
+  getExecutions: makeAsyncMethod(db.getExecutions, (f) => _localRenewalStore.getExecutions(f)),
+  createExecution: makeAsyncMethod(db.createExecution, (e) => _localRenewalStore.createExecution(e)),
+  updateExecution: makeAsyncMethod(db.updateExecution, (id, u) => _localRenewalStore.updateExecution(id, u)),
+
+  // Autonomy Settings
+  getAutonomySettings: makeAsyncMethod(db.getAutonomySettings, () => _localRenewalStore.getAutonomySettings()),
+  saveAutonomySettings: makeAsyncMethod(db.saveAutonomySettings, (s) => _localRenewalStore.saveAutonomySettings(s)),
 
   // Task Items
   getTaskItems: makeAsyncMethod(db.getTaskItems, () => _localRenewalStore.getTaskItems()),

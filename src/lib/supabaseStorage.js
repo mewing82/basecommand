@@ -499,6 +499,85 @@ export async function getAIUsage() {
   };
 }
 
+// ─── Agent Executions (audit trail) ──────────────────────────────────────────
+export async function getExecutions(filters = {}) {
+  const userId = await getUserId();
+  if (!userId) return [];
+  const orgId = getOrgId();
+  let query = supabase
+    .from("agent_executions")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (orgId) query = query.eq("org_id", orgId);
+  else query = query.eq("user_id", userId);
+  if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
+  if (filters.agentId) query = query.eq("agent_id", filters.agentId);
+  if (filters.accountId) query = query.eq("account_id", filters.accountId);
+  const limit = filters.limit || 50;
+  const offset = filters.offset || 0;
+  query = query.range(offset, offset + limit - 1);
+  const { data, error } = await query;
+  if (error) { console.error("[db] getExecutions:", error.message); return []; }
+  return data.map(dbToExecution);
+}
+
+export async function createExecution(execution) {
+  const userId = await getUserId();
+  if (!userId) return execution;
+  const row = executionToDb(execution, userId);
+  const { error } = await supabase.from("agent_executions").insert(row);
+  if (error) console.error("[db] createExecution:", error.message);
+  return execution;
+}
+
+export async function updateExecution(id, updates) {
+  const userId = await getUserId();
+  if (!userId) return;
+  const orgId = getOrgId();
+  const dbUpdates = {};
+  if (updates.status !== undefined) dbUpdates.status = updates.status;
+  if (updates.outputSummary !== undefined) dbUpdates.output_summary = updates.outputSummary;
+  if (updates.executedAt !== undefined) dbUpdates.executed_at = updates.executedAt;
+  if (updates.errorMessage !== undefined) dbUpdates.error_message = updates.errorMessage;
+  if (updates.metadata !== undefined) dbUpdates.metadata = updates.metadata;
+  const query = supabase.from("agent_executions").update(dbUpdates).eq("id", id);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  await query;
+}
+
+// ─── Autonomy Settings (stored in organizations.settings.autonomy) ──────────
+export async function getAutonomySettings() {
+  const orgId = getOrgId();
+  if (!orgId) return getDefaultAutonomySettings();
+  const { data } = await supabase
+    .from("organizations")
+    .select("settings")
+    .eq("id", orgId)
+    .single();
+  return data?.settings?.autonomy || getDefaultAutonomySettings();
+}
+
+export async function saveAutonomySettings(autonomy) {
+  const orgId = getOrgId();
+  if (!orgId) return;
+  // Read current settings, merge autonomy in
+  const { data } = await supabase
+    .from("organizations")
+    .select("settings")
+    .eq("id", orgId)
+    .single();
+  const currentSettings = data?.settings || {};
+  await supabase
+    .from("organizations")
+    .update({ settings: { ...currentSettings, autonomy }, updated_at: new Date().toISOString() })
+    .eq("id", orgId);
+}
+
+function getDefaultAutonomySettings() {
+  return { email_draft: "draft", risk_assessment: "draft", next_action: "draft", auto_approve_critical: false };
+}
+
 // ─── Org Settings (company profile lives here now) ──────────────────────────
 export async function getOrgSettings() {
   const orgId = getOrgId();
@@ -700,5 +779,44 @@ function autopilotActionToDb(action, userId) {
     status: action.status || "pending",
     created_at: action.createdAt || new Date().toISOString(),
     updated_at: new Date().toISOString(),
+  };
+}
+
+function dbToExecution(row) {
+  return {
+    id: row.id,
+    agentId: row.agent_id,
+    actionType: row.action_type,
+    actionId: row.action_id,
+    accountId: row.account_id,
+    accountName: row.account_name,
+    inputSummary: row.input_summary,
+    outputSummary: row.output_summary,
+    status: row.status,
+    executedAt: row.executed_at,
+    errorMessage: row.error_message,
+    metadata: row.metadata || {},
+    createdAt: row.created_at,
+  };
+}
+
+function executionToDb(execution, userId) {
+  const orgId = getOrgId();
+  return {
+    id: execution.id,
+    user_id: userId,
+    org_id: orgId,
+    agent_id: execution.agentId || "autopilot",
+    action_type: execution.actionType || "next_action",
+    action_id: execution.actionId || null,
+    account_id: execution.accountId || null,
+    account_name: execution.accountName || null,
+    input_summary: execution.inputSummary || "",
+    output_summary: execution.outputSummary || "",
+    status: execution.status || "generated",
+    executed_at: execution.executedAt || null,
+    error_message: execution.errorMessage || null,
+    metadata: execution.metadata || {},
+    created_at: execution.createdAt || new Date().toISOString(),
   };
 }

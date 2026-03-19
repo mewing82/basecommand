@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, Building2, Sparkles, Plug, Database, CreditCard, Users, Key } from "lucide-react";
+import { User, Building2, Sparkles, Plug, Database, CreditCard, Users, Key, Bot } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { PageLayout } from "../components/layout/PageLayout";
@@ -10,11 +10,13 @@ import ConnectorSettings from "./settings/ConnectorSettings";
 import DataSettings from "./settings/DataSettings";
 import IntegrationSettings from "./settings/IntegrationSettings";
 import BillingSettings from "./settings/BillingSettings";
+import AutonomySettings from "./settings/AutonomySettings";
 
 const TABS = [
   { id: "company", label: "Company", icon: Building2 },
   { id: "profile", label: "Profile", icon: User },
   { id: "ai", label: "AI", icon: Sparkles },
+  { id: "autonomy", label: "Autonomy", icon: Bot },
   { id: "billing", label: "Billing", icon: CreditCard },
   { id: "team", label: "Team", icon: Users, soon: true },
   { id: "integrations", label: "Integrations", icon: Key },
@@ -76,6 +78,7 @@ export default function Settings() {
           {activeTab === "company" && <CompanySettings />}
           {activeTab === "profile" && <ProfileSettings />}
           {activeTab === "ai" && <AISettings />}
+          {activeTab === "autonomy" && <AutonomySettings />}
           {activeTab === "billing" && <BillingSettings />}
           {activeTab === "team" && <TeamPlaceholder />}
           {activeTab === "integrations" && <IntegrationSettings />}
