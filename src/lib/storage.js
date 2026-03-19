@@ -363,6 +363,91 @@ async function isSupabaseReady() {
   } catch { return false; }
 }
 
+// ─── One-time localStorage → Supabase migration ─────────────────────────────
+// Runs once per user. Pushes any existing localStorage data up to Supabase.
+const MIGRATION_KEY = "bc2-supabase-migrated";
+
+export async function migrateLocalToSupabase() {
+  if (localStorage.getItem(MIGRATION_KEY)) return; // already migrated
+  if (!(await isSupabaseReady())) return;
+
+  try {
+    // Migrate accounts
+    const accounts = _localRenewalStore.getAccounts();
+    if (accounts.length > 0) {
+      // Check if Supabase already has data (don't overwrite)
+      const existing = await db.getAccounts();
+      if (existing.length === 0) {
+        for (const a of accounts) {
+          try { await db.saveAccount(a); } catch (e) { console.warn("[migrate] account:", e.message); }
+        }
+        // Migrate context for each account
+        for (const a of accounts) {
+          const ctx = _localRenewalStore.getContext(a.id);
+          if (ctx.length > 0) {
+            for (const item of ctx) {
+              try { await db.addContextItem(a.id, item); } catch (e) { console.warn("[migrate] context:", e.message); }
+            }
+          }
+          // Migrate threads
+          const threads = _localRenewalStore.getThreads(a.id);
+          for (const t of threads) {
+            try { await db.addThread(a.id, t); } catch (e) { console.warn("[migrate] thread:", e.message); }
+            const msgs = _localRenewalStore.getMessages(t.id);
+            for (const m of msgs) {
+              try { await db.addMessage(t.id, m); } catch (e) { console.warn("[migrate] message:", e.message); }
+            }
+          }
+        }
+        console.log(`[migrate] Migrated ${accounts.length} accounts to Supabase`);
+      }
+    }
+
+    // Migrate tasks
+    const tasks = _localRenewalStore.getTaskItems();
+    if (tasks.length > 0) {
+      const existingTasks = await db.getTaskItems();
+      if (existingTasks.length === 0) {
+        for (const t of tasks) {
+          try { await db.saveTaskItem(t); } catch (e) { console.warn("[migrate] task:", e.message); }
+        }
+      }
+    }
+
+    // Migrate settings
+    const settings = _localRenewalStore.getSettings();
+    if (settings && Object.keys(settings).length > 0) {
+      try { await db.saveSettings(settings); } catch (e) { console.warn("[migrate] settings:", e.message); }
+    }
+
+    // Migrate KB docs
+    const kbDocs = _localRenewalStore.getKBDocs();
+    if (kbDocs.length > 0) {
+      const existingDocs = await db.getKBDocs();
+      if (existingDocs.length === 0) {
+        for (const doc of kbDocs) {
+          const content = _localRenewalStore.getKBContent(doc.id);
+          try { await db.saveKBDoc(doc, content); } catch (e) { console.warn("[migrate] kb:", e.message); }
+        }
+      }
+    }
+
+    // Migrate autopilot actions
+    const actions = _localRenewalStore.getAutopilotActions();
+    if (actions.length > 0) {
+      const existingActions = await db.getAutopilotActions();
+      if (existingActions.length === 0) {
+        try { await db.saveAutopilotActions(actions); } catch (e) { console.warn("[migrate] autopilot:", e.message); }
+      }
+    }
+
+    localStorage.setItem(MIGRATION_KEY, new Date().toISOString());
+    console.log("[migrate] localStorage → Supabase migration complete");
+  } catch (e) {
+    console.error("[migrate] Migration failed:", e.message);
+  }
+}
+
 function makeAsyncMethod(dbFn, localFn) {
   return async function (...args) {
     if (await isSupabaseReady()) {

@@ -1,10 +1,17 @@
+import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { supabase } from "../../lib/supabase";
+import { migrateLocalToSupabase } from "../../lib/storage";
 import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 
 export default function AuthGate({ children }) {
   const { user, loading } = useAuthStore();
+
+  // One-time migration: push localStorage data to Supabase
+  useEffect(() => {
+    if (user) migrateLocalToSupabase();
+  }, [user]);
 
   // If Supabase is not configured, allow access (local dev without auth)
   if (!supabase) return children;
