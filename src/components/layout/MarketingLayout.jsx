@@ -5,6 +5,7 @@ import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 import { useAuthStore } from "../../store/authStore";
 import { supabase } from "../../lib/supabase";
 import { useMediaQuery } from "../../lib/useMediaQuery";
+import { useJsonLd, ORG_SCHEMA } from "../../lib/seo";
 
 export default function MarketingLayout() {
   const navigate = useNavigate();
@@ -17,6 +18,9 @@ export default function MarketingLayout() {
 
   const isAuthenticated = supabase && user;
   const isSignupPage = location.pathname === "/signup" || location.pathname === "/login";
+
+  // Organization schema (global)
+  useJsonLd(ORG_SCHEMA, "org-schema");
 
   // Sticky CTA: show after scrolling past hero (~400px)
   useEffect(() => {
@@ -200,9 +204,9 @@ export default function MarketingLayout() {
       )}
 
       {/* Page content — add bottom padding on mobile for sticky CTA */}
-      <div style={{ paddingBottom: isMobile && showStickyCta ? 72 : 0 }}>
+      <main style={{ paddingBottom: isMobile && showStickyCta ? 72 : 0 }}>
         <Outlet />
-      </div>
+      </main>
 
       {/* Footer */}
       <footer className="bc-footer" style={{

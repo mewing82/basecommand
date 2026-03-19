@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useAuthStore } from "../../store/authStore";
+import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
 export default function Login() {
   const navigate = useNavigate();
   const { signIn, signInWithGoogle } = useAuthStore();
+  usePageMeta(PAGE_SEO.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

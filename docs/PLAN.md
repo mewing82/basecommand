@@ -1,7 +1,7 @@
 # BaseCommand Master Plan
 
 > **Living document.** Updated as decisions are made. Single source of truth for vision, business model, and what we're building.
-> **Last updated:** 2026-03-19 (Epic 17 — Org & Team Model) | **Version:** 0.7.0
+> **Last updated:** 2026-03-19 (Epic 18 — Discovery Optimization plan, Epic 8 Phase 1 completed) | **Version:** 0.7.1
 > **Previous versions:** `docs/archive/PLAN-v0.4.0-2026-03-17.md`
 
 ---
@@ -159,7 +159,7 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 5 | Forecast Intelligence | **Completed** | Standalone forecast with GRR/NRR, confidence tiers, scenarios |
 | 6 | AI-Initiated Value Delivery | **Completed** | Persona-driven task suggestions + persona picker |
 | 7 | Agent Hub | **Completed** | AI agents as the product experience, hub + workspaces |
-| 8 | Premium Autonomous Agents | **Roadmap** | Supervised autopilot → full autonomous (Gmail send, rules engine, execution log) |
+| 8 | Autonomous Agents — Phase 1 | **Completed** | Execution engine, audit trail, autonomy controls, batch approve/dismiss, Tasks split |
 | 9 | Security & Foundation | **Completed** | Auth (Supabase), server-side data persistence, Privacy Policy + ToS, admin dashboard + RBAC |
 | 10 | AI Access & Monetization | **Completed** | Server-side AI (no API key needed), 50-call/mo free tier metering, Stripe billing + checkout + webhooks, plan toggle, tier enforcement |
 | 11 | Brand & Operations | **Deferred** | Google Workspace, social media campaigns, content marketing, demo videos (post-launch) |
@@ -169,6 +169,7 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 15 | agent.ai Deep Integration + HubSpot | **Near Complete** | Workflow pipeline done (`af0b0d9`), stress test done (`5e7d1aa`). HubSpot connector blocked on Matthew call. |
 | 16 | v2 Design — Unified App Redesign | **Completed** | Sidebar restructure (5 groups), Mission Control dashboard, Intelligence Hub, Agent Hub (Active/Catalog + autonomy dial), portfolio filtering, archetype badges, NRR waterfall, export toolbar |
 | 17 | Organization & Team Model (Phase 1) | **Completed** | Org/team data model, org-scoped queries, auto-create org on signup, backfill existing users, billing scoped to org, workspace CRUD replaced with org display |
+| 18 | Discovery Optimization — SEO, AEO, GEO Foundation | **Planned** | Schema.org markup, semantic HTML, LLMs.txt, per-page meta/OG tags, robots.txt, sitemap, answer-first content, FAQ schema |
 
 ---
 
@@ -371,6 +372,251 @@ Invisible org/team foundation so the data model supports teams from day one. No 
 - Org switcher in sidebar (for users in multiple orgs)
 - Team activity feed
 - Portfolio filtering by assigned_to
+
+---
+
+## Epic 18: Discovery Optimization — SEO, AEO, GEO Foundation
+
+**Status: Planned**
+**Priority: Pre-Launch (Gate 0)** — must ship before requesting agent.ai featured placement
+**Research basis:** 3 in-depth articles in `/lmnotebooks/Adaptive Web Design/`
+
+### The Problem
+
+BaseCommand is about to start driving traffic from agent.ai (3M+ users). The 2026 discovery landscape has shifted fundamentally:
+
+- **60% of Google searches end without a click** — AI-generated summaries satisfy intent on the results page
+- **25% of search volume has migrated to AI-native answer engines** (ChatGPT, Perplexity, Claude)
+- **Traditional SEO alone is no longer sufficient** — brands must optimize for SEO + AEO (Answer Engine Optimization) + GEO (Generative Engine Optimization)
+
+BaseCommand's marketing site currently has:
+- **No Schema.org markup** — AI systems can't verify our entity identity
+- **No per-page meta tags or OG tags** — all 6 marketing pages share one generic title/description
+- **No robots.txt or sitemap** — crawlers have no guidance
+- **Minimal semantic HTML** — `<section>` and `<nav>` only, no `<main>`, `<article>`, `<aside>`
+- **No LLMs.txt** — the emerging standard for LLM crawler guidance
+- **No FAQ schema** — despite FAQ content on the Pricing page
+- **No answer-first content structure** — pages lack the 40-60 word TL;DR summaries that RAG systems extract
+
+This means: AI systems won't cite BaseCommand. Social shares show blank previews. Search results show generic snippets. We're invisible to the 2026 discovery ecosystem.
+
+### The 2026 Discovery Trifecta
+
+| Attribute | SEO | AEO (Answer Engine) | GEO (Generative Engine) |
+|-----------|-----|---------------------|------------------------|
+| **Goal** | Rank pages in SERPs | Get featured as direct answers | Be cited in AI-synthesized responses |
+| **Unit** | The Page (URL-level) | The Snippet (Q&A) | The Passage (chunk-level retrieval) |
+| **Strategy** | Keywords, backlinks, technical health | FAQs, clear structure, conversational | Entity clarity, topical authority, RAG-friendly |
+| **Metric** | Rankings, traffic, CTR | Answer inclusion, snippet visibility | Citation frequency, Share of Influence |
+
+### The Bifurcated Strategy
+
+BaseCommand must run two separate discovery plays:
+
+1. **Rank-First (Google AI Overviews):** 81.1% of citations in Google's AI summaries come from the top-10 organic results. Traditional SEO is the prerequisite.
+2. **Presence-First (ChatGPT/Perplexity/Reddit):** These platforms favor encyclopedic and community-driven sources. Entity authority and contextual brand mentions matter more than rankings.
+
+### RAG Pipeline Optimization
+
+AI search engines use Retrieval-Augmented Generation (RAG) to find and cite sources. Content must win two battles:
+
+1. **Retrieval (technical):** Content must be easy to "chunk" — modular, semantic HTML, clean heading hierarchy
+2. **Generation (trust):** Content must demonstrate E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) to be selected as the "source of truth"
+
+### Implementation Steps
+
+#### Step 1: Per-Page SEO Infrastructure (~80 lines)
+
+**New utility: `src/lib/seo.js`**
+- `usePageMeta(config)` hook — updates `document.title`, meta description, OG tags, canonical URL on route change
+- Config per page: title, description, og:image, og:type, canonical path
+
+**Apply to all 6 marketing pages + auth pages:**
+
+| Page | Title | Description |
+|------|-------|-------------|
+| `/` | BaseCommand — AI-Powered Renewal Intelligence | AI agents that run your entire renewal workflow, from health scoring to outreach drafts to board-ready forecasts. |
+| `/why` | Why Renewal Teams Need AI — BaseCommand | 58% of SaaS companies report lower NRR. Traditional renewal playbooks have broken down. Here's what's changed. |
+| `/how-it-works` | How BaseCommand Works — AI Revenue Engine | 5 AI functions, 9 specialized agents, continuous monitoring. See the architecture behind AI-powered renewal ops. |
+| `/get-started` | Get Started with BaseCommand — Implementation Blueprint | 4-week implementation, ROI calculator, free trial. Go from spreadsheets to AI-powered renewals. |
+| `/agents` | AI Agents for Renewal Teams — BaseCommand | Free AI agents on agent.ai: CRM Parser, Renewal Autopilot, Exec Brief Generator, Forecast Intelligence. |
+| `/pricing` | Pricing — BaseCommand | Free forever tier, 14-day Pro trial, founding member pricing. AI-powered renewal intelligence from $49/mo. |
+
+**OG tags per page:** og:title, og:description, og:image, og:url, og:type, og:site_name, twitter:card, twitter:title, twitter:description
+
+#### Step 2: Schema.org JSON-LD Markup
+
+**Organization schema** (global, in MarketingLayout):
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "BaseCommand",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "AI-powered renewal intelligence platform",
+  "url": "https://basecommand.ai",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "Free tier with 10 accounts and 50 AI calls/month"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "BaseCommand",
+    "url": "https://basecommand.ai",
+    "logo": "https://basecommand.ai/favicon.svg"
+  }
+}
+```
+
+**FAQPage schema** (on `/pricing`):
+- Extract existing FAQ content into structured Q&A pairs with FAQPage schema
+- Acts as "pre-formatted injection for RAG systems"
+
+**Article schema** (on `/why`, `/how-it-works`):
+- Links content to organization entity
+- Proves accountability and freshness
+
+#### Step 3: Semantic HTML Upgrade
+
+**MarketingLayout.jsx:**
+- Wrap `<Outlet />` content area in `<main>` tag
+- Add `role` attributes to `<nav>` and `<footer>`
+
+**All marketing pages:**
+- Wrap page content in `<article>` tag
+- Use `<header>` for hero sections
+- Use `<aside>` for callout/CTA cards where appropriate
+
+#### Step 4: Answer-First Content Blocks
+
+Add **bolded 40-60 word TL;DR summaries** immediately under each page's H1:
+
+- **Landing:** "BaseCommand is an AI-powered renewal intelligence platform. Nine specialized agents monitor account health, draft outreach, forecast retention, and surface expansion signals — running your entire renewal workflow from co-pilot mode to supervised autopilot."
+- **Why:** "Traditional renewal playbooks have broken down. 58% of SaaS companies report lower NRR despite record CS spending. AI-powered renewal operations detect risk 90 days earlier, prevent up to 71% of churn, and turn retention from cost center to growth engine."
+- **How It Works:** "BaseCommand runs a 5-function AI pipeline — Monitor, Predict, Generate, Identify, Orchestrate — powered by 9 specialized agents organized into Renewal, Growth, and Coaching categories. The system scores health continuously, drafts outreach automatically, and surfaces expansion signals from your data."
+- **Pricing:** "BaseCommand offers a free forever tier (10 accounts, 50 AI calls/month) and a 14-day Pro trial with no credit card required. Founding member pricing: $49/month locked for life for the first 100 Pro customers."
+
+#### Step 5: Static Discovery Files
+
+**`public/robots.txt`:**
+```
+User-agent: *
+Allow: /
+Sitemap: https://basecommand.ai/sitemap.xml
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+```
+
+**`public/sitemap.xml`:**
+Static XML listing all 6 marketing pages + login/signup with lastmod dates and priority values.
+
+**`public/llms.txt`:**
+```
+# BaseCommand — AI-Powered Renewal Intelligence
+# https://basecommand.ai
+
+## About
+BaseCommand is an AI-powered renewal intelligence platform for SaaS companies.
+Nine specialized agents run the entire renewal workflow: health monitoring,
+risk detection, outreach drafting, expansion signals, forecasting, and executive reporting.
+
+## Key Pages
+- /: Product overview and value proposition
+- /why: The problem BaseCommand solves — declining NRR, broken renewal playbooks
+- /how-it-works: Architecture — 5-function pipeline, 9 agents, 3 categories
+- /pricing: Free tier, Pro trial, founding member pricing
+- /agents: Free AI agents on agent.ai platform
+- /get-started: Implementation blueprint and ROI calculator
+
+## Product Details
+- Categories: Renewal Agents, Growth Agents, Coaching Agents
+- Key Agents: Health Monitor, Forecast Engine, Outreach Drafter, Expansion Scout, Executive Brief
+- Pricing: Free ($0, 10 accounts), Individual ($49/mo founding), Team ($149/mo flat)
+- Trial: 14-day Pro trial, no credit card required
+```
+
+#### Step 6: Interrogative Heading Audit
+
+Review all marketing page H2/H3 headings and convert statement headings to question format where appropriate for conversational AI retrieval:
+
+| Before | After |
+|--------|-------|
+| "The AI Revenue Engine" | "How Does the AI Revenue Engine Work?" |
+| "Pricing" | "How Much Does BaseCommand Cost?" |
+| "Implementation Blueprint" | "How Do I Get Started with BaseCommand?" |
+
+Only convert where it improves discoverability without hurting the page's narrative flow.
+
+### Files Changed
+
+| File | Action | Notes |
+|------|--------|-------|
+| `src/lib/seo.js` | New | usePageMeta hook + SEO config per page |
+| `src/components/layout/MarketingLayout.jsx` | Modify | Semantic `<main>` wrapper, Organization JSON-LD |
+| `src/pages/marketing/Landing.jsx` | Modify | usePageMeta, `<article>`, answer-first summary |
+| `src/pages/marketing/Why.jsx` | Modify | usePageMeta, `<article>`, answer-first summary |
+| `src/pages/marketing/HowItWorks.jsx` | Modify | usePageMeta, `<article>`, answer-first summary |
+| `src/pages/marketing/GetStarted.jsx` | Modify | usePageMeta, `<article>`, answer-first summary |
+| `src/pages/marketing/Pricing.jsx` | Modify | usePageMeta, `<article>`, answer-first summary, FAQPage schema |
+| `src/pages/marketing/Agents.jsx` | Modify | usePageMeta, `<article>`, answer-first summary |
+| `public/robots.txt` | New | Crawler instructions + AI bot allowances |
+| `public/sitemap.xml` | New | Static sitemap for all marketing pages |
+| `public/llms.txt` | New | LLM-specific content index |
+| `index.html` | Modify | Add fallback OG tags for non-JS crawlers |
+
+### New KPIs (Post-Launch Tracking)
+
+| KPI | What It Measures | How to Track |
+|-----|-----------------|-------------|
+| **Answer Inclusion Rate** | How often BaseCommand is cited in AI answers | Manual checks on ChatGPT, Perplexity, Google AI Overviews |
+| **Branded Search Volume** | People searching "BaseCommand" by name | Google Search Console |
+| **Share of Influence** | % of AI answer informed by our content | Perplexity citation tracking |
+| **Entity Authority Score** | Brand presence in the knowledge graph | Schema validation + manual audits |
+| **Social Share Preview Quality** | OG tags rendering correctly on LinkedIn/X/Slack | Manual verification |
+
+### What's Deferred
+
+| Item | Why | When |
+|------|-----|------|
+| AI-powered site personalization | Overengineering for Gate 0 | Gate 2+ |
+| Kinetic typography / motion design | Nice-to-have, not discovery-critical | Post-launch |
+| Paid SEO tools (Ahrefs, SEMrush) | Budget item | Gate 2 |
+| Content marketing / blog | Requires sustained effort | Gate 2 (Epic 11) |
+| Dynamic OG images per page | Needs image generation service | Gate 1 |
+| International SEO (hreflang) | Single-language product for now | Gate 3+ |
+
+### Build Order
+
+1. **Foundation** — `seo.js` hook + `index.html` fallback OG tags (Step 1)
+2. **Static files** — robots.txt, sitemap.xml, llms.txt (Step 5)
+3. **Schema.org** — Organization JSON-LD in MarketingLayout, FAQPage on Pricing (Step 2)
+4. **Semantic HTML** — `<main>`, `<article>`, `<header>` wrappers (Step 3)
+5. **Answer-first content** — TL;DR blocks on all marketing pages (Step 4)
+6. **Heading audit** — Interrogative headings where appropriate (Step 6)
+7. **Per-page meta** — Apply usePageMeta to all 6 marketing pages (Step 1 continued)
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 76 | Ship SEO/AEO/GEO foundation before agent.ai featured placement | One shot at first impressions with 3M-user platform. AI systems must be able to discover and cite BaseCommand when traffic arrives. | 2026-03-19 |
+| 77 | Schema.org Organization + FAQPage + Article as minimum viable schema | Research calls these "non-negotiable" for AI citation eligibility. Organization proves entity identity, FAQPage provides RAG-ready Q&A, Article proves accountability. | 2026-03-19 |
+| 78 | LLMs.txt as early-mover advantage | Emerging standard (like robots.txt was in 2005). Low effort, high signal to LLM crawlers. Few competitors will have this. | 2026-03-19 |
+| 79 | Answer-first content structure on all marketing pages | RAG systems retrieve passage-level content. A 40-60 word summary under H1 acts as "feature snippet bait" — the AI's preferred citation format. | 2026-03-19 |
+| 80 | Allow all major AI crawlers (GPTBot, ClaudeBot, PerplexityBot) in robots.txt | Blocking AI crawlers means blocking discovery. BaseCommand wants to be cited, not hidden. | 2026-03-19 |
+| 81 | Per-page meta tags via React hook, not SSR | BaseCommand is a client-rendered SPA. SSR is overengineering for Gate 0. React hook covers social crawlers that execute JS (most do in 2026). Fallback OG tags in index.html for non-JS crawlers. | 2026-03-19 |
+| 82 | Interrogative headings only where they improve discoverability | Don't break the marketing narrative. Convert "The AI Revenue Engine" to "How Does the AI Revenue Engine Work?" only where it serves both human readability and AI retrieval. | 2026-03-19 |
+| 83 | Defer dynamic OG images to Gate 1 | Static OG image is sufficient for launch. Dynamic per-page images need an image generation service — not worth the complexity pre-revenue. | 2026-03-19 |
 
 ---
 

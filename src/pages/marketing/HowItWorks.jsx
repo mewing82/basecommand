@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
+import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
 // ─── Archetypes ──────────────────────────────────────────────────────────────
 
@@ -20,9 +21,10 @@ const ARCHETYPES = [
 
 export default function HowItWorks() {
   const { isMobile } = useMediaQuery();
+  usePageMeta(PAGE_SEO.howItWorks);
 
   return (
-    <div>
+    <article>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section style={{
         padding: isMobile ? "60px 20px 40px" : "100px 40px 60px", maxWidth: 900, margin: "0 auto", textAlign: "center",
@@ -55,6 +57,14 @@ export default function HowItWorks() {
           maxWidth: 600, margin: "0 auto",
         }}>
           A unified intelligence layer — not a dashboard with AI bolted on. Four architectural layers, a continuous flywheel, and AI interventions at every critical revenue moment.
+        </p>
+
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
+          maxWidth: 620, margin: "20px auto 0", padding: "12px 16px",
+          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+        }}>
+          <strong style={{ color: C.textPrimary }}>BaseCommand runs a 5-function AI pipeline</strong> — Monitor, Predict, Generate, Identify, Orchestrate — powered by 9 specialized agents organized into Renewal, Growth, and Coaching categories. The system scores health continuously, drafts outreach automatically, and surfaces expansion signals from your data.
         </p>
       </section>
 
@@ -539,6 +549,6 @@ export default function HowItWorks() {
           </div>
         </div>
       </section>
-    </div>
+    </article>
   );
 }

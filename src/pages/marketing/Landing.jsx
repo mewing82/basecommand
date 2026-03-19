@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
+import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
 // ─── Free Agent.ai Agents ────────────────────────────────────────────────────
 
@@ -17,9 +18,10 @@ const FREE_AGENTS = [
 
 export default function Landing() {
   const { isMobile } = useMediaQuery();
+  usePageMeta(PAGE_SEO.landing);
 
   return (
-    <div>
+    <article>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section style={{
         padding: isMobile ? "60px 20px 48px" : "100px 40px 80px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
@@ -58,6 +60,14 @@ export default function Landing() {
           maxWidth: 560, margin: "0 auto 36px",
         }}>
           BaseCommand gives you the AI reasoning engine, specialized agents, and a human escalation layer — everything you need to run renewals at AI speed with human judgment.
+        </p>
+
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
+          maxWidth: 620, margin: "0 auto 36px", padding: "12px 16px",
+          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+        }}>
+          <strong style={{ color: C.textPrimary }}>BaseCommand is an AI-powered renewal intelligence platform.</strong> Nine specialized agents monitor account health, draft outreach, forecast retention, and surface expansion signals — running your entire renewal workflow from co-pilot mode to supervised autopilot.
         </p>
 
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : undefined }}>
@@ -413,6 +423,6 @@ export default function Landing() {
         </div>
       </section>
 
-    </div>
+    </article>
   );
 }

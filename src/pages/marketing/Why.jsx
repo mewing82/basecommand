@@ -6,12 +6,14 @@ import {
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
+import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
 export default function Why() {
   const { isMobile } = useMediaQuery();
+  usePageMeta(PAGE_SEO.why);
 
   return (
-    <div>
+    <article>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section style={{
         padding: isMobile ? "60px 20px 40px" : "100px 40px 60px", maxWidth: 900, margin: "0 auto", textAlign: "center",
@@ -44,6 +46,14 @@ export default function Why() {
           maxWidth: 640, margin: "0 auto",
         }}>
           SaaS companies are spending more on Customer Success than ever — and retention rates are still declining. The problem isn't effort. It's architecture. You need a unified intelligence layer, not more headcount.
+        </p>
+
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
+          maxWidth: 620, margin: "20px auto 0", padding: "12px 16px",
+          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+        }}>
+          <strong style={{ color: C.textPrimary }}>Traditional renewal playbooks have broken down.</strong> 58% of SaaS companies report lower NRR despite record CS spending. AI-powered renewal operations detect risk 90 days earlier, prevent up to 71% of churn, and turn retention from cost center to growth engine.
         </p>
       </section>
 
@@ -422,6 +432,6 @@ export default function Why() {
           </Link>
         </div>
       </section>
-    </div>
+    </article>
   );
 }

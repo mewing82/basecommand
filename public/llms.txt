@@ -1,0 +1,38 @@
+# BaseCommand — AI-Powered Renewal Intelligence
+# https://basecommand.ai
+
+## About
+BaseCommand is an AI-powered renewal intelligence platform for SaaS companies.
+Nine specialized agents run the entire renewal workflow: health monitoring,
+risk detection, outreach drafting, expansion signals, forecasting, and executive reporting.
+The platform operates in three modes: co-pilot (AI drafts, human executes),
+supervised autopilot (AI executes with human approval), and full autonomous (roadmap).
+
+## Key Pages
+- /: Product overview — hero, value proposition, workflow visualization, pricing
+- /why: The problem BaseCommand solves — declining NRR, broken renewal playbooks, CS spending at all-time high
+- /how-it-works: Architecture — 5-function pipeline (Monitor, Predict, Generate, Identify, Orchestrate), 9 agents, 3 categories, NRR waterfall, behavioral archetypes
+- /pricing: Free tier ($0, 10 accounts, 50 AI calls/mo), Individual Pro ($49/mo founding), Team ($149/mo flat). 14-day Pro trial, no credit card.
+- /agents: Free AI agents on agent.ai platform — CRM Parser, Renewal Autopilot, Exec Brief Generator, Forecast Intelligence
+- /get-started: Implementation blueprint (4-week ramp), ROI calculator, agent.ai entry point
+
+## Product Details
+- Agent Categories: Renewal Agents (Health Monitor, Rescue Planner, Outreach Drafter), Growth Agents (Expansion Scout, Forecast Engine, Opportunity Brief), Coaching Agents (Executive Brief, Meeting Prep, Playbook Builder)
+- Core Data: Account health scores (0-10 composite), behavioral archetypes (Power User, Enthusiastic Adopter, Convert, Explorer, Struggler, Disconnected), NRR waterfall
+- Key Metric: +5% retention = 25-95% profitability boost. AI + human prevents up to 71% of churn.
+- Positioning: "AI-powered renewal workflows, from co-pilot to fully autonomous"
+
+## Pricing
+- Free: $0/forever — 10 accounts, 50 AI calls/month (Claude Sonnet), all agent categories
+- Individual: $49/mo founding member (normally $149/mo) — unlimited accounts, unlimited AI (Claude Opus)
+- Individual Annual: $39/mo ($468/yr) founding member — best deal, 74% off standard
+- Team: $149/mo flat — unlimited users, shared portfolio, org-level billing
+
+## Target Market
+- Primary: SMB SaaS companies (< $50M ARR) — founders, revenue leaders, renewal directors
+- Secondary: Mid-market SaaS ($50M-$200M ARR)
+- Distribution: agent.ai (3M+ users) as primary free marketing channel
+
+## Contact
+- Website: https://basecommand.ai
+- Email: hello@basecommand.ai

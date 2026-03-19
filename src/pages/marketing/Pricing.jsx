@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Check, Sparkles, ArrowRight, ChevronRight, Zap } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
+import { usePageMeta, useJsonLd, PAGE_SEO, buildFAQSchema } from "../../lib/seo";
 
 const TIERS = [
   {
@@ -44,11 +45,36 @@ const TIERS = [
   },
 ];
 
+const FAQS = [
+  {
+    q: "What happens after my 14-day Pro trial?",
+    a: "You automatically move to the Free tier — 10 accounts, 50 AI calls/month. No credit card was ever required, so nothing gets charged. You can upgrade to Pro anytime to unlock unlimited access.",
+  },
+  {
+    q: "What is founding member pricing?",
+    a: "The first 100 Pro customers get $49/mo locked in for life (normally $149/mo). As we grow, new customers will pay the standard price — but founders keep their rate forever.",
+  },
+  {
+    q: "Do I need my own AI API key?",
+    a: "No. AI is included in both Free and Pro tiers — powered by Claude. If you prefer to use your own keys (for compliance or cost control), that's available as an advanced option in Settings.",
+  },
+  {
+    q: "What does 'supervised autopilot' mean?",
+    a: "In co-pilot mode, AI drafts and you execute. In supervised autopilot, AI executes actions (sends emails, updates accounts) based on rules you set — but you approve each batch before it runs. Full autonomous mode is on the roadmap.",
+  },
+  {
+    q: "Can I try BaseCommand on agent.ai first?",
+    a: "Yes! We have free standalone agents on agent.ai — no signup needed. Try CRM Data Parser, Renewal Autopilot, Exec Brief Generator, or Forecast Intelligence. They're a great way to see the AI quality before committing.",
+  },
+];
+
 export default function Pricing() {
   const { isMobile } = useMediaQuery();
+  usePageMeta(PAGE_SEO.pricing);
+  useJsonLd(buildFAQSchema(FAQS), "faq-schema");
 
   return (
-    <div style={{ padding: isMobile ? "60px 20px" : "80px 40px", maxWidth: 1000, margin: "0 auto" }}>
+    <article style={{ padding: isMobile ? "60px 20px" : "80px 40px", maxWidth: 1000, margin: "0 auto" }}>
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 56 }}>
         <h1 style={{
@@ -62,6 +88,14 @@ export default function Pricing() {
           maxWidth: 560, margin: "0 auto",
         }}>
           Every signup starts with 14 days of full Pro access — no credit card required. After that, keep the free tier forever or lock in founding member pricing.
+        </p>
+
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
+          maxWidth: 620, margin: "0 auto", padding: "12px 16px",
+          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+        }}>
+          <strong style={{ color: C.textPrimary }}>BaseCommand offers a free forever tier</strong> (10 accounts, 50 AI calls/month) and a 14-day Pro trial with no credit card required. Founding member pricing: $49/month locked for life for the first 100 Pro customers.
         </p>
       </div>
 
@@ -201,28 +235,7 @@ export default function Pricing() {
         </h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {[
-            {
-              q: "What happens after my 14-day Pro trial?",
-              a: "You automatically move to the Free tier — 10 accounts, 50 AI calls/month. No credit card was ever required, so nothing gets charged. You can upgrade to Pro anytime to unlock unlimited access.",
-            },
-            {
-              q: "What is founding member pricing?",
-              a: "The first 100 Pro customers get $49/mo locked in for life (normally $149/mo). As we grow, new customers will pay the standard price — but founders keep their rate forever.",
-            },
-            {
-              q: "Do I need my own AI API key?",
-              a: "No. AI is included in both Free and Pro tiers — powered by Claude. If you prefer to use your own keys (for compliance or cost control), that's available as an advanced option in Settings.",
-            },
-            {
-              q: "What does 'supervised autopilot' mean?",
-              a: "In co-pilot mode, AI drafts and you execute. In supervised autopilot, AI executes actions (sends emails, updates accounts) based on rules you set — but you approve each batch before it runs. Full autonomous mode is on the roadmap.",
-            },
-            {
-              q: "Can I try BaseCommand on agent.ai first?",
-              a: "Yes! We have free standalone agents on agent.ai — no signup needed. Try CRM Data Parser, Renewal Autopilot, Exec Brief Generator, or Forecast Intelligence. They're a great way to see the AI quality before committing.",
-            },
-          ].map((faq, i) => (
+          {FAQS.map((faq, i) => (
             <div key={i} style={{
               background: C.bgCard, border: `1px solid ${C.borderDefault}`,
               borderRadius: 12, padding: isMobile ? "16px 16px" : "20px 24px",
@@ -270,6 +283,6 @@ export default function Pricing() {
           </Link>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

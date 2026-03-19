@@ -6,6 +6,7 @@ import { useMediaQuery } from "../../lib/useMediaQuery";
 import { useAuthStore } from "../../store/authStore";
 import { ONBOARDING } from "../../lib/demoData";
 import { ProgressBar } from "../../components/onboarding/OnboardingWidgets";
+import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
 const FOUNDING_SPOTS_REMAINING = 67;
 
@@ -19,6 +20,7 @@ export default function Signup() {
   const { signUp, signInWithGoogle } = useAuthStore();
   const [searchParams] = useSearchParams();
   const { isMobile } = useMediaQuery();
+  usePageMeta(PAGE_SEO.signup);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

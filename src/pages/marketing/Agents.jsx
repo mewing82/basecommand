@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
+import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
 // ─── Agent.ai Free Agents (live now) ─────────────────────────────────────────
 
@@ -89,9 +90,10 @@ const PLATFORM_CATEGORIES = [
 
 export default function Agents() {
   const { isMobile } = useMediaQuery();
+  usePageMeta(PAGE_SEO.agents);
 
   return (
-    <div>
+    <article>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section style={{
         padding: isMobile ? "60px 20px 40px" : "100px 40px 60px", maxWidth: 1200, margin: "0 auto", textAlign: "center",
@@ -124,6 +126,14 @@ export default function Agents() {
           maxWidth: 580, margin: "0 auto 12px",
         }}>
           No signup. No API key. Just paste your data and get instant results. These standalone agents are a taste of what BaseCommand does continuously across your entire portfolio.
+        </p>
+
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
+          maxWidth: 620, margin: "0 auto", padding: "12px 16px",
+          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+        }}>
+          <strong style={{ color: C.textPrimary }}>Free AI agents on agent.ai:</strong> CRM Data Parser cleans messy data into structured accounts. Renewal Autopilot generates action plans with draft emails. Exec Brief Generator creates board-ready summaries. Forecast Intelligence produces GRR/NRR forecasts with confidence tiers.
         </p>
       </section>
 
@@ -370,6 +380,6 @@ export default function Agents() {
           </Link>
         </div>
       </section>
-    </div>
+    </article>
   );
 }
