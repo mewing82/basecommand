@@ -10,6 +10,7 @@ import { PageLayout } from "../../components/layout/PageLayout";
 import { Btn } from "../../components/ui/index";
 import { RENEWAL_FORECAST_PROMPT, buildCompanyContext } from "../../lib/prompts";
 import { computePortfolioHealth, computePortfolioSummary } from "../../lib/healthScore";
+import { AILoadingProgress, ActionMenu } from "../../components/ui/AgentWidgets";
 
 // ─── Industry Benchmarks ────────────────────────────────────────────────────
 const BENCHMARKS = {
@@ -69,6 +70,7 @@ export default function ForecastEngine() {
   const cacheKey = `bc2-${store._ws}-forecast`;
   const [forecast, setForecast] = useState(() => safeParse(localStorage.getItem(cacheKey), null));
   const [loading, setLoading] = useState(false);
+  const [loadStartedAt, setLoadStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [copiedSection, setCopiedSection] = useState(null);
   const [scenarioView, setScenarioView] = useState("expected");
@@ -99,7 +101,7 @@ export default function ForecastEngine() {
 
   async function generateForecast() {
     if (accounts.length === 0) return;
-    setLoading(true); setError(null);
+    setLoading(true); setLoadStartedAt(Date.now()); setError(null);
     try {
       const portfolioData = await Promise.all(accounts.map(async a => {
         const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000);
@@ -198,10 +200,15 @@ export default function ForecastEngine() {
       {error && <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 16 }}><AlertTriangle size={14} /> {error}</div>}
 
       {loading && !forecast ? (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 300, gap: 16 }}>
-          <Loader size={24} style={{ color: "#A78BFA", animation: "spin 1s linear infinite" }} />
-          <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Generating forecast for {accounts.length} accounts...</span>
-        </div>
+        <AILoadingProgress
+          startedAt={loadStartedAt}
+          phases={[
+            { label: `Analyzing ${accounts.length} accounts...`, duration: 5000 },
+            { label: "Computing GRR and NRR metrics...", duration: 7000 },
+            { label: "Building revenue scenarios...", duration: 10000 },
+            { label: "Generating forecast narrative...", duration: 8000 },
+          ]}
+        />
       ) : forecast ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Key Metrics with Benchmarks */}
@@ -418,6 +425,7 @@ export default function ForecastEngine() {
                     <div style={{ flex: 1 }}>
                       <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 3 }}>{action.action}</div>
                       <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.green, fontWeight: 600 }}>{action.impact}</span>
+                      <ActionMenu accountName={action.accountName} actionText={action.action} />
                     </div>
                   </div>
                 ))}

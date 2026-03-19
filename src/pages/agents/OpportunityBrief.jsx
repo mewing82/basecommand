@@ -10,6 +10,7 @@ import { Btn } from "../../components/ui/index";
 import { computePortfolioHealth, ARCHETYPES } from "../../lib/healthScore";
 import { buildCompanyContext } from "../../lib/prompts";
 import { formatARR } from "../../lib/utils";
+import { AILoadingProgress, ActionMenu } from "../../components/ui/AgentWidgets";
 
 function OPPORTUNITY_BRIEF_PROMPT(accountData, companyContext) {
   return `You are a strategic expansion advisor for SaaS renewal operations. Generate pre-call expansion briefs.
@@ -50,6 +51,7 @@ export default function OpportunityBrief() {
   const [briefs, setBriefs] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [genStartedAt, setGenStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [expandedBrief, setExpandedBrief] = useState(null);
 
@@ -72,7 +74,7 @@ export default function OpportunityBrief() {
 
   async function generateBriefs() {
     if (growthAccounts.length === 0) return;
-    setGenerating(true); setError(null);
+    setGenerating(true); setGenStartedAt(Date.now()); setError(null);
     try {
       const settings = await renewalStore.getSettings();
       const companyContext = buildCompanyContext(settings?.companyProfile);
@@ -134,10 +136,22 @@ export default function OpportunityBrief() {
             </div>
             {!briefs && (
               <Btn variant="ai" onClick={generateBriefs} disabled={generating}>
-                {generating ? <><Loader size={14} style={{ animation: "spin 1s linear infinite" }} /> Generating briefs...</> : <><Sparkles size={14} /> Generate Opportunity Briefs</>}
+                <><Sparkles size={14} /> Generate Opportunity Briefs</>
               </Btn>
             )}
           </div>
+
+          {generating && (
+            <AILoadingProgress
+              startedAt={genStartedAt}
+              phases={[
+                { label: "Analyzing growth-ready accounts...", duration: 4000 },
+                { label: "Building expansion strategies...", duration: 8000 },
+                { label: "Crafting opportunity briefs...", duration: 10000 },
+                { label: "Finalizing pricing approaches...", duration: 8000 },
+              ]}
+            />
+          )}
 
           {error && <div style={{ color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 16 }}>{error}</div>}
 

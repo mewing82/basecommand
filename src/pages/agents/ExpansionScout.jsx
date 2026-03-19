@@ -10,6 +10,7 @@ import { Btn } from "../../components/ui/index";
 import { computePortfolioHealth, ARCHETYPES } from "../../lib/healthScore";
 import { RENEWAL_EXPANSION_PROMPT, buildCompanyContext } from "../../lib/prompts";
 import { formatARR } from "../../lib/utils";
+import { AILoadingProgress, ActionMenu } from "../../components/ui/AgentWidgets";
 
 const SIGNAL_COLORS = {
   usage_growth: "#34D399", feature_request: "#22D3EE", team_expansion: "#6366F1",
@@ -29,6 +30,7 @@ export default function ExpansionScout() {
   const [healthResults, setHealthResults] = useState([]);
   const [cache, setCache] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadStartedAt, setLoadStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
 
@@ -58,7 +60,7 @@ export default function ExpansionScout() {
       if (ctx.length > 0) accountsWithContext.push(a);
     }
     if (accountsWithContext.length === 0) return;
-    setLoading(true); setError(null);
+    setLoading(true); setLoadStartedAt(Date.now()); setError(null);
     try {
       const data = await Promise.all(accountsWithContext.map(async a => {
         const ctx = await renewalStore.getContext(a.id);
@@ -163,13 +165,26 @@ export default function ExpansionScout() {
       <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
         <Btn variant="ai" onClick={analyzeExpansion} disabled={loading}>
           {loading
-            ? <><Loader size={14} style={{ animation: "spin 1s linear infinite" }} /> Scanning...</>
+            ? <><Loader size={14} style={{ animation: "spin 1s linear infinite" }} /> Scanning</>
             : <><Search size={14} /> Scan for Opportunities</>
           }
         </Btn>
         {cachedAgo && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Last scan: {cachedAgo}</span>}
         {error && <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.red }}><AlertTriangle size={12} /> {error}</span>}
       </div>
+
+          {loading && (
+            <AILoadingProgress
+              startedAt={loadStartedAt}
+              phases={[
+                { label: "Scanning portfolio for growth signals...", duration: 5000 },
+                { label: "Analyzing engagement patterns...", duration: 7000 },
+                { label: "Identifying expansion opportunities...", duration: 10000 },
+                { label: "Estimating expansion value...", duration: 8000 },
+              ]}
+            />
+          )}
+
 
       {/* Portfolio insights */}
       {cache?.portfolioInsights && (
@@ -252,6 +267,7 @@ export default function ExpansionScout() {
                     }}><ArrowRight size={10} /> View</button>
                   )}
                 </div>
+                  <ActionMenu accountName={opp.accountName} actionText={opp.recommendedAction} />
               </div>
             );
           })}

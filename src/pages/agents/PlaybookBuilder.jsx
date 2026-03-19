@@ -10,6 +10,7 @@ import { Btn } from "../../components/ui/index";
 import { computeHealthScore, ARCHETYPES } from "../../lib/healthScore";
 import { buildCompanyContext } from "../../lib/prompts";
 import { formatARR } from "../../lib/utils";
+import { AILoadingProgress, ActionMenu } from "../../components/ui/AgentWidgets";
 
 function PLAYBOOK_PROMPT(accountData, companyContext) {
   return `You are a renewal operations strategist. Generate a 90/60/30 day renewal playbook for each account.
@@ -41,6 +42,7 @@ export default function PlaybookBuilder() {
   const [playbooks, setPlaybooks] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [genStartedAt, setGenStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [expandedPlaybook, setExpandedPlaybook] = useState(null);
 
@@ -55,7 +57,7 @@ export default function PlaybookBuilder() {
 
   async function generatePlaybooks() {
     if (upcomingAccounts.length === 0) return;
-    setGenerating(true); setError(null);
+    setGenerating(true); setGenStartedAt(Date.now()); setError(null);
     try {
       const settings = await renewalStore.getSettings();
       const companyContext = buildCompanyContext(settings?.companyProfile);
@@ -127,10 +129,22 @@ export default function PlaybookBuilder() {
             </div>
             {!playbooks && (
               <Btn variant="ai" onClick={generatePlaybooks} disabled={generating}>
-                {generating ? <><Loader size={14} style={{ animation: "spin 1s linear infinite" }} /> Building playbooks...</> : <><Sparkles size={14} /> Generate Playbooks</>}
+                <><Sparkles size={14} /> Generate Playbooks</>
               </Btn>
             )}
           </div>
+
+          {generating && (
+            <AILoadingProgress
+              startedAt={genStartedAt}
+              phases={[
+                { label: "Analyzing upcoming renewals...", duration: 4000 },
+                { label: "Building 90/60/30-day timelines...", duration: 8000 },
+                { label: "Crafting archetype-aware strategies...", duration: 10000 },
+                { label: "Finalizing playbooks...", duration: 8000 },
+              ]}
+            />
+          )}
 
           {error && <div style={{ color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 16 }}>{error}</div>}
 
@@ -191,6 +205,7 @@ export default function PlaybookBuilder() {
                                   {action.owner_hint && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>Owner: {action.owner_hint}</span>}
                                   {action.why && <span style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary }}>{action.why}</span>}
                                 </div>
+                                <ActionMenu accountName={pb.accountName} actionText={action.action} compact />
                               </div>
                             ))}
                           </div>

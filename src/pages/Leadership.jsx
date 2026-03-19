@@ -8,6 +8,7 @@ import { callAI } from "../lib/ai";
 import { PageLayout } from "../components/layout/PageLayout";
 import { Btn } from "../components/ui/index";
 import { RENEWAL_LEADERSHIP_PROMPT, buildCompanyContext } from "../lib/prompts";
+import { AILoadingProgress, ActionMenu } from "../components/ui/AgentWidgets";
 
 export default function Leadership() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function Leadership() {
     renewalStore.getLeadershipCache().then(setCache);
   }, []);
   const [loading, setLoading] = useState(false);
+  const [loadStartedAt, setLoadStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [copiedSection, setCopiedSection] = useState(null);
   const [expandedForecast, setExpandedForecast] = useState(null);
@@ -29,7 +31,7 @@ export default function Leadership() {
   const fmt$ = (n) => n >= 1000000 ? `$${(n / 1000000).toFixed(1)}M` : n >= 1000 ? `$${(n / 1000).toFixed(0)}K` : `$${n}`;
 
   async function generateAnalysis() {
-    if (accounts.length === 0) return; setLoading(true); setError(null);
+    if (accounts.length === 0) return; setLoading(true); setLoadStartedAt(Date.now()); setError(null);
     try {
       const portfolioData = await Promise.all(accounts.map(async a => {
         const daysUntil = Math.ceil((new Date(a.renewalDate) - now) / 86400000);
@@ -118,7 +120,15 @@ export default function Leadership() {
           {error && <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.red, fontFamily: FONT_BODY, fontSize: 13, marginBottom: 12 }}><AlertTriangle size={14} /> {error}</div>}
 
           {loading && !cache ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: C.gold, animation: "aiPulse 2s ease-in-out infinite" }} /><span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Analyzing {accounts.length} accounts for executive brief...</span></div>
+            <AILoadingProgress
+              startedAt={loadStartedAt}
+              phases={[
+                { label: `Analyzing ${accounts.length} accounts...`, duration: 5000 },
+                { label: "Building executive narrative...", duration: 8000 },
+                { label: "Computing retention metrics...", duration: 7000 },
+                { label: "Drafting strategic recommendations...", duration: 10000 },
+              ]}
+            />
           ) : cache?.executiveBrief ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {/* Headline */}
@@ -188,6 +198,7 @@ export default function Leadership() {
                       </div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5, marginBottom: 4 }}>{esc.issue}</div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.gold, fontWeight: 500 }}>Ask: {esc.ask}</div>
+                      <ActionMenu accountName={esc.accountName} actionText={esc.ask} />
                     </div>
                     {matchedAccount && <button onClick={() => navigate('/app/accounts', { state: { accountId: matchedAccount.id } })} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, flexShrink: 0, alignSelf: "center" }}><ArrowRight size={10} />View</button>}
                   </div>
@@ -269,6 +280,7 @@ export default function Leadership() {
                   <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5, marginBottom: 8 }}>{rec.rationale}</div>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 6 }}><Zap size={12} style={{ color: C.gold, flexShrink: 0, marginTop: 2 }} /><span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.gold, fontWeight: 500 }}>{rec.action}</span></div>
                   {rec.impact && <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Impact: {rec.impact}</div>}
+                  <ActionMenu actionText={rec.action} />
                 </div>
               ))}
             </div>
