@@ -112,7 +112,8 @@ export function ActionMenu({ accountName, accountId, actionText, compact = false
   }
 
   function handleDraftOutreach() {
-    navigate("/app/agents/renewal/outreach-drafter");
+    const params = accountId ? `?accountId=${encodeURIComponent(accountId)}` : "";
+    navigate(`/app/agents/renewal/outreach-drafter${params}`);
   }
 
   function handleStartConversation() {
