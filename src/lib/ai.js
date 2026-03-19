@@ -3,6 +3,7 @@ import { AI_PROVIDERS } from "./tokens";
 import { BC_SYSTEM_PROMPT } from "./prompts";
 import { safeParse } from "./utils";
 import { supabase } from "./supabase";
+import { useAuthStore } from "../store/authStore";
 
 // ─── AI Config Helpers ───────────────────────────────────────────────────────
 export function getActiveAIConfig() {
@@ -59,13 +60,17 @@ export async function callAI(messages, systemOverride, maxTokens, configOverride
     body.byokKey = byokKey;
   }
 
-  // Include auth token if available
+  // Include auth token and org context
   const headers = { "Content-Type": "application/json" };
   if (supabase) {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.access_token) {
       headers["Authorization"] = `Bearer ${session.access_token}`;
     }
+  }
+  const activeOrgId = useAuthStore.getState().activeOrgId;
+  if (activeOrgId) {
+    headers["X-Org-Id"] = activeOrgId;
   }
 
   const res = await fetch("/api/ai", {

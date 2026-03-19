@@ -2,8 +2,12 @@
  * Supabase-backed storage adapter for renewal data.
  * Same method signatures as renewalStore in storage.js.
  * Falls back to localStorage if Supabase is not available or user is not authenticated.
+ *
+ * All data queries are scoped to the active org (org_id).
+ * user_id is retained as created_by provenance on writes.
  */
 import { supabase } from "./supabase";
+import { useAuthStore } from "../store/authStore";
 
 // ─── Helper: get current user ID ────────────────────────────────────────────
 async function getUserId() {
@@ -12,15 +16,23 @@ async function getUserId() {
   return session?.user?.id || null;
 }
 
+// ─── Helper: get active org ID from authStore ───────────────────────────────
+function getOrgId() {
+  return useAuthStore.getState().activeOrgId || null;
+}
+
 // ─── Accounts ────────────────────────────────────────────────────────────────
 export async function getAccounts() {
   const userId = await getUserId();
   if (!userId) return [];
-  const { data, error } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("renewal_accounts")
     .select("*")
-    .eq("user_id", userId)
     .order("created_at", { ascending: false });
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data, error } = await query;
   if (error) { console.error("[db] getAccounts:", error.message); return []; }
   return data.map(dbToAccount);
 }
@@ -28,12 +40,14 @@ export async function getAccounts() {
 export async function getAccount(id) {
   const userId = await getUserId();
   if (!userId) return null;
-  const { data, error } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("renewal_accounts")
     .select("*")
-    .eq("id", id)
-    .eq("user_id", userId)
-    .single();
+    .eq("id", id);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data, error } = await query.single();
   if (error) return null;
   return dbToAccount(data);
 }
@@ -62,11 +76,14 @@ export async function saveAccounts(accounts) {
 export async function deleteAccount(id) {
   const userId = await getUserId();
   if (!userId) return;
-  const { error } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("renewal_accounts")
     .delete()
-    .eq("id", id)
-    .eq("user_id", userId);
+    .eq("id", id);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { error } = await query;
   if (error) console.error("[db] deleteAccount:", error.message);
 }
 
@@ -74,12 +91,15 @@ export async function deleteAccount(id) {
 export async function getContext(accountId) {
   const userId = await getUserId();
   if (!userId) return [];
-  const { data, error } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("context_items")
     .select("*")
     .eq("account_id", accountId)
-    .eq("user_id", userId)
     .order("uploaded_at", { ascending: true });
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data, error } = await query;
   if (error) { console.error("[db] getContext:", error.message); return []; }
   return data.map(dbToContextItem);
 }
@@ -87,8 +107,12 @@ export async function getContext(accountId) {
 export async function saveContext(accountId, items) {
   const userId = await getUserId();
   if (!userId) return;
+  const orgId = getOrgId();
   // Delete existing, then insert new
-  await supabase.from("context_items").delete().eq("account_id", accountId).eq("user_id", userId);
+  const delQuery = supabase.from("context_items").delete().eq("account_id", accountId);
+  if (orgId) delQuery.eq("org_id", orgId);
+  else delQuery.eq("user_id", userId);
+  await delQuery;
   if (items.length > 0) {
     const rows = items.map(i => contextItemToDb(i, accountId, userId));
     const { error } = await supabase.from("context_items").insert(rows);
@@ -108,19 +132,26 @@ export async function addContextItem(accountId, item) {
 export async function deleteContextItem(accountId, itemId) {
   const userId = await getUserId();
   if (!userId) return;
-  await supabase.from("context_items").delete().eq("id", itemId).eq("user_id", userId);
+  const orgId = getOrgId();
+  const query = supabase.from("context_items").delete().eq("id", itemId);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  await query;
 }
 
 // ─── Threads ─────────────────────────────────────────────────────────────────
 export async function getThreads(accountId) {
   const userId = await getUserId();
   if (!userId) return [];
-  const { data, error } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("conversation_threads")
     .select("*")
     .eq("account_id", accountId)
-    .eq("user_id", userId)
     .order("last_message_at", { ascending: false });
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data, error } = await query;
   if (error) { console.error("[db] getThreads:", error.message); return []; }
   return data.map(dbToThread);
 }
@@ -147,20 +178,27 @@ export async function addThread(accountId, thread) {
 export async function deleteThread(accountId, threadId) {
   const userId = await getUserId();
   if (!userId) return;
-  await supabase.from("conversation_threads").delete().eq("id", threadId).eq("user_id", userId);
+  const orgId = getOrgId();
+  const query = supabase.from("conversation_threads").delete().eq("id", threadId);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  await query;
 }
 
 // ─── Messages ────────────────────────────────────────────────────────────────
 export async function getMessages(threadId) {
   const userId = await getUserId();
   if (!userId) return [];
-  const { data, error } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("conversation_messages")
     .select("*")
     .eq("thread_id", threadId)
-    .eq("user_id", userId)
     .order("created_at", { ascending: true })
     .limit(50);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data, error } = await query;
   if (error) { console.error("[db] getMessages:", error.message); return []; }
   return data.map(dbToMessage);
 }
@@ -168,7 +206,11 @@ export async function getMessages(threadId) {
 export async function saveMessages(threadId, messages) {
   const userId = await getUserId();
   if (!userId) return;
-  await supabase.from("conversation_messages").delete().eq("thread_id", threadId).eq("user_id", userId);
+  const orgId = getOrgId();
+  const delQuery = supabase.from("conversation_messages").delete().eq("thread_id", threadId);
+  if (orgId) delQuery.eq("org_id", orgId);
+  else delQuery.eq("user_id", userId);
+  await delQuery;
   if (messages.length > 0) {
     const rows = messages.map(m => messageToDb(m, threadId, userId));
     const { error } = await supabase.from("conversation_messages").insert(rows);
@@ -189,11 +231,14 @@ export async function addMessage(threadId, message) {
 export async function getTaskItems() {
   const userId = await getUserId();
   if (!userId) return [];
-  const { data, error } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("task_items")
     .select("*")
-    .eq("user_id", userId)
     .order("created_at", { ascending: false });
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data, error } = await query;
   if (error) { console.error("[db] getTaskItems:", error.message); return []; }
   return data.map(dbToTask);
 }
@@ -222,6 +267,7 @@ export async function saveTaskItem(task) {
 export async function updateTaskItem(id, updates) {
   const userId = await getUserId();
   if (!userId) return;
+  const orgId = getOrgId();
   const dbUpdates = {};
   if (updates.title !== undefined) dbUpdates.title = updates.title;
   if (updates.status !== undefined) dbUpdates.status = updates.status;
@@ -234,24 +280,34 @@ export async function updateTaskItem(id, updates) {
   if (updates.accountId !== undefined) dbUpdates.account_id = updates.accountId;
   if (updates.accountName !== undefined) dbUpdates.account_name = updates.accountName;
   dbUpdates.updated_at = new Date().toISOString();
-  await supabase.from("task_items").update(dbUpdates).eq("id", id).eq("user_id", userId);
+  const query = supabase.from("task_items").update(dbUpdates).eq("id", id);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  await query;
 }
 
 export async function deleteTaskItem(id) {
   const userId = await getUserId();
   if (!userId) return;
-  await supabase.from("task_items").delete().eq("id", id).eq("user_id", userId);
+  const orgId = getOrgId();
+  const query = supabase.from("task_items").delete().eq("id", id);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  await query;
 }
 
 // ─── Autopilot Actions ───────────────────────────────────────────────────────
 export async function getAutopilotActions() {
   const userId = await getUserId();
   if (!userId) return [];
-  const { data, error } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("autopilot_actions")
     .select("*")
-    .eq("user_id", userId)
     .order("created_at", { ascending: false });
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data, error } = await query;
   if (error) { console.error("[db] getAutopilotActions:", error.message); return []; }
   return data.map(dbToAutopilotAction);
 }
@@ -278,20 +334,27 @@ export async function addAutopilotAction(action) {
 export async function updateAutopilotAction(id, updates) {
   const userId = await getUserId();
   if (!userId) return;
+  const orgId = getOrgId();
   const dbUpdates = {};
   if (updates.status !== undefined) dbUpdates.status = updates.status;
   dbUpdates.updated_at = new Date().toISOString();
-  await supabase.from("autopilot_actions").update(dbUpdates).eq("id", id).eq("user_id", userId);
+  const query = supabase.from("autopilot_actions").update(dbUpdates).eq("id", id);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  await query;
 }
 
 // ─── KB Documents ────────────────────────────────────────────────────────────
 export async function getKBDocs() {
   const userId = await getUserId();
   if (!userId) return [];
-  const { data, error } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("kb_documents")
-    .select("id, name, created_at, updated_at")
-    .eq("user_id", userId);
+    .select("id, name, created_at, updated_at");
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data, error } = await query;
   if (error) { console.error("[db] getKBDocs:", error.message); return []; }
   return data.map(d => ({ id: d.id, name: d.name, createdAt: d.created_at, updatedAt: d.updated_at }));
 }
@@ -299,21 +362,25 @@ export async function getKBDocs() {
 export async function getKBContent(docId) {
   const userId = await getUserId();
   if (!userId) return "";
-  const { data } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("kb_documents")
     .select("content")
-    .eq("id", docId)
-    .eq("user_id", userId)
-    .single();
+    .eq("id", docId);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data } = await query.single();
   return data?.content || "";
 }
 
 export async function saveKBDoc(doc, content) {
   const userId = await getUserId();
   if (!userId) return doc;
+  const orgId = getOrgId();
   const row = {
     id: doc.id,
     user_id: userId,
+    org_id: orgId,
     name: doc.name,
     content: content !== undefined ? content : undefined,
     updated_at: new Date().toISOString(),
@@ -326,19 +393,25 @@ export async function saveKBDoc(doc, content) {
 export async function deleteKBDoc(docId) {
   const userId = await getUserId();
   if (!userId) return;
-  await supabase.from("kb_documents").delete().eq("id", docId).eq("user_id", userId);
+  const orgId = getOrgId();
+  const query = supabase.from("kb_documents").delete().eq("id", docId);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  await query;
 }
 
 // ─── Analysis Cache (expansion, leadership, forecast) ────────────────────────
 export async function getAnalysisCache(type) {
   const userId = await getUserId();
   if (!userId) return null;
-  const { data } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("analysis_cache")
     .select("data, generated_at")
-    .eq("user_id", userId)
-    .eq("type", type)
-    .single();
+    .eq("type", type);
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data } = await query.single();
   if (!data) return null;
   return { ...data.data, _generatedAt: new Date(data.generated_at).getTime() };
 }
@@ -346,15 +419,17 @@ export async function getAnalysisCache(type) {
 export async function saveAnalysisCache(type, cacheData) {
   const userId = await getUserId();
   if (!userId) return;
+  const orgId = getOrgId();
   await supabase.from("analysis_cache").upsert({
     user_id: userId,
+    org_id: orgId,
     type,
     data: cacheData,
     generated_at: new Date().toISOString(),
-  }, { onConflict: "user_id,type" });
+  }, { onConflict: orgId ? "org_id,type" : "user_id,type" });
 }
 
-// ─── Settings ────────────────────────────────────────────────────────────────
+// ─── Settings (stays user-scoped) ───────────────────────────────────────────
 export async function getSettings() {
   const userId = await getUserId();
   if (!userId) return {};
@@ -383,25 +458,29 @@ export async function saveSettings(settings) {
 export async function getMetrics() {
   const userId = await getUserId();
   if (!userId) return null;
-  const { data } = await supabase
+  const orgId = getOrgId();
+  const query = supabase
     .from("renewal_metrics")
-    .select("metrics")
-    .eq("user_id", userId)
-    .single();
+    .select("metrics");
+  if (orgId) query.eq("org_id", orgId);
+  else query.eq("user_id", userId);
+  const { data } = await query.single();
   return data?.metrics || null;
 }
 
 export async function saveMetrics(metrics) {
   const userId = await getUserId();
   if (!userId) return;
+  const orgId = getOrgId();
   await supabase.from("renewal_metrics").upsert({
     user_id: userId,
+    org_id: orgId,
     metrics,
     updated_at: new Date().toISOString(),
-  }, { onConflict: "user_id" });
+  }, { onConflict: orgId ? "org_id" : "user_id" });
 }
 
-// ─── AI Usage (read-only from client) ────────────────────────────────────────
+// ─── AI Usage (stays user-scoped, read-only from client) ────────────────────
 export async function getAIUsage() {
   const userId = await getUserId();
   if (!userId) return { callCount: 0, limit: 50 };
@@ -416,8 +495,29 @@ export async function getAIUsage() {
     callCount: data?.call_count || 0,
     inputTokens: data?.input_tokens || 0,
     outputTokens: data?.output_tokens || 0,
-    limit: 50, // TODO: dynamic based on tier
+    limit: 50,
   };
+}
+
+// ─── Org Settings (company profile lives here now) ──────────────────────────
+export async function getOrgSettings() {
+  const orgId = getOrgId();
+  if (!orgId) return {};
+  const { data } = await supabase
+    .from("organizations")
+    .select("settings")
+    .eq("id", orgId)
+    .single();
+  return data?.settings || {};
+}
+
+export async function saveOrgSettings(settings) {
+  const orgId = getOrgId();
+  if (!orgId) return;
+  await supabase
+    .from("organizations")
+    .update({ settings, updated_at: new Date().toISOString() })
+    .eq("id", orgId);
 }
 
 // ─── Data Transformers (DB ↔ App) ────────────────────────────────────────────
@@ -438,9 +538,11 @@ function dbToAccount(row) {
 }
 
 function accountToDb(account, userId) {
+  const orgId = getOrgId();
   return {
     id: account.id,
     user_id: userId,
+    org_id: orgId,
     name: account.name,
     arr: account.arr || 0,
     renewal_date: account.renewalDate || null,
@@ -468,9 +570,11 @@ function dbToContextItem(row) {
 }
 
 function contextItemToDb(item, accountId, userId) {
+  const orgId = getOrgId();
   return {
     id: item.id,
     user_id: userId,
+    org_id: orgId,
     account_id: accountId,
     type: item.type || "text",
     label: item.label,
@@ -491,9 +595,11 @@ function dbToThread(row) {
 }
 
 function threadToDb(thread, accountId, userId) {
+  const orgId = getOrgId();
   return {
     id: thread.id,
     user_id: userId,
+    org_id: orgId,
     account_id: accountId,
     title: thread.title || "New Thread",
     created_at: thread.createdAt || new Date().toISOString(),
@@ -511,8 +617,10 @@ function dbToMessage(row) {
 }
 
 function messageToDb(msg, threadId, userId) {
+  const orgId = getOrgId();
   return {
     user_id: userId,
+    org_id: orgId,
     thread_id: threadId,
     role: msg.role,
     content: msg.content,
@@ -539,9 +647,11 @@ function dbToTask(row) {
 }
 
 function taskToDb(task, userId) {
+  const orgId = getOrgId();
   return {
     id: task.id,
     user_id: userId,
+    org_id: orgId,
     title: task.title,
     type: task.type || "account",
     account_id: task.accountId || null,
@@ -574,9 +684,11 @@ function dbToAutopilotAction(row) {
 }
 
 function autopilotActionToDb(action, userId) {
+  const orgId = getOrgId();
   return {
     id: action.id,
     user_id: userId,
+    org_id: orgId,
     account_id: action.accountId || null,
     account_name: action.accountName,
     type: action.type,

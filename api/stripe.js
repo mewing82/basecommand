@@ -31,6 +31,9 @@ async function handleCheckout(req, res) {
   const userId = await resolveUser(req);
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
+  // Resolve org for this user
+  const orgId = await resolveOrgId(req, userId);
+
   const body = await readJsonBody(req);
   const { plan } = body || {};
   const priceId = plan === "annual"
@@ -46,11 +49,11 @@ async function handleCheckout(req, res) {
   let customerId = null;
 
   if (supabase) {
-    const { data: sub } = await supabase
-      .from("subscriptions")
-      .select("stripe_customer_id")
-      .eq("user_id", userId)
-      .single();
+    // Try org-scoped sub first, fall back to user-scoped
+    const query = orgId
+      ? supabase.from("subscriptions").select("stripe_customer_id").eq("org_id", orgId).single()
+      : supabase.from("subscriptions").select("stripe_customer_id").eq("user_id", userId).single();
+    const { data: sub } = await query;
     customerId = sub?.stripe_customer_id;
   }
 
@@ -58,7 +61,7 @@ async function handleCheckout(req, res) {
     const { data: { user } } = await getSupabaseAdmin().auth.admin.getUserById(userId);
     const customer = await stripe.customers.create({
       email: user?.email,
-      metadata: { userId },
+      metadata: { userId, orgId: orgId || "" },
     });
     customerId = customer.id;
 
@@ -67,6 +70,7 @@ async function handleCheckout(req, res) {
         .from("subscriptions")
         .upsert({
           user_id: userId,
+          org_id: orgId,
           stripe_customer_id: customerId,
           updated_at: new Date().toISOString(),
         }, { onConflict: "user_id" });
@@ -80,8 +84,8 @@ async function handleCheckout(req, res) {
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${appUrl}/app/settings?billing=success`,
     cancel_url: `${appUrl}/app/settings?billing=cancel`,
-    metadata: { userId },
-    subscription_data: { metadata: { userId } },
+    metadata: { userId, orgId: orgId || "" },
+    subscription_data: { metadata: { userId, orgId: orgId || "" } },
   });
 
   return res.status(200).json({ url: session.url });
@@ -115,15 +119,17 @@ async function handleWebhooks(req, res) {
       case "checkout.session.completed": {
         const session = event.data.object;
         const userId = session.metadata?.userId;
+        const orgId = session.metadata?.orgId || null;
         if (!userId || !session.subscription) break;
         const subscription = await stripe.subscriptions.retrieve(session.subscription);
-        await syncSubscription(supabase, userId, subscription);
+        await syncSubscription(supabase, userId, orgId, subscription);
         break;
       }
       case "customer.subscription.updated": {
         const subscription = event.data.object;
         const userId = subscription.metadata?.userId;
-        if (userId) await syncSubscription(supabase, userId, subscription);
+        const orgId = subscription.metadata?.orgId || null;
+        if (userId) await syncSubscription(supabase, userId, orgId, subscription);
         break;
       }
       case "customer.subscription.deleted": {
@@ -252,13 +258,14 @@ async function handleStatus(req, res) {
 
 // ─── Shared helpers ─────────────────────────────────────────────────────────
 
-async function syncSubscription(supabase, userId, subscription) {
+async function syncSubscription(supabase, userId, orgId, subscription) {
   const isAnnual = subscription.items?.data?.[0]?.price?.recurring?.interval === "year";
   const status = subscription.status === "active" || subscription.status === "trialing"
     ? "active" : subscription.status;
 
   await supabase.from("subscriptions").upsert({
     user_id: userId,
+    org_id: orgId || null,
     stripe_customer_id: subscription.customer,
     stripe_subscription_id: subscription.id,
     status, tier: "pro",
@@ -287,6 +294,21 @@ async function resolveUser(req) {
     const { data: { user }, error } = await supabase.auth.getUser(token);
     return error ? null : user?.id;
   } catch { return null; }
+}
+
+async function resolveOrgId(req, userId) {
+  const orgIdHeader = req.headers["x-org-id"];
+  if (orgIdHeader) return orgIdHeader;
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return null;
+  const { data: mem } = await supabase
+    .from("org_members")
+    .select("org_id")
+    .eq("user_id", userId)
+    .order("joined_at", { ascending: true })
+    .limit(1)
+    .single();
+  return mem?.org_id || null;
 }
 
 async function readJsonBody(req) {

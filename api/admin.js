@@ -126,12 +126,15 @@ async function resolveAdmin(req) {
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) return null;
 
+    // Check subscriptions.role (legacy) or org_members role = 'owner' for admin org
     const { data: sub } = await supabase
       .from("subscriptions")
       .select("role")
       .eq("user_id", user.id)
       .single();
 
-    return sub?.role === "admin" ? user.id : null;
+    if (sub?.role === "admin") return user.id;
+
+    return null;
   } catch { return null; }
 }

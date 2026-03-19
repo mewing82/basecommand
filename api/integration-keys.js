@@ -25,6 +25,10 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized — valid session required" });
   }
 
+  // Resolve org for org-scoped KV keys
+  const orgId = await resolveOrgId(req, userId);
+  const scopeKey = orgId || userId; // org-scoped if available, else user-scoped
+
   // ─── POST: Generate a new integration key ────────────────────────────────
   if (req.method === "POST") {
     const { label } = req.body || {};
@@ -35,19 +39,20 @@ export default async function handler(req, res) {
     const metadata = {
       keyId,
       userId,
+      orgId: orgId || null,
       label: label || "Integration Key",
       lastFour: rawKey.slice(-4),
       createdAt: new Date().toISOString(),
     };
 
-    // Store key metadata (indexed by user)
-    await kvSet(kvUrl, kvToken, `bc2-intkey:${userId}:${keyId}`, metadata);
+    // Store key metadata (indexed by org or user)
+    await kvSet(kvUrl, kvToken, `bc2-intkey:${scopeKey}:${keyId}`, metadata);
 
-    // Store reverse lookup (hashed key → userId + keyId) for auth
-    await kvSet(kvUrl, kvToken, `bc2-intkey-lookup:${keyHash}`, { userId, keyId });
+    // Store reverse lookup (hashed key → userId + keyId + orgId) for auth
+    await kvSet(kvUrl, kvToken, `bc2-intkey-lookup:${keyHash}`, { userId, keyId, orgId: orgId || null });
 
-    // Update key index for this user
-    const indexKey = `bc2-intkey-index:${userId}`;
+    // Update key index
+    const indexKey = `bc2-intkey-index:${scopeKey}`;
     const existing = (await kvGet(kvUrl, kvToken, indexKey)) || [];
     existing.push({ keyId, label: metadata.label, lastFour: metadata.lastFour, createdAt: metadata.createdAt });
     await kvSet(kvUrl, kvToken, indexKey, existing);
@@ -58,7 +63,7 @@ export default async function handler(req, res) {
 
   // ─── GET: List keys (metadata only) ──────────────────────────────────────
   if (req.method === "GET") {
-    const indexKey = `bc2-intkey-index:${userId}`;
+    const indexKey = `bc2-intkey-index:${scopeKey}`;
     const keys = (await kvGet(kvUrl, kvToken, indexKey)) || [];
     return res.status(200).json({ keys });
   }
@@ -68,19 +73,11 @@ export default async function handler(req, res) {
     const { keyId } = req.query;
     if (!keyId) return res.status(400).json({ error: "Missing keyId" });
 
-    // Get the key metadata to find the hash for cleanup
-    const keyData = await kvGet(kvUrl, kvToken, `bc2-intkey:${userId}:${keyId}`);
-
     // Remove key metadata
-    await kvDel(kvUrl, kvToken, `bc2-intkey:${userId}:${keyId}`);
-
-    // Remove reverse lookup (we can't reconstruct the hash without the raw key,
-    // but it will 404 harmlessly — acceptable tradeoff for simplicity)
-    // If keyData has a stored hash, we'd remove it here. For now, orphaned lookups
-    // will fail auth because the metadata check also validates.
+    await kvDel(kvUrl, kvToken, `bc2-intkey:${scopeKey}:${keyId}`);
 
     // Update index
-    const indexKey = `bc2-intkey-index:${userId}`;
+    const indexKey = `bc2-intkey-index:${scopeKey}`;
     const existing = (await kvGet(kvUrl, kvToken, indexKey)) || [];
     const updated = existing.filter(k => k.keyId !== keyId);
     await kvSet(kvUrl, kvToken, indexKey, updated);
@@ -114,6 +111,25 @@ async function resolveUser(req) {
   } catch {
     return null;
   }
+}
+
+async function resolveOrgId(req, userId) {
+  const orgIdHeader = req.headers["x-org-id"];
+  if (orgIdHeader) return orgIdHeader;
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) return null;
+  try {
+    const supabase = createClient(supabaseUrl, serviceKey);
+    const { data: mem } = await supabase
+      .from("org_members")
+      .select("org_id")
+      .eq("user_id", userId)
+      .order("joined_at", { ascending: true })
+      .limit(1)
+      .single();
+    return mem?.org_id || null;
+  } catch { return null; }
 }
 
 async function kvGet(kvUrl, kvToken, key) {

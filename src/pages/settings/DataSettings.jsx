@@ -2,7 +2,8 @@ import { useState } from "react";
 import { HardDrive, Download, Upload, AlertTriangle, Info } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
-import { store, getWorkspaces, getActiveWorkspaceId } from "../../lib/storage";
+import { store } from "../../lib/storage";
+import { useAuthStore } from "../../store/authStore";
 import { Btn } from "../../components/ui/index";
 import { SettingsRow } from "./SettingsShared";
 
@@ -91,7 +92,7 @@ export default function DataSettings() {
         </div>
         <SettingsRow label="Schema Version" value={localStorage.getItem("bc2-meta:schema-version") || "—"} />
         <SettingsRow label="Storage" value="Supabase Postgres + localStorage fallback" />
-        <SettingsRow label="Workspace" value={(() => { const ws = getWorkspaces().find(w => w.id === getActiveWorkspaceId()); return ws ? ws.name : "Default"; })()} />
+        <SettingsRow label="Organization" value={(() => { const orgs = useAuthStore.getState().userOrgs; const activeId = useAuthStore.getState().activeOrgId; const org = orgs.find(o => o.id === activeId); return org ? org.name : "—"; })()} />
         <SettingsRow label="App" value="BaseCommand v3.0 — Renewal Operations Platform" />
       </div>
     </div>

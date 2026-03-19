@@ -7,6 +7,10 @@ export const useAuthStore = create((set, get) => ({
   profile: null,
   loading: true,
 
+  // Org context
+  activeOrgId: localStorage.getItem("bc2-active-org-id") || null,
+  userOrgs: [],
+
   fetchProfile: async (userId) => {
     if (!supabase || !userId) return;
     const { data, error } = await supabase
@@ -33,6 +37,37 @@ export const useAuthStore = create((set, get) => ({
     return data;
   },
 
+  fetchOrgs: async (userId) => {
+    if (!supabase || !userId) return;
+    const { data, error } = await supabase
+      .from("org_members")
+      .select("org_id, role, organizations(id, name, slug)")
+      .eq("user_id", userId);
+    if (error || !data) return;
+
+    const orgs = data.map(m => ({
+      id: m.org_id,
+      name: m.organizations?.name || "Organization",
+      slug: m.organizations?.slug,
+      role: m.role,
+    }));
+    set({ userOrgs: orgs });
+
+    // Set active org if not set or invalid
+    const { activeOrgId } = get();
+    if (!activeOrgId || !orgs.find(o => o.id === activeOrgId)) {
+      if (orgs.length > 0) {
+        localStorage.setItem("bc2-active-org-id", orgs[0].id);
+        set({ activeOrgId: orgs[0].id });
+      }
+    }
+  },
+
+  setActiveOrg: (orgId) => {
+    localStorage.setItem("bc2-active-org-id", orgId);
+    set({ activeOrgId: orgId });
+  },
+
   initialize: async () => {
     if (!supabase) {
       set({ loading: false });
@@ -45,6 +80,7 @@ export const useAuthStore = create((set, get) => ({
 
     if (user) {
       get().fetchProfile(user.id);
+      get().fetchOrgs(user.id);
     }
 
     supabase.auth.onAuthStateChange((_event, session) => {
@@ -52,8 +88,10 @@ export const useAuthStore = create((set, get) => ({
       set({ session, user });
       if (user) {
         get().fetchProfile(user.id);
+        get().fetchOrgs(user.id);
       } else {
-        set({ profile: null });
+        set({ profile: null, userOrgs: [], activeOrgId: null });
+        localStorage.removeItem("bc2-active-org-id");
       }
     });
   },
@@ -96,6 +134,7 @@ export const useAuthStore = create((set, get) => ({
     if (!supabase) return;
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-    set({ user: null, session: null, profile: null });
+    set({ user: null, session: null, profile: null, userOrgs: [], activeOrgId: null });
+    localStorage.removeItem("bc2-active-org-id");
   },
 }));

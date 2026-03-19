@@ -30,6 +30,7 @@ export default async function handler(req, res) {
 
   // ─── Resolve user identity from Supabase JWT ────────────────────────────
   let userId = null;
+  let orgId = null;
   let userTier = "free"; // default tier
   const authHeader = req.headers.authorization;
 
@@ -44,7 +45,19 @@ export default async function handler(req, res) {
         const { data: { user }, error } = await supabase.auth.getUser(token);
         if (!error && user) {
           userId = user.id;
-          userTier = await resolveTier(supabase, userId);
+          // Resolve org: from header or first membership
+          orgId = req.headers["x-org-id"] || null;
+          if (!orgId) {
+            const { data: mem } = await supabase
+              .from("org_members")
+              .select("org_id")
+              .eq("user_id", userId)
+              .order("joined_at", { ascending: true })
+              .limit(1)
+              .single();
+            orgId = mem?.org_id || null;
+          }
+          userTier = await resolveTier(supabase, userId, orgId);
         }
       } catch (e) {
         console.error("[ai] Auth error:", e.message);
@@ -174,13 +187,26 @@ async function handleOpenAI(apiKey, model, maxTokens, system, messages) {
 
 // ─── Tier resolution from subscriptions table ───────────────────────────────
 
-async function resolveTier(supabase, userId) {
+async function resolveTier(supabase, userId, orgId) {
   try {
-    const { data: sub } = await supabase
-      .from("subscriptions")
-      .select("tier, status, trial_end, stripe_subscription_id, role")
-      .eq("user_id", userId)
-      .single();
+    // Try org-scoped subscription first, fall back to user-scoped
+    let sub = null;
+    if (orgId) {
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("tier, status, trial_end, stripe_subscription_id, role")
+        .eq("org_id", orgId)
+        .single();
+      sub = data;
+    }
+    if (!sub) {
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("tier, status, trial_end, stripe_subscription_id, role")
+        .eq("user_id", userId)
+        .single();
+      sub = data;
+    }
 
     if (!sub) return "free";
 

@@ -3,10 +3,12 @@ import { Building2, Plus, X, Loader, Globe, Sparkles, Package, Shield, Swords, T
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
+import { getOrgSettings, saveOrgSettings } from "../../lib/supabaseStorage";
 import { callAI } from "../../lib/ai";
 import { COMPANY_EXTRACT_PROMPT } from "../../lib/prompts";
 import { safeParse } from "../../lib/utils";
 import { Btn } from "../../components/ui/index";
+import { useAuthStore } from "../../store/authStore";
 
 // ─── Shared styles ──────────────────────────────────────────────────────────
 const cardStyle = { padding: "18px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 12 };
@@ -36,8 +38,26 @@ export default function CompanySettings() {
   const [newGive, setNewGive] = useState("");
   const [saved, setSaved] = useState(false);
 
+  const { activeOrgId } = useAuthStore();
+
   useEffect(() => {
-    renewalStore.getSettings().then(s => {
+    async function load() {
+      // Try org settings first (new model), fall back to user settings (legacy)
+      if (activeOrgId) {
+        try {
+          const orgSettings = await getOrgSettings();
+          if (orgSettings?.companyProfile) {
+            setProfile(orgSettings.companyProfile);
+            setRenewalWants(orgSettings.companyProfile.renewalStrategy?.wants || []);
+            setRenewalGives(orgSettings.companyProfile.renewalStrategy?.gives || []);
+            setRenewalRules(orgSettings.companyProfile.renewalStrategy?.rules || "");
+            setLoading(false);
+            return;
+          }
+        } catch { /* fall through to legacy */ }
+      }
+      // Legacy: read from user_settings
+      const s = await renewalStore.getSettings();
       if (s.companyProfile) {
         setProfile(s.companyProfile);
         setRenewalWants(s.companyProfile.renewalStrategy?.wants || []);
@@ -45,8 +65,9 @@ export default function CompanySettings() {
         setRenewalRules(s.companyProfile.renewalStrategy?.rules || "");
       }
       setLoading(false);
-    });
-  }, []);
+    }
+    load();
+  }, [activeOrgId]);
 
   async function extractFromInput() {
     if (!extractRaw.trim()) return;
@@ -67,6 +88,16 @@ export default function CompanySettings() {
   async function save(p) {
     const updated = { ...(p || profile), renewalStrategy: { wants: renewalWants, gives: renewalGives, rules: renewalRules }, lastUpdated: new Date().toISOString() };
     setProfile(updated);
+    // Save to org settings (new model)
+    if (activeOrgId) {
+      try {
+        const orgSettings = await getOrgSettings();
+        await saveOrgSettings({ ...orgSettings, companyProfile: updated });
+      } catch (e) {
+        console.error("[company] org settings save error:", e.message);
+      }
+    }
+    // Also save to user_settings for backward compat
     const current = await renewalStore.getSettings();
     await renewalStore.saveSettings({ ...current, companyProfile: updated });
     setSaved(true);
