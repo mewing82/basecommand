@@ -29,10 +29,10 @@ export default function Signup() {
   const plan = searchParams.get("plan");
   const hasPlan = plan === "monthly" || plan === "annual";
 
-  // Store plan param for post-auth checkout redirect
+  // Clear any stale plan param (payment choice is now in onboarding setup)
   useEffect(() => {
-    if (hasPlan) localStorage.setItem(ONBOARDING.plan, plan);
-  }, [plan, hasPlan]);
+    localStorage.removeItem(ONBOARDING.plan);
+  }, []);
 
   // Store onboarding step
   useEffect(() => {

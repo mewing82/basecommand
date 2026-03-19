@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, FileText, Sparkles, Check, Loader, ArrowRight } from "lucide-react";
+import { Upload, FileText, Sparkles, Check, Loader, ArrowRight, Zap, Clock, CreditCard } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { useAuthStore } from "../../store/authStore";
+import { supabase } from "../../lib/supabase";
 import { renewalStore } from "../../lib/storage";
 import { loadDemoData, ONBOARDING } from "../../lib/demoData";
 import { ProgressBar } from "../../components/onboarding/OnboardingWidgets";
@@ -73,25 +74,8 @@ export default function Setup() {
         </div>
 
         {done ? (
-          /* ─── Success state ────────────────────────────────────────── */
-          <div style={{ textAlign: "center" }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: 20, margin: "0 auto 24px",
-              background: C.greenMuted, border: `1px solid ${C.green}30`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <Check size={28} style={{ color: C.green }} />
-            </div>
-            <button onClick={goToApp} style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              padding: "14px 36px", borderRadius: 10, border: "none",
-              background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-              color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
-              cursor: "pointer", boxShadow: `0 4px 16px ${C.goldGlow}`,
-            }}>
-              Go to Command Center <ArrowRight size={16} />
-            </button>
-          </div>
+          /* ─── Success: Plan choice ─────────────────────────────────── */
+          <PlanChoice importCount={importCount} onContinue={goToApp} />
         ) : (
           /* ─── Path selection ───────────────────────────────────────── */
           <>
@@ -333,6 +317,117 @@ function DemoLoader({ onComplete, importing, setImporting }) {
         {importing ? <><Loader size={14} style={{ animation: "spin 1s linear infinite" }} /> Loading...</>
           : <><Sparkles size={14} /> Load demo accounts</>}
       </button>
+    </div>
+  );
+}
+
+// ─── Plan Choice (shown after data import) ───────────────────────────────────
+
+function PlanChoice({ importCount, onContinue }) {
+  const [checkingOut, setCheckingOut] = useState(false);
+
+  async function handleSubscribe(plan) {
+    setCheckingOut(true);
+    try {
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (!token) { onContinue(); return; }
+      const res = await fetch("/api/stripe?action=checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan }),
+      });
+      const result = await res.json();
+      if (result.url) { window.location.href = result.url; return; }
+    } catch { /* fall through */ }
+    setCheckingOut(false);
+    onContinue();
+  }
+
+  return (
+    <div>
+      {/* Success indicator */}
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 18, margin: "0 auto 16px",
+          background: C.greenMuted, border: `1px solid ${C.green}30`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <Check size={24} style={{ color: C.green }} />
+        </div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary }}>
+          {importCount} account{importCount !== 1 ? "s" : ""} loaded and ready
+        </div>
+      </div>
+
+      {/* Two cards side by side */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {/* Subscribe card */}
+        <div style={{
+          padding: "22px 24px", borderRadius: 14,
+          background: C.goldMuted, border: `1px solid ${C.gold}30`,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <Zap size={16} style={{ color: C.gold }} />
+            <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: C.textPrimary }}>
+              Lock in founding member pricing
+            </span>
+          </div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 16 }}>
+            Get unlimited AI, all agents, and priority support. Founding member pricing is locked for life — it never goes up.
+          </div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button onClick={() => handleSubscribe("monthly")} disabled={checkingOut} style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "11px 22px", borderRadius: 10, border: "none",
+              background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+              color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+              cursor: checkingOut ? "wait" : "pointer", opacity: checkingOut ? 0.7 : 1,
+              boxShadow: `0 4px 16px ${C.goldGlow}`,
+            }}>
+              <CreditCard size={14} /> $49/mo
+            </button>
+            <button onClick={() => handleSubscribe("annual")} disabled={checkingOut} style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "11px 22px", borderRadius: 10,
+              border: `1px solid ${C.gold}40`, background: "transparent",
+              color: C.gold, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+              cursor: checkingOut ? "wait" : "pointer", opacity: checkingOut ? 0.7 : 1,
+            }}>
+              $39/mo annual (save 20%)
+            </button>
+          </div>
+        </div>
+
+        {/* Free trial card */}
+        <div style={{
+          padding: "20px 24px", borderRadius: 14,
+          background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <Clock size={16} style={{ color: C.aiBlue }} />
+            <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>
+              Start with 14-day free trial
+            </span>
+          </div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.5, marginBottom: 14 }}>
+            Full Pro access for 14 days, no credit card needed. Upgrade anytime from Settings.
+          </div>
+          <button onClick={onContinue} style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "11px 24px", borderRadius: 10,
+            border: `1px solid ${C.borderDefault}`, background: "transparent",
+            color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500,
+            cursor: "pointer", transition: "all 0.15s",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.color = C.textPrimary; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textSecondary; }}
+          >
+            Continue with free trial <ArrowRight size={14} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

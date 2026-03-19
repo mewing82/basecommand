@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sparkles, AlertTriangle, ArrowRight, Bot, Crown, Radio, Upload, Plus, Check, BarChart3 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
@@ -7,7 +7,6 @@ import { callAI } from "../lib/ai";
 import { renewalStore, store } from "../lib/storage";
 import { getGreeting } from "../lib/utils";
 import { useAuthStore } from "../store/authStore";
-import { supabase } from "../lib/supabase";
 import { PageLayout } from "../components/layout/PageLayout";
 import { Btn } from "../components/ui/index";
 import { RENEWAL_AUTOPILOT_PROMPT } from "../lib/prompts";
@@ -22,28 +21,8 @@ export default function Dashboard() {
   const [accounts, setAccounts] = useState([]);
   useEffect(() => { renewalStore.getAccounts().then(setAccounts); }, []);
 
-  // Auto-redirect to Stripe checkout if user signed up with a plan
-  useEffect(() => {
-    const plan = localStorage.getItem("bc-signup-plan");
-    if (!plan || !user) return;
-    localStorage.removeItem("bc-signup-plan");
-
-    (async () => {
-      if (!supabase) return;
-      const { data } = await supabase.auth.getSession();
-      const token = data?.session?.access_token;
-      if (!token) return;
-      try {
-        const res = await fetch("/api/stripe?action=checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ plan }),
-        });
-        const result = await res.json();
-        if (result.url) window.location.href = result.url;
-      } catch { /* If checkout fails, user stays on dashboard with their trial */ }
-    })();
-  }, [user]);
+  // Clean up any stale signup plan on dashboard load
+  useEffect(() => { localStorage.removeItem("bc-signup-plan"); }, []);
   const hasAccounts = accounts.length > 0;
 
   // If no accounts, show onboarding
