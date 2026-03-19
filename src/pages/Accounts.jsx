@@ -400,23 +400,24 @@ function AccountIntelPanel({ account, contextItems, onStartChat }) {
   if (summary.includes("advocate") || summary.includes("referred") || summary.includes("champion")) signals.push({ icon: TrendingUp, text: "Strong internal champion", color: C.green });
   if (summary.includes("budget") || summary.includes("discount") || summary.includes("cost")) signals.push({ icon: AlertTriangle, text: "Budget sensitivity", color: C.amber });
 
-  // Recommended actions based on account state
+  // Recommended actions based on account state — all pass accountId for focused mode
+  const aid = account.id;
   const actions = [];
   if (isAtRisk || isOverdue) {
-    actions.push({ label: "Generate Rescue Plan", icon: ShieldAlert, color: C.red, onClick: () => navigate("/app/agents/renewal/rescue-planner") });
-    actions.push({ label: "Draft Re-engagement Email", icon: Mail, color: C.amber, onClick: () => navigate("/app/agents/renewal/outreach-drafter") });
+    actions.push({ label: "Generate Rescue Plan", icon: ShieldAlert, color: C.red, onClick: () => navigate(`/app/agents/renewal/rescue-planner?accountId=${aid}`) });
+    actions.push({ label: "Draft Re-engagement Email", icon: Mail, color: C.amber, onClick: () => navigate(`/app/agents/renewal/outreach-drafter?accountId=${aid}`) });
   }
   if (isUpcoming && !isAtRisk) {
-    actions.push({ label: "Build Renewal Playbook", icon: Calendar, color: C.gold, onClick: () => navigate("/app/agents/coaching/playbook-builder") });
-    actions.push({ label: "Draft Renewal Outreach", icon: Mail, color: C.aiBlue, onClick: () => navigate("/app/agents/renewal/outreach-drafter") });
+    actions.push({ label: "Build Renewal Playbook", icon: Calendar, color: C.gold, onClick: () => navigate(`/app/agents/coaching/playbook-builder?accountId=${aid}`) });
+    actions.push({ label: "Draft Renewal Outreach", icon: Mail, color: C.aiBlue, onClick: () => navigate(`/app/agents/renewal/outreach-drafter?accountId=${aid}`) });
   }
   if (!isAtRisk && account.riskLevel === "low") {
-    actions.push({ label: "Find Expansion Opportunities", icon: TrendingUp, color: C.green, onClick: () => navigate("/app/agents/growth/expansion-scout") });
-    actions.push({ label: "Draft Check-in Email", icon: Mail, color: C.aiBlue, onClick: () => navigate("/app/agents/renewal/outreach-drafter") });
+    actions.push({ label: "Find Expansion Opportunities", icon: TrendingUp, color: C.green, onClick: () => navigate(`/app/agents/growth/expansion-scout?accountId=${aid}`) });
+    actions.push({ label: "Draft Check-in Email", icon: Mail, color: C.aiBlue, onClick: () => navigate(`/app/agents/renewal/outreach-drafter?accountId=${aid}`) });
   }
   if (account.riskLevel === "medium") {
-    actions.push({ label: "Analyze Risk Signals", icon: Activity, color: C.amber, onClick: () => navigate("/app/agents/renewal/health-monitor") });
-    actions.push({ label: "Draft Outreach", icon: Mail, color: C.aiBlue, onClick: () => navigate("/app/agents/renewal/outreach-drafter") });
+    actions.push({ label: "Analyze Risk Signals", icon: Activity, color: C.amber, onClick: () => navigate(`/app/agents/renewal/health-monitor?accountId=${aid}`) });
+    actions.push({ label: "Draft Outreach", icon: Mail, color: C.aiBlue, onClick: () => navigate(`/app/agents/renewal/outreach-drafter?accountId=${aid}`) });
   }
 
   return (

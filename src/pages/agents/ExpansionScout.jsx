@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { TrendingUp, Sparkles, AlertTriangle, Zap, ArrowRight, Search, Loader } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
@@ -33,6 +33,8 @@ export default function ExpansionScout() {
   const [loadStartedAt, setLoadStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [searchParams] = useSearchParams();
+  const targetAccountId = searchParams.get("accountId");
 
   const cachedAgo = cache?._generatedAt ? (() => {
     const m = Math.floor((Date.now() - cache._generatedAt) / 60000);
@@ -53,9 +55,19 @@ export default function ExpansionScout() {
     })();
   }, []);
 
+  // Auto-trigger analysis in focused single-account mode
+  useEffect(() => {
+    if (targetAccountId && accounts.length > 0 && healthResults.length > 0 && !cache && !loading) {
+      analyzeExpansion();
+    }
+  }, [targetAccountId, accounts, healthResults]);
+
   async function analyzeExpansion() {
+    const sourceAccounts = targetAccountId
+      ? accounts.filter(a => a.id === targetAccountId)
+      : accounts;
     const accountsWithContext = [];
-    for (const a of accounts) {
+    for (const a of sourceAccounts) {
       const ctx = await renewalStore.getContext(a.id);
       if (ctx.length > 0) accountsWithContext.push(a);
     }
@@ -117,6 +129,14 @@ export default function ExpansionScout() {
 
   return (
     <PageLayout maxWidth={1000}>
+      {targetAccountId && (
+        <button onClick={() => window.history.back()} style={{
+          display: "flex", alignItems: "center", gap: 6, background: "none", border: "none",
+          cursor: "pointer", fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, padding: 0, marginBottom: 12,
+        }}>
+          <ArrowRight size={14} style={{ transform: "rotate(180deg)" }} /> Back
+        </button>
+      )}
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>

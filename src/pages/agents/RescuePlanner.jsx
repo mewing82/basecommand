@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ShieldAlert, Sparkles, Loader, AlertTriangle, Clock, CheckCircle, ArrowRight } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
@@ -41,8 +42,17 @@ export default function RescuePlanner() {
   const [genStartedAt, setGenStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [expandedPlan, setExpandedPlan] = useState(null);
+  const [searchParams] = useSearchParams();
+  const targetAccountId = searchParams.get("accountId");
 
   useEffect(() => { loadAtRisk(); }, []);
+
+  // Auto-generate rescue plans in focused mode
+  useEffect(() => {
+    if (targetAccountId && atRiskAccounts.length > 0 && !plans && !generating) {
+      generatePlans();
+    }
+  }, [atRiskAccounts, targetAccountId]);
 
   async function loadAtRisk() {
     setLoading(true);
@@ -58,6 +68,13 @@ export default function RescuePlanner() {
     // Filter to at-risk: health score <= 5
     const atRisk = results.filter(r => r.health.score <= 5);
     setAtRiskAccounts(atRisk);
+    // Focused mode: if specific account requested, filter + auto-generate
+    if (targetAccountId) {
+      const focused = results.filter(r => r.account.id === targetAccountId);
+      if (focused.length > 0) {
+        setAtRiskAccounts(focused);
+      }
+    }
     setLoading(false);
   }
 
@@ -108,6 +125,14 @@ ${signals}`;
 
   return (
     <PageLayout maxWidth={900}>
+      {targetAccountId && (
+        <button onClick={() => window.history.back()} style={{
+          display: "flex", alignItems: "center", gap: 6, background: "none", border: "none",
+          cursor: "pointer", fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, padding: 0, marginBottom: 12,
+        }}>
+          <ArrowRight size={14} style={{ transform: "rotate(180deg)" }} /> Back
+        </button>
+      )}
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>

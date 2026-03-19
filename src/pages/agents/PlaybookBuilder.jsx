@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { FileText, Sparkles, Loader, Check, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { FileText, Sparkles, Loader, Check, Clock, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
@@ -45,15 +45,29 @@ export default function PlaybookBuilder() {
   const [genStartedAt, setGenStartedAt] = useState(null);
   const [error, setError] = useState(null);
   const [expandedPlaybook, setExpandedPlaybook] = useState(null);
+  const [searchParams] = useSearchParams();
+  const targetAccountId = searchParams.get("accountId");
 
   useEffect(() => { renewalStore.getAccounts().then(a => { setAccounts(a); setLoading(false); }); }, []);
 
   // Accounts with renewals in next 120 days
-  const upcomingAccounts = accounts.filter(a => {
+  const allUpcoming = accounts.filter(a => {
     if (!a.renewalDate) return false;
     const daysOut = Math.floor((new Date(a.renewalDate) - Date.now()) / 86400000);
     return daysOut > 0 && daysOut <= 120;
   }).sort((a, b) => new Date(a.renewalDate) - new Date(b.renewalDate));
+
+  const upcomingAccounts = targetAccountId
+    ? allUpcoming.filter(a => a.id === targetAccountId).length > 0
+      ? allUpcoming.filter(a => a.id === targetAccountId)
+      : allUpcoming
+    : allUpcoming;
+
+  useEffect(() => {
+    if (targetAccountId && upcomingAccounts.length > 0 && !playbooks && !generating) {
+      generatePlaybooks();
+    }
+  }, [upcomingAccounts.length, targetAccountId]);
 
   async function generatePlaybooks() {
     if (upcomingAccounts.length === 0) return;
@@ -90,6 +104,14 @@ export default function PlaybookBuilder() {
 
   return (
     <PageLayout maxWidth={900}>
+      {targetAccountId && (
+        <button onClick={() => window.history.back()} style={{
+          display: "flex", alignItems: "center", gap: 6, background: "none", border: "none",
+          cursor: "pointer", fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, padding: 0, marginBottom: 12,
+        }}>
+          <ArrowRight size={14} style={{ transform: "rotate(180deg)" }} /> Back
+        </button>
+      )}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
