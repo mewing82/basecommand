@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, AlertTriangle, ArrowRight, Bot, Crown, Radio, Upload, Plus, Check, BarChart3 } from "lucide-react";
+import { Sparkles, AlertTriangle, ArrowRight, Bot, Crown, Radio, Upload, Plus, Check, BarChart3, Loader2 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { callAI } from "../lib/ai";
@@ -19,11 +19,26 @@ export default function Dashboard() {
   const userName = user?.user_metadata?.name || user?.user_metadata?.full_name || "there";
 
   const [accounts, setAccounts] = useState([]);
-  useEffect(() => { renewalStore.getAccounts().then(setAccounts); }, []);
+  const [accountsLoading, setAccountsLoading] = useState(true);
+  useEffect(() => {
+    renewalStore.getAccounts().then(accts => { setAccounts(accts); setAccountsLoading(false); });
+  }, []);
 
   // Clean up any stale signup plan on dashboard load
   useEffect(() => { localStorage.removeItem("bc-signup-plan"); }, []);
   const hasAccounts = accounts.length > 0;
+
+  // Show loading spinner while accounts are being fetched
+  if (accountsLoading) {
+    return (
+      <PageLayout maxWidth={isMobile ? "100%" : 960}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 80, gap: 16 }}>
+          <Loader2 size={28} style={{ color: C.gold, animation: "spin 1s linear infinite" }} />
+          <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary }}>Loading your portfolio...</span>
+        </div>
+      </PageLayout>
+    );
+  }
 
   // If no accounts, show onboarding
   if (!hasAccounts) {
@@ -361,7 +376,12 @@ RULES:
   }
 
   useEffect(() => {
+    if (loading) return;
+    // Only auto-generate if no cache exists or cache is older than 1 hour
+    const cacheAge = insight?._generatedAt ? Date.now() - insight._generatedAt : Infinity;
+    const ONE_HOUR = 60 * 60 * 1000;
     if (!insight && !loading) generateInsights();
+    else if (cacheAge > ONE_HOUR && !loading) generateInsights();
   }, []);
 
   const riskColors = { high: C.red, medium: C.amber, low: C.green };

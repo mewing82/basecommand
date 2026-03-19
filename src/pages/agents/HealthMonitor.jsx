@@ -164,26 +164,33 @@ export default function HealthMonitor() {
   const [healthResults, setHealthResults] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all"); // all | critical | high | medium | low | healthy
 
   useEffect(() => { loadHealth(); }, []);
 
   async function loadHealth() {
     setLoading(true);
-    const accounts = await renewalStore.getAccounts();
+    setError(null);
+    try {
+      const accounts = await renewalStore.getAccounts();
 
-    // Load context for each account (for context_richness signal)
-    const contextMap = {};
-    await Promise.all(accounts.map(async (acct) => {
-      try {
-        const ctx = await renewalStore.getContext(acct.id);
-        if (ctx?.length) contextMap[acct.id] = ctx;
-      } catch { /* skip */ }
-    }));
+      // Load context for each account (parallel for speed)
+      const contextMap = {};
+      await Promise.all(accounts.map(async (acct) => {
+        try {
+          const ctx = await renewalStore.getContext(acct.id);
+          if (ctx?.length) contextMap[acct.id] = ctx;
+        } catch { /* skip */ }
+      }));
 
-    const results = computePortfolioHealth(accounts, contextMap);
-    setHealthResults(results);
-    setSummary(computePortfolioSummary(results));
+      const results = computePortfolioHealth(accounts, contextMap);
+      setHealthResults(results);
+      setSummary(computePortfolioSummary(results));
+    } catch (err) {
+      console.error("[health-monitor] Load failed:", err);
+      setError(err.message);
+    }
     setLoading(false);
   }
 
@@ -212,6 +219,18 @@ export default function HealthMonitor() {
           {loading ? "Scanning..." : "Refresh"}
         </Btn>
       </div>
+
+      {/* Error display */}
+      {error && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 8,
+          padding: "12px 16px", borderRadius: 10, marginBottom: 16,
+          background: `${C.red}10`, border: `1px solid ${C.red}25`,
+        }}>
+          <AlertTriangle size={14} style={{ color: C.red, flexShrink: 0 }} />
+          <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.red }}>{error}</span>
+        </div>
+      )}
 
       {/* Summary cards */}
       {summary && (
