@@ -5,7 +5,7 @@ import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore, store } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
-import { safeParse } from "../../lib/utils";
+import { safeParse, formatARR } from "../../lib/utils";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { Btn } from "../../components/ui/index";
 import { RENEWAL_FORECAST_PROMPT, buildCompanyContext } from "../../lib/prompts";
@@ -97,8 +97,6 @@ export default function ForecastEngine() {
 
   const now = new Date();
   const totalARR = accounts.reduce((sum, a) => sum + (a.arr || 0), 0);
-  const fmt$ = (n) => n >= 1000000 ? `$${(n / 1000000).toFixed(1)}M` : n >= 1000 ? `$${(n / 1000).toFixed(0)}K` : `$${n}`;
-
   async function generateForecast() {
     if (accounts.length === 0) return;
     setLoading(true); setLoadStartedAt(Date.now()); setError(null);
@@ -145,7 +143,7 @@ export default function ForecastEngine() {
     if (forecast.metrics) text += `GRR: ${forecast.metrics.grr} | NRR: ${forecast.metrics.nrr} | Confidence: ${forecast.metrics.forecastConfidence}\n\n`;
     if (forecast.riskCallouts?.length > 0) {
       text += "RISK CALLOUTS\n";
-      forecast.riskCallouts.forEach(r => { text += `• ${r.accountName} (${fmt$(r.arr)}): ${r.risk}\n`; });
+      forecast.riskCallouts.forEach(r => { text += `• ${r.accountName} (${formatARR(r.arr)}): ${r.risk}\n`; });
       text += "\n";
     }
     if (forecast.actions?.length > 0) {
@@ -244,8 +242,8 @@ export default function ForecastEngine() {
             }}>
               <Target size={16} style={{ color: C.green, flexShrink: 0 }} />
               <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>
-                <strong style={{ color: C.green }}>Revenue Impact:</strong> A 3% GRR improvement on your {fmt$(healthSummary.totalARR)} portfolio = <strong style={{ color: C.green }}>{fmt$(healthSummary.totalARR * 0.03)}</strong> in retained revenue.
-                {healthSummary.atRiskARR > 0 && <> Currently {fmt$(healthSummary.atRiskARR)} is at risk.</>}
+                <strong style={{ color: C.green }}>Revenue Impact:</strong> A 3% GRR improvement on your {formatARR(healthSummary.totalARR)} portfolio = <strong style={{ color: C.green }}>{formatARR(healthSummary.totalARR * 0.03)}</strong> in retained revenue.
+                {healthSummary.atRiskARR > 0 && <> Currently {formatARR(healthSummary.atRiskARR)} is at risk.</>}
               </div>
             </div>
           )}
@@ -297,7 +295,7 @@ export default function ForecastEngine() {
                       borderRadius: 12, padding: isMobile ? "14px 12px" : "18px 20px", cursor: "pointer", textAlign: "left", transition: "all 0.15s",
                     }}>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{period.label}</div>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: fs(22, 18, isMobile), fontWeight: 700, color: C.textPrimary, marginBottom: 4 }}>{fmt$(data.total || 0)}</div>
+                      <div style={{ fontFamily: FONT_MONO, fontSize: fs(22, 18, isMobile), fontWeight: 700, color: C.textPrimary, marginBottom: 4 }}>{formatARR(data.total || 0)}</div>
                       <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 10 }}>{data.accountCount || 0} accounts</div>
                       {totalBar > 0 && (
                         <div style={{ display: "flex", height: 6, borderRadius: 3, overflow: "hidden", marginBottom: 12, background: "rgba(255,255,255,0.04)" }}>
@@ -316,7 +314,7 @@ export default function ForecastEngine() {
                             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                               <div style={{ width: 6, height: 6, borderRadius: "50%", background: tier.color, flexShrink: 0 }} />
                               <span style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, flex: 1 }}>{tier.label}</span>
-                              <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: tier.color }}>{fmt$(tier.value || 0)}</span>
+                              <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: tier.color }}>{formatARR(tier.value || 0)}</span>
                             </div>
                             {expanded && tier.accts?.length > 0 && (
                               <div style={{ marginLeft: 12, marginTop: 4, display: "flex", flexWrap: "wrap", gap: 3 }}>
@@ -361,7 +359,7 @@ export default function ForecastEngine() {
                   <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 16, marginBottom: 14, flexWrap: "wrap" }}>
                     <div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 4 }}>Forecasted ARR</div>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 28, fontWeight: 700, color: C.textPrimary }}>{fmt$(forecast.scenarios[scenarioView].totalARR || 0)}</div>
+                      <div style={{ fontFamily: FONT_MONO, fontSize: 28, fontWeight: 700, color: C.textPrimary }}>{formatARR(forecast.scenarios[scenarioView].totalARR || 0)}</div>
                     </div>
                     <div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 4 }}>GRR</div>
@@ -385,14 +383,14 @@ export default function ForecastEngine() {
                 <ShieldAlert size={16} style={{ color: C.red }} />
                 <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Forecast Risks</span>
                 <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
-                <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.red }}>{fmt$(forecast.riskCallouts.reduce((s, r) => s + (r.arr || 0), 0))} at risk</span>
+                <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.red }}>{formatARR(forecast.riskCallouts.reduce((s, r) => s + (r.arr || 0), 0))} at risk</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {forecast.riskCallouts.map((risk, i) => (
                   <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.red}20`, borderLeft: `3px solid ${C.red}`, borderRadius: 10, padding: isMobile ? "12px 12px" : "14px 18px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                       <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{risk.accountName}</span>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.red, fontWeight: 600 }}>{fmt$(risk.arr || 0)}</span>
+                      <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.red, fontWeight: 600 }}>{formatARR(risk.arr || 0)}</span>
                     </div>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 6 }}>{risk.risk}</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>

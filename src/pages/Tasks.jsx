@@ -76,10 +76,17 @@ export default function Tasks() {
   const [persona, setPersona] = useState(null);
 
   useEffect(() => {
-    renewalStore.getTaskItems().then(setTasks);
-    renewalStore.getAutopilotActions().then(setAgentActions);
-    renewalStore.getAccounts().then(setAccounts);
-    renewalStore.getSettings().then(s => setPersona(s?.persona || null));
+    Promise.all([
+      renewalStore.getTaskItems(),
+      renewalStore.getAutopilotActions(),
+      renewalStore.getAccounts(),
+      renewalStore.getSettings(),
+    ]).then(([taskItems, actions, accts, settings]) => {
+      setTasks(taskItems);
+      setAgentActions(actions);
+      setAccounts(accts);
+      setPersona(settings?.persona || null);
+    });
   }, []);
 
   async function refreshAll() {

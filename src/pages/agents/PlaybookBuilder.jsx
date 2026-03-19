@@ -108,7 +108,11 @@ export default function PlaybookBuilder() {
         <button onClick={() => window.history.back()} style={{
           display: "flex", alignItems: "center", gap: 6, background: "none", border: "none",
           cursor: "pointer", fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, padding: 0, marginBottom: 12,
-        }}>
+          transition: "color 0.15s",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.color = C.textSecondary; }}
+          onMouseLeave={e => { e.currentTarget.style.color = C.textTertiary; }}
+        >
           <ArrowRight size={14} style={{ transform: "rotate(180deg)" }} /> Back
         </button>
       )}
