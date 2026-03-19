@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { Shield, Users, Zap, Clock, AlertTriangle, Search, ChevronDown, Check } from "lucide-react";
+import { Shield, Users, Zap, Clock, AlertTriangle, Search, ChevronDown, Check, Database } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { PageLayout } from "../components/layout/PageLayout";
 import { useAuthStore } from "../store/authStore";
 import { supabase } from "../lib/supabase";
+import { loadStressTest } from "../lib/stressTestData";
 
 const TIER_COLORS = {
   pro: { bg: C.goldMuted, color: C.gold, label: "Pro" },
@@ -144,6 +145,25 @@ export default function Admin() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Admin Tools */}
+      <div style={{
+        display: "flex", gap: 10, marginBottom: 20, padding: "14px 18px",
+        background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10,
+      }}>
+        <button onClick={async () => {
+          if (!confirm("Load 20 stress test accounts with context data?")) return;
+          const count = await loadStressTest();
+          alert(`Loaded ${count} accounts. Reload the page.`);
+        }} style={{
+          display: "flex", alignItems: "center", gap: 8,
+          padding: "8px 16px", borderRadius: 8, border: `1px solid ${C.borderDefault}`,
+          background: "transparent", color: C.textSecondary,
+          fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, cursor: "pointer",
+        }}>
+          <Database size={14} /> Load Stress Test (20 accounts)
+        </button>
       </div>
 
       {/* Search */}
