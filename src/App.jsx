@@ -37,6 +37,7 @@ import ExpansionScout from "./pages/agents/ExpansionScout";
 import ForecastEngine from "./pages/agents/ForecastEngine";
 import OpportunityBrief from "./pages/agents/OpportunityBrief";
 import PlaybookBuilder from "./pages/agents/PlaybookBuilder";
+import Intelligence from "./pages/Intelligence";
 import Admin from "./pages/Admin";
 import Personalize from "./pages/onboarding/Personalize";
 import Setup from "./pages/onboarding/Setup";
@@ -116,6 +117,8 @@ function AppLayout() {
     "agents/coaching/executive-brief": "Executive Brief",
     "agents/coaching/meeting-prep": "Meeting Prep",
     "agents/coaching/playbook-builder": "Playbook Builder",
+    // Intelligence Hub
+    intelligence: "Intelligence",
     // Legacy (backward compat)
     "agents/autopilot": "Autopilot",
     "agents/forecast": "Forecast",
@@ -202,6 +205,8 @@ function AppLayout() {
             <Route path="agents/coaching/executive-brief" element={<Leadership />} />
             <Route path="agents/coaching/meeting-prep" element={<AgentHub />} />
             <Route path="agents/coaching/playbook-builder" element={<PlaybookBuilder />} />
+            {/* ─── Intelligence Hub ─────────────────────────── */}
+            <Route path="intelligence" element={<Intelligence />} />
             {/* ─── Other ─────────────────────────────────────── */}
             <Route path="tasks" element={<Tasks />} />
             <Route path="import" element={<Import />} />
@@ -216,6 +221,7 @@ function AppLayout() {
             <Route path="agents/intel" element={<Navigate to="/app/agents/growth/expansion-scout" replace />} />
             <Route path="briefs" element={<Navigate to="/app/agents/coaching/executive-brief" replace />} />
             <Route path="agents/briefs" element={<Navigate to="/app/agents/coaching/executive-brief" replace />} />
+            <Route path="leadership" element={<Navigate to="/app/intelligence" replace />} />
           </Routes>
         </div>
       </main>

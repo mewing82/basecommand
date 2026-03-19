@@ -48,6 +48,43 @@ export default function Accounts() {
   const [editingAccount, setEditingAccount] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
+  // ─── Filter state ──────────────────────────────────────────────────────────
+  const [filterRisk, setFilterRisk] = useState(null); // null = all, "high"/"medium"/"low"
+  const [filterRenewal, setFilterRenewal] = useState(null); // null = all, "30"/"60"/"90"
+  const [filterArchetype, setFilterArchetype] = useState(null); // null = all, archetype id
+  const [healthMap, setHealthMap] = useState({}); // accountId → health result
+
+  // Compute health scores for archetype badges and filtering
+  useEffect(() => {
+    if (accounts.length === 0) return;
+    (async () => {
+      const contextMap = {};
+      await Promise.all(accounts.map(async (a) => {
+        try { const ctx = await renewalStore.getContext(a.id); if (ctx?.length) contextMap[a.id] = ctx; } catch { /* skip */ }
+      }));
+      const results = computePortfolioHealth(accounts, contextMap);
+      const map = {};
+      results.forEach(r => { map[r.account.id] = r.health; });
+      setHealthMap(map);
+    })();
+  }, [accounts]);
+
+  // Apply filters
+  const now = new Date();
+  const filteredAccounts = accounts.filter(a => {
+    if (filterRisk && a.riskLevel !== filterRisk) return false;
+    if (filterRenewal) {
+      const days = a.renewalDate ? Math.ceil((new Date(a.renewalDate) - now) / 86400000) : Infinity;
+      if (filterRenewal === "30" && (days < 0 || days > 30)) return false;
+      if (filterRenewal === "60" && (days < 0 || days > 60)) return false;
+      if (filterRenewal === "90" && (days < 0 || days > 90)) return false;
+    }
+    if (filterArchetype && healthMap[a.id]?.archetype !== filterArchetype) return false;
+    return true;
+  });
+
+  const activeFilterCount = [filterRisk, filterRenewal, filterArchetype].filter(Boolean).length;
+
   async function handleUpdateAccount(updated) {
     await renewalStore.saveAccount(updated);
     setAccounts(await renewalStore.getAccounts());
@@ -141,7 +178,75 @@ export default function Accounts() {
 
   return (
     <PageLayout maxWidth={1200}>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
+      {/* Header bar with filters + add button */}
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 10, marginBottom: 16 }}>
+        {/* Filter pills */}
+        <div style={{ display: "flex", gap: 6, flex: 1, flexWrap: "wrap", alignItems: "center" }}>
+          {/* Risk filter */}
+          {["high", "medium", "low"].map(level => {
+            const active = filterRisk === level;
+            const rc = { high: C.red, medium: C.amber, low: C.green };
+            return (
+              <button key={level} onClick={() => setFilterRisk(active ? null : level)} style={{
+                padding: "4px 10px", borderRadius: 6, cursor: "pointer", textTransform: "capitalize",
+                border: `1px solid ${active ? rc[level] + "60" : C.borderDefault}`,
+                background: active ? rc[level] + "14" : "transparent",
+                color: active ? rc[level] : C.textTertiary,
+                fontFamily: FONT_SANS, fontSize: 11, fontWeight: active ? 600 : 400,
+                transition: "all 0.12s",
+              }}>{level} risk</button>
+            );
+          })}
+          <div style={{ width: 1, height: 16, background: C.borderDefault }} />
+          {/* Renewal window */}
+          {[{ v: "30", l: "30d" }, { v: "60", l: "60d" }, { v: "90", l: "90d" }].map(w => {
+            const active = filterRenewal === w.v;
+            return (
+              <button key={w.v} onClick={() => setFilterRenewal(active ? null : w.v)} style={{
+                padding: "4px 10px", borderRadius: 6, cursor: "pointer",
+                border: `1px solid ${active ? C.gold + "60" : C.borderDefault}`,
+                background: active ? C.goldMuted : "transparent",
+                color: active ? C.gold : C.textTertiary,
+                fontFamily: FONT_MONO, fontSize: 10, fontWeight: active ? 600 : 400,
+                transition: "all 0.12s",
+              }}>≤{w.l}</button>
+            );
+          })}
+          {Object.keys(healthMap).length > 0 && (
+            <>
+              <div style={{ width: 1, height: 16, background: C.borderDefault }} />
+              {/* Archetype filter — show archetypes that exist in portfolio */}
+              {Object.entries(
+                accounts.reduce((acc, a) => {
+                  const arch = healthMap[a.id]?.archetype;
+                  if (arch) acc[arch] = (acc[arch] || 0) + 1;
+                  return acc;
+                }, {})
+              ).map(([arch, count]) => {
+                const active = filterArchetype === arch;
+                const info = ARCHETYPES[arch];
+                if (!info) return null;
+                return (
+                  <button key={arch} onClick={() => setFilterArchetype(active ? null : arch)} style={{
+                    padding: "4px 10px", borderRadius: 6, cursor: "pointer",
+                    border: `1px solid ${active ? info.color + "60" : C.borderDefault}`,
+                    background: active ? info.color + "14" : "transparent",
+                    color: active ? info.color : C.textTertiary,
+                    fontFamily: FONT_SANS, fontSize: 10, fontWeight: active ? 600 : 400,
+                    transition: "all 0.12s",
+                  }}>{info.label} ({count})</button>
+                );
+              })}
+            </>
+          )}
+          {activeFilterCount > 0 && (
+            <button onClick={() => { setFilterRisk(null); setFilterRenewal(null); setFilterArchetype(null); }} style={{
+              padding: "4px 8px", borderRadius: 6, cursor: "pointer",
+              border: "none", background: "transparent",
+              color: C.red, fontFamily: FONT_SANS, fontSize: 11, fontWeight: 500,
+            }}>Clear ({activeFilterCount})</button>
+          )}
+        </div>
         <Btn variant="primary" onClick={() => setShowAddAccount(true)} size="sm"><Plus size={14} /> Add Account</Btn>
       </div>
 
@@ -164,15 +269,28 @@ export default function Accounts() {
           {/* Account list sidebar */}
           {(!isMobile || mobilePane === "list") && (
           <div style={{ width: isMobile ? "100%" : 240, flexShrink: 0, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: isMobile ? 12 : "12px 0 0 12px", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-            <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.borderDefault}`, fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textSecondary }}>Accounts ({accounts.length})</div>
+            <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.borderDefault}`, fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textSecondary }}>
+              Portfolio ({filteredAccounts.length}{activeFilterCount > 0 ? ` of ${accounts.length}` : ""})
+            </div>
             <div style={{ flex: 1, overflow: "auto" }}>
-              {accounts.map(account => {
+              {filteredAccounts.map(account => {
                 const selected = selectedAccount?.id === account.id; const rc = { high: C.red, medium: C.amber, low: C.green };
+                const health = healthMap[account.id];
+                const archInfo = health?.archetypeInfo;
                 return (<button key={account.id} onClick={() => { setSelectedAccountId(account.id); if (isMobile) setMobilePane("chat"); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer", textAlign: "left", background: selected ? "rgba(255,255,255,0.07)" : "transparent", border: "none", borderLeft: `3px solid ${selected ? C.gold : "transparent"}`, transition: "all 0.12s" }}
                   onMouseEnter={e => { if (!selected) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }} onMouseLeave={e => { if (!selected) e.currentTarget.style.background = "transparent"; }}>
                   <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0, background: rc[account.riskLevel] || C.textTertiary }} />
-                  <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: selected ? 600 : 500, color: selected ? C.textPrimary : C.textSecondary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{account.name}</div>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginTop: 2 }}>${(account.arr || 0).toLocaleString()}</div></div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: selected ? 600 : 500, color: selected ? C.textPrimary : C.textSecondary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{account.name}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                      <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>${(account.arr || 0).toLocaleString()}</span>
+                      {archInfo && (
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: archInfo.color, background: archInfo.color + "14", padding: "1px 5px", borderRadius: 3, lineHeight: "12px" }}>
+                          {archInfo.label}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </button>);
               })}
             </div>
@@ -224,7 +342,7 @@ export default function Accounts() {
               {/* Messages */}
               <div style={{ flex: 1, overflow: "auto", padding: isMobile ? "12px 14px" : "16px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
                 {!activeThreadId && messages.length === 0 && (
-                  <AccountIntelPanel account={selectedAccount} contextItems={contextItems} onStartChat={(prompt) => { setInput(prompt); inputRef.current?.focus(); }} />
+                  <AccountIntelPanel account={selectedAccount} contextItems={contextItems} health={healthMap[selectedAccount?.id]} onStartChat={(prompt) => { setInput(prompt); inputRef.current?.focus(); }} />
                 )}
                 {messages.map((msg, i) => (
                   <div key={i} style={{ display: "flex", gap: 10, flexDirection: msg.role === "user" ? "row-reverse" : "row" }}>
@@ -382,7 +500,7 @@ export default function Accounts() {
 }
 
 // ─── Account Intelligence Panel (replaces blank co-pilot state) ──────────────
-function AccountIntelPanel({ account, contextItems, onStartChat }) {
+function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
   const navigate = useNavigate();
   const daysToRenewal = account.renewalDate ? Math.ceil((new Date(account.renewalDate) - new Date()) / 86400000) : null;
   const isAtRisk = account.riskLevel === "high";
@@ -439,6 +557,30 @@ function AccountIntelPanel({ account, contextItems, onStartChat }) {
           <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: riskColors[account.riskLevel], textTransform: "capitalize" }}>{account.riskLevel}</div>
         </div>
       </div>
+
+      {/* Archetype Strategy Card */}
+      {health?.archetypeInfo && (
+        <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${health.archetypeInfo.color}20` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: health.archetypeInfo.color, boxShadow: `0 0 6px ${health.archetypeInfo.color}60` }} />
+            <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: health.archetypeInfo.color }}>{health.archetypeInfo.label}</span>
+            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>
+              {health.score.toFixed(1)}/10
+            </span>
+          </div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.5, marginBottom: 8 }}>
+            {health.archetypeInfo.description}
+          </div>
+          {health.renewalProbability != null && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>Renewal probability:</span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color: health.renewalProbability >= 0.7 ? C.green : health.renewalProbability >= 0.4 ? C.amber : C.red }}>
+                {Math.round(health.renewalProbability * 100)}%
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* AI Signals */}
       {signals.length > 0 && (

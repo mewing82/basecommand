@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 BaseCommand is an AI-powered renewal intelligence platform — a React SPA with serverless API functions deployed on Vercel. It provides a fleet of specialized AI agents organized into Renewal, Growth, and Coaching categories that run the entire renewal workflow, from data import to execution, with human oversight at every step.
 
-**Current version:** 0.5.0
+**Current version:** 0.6.0
 **Positioning:** AI-Powered Renewal Intelligence — "AI-powered renewal workflows, from co-pilot to fully autonomous"
 
 ## Commands
@@ -37,12 +37,14 @@ BaseCommand is an AI-powered renewal intelligence platform — a React SPA with 
 - `/login`, `/signup` — Auth pages
 
 **App (authenticated, uses Sidebar + TopBar layout at `/app/*`):**
-- `/app` — Dashboard (Command Center)
-- `/app/accounts` — Account portfolio
-- `/app/agents` — Agent Hub (categorized agent launcher)
-- `/app/agents/health-monitor`, `/rescue-planner`, `/outreach-drafter` — Renewal Agents
-- `/app/agents/expansion-scout`, `/forecast-engine`, `/opportunity-brief` — Growth Agents
-- `/app/agents/executive-brief`, `/meeting-prep`, `/playbook-builder` — Coaching Agents
+Sidebar has 5 workflow-stage groups: Command Center, Portfolio, Agents, Actions, Intelligence.
+- `/app` — Dashboard (Mission Control — agent status, NRR waterfall, approval queue, activity feed)
+- `/app/accounts` — Portfolio (filterable account list with archetype badges + AI co-pilot)
+- `/app/agents` — Agent Hub (Active agents with status vs Available catalog + autonomy dial)
+- `/app/agents/renewal/health-monitor`, `/rescue-planner`, `/outreach-drafter` — Renewal Agents
+- `/app/agents/growth/expansion-scout`, `/forecast-engine`, `/opportunity-brief` — Growth Agents
+- `/app/agents/coaching/executive-brief`, `/meeting-prep`, `/playbook-builder` — Coaching Agents
+- `/app/intelligence` — Intelligence Hub (Executive Brief + Forecast tabs, export toolbar)
 - `/app/leadership` — Executive briefs
 - `/app/tasks` — Action Center
 - `/app/import` — Data import

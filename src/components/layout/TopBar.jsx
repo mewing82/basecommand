@@ -8,7 +8,7 @@ import { renewalStore } from "../../lib/storage";
 
 const VIEW_META = {
   dashboard: { title: "Command Center" },
-  accounts: { title: "Accounts", subtitle: "Portfolio management and AI co-pilot" },
+  accounts: { title: "Portfolio", subtitle: "Portfolio management and AI co-pilot" },
   agents: { title: "Agents", subtitle: "Your AI-powered renewal operations fleet" },
   // Renewal Agents
   "agents/renewal/health-monitor": { title: "Health Monitor", subtitle: "Continuous health scoring and risk signal detection" },
@@ -22,6 +22,8 @@ const VIEW_META = {
   "agents/coaching/executive-brief": { title: "Executive Brief", subtitle: "Board-ready summaries and strategic recommendations" },
   "agents/coaching/meeting-prep": { title: "Meeting Prep", subtitle: "Pre-call briefs with relationship context" },
   "agents/coaching/playbook-builder": { title: "Playbook Builder", subtitle: "90/60/30 day renewal action plans" },
+  // Intelligence Hub
+  intelligence: { title: "Intelligence", subtitle: "Executive briefs, forecasts, and strategic reports" },
   // Other
   tasks: { title: "Action Center", subtitle: "Agent proposals, your tasks, and activity history" },
   import: { title: "Data Sources & Import", subtitle: "Connect and sync your renewal data" },

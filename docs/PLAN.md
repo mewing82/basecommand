@@ -1,7 +1,7 @@
 # BaseCommand Master Plan
 
 > **Living document.** Updated as decisions are made. Single source of truth for vision, business model, and what we're building.
-> **Last updated:** 2026-03-17 | **Version:** 0.5.0
+> **Last updated:** 2026-03-19 | **Version:** 0.6.0
 > **Previous versions:** `docs/archive/PLAN-v0.4.0-2026-03-17.md`
 
 ---
@@ -169,6 +169,7 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 13 | Agent Architecture Overhaul | **Completed** | Restructure into Renewal/Growth/Coaching categories, health scoring, industry-standard naming, unified intelligence layer |
 | 14 | Marketing Site Overhaul | **Completed** | AI Revenue Engine positioning, 6 marketing pages, agent.ai integration, 14-day trial model |
 | 15 | agent.ai Deep Integration + HubSpot | **In Progress** | Workflow agent pipeline (save to BaseCommand from agent.ai), HubSpot CRM connector, stress testing with real data |
+| 16 | v2 Design — Unified App Redesign | **Completed** | Sidebar restructure (5 groups), Mission Control dashboard, Intelligence Hub, Agent Hub (Active/Catalog + autonomy dial), portfolio filtering, archetype badges, NRR waterfall, export toolbar |
 
 ---
 
@@ -1687,6 +1688,57 @@ Contextual banners on agent pages: "Your email drafts would be more specific wit
 | `api/connectors/` | Gmail/Outlook OAuth flows + email scanning |
 | `CLAUDE.md` | Claude Code instructions (technical guidance) |
 | `PLAN.md` | **This file** — vision, business model, and master plan |
+
+---
+
+## Epic 16: v2 Design — Unified App Redesign (v0.6.0)
+
+**Status:** Completed (2026-03-19)
+
+**Problem:** The marketing site sells an AI Revenue Operating System — continuous monitoring, NRR waterfall, behavioral archetypes, graduated autonomy — but the app delivered a co-pilot tool with 9 agent sub-pages. This disconnect would disappoint users who sign up based on the marketing promise.
+
+**Mental model shift:** From "a list of 9 agent tools organized by category" to "an AI Revenue Engine that runs continuously, with a human command layer for oversight."
+
+### What shipped
+
+**Phase 1 — Sidebar + Command Center:**
+1. Sidebar restructured to 5 workflow-stage groups (Command Center, Portfolio, Agents, Actions, Intelligence) — down from 7+ items with 9 sub-agents
+2. Agent Status Strip on dashboard — shows all 9 agents with active/idle status
+3. NRR Waterfall visualization on dashboard — expansion, contraction, churn, net impact
+4. Approval Queue with approve/dismiss buttons — the "supervised autopilot" experience
+5. Activity Feed — proves agents are working continuously
+6. Archetype Distribution chart — surfaces the behavioral archetype data already computed
+
+**Phase 2 — Portfolio Filtering + Intelligence Hub:**
+7. Global filter bar on Portfolio page — risk level, renewal window, archetype pills
+8. Archetype badges on every account with renewal probability
+9. Intelligence Hub combining Executive Brief + Forecast in a tabbed view
+10. Segment filter placeholder (Enterprise/Mid-Market/SMB)
+
+**Phase 3 — Agent Hub + Autonomy + Export:**
+11. Agent Hub redesigned with Active (running agents) vs Catalog (available agents) tabs
+12. Autonomy dial per agent (Suggest active, Draft/Execute locked for future)
+13. Export toolbar (Copy/PDF/Slides/Email) on Intelligence outputs
+
+### Files changed
+- `src/components/layout/Sidebar.jsx` — full restructure
+- `src/components/layout/BottomTabBar.jsx` — updated to match sidebar
+- `src/components/layout/TopBar.jsx` — added Intelligence, renamed Accounts → Portfolio
+- `src/components/dashboard/DashboardWidgets.jsx` — **new** (AgentStatusStrip, NRRWaterfall, ApprovalQueue, ActivityFeed)
+- `src/components/ui/AgentWidgets.jsx` — added ExportToolbar
+- `src/pages/Dashboard.jsx` — Mission Control redesign
+- `src/pages/Intelligence.jsx` — **new** Intelligence Hub
+- `src/pages/IntelligenceTabs.jsx` — **new** Brief + Forecast tab content
+- `src/pages/AgentHub.jsx` — Active/Catalog + autonomy dial
+- `src/pages/Accounts.jsx` — filter bar, archetype badges
+- `src/App.jsx` — Intelligence route + redirects
+
+### Decision Log Additions
+- **Sidebar to 5 groups:** Reduces visual overload. Data Sources moves to Settings (setup task, not daily workflow). Individual agent links removed from sidebar — navigation happens in Agent Hub.
+- **Intelligence Hub over Leadership:** "Leadership" was unclear. "Intelligence" positions the page as the analytical command center combining briefs + forecasts + future presentations.
+- **Autonomy dial (Suggest/Draft/Execute):** Foreshadows the product roadmap without overpromising. Draft and Execute modes locked until Epic 8 (Premium Autonomous Agents) ships.
+- **Client-side export strategy:** PDF via browser print, PPTX via pptxgenjs (future), Google Slides as premium connector. No server cost for MVP.
+- **Simulated activity feed:** Uses account lastActivity dates and deterministic hashing for stable display. Will be replaced with real agent event log when agent scheduling ships.
 
 ---
 

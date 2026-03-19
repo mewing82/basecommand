@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  LayoutDashboard, Sparkles, CheckSquare,
-  Settings as SettingsIcon, Upload, Shield,
-  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, LogOut, MessageSquare,
-  Bot, BarChart3, Radio, Crown, FileText, Users,
+  LayoutDashboard, CheckSquare,
+  Settings as SettingsIcon, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, LogOut,
+  Bot, BarChart3, Crown, Shield, Zap, BookOpen,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 import { useAppStore } from "../../store/appStore";
@@ -13,48 +12,26 @@ import { supabase } from "../../lib/supabase";
 
 const WS_DEFAULT_ID = "ws_default";
 
-// ─── Agent Categories (Unified AI Revenue Architecture) ─────────────────────
-import { Activity, ShieldAlert, Mail as MailIcon, TrendingUp, DollarSign } from "lucide-react";
-
-const AGENT_CATEGORIES = [
-  {
-    id: "renewal", label: "Renewal", color: "#6B8AFF",
-    agents: [
-      { id: "health-monitor", label: "Health Monitor", icon: Activity, color: "#6B8AFF", route: "agents/renewal/health-monitor" },
-      { id: "rescue-planner", label: "Rescue Planner", icon: ShieldAlert, color: "#F87171", route: "agents/renewal/rescue-planner" },
-      { id: "outreach-drafter", label: "Outreach Drafter", icon: MailIcon, color: "#22D3EE", route: "agents/renewal/outreach-drafter" },
-    ],
-  },
-  {
-    id: "growth", label: "Growth", color: "#34D399",
-    agents: [
-      { id: "expansion-scout", label: "Expansion Scout", icon: TrendingUp, color: "#34D399", route: "agents/growth/expansion-scout" },
-      { id: "forecast-engine", label: "Forecast Engine", icon: BarChart3, color: "#A78BFA", route: "agents/growth/forecast-engine" },
-      { id: "opportunity-brief", label: "Opportunity Brief", icon: DollarSign, color: "#34D399", route: "agents/growth/opportunity-brief" },
-    ],
-  },
-  {
-    id: "coaching", label: "Coaching", color: "#D4A843",
-    agents: [
-      { id: "executive-brief", label: "Executive Brief", icon: Crown, color: "#D4A843", route: "agents/coaching/executive-brief" },
-      { id: "meeting-prep", label: "Meeting Prep", icon: Users, color: "#22D3EE", route: "agents/coaching/meeting-prep" },
-      { id: "playbook-builder", label: "Playbook Builder", icon: FileText, color: "#FB923C", route: "agents/coaching/playbook-builder" },
-    ],
-  },
+// ─── Agent definitions (for status tracking) ────────────────────────────────
+const AGENTS = [
+  { id: "health-monitor", label: "Health Monitor", color: "#6B8AFF" },
+  { id: "rescue-planner", label: "Rescue Planner", color: "#F87171" },
+  { id: "outreach-drafter", label: "Outreach Drafter", color: "#22D3EE" },
+  { id: "expansion-scout", label: "Expansion Scout", color: "#34D399" },
+  { id: "forecast-engine", label: "Forecast Engine", color: "#A78BFA" },
+  { id: "opportunity-brief", label: "Opportunity Brief", color: "#34D399" },
+  { id: "executive-brief", label: "Executive Brief", color: "#D4A843" },
+  { id: "meeting-prep", label: "Meeting Prep", color: "#22D3EE" },
+  { id: "playbook-builder", label: "Playbook Builder", color: "#FB923C" },
 ];
 
-const ALL_SIDEBAR_AGENTS = AGENT_CATEGORIES.flatMap(c => c.agents);
-
-// ─── Nav Configuration ───────────────────────────────────────────────────────
+// ─── Nav Configuration — 5 workflow-stage groups ─────────────────────────────
 const NAV_ITEMS = [
   { id: "dashboard", icon: LayoutDashboard, label: "Command Center" },
-  { id: "accounts", icon: MessageSquare, label: "Accounts" },
-  { id: "agents", icon: Sparkles, label: "Agents", expandable: true },
-  { id: "tasks", icon: CheckSquare, label: "Action Center" },
-];
-
-const SECONDARY_ITEMS = [
-  { id: "import", icon: Upload, label: "Data Sources" },
+  { id: "accounts", icon: BarChart3, label: "Portfolio" },
+  { id: "agents", icon: Bot, label: "Agents", expandable: true },
+  { id: "tasks", icon: CheckSquare, label: "Actions" },
+  { id: "intelligence", icon: Crown, label: "Intelligence" },
 ];
 
 // ─── Workspace Switcher ──────────────────────────────────────────────────────
@@ -211,7 +188,6 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  // Check admin role on mount
   useEffect(() => {
     if (!user || !supabase) return;
     supabase.from("subscriptions").select("role").eq("user_id", user.id).single()
@@ -221,139 +197,74 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
   if (!user) return null;
 
   const avatar = avatarUrl ? (
-    <img src={avatarUrl} alt="" style={{
-      width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-      border: `1px solid ${C.borderDefault}`,
-    }} referrerPolicy="no-referrer" />
+    <img src={avatarUrl} alt="" style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0, border: `1px solid ${C.borderDefault}` }} referrerPolicy="no-referrer" />
   ) : (
-    <div style={{
-      width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-      background: C.goldMuted, border: `1px solid ${C.gold}20`,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: 11, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS,
-    }}>{initials}</div>
+    <div style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0, background: C.goldMuted, border: `1px solid ${C.gold}20`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS }}>{initials}</div>
   );
 
   return (
     <div ref={ref} style={{ position: "relative", padding: isExpanded ? "8px 12px 16px" : "8px 0 16px" }}>
-      {/* Trigger button */}
-      <button
-        onClick={() => setOpen(prev => !prev)}
-        style={{
-          width: "100%", display: "flex", alignItems: "center", gap: 10,
-          padding: isExpanded ? "8px 8px" : "8px 0",
-          borderRadius: 8, cursor: "pointer",
-          background: open ? "rgba(255,255,255,0.07)" : activeView === "settings" ? "rgba(255,255,255,0.05)" : "transparent",
-          border: "none",
-          justifyContent: isExpanded ? "flex-start" : "center",
-          transition: "all 0.15s",
-        }}
+      <button onClick={() => setOpen(prev => !prev)} style={{
+        width: "100%", display: "flex", alignItems: "center", gap: 10,
+        padding: isExpanded ? "8px 8px" : "8px 0", borderRadius: 8, cursor: "pointer",
+        background: open ? "rgba(255,255,255,0.07)" : activeView === "settings" ? "rgba(255,255,255,0.05)" : "transparent",
+        border: "none", justifyContent: isExpanded ? "flex-start" : "center", transition: "all 0.15s",
+      }}
         onMouseEnter={e => { if (!open) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
         onMouseLeave={e => { if (!open && activeView !== "settings") e.currentTarget.style.background = "transparent"; }}
       >
         {avatar}
         {isExpanded && (
           <>
-            <span className="bc-sidebar-text" style={{
-              fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600,
-              color: C.textPrimary, flex: 1, textAlign: "left",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            }}>{displayName}</span>
-            <ChevronUp size={12} style={{
-              color: C.textTertiary, flexShrink: 0,
-              transition: "transform 0.15s",
-              transform: open ? "rotate(0deg)" : "rotate(180deg)",
-            }} />
+            <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, flex: 1, textAlign: "left", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{displayName}</span>
+            <ChevronUp size={12} style={{ color: C.textTertiary, flexShrink: 0, transition: "transform 0.15s", transform: open ? "rotate(0deg)" : "rotate(180deg)" }} />
           </>
         )}
       </button>
 
-      {/* Upward dropdown menu */}
       {open && (
         <div style={{
-          position: "absolute",
-          bottom: "100%",
-          left: isExpanded ? 12 : -4,
-          right: isExpanded ? 12 : -4,
-          minWidth: isExpanded ? undefined : 200,
-          zIndex: 200,
-          background: C.bgElevated,
-          border: `1px solid ${C.borderSubtle}`,
-          borderRadius: 10,
-          padding: 4,
-          marginBottom: 4,
-          boxShadow: "0 -8px 30px rgba(0,0,0,0.4)",
+          position: "absolute", bottom: "100%", left: isExpanded ? 12 : -4, right: isExpanded ? 12 : -4,
+          minWidth: isExpanded ? undefined : 200, zIndex: 200,
+          background: C.bgElevated, border: `1px solid ${C.borderSubtle}`,
+          borderRadius: 10, padding: 4, marginBottom: 4, boxShadow: "0 -8px 30px rgba(0,0,0,0.4)",
         }}>
-          {/* Email header */}
-          <div style={{
-            padding: "10px 12px 8px",
-            borderBottom: `1px solid ${C.borderDefault}`,
-            marginBottom: 4,
-          }}>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>
-              {displayName}
-            </div>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginTop: 1 }}>
-              {user.email}
-            </div>
+          <div style={{ padding: "10px 12px 8px", borderBottom: `1px solid ${C.borderDefault}`, marginBottom: 4 }}>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>{displayName}</div>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginTop: 1 }}>{user.email}</div>
           </div>
-
-          {/* Settings */}
-          <button
-            onClick={() => { onNavigate("settings"); setOpen(false); }}
-            style={{
-              width: "100%", display: "flex", alignItems: "center", gap: 10,
-              padding: "8px 12px", borderRadius: 6, cursor: "pointer",
-              background: activeView === "settings" ? C.goldMuted : "transparent",
-              border: "none", textAlign: "left",
-              transition: "background 0.12s",
-            }}
+          <button onClick={() => { onNavigate("settings"); setOpen(false); }} style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 10,
+            padding: "8px 12px", borderRadius: 6, cursor: "pointer",
+            background: activeView === "settings" ? C.goldMuted : "transparent",
+            border: "none", textAlign: "left", transition: "background 0.12s",
+          }}
             onMouseEnter={e => { if (activeView !== "settings") e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
             onMouseLeave={e => { if (activeView !== "settings") e.currentTarget.style.background = "transparent"; }}
           >
             <SettingsIcon size={14} style={{ color: activeView === "settings" ? C.gold : C.textTertiary }} />
-            <span style={{
-              fontFamily: FONT_SANS, fontSize: 13,
-              fontWeight: activeView === "settings" ? 600 : 400,
-              color: activeView === "settings" ? C.textPrimary : C.textSecondary,
-            }}>Settings</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: activeView === "settings" ? 600 : 400, color: activeView === "settings" ? C.textPrimary : C.textSecondary }}>Settings</span>
           </button>
-
-          {/* Admin (only for admin users) */}
           {isAdmin && (
-            <button
-              onClick={() => { onNavigate("admin"); setOpen(false); }}
-              style={{
-                width: "100%", display: "flex", alignItems: "center", gap: 10,
-                padding: "8px 12px", borderRadius: 6, cursor: "pointer",
-                background: activeView === "admin" ? `${C.red}14` : "transparent",
-                border: "none", textAlign: "left",
-                transition: "background 0.12s",
-              }}
+            <button onClick={() => { onNavigate("admin"); setOpen(false); }} style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 10,
+              padding: "8px 12px", borderRadius: 6, cursor: "pointer",
+              background: activeView === "admin" ? `${C.red}14` : "transparent",
+              border: "none", textAlign: "left", transition: "background 0.12s",
+            }}
               onMouseEnter={e => { if (activeView !== "admin") e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
               onMouseLeave={e => { if (activeView !== "admin") e.currentTarget.style.background = "transparent"; }}
             >
               <Shield size={14} style={{ color: activeView === "admin" ? C.red : C.textTertiary }} />
-              <span style={{
-                fontFamily: FONT_SANS, fontSize: 13,
-                fontWeight: activeView === "admin" ? 600 : 400,
-                color: activeView === "admin" ? C.textPrimary : C.textSecondary,
-              }}>Admin</span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: activeView === "admin" ? 600 : 400, color: activeView === "admin" ? C.textPrimary : C.textSecondary }}>Admin</span>
             </button>
           )}
-
-          {/* Divider */}
           <div style={{ height: 1, background: C.borderDefault, margin: "4px 8px" }} />
-
-          {/* Sign out */}
-          <button
-            onClick={() => { signOut(); setOpen(false); }}
-            style={{
-              width: "100%", display: "flex", alignItems: "center", gap: 10,
-              padding: "8px 12px", borderRadius: 6, cursor: "pointer",
-              background: "transparent", border: "none", textAlign: "left",
-              transition: "background 0.12s",
-            }}
+          <button onClick={() => { signOut(); setOpen(false); }} style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 10,
+            padding: "8px 12px", borderRadius: 6, cursor: "pointer",
+            background: "transparent", border: "none", textAlign: "left", transition: "background 0.12s",
+          }}
             onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
           >
@@ -371,13 +282,23 @@ export default function Sidebar({ activeView, onNavigate }) {
   const { sidebarCollapsed, setSidebarCollapsed } = useAppStore();
   const { user, profile, signOut } = useAuthStore();
   const [hoveredItem, setHoveredItem] = useState(null);
-  const [agentsExpanded, setAgentsExpanded] = useState(false);
+  const [agentsExpanded, setAgentsExpanded] = useState(() => activeView.startsWith("agents/"));
+  const [activeAgentCount, setActiveAgentCount] = useState(0);
   const isExpanded = !sidebarCollapsed;
 
-  // Auto-expand agents section when viewing an agent page
+  // Count "active" agents by checking for cached results
   useEffect(() => {
-    if (activeView.startsWith("agents/")) setAgentsExpanded(true);
-  }, [activeView]);
+    (async () => {
+      let count = 0;
+      try { if (localStorage.getItem("bc2-ws_default-forecast")) count++; } catch { /* skip */ }
+      try { if (localStorage.getItem("bc2-ws_default-dashboard-renewal")) count++; } catch { /* skip */ }
+      const lc = await renewalStore.getLeadershipCache();
+      if (lc) count++;
+      const ec = await renewalStore.getExpansionCache();
+      if (ec) count++;
+      setActiveAgentCount(count);
+    })();
+  }, []);
 
   const displayName = profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "";
@@ -385,10 +306,8 @@ export default function Sidebar({ activeView, onNavigate }) {
 
   return (
     <div style={{
-      width: isExpanded ? 240 : 56,
-      minWidth: isExpanded ? 240 : 56,
-      background: C.bgSidebar,
-      borderRight: `1px solid ${C.borderDefault}`,
+      width: isExpanded ? 240 : 56, minWidth: isExpanded ? 240 : 56,
+      background: C.bgSidebar, borderRight: `1px solid ${C.borderDefault}`,
       display: "flex", flexDirection: "column",
       transition: "width 0.2s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
       overflow: "hidden", zIndex: 100, flexShrink: 0,
@@ -400,8 +319,7 @@ export default function Sidebar({ activeView, onNavigate }) {
             width: 28, height: 28, borderRadius: 8,
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 12, fontWeight: 700, color: C.bgSidebar,
-            fontFamily: FONT_MONO, flexShrink: 0,
+            fontSize: 12, fontWeight: 700, color: C.bgSidebar, fontFamily: FONT_MONO, flexShrink: 0,
           }}>B</div>
           {isExpanded && (
             <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontWeight: 600, fontSize: 17, color: C.textPrimary, letterSpacing: "-0.03em", whiteSpace: "nowrap" }}>
@@ -432,147 +350,27 @@ export default function Sidebar({ activeView, onNavigate }) {
 
       <WorkspaceSwitcher collapsed={!isExpanded} />
 
-      {/* Navigation */}
+      {/* Navigation — 5 workflow-stage groups */}
       <nav style={{ flex: 1, padding: "4px 0", overflow: "auto", display: "flex", flexDirection: "column" }}>
-        {/* Primary nav items */}
-        <div>
-          {NAV_ITEMS.map(item => {
-            const active = activeView === item.id || activeView.startsWith(item.id + "/");
-            const isHovered = hoveredItem === item.id;
-            const isAgents = item.expandable;
-            return (
-              <div key={item.id}>
-                <button
-                  className="bc-sidebar-nav-btn"
-                  onClick={() => {
-                    if (isAgents && isExpanded) {
-                      onNavigate(item.id);
-                      if (!agentsExpanded) setAgentsExpanded(true);
-                    } else {
-                      onNavigate(item.id);
-                    }
-                  }}
-                  onMouseEnter={() => setHoveredItem(item.id)}
-                  onMouseLeave={() => setHoveredItem(null)}
-                  style={{
-                    width: "100%",
-                    background: active ? "rgba(255,255,255,0.07)" : isHovered ? "rgba(255,255,255,0.04)" : "none",
-                    border: "none", cursor: "pointer",
-                    display: "flex", alignItems: "center",
-                    padding: isExpanded ? "10px 16px 10px 52px" : "10px 0",
-                    justifyContent: isExpanded ? "flex-start" : "center",
-                    color: active ? C.textPrimary : isHovered ? C.textPrimary : C.textSecondary,
-                    borderRight: active ? `2px solid ${C.gold}` : "2px solid transparent",
-                    transition: "all 0.12s ease", position: "relative",
-                  }}
-                >
-                  {/* Icon — absolutely positioned so text alignment is independent */}
-                  <div style={{ position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)" }}>
-                    <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.75, display: "block" }} />
-                    {isAgents && !isExpanded && (
-                      <div style={{
-                        position: "absolute", top: -2, right: -4,
-                        width: 6, height: 6, borderRadius: "50%",
-                        background: "#34D399", border: `1.5px solid ${C.bgSidebar}`,
-                        boxShadow: "0 0 4px rgba(52, 211, 153, 0.6)",
-                      }} />
-                    )}
-                  </div>
-                  {isExpanded && (
-                    <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: active ? 600 : 500, whiteSpace: "nowrap", flex: 1 }}>{item.label}</span>
-                  )}
-                  {isAgents && isExpanded && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: "auto" }}>
-                      <span style={{
-                        fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary,
-                        background: "rgba(255,255,255,0.06)", padding: "1px 5px", borderRadius: 3,
-                        lineHeight: "14px",
-                      }}>{ALL_SIDEBAR_AGENTS.length}</span>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setAgentsExpanded(prev => !prev); }}
-                        style={{
-                          background: "none", border: "none", cursor: "pointer", padding: 2,
-                          color: C.textTertiary, display: "flex", alignItems: "center",
-                          transition: "transform 0.15s, color 0.15s",
-                          transform: agentsExpanded ? "rotate(0deg)" : "rotate(-90deg)",
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.color = C.textPrimary}
-                        onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}
-                      >
-                        <ChevronDown size={12} />
-                      </button>
-                    </div>
-                  )}
-                </button>
+        {NAV_ITEMS.map(item => {
+          const active = item.id === "agents"
+            ? activeView === "agents" || activeView.startsWith("agents/")
+            : activeView === item.id;
+          const isHovered = hoveredItem === item.id;
+          const isAgents = item.expandable;
 
-                {/* Agent categories with sub-items */}
-                {isAgents && isExpanded && agentsExpanded && (
-                  <div style={{ overflow: "hidden" }}>
-                    {AGENT_CATEGORIES.map(category => (
-                      <div key={category.id}>
-                        <div style={{
-                          fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600,
-                          color: category.color, textTransform: "uppercase",
-                          letterSpacing: "0.08em", padding: "8px 20px 3px 34px",
-                          opacity: 0.7,
-                        }}>{category.label}</div>
-                        {category.agents.map(agent => {
-                          const agentActive = activeView === agent.route;
-                          const agentHovered = hoveredItem === agent.route;
-                          return (
-                            <button
-                              key={agent.id}
-                              className="bc-sidebar-nav-btn"
-                              onClick={() => onNavigate(agent.route)}
-                              onMouseEnter={() => setHoveredItem(agent.route)}
-                              onMouseLeave={() => setHoveredItem(null)}
-                              style={{
-                                width: "100%", border: "none", cursor: "pointer",
-                                display: "flex", alignItems: "center", gap: 10,
-                                padding: "6px 20px 6px 38px",
-                                background: agentActive ? "rgba(255,255,255,0.05)" : agentHovered ? "rgba(255,255,255,0.03)" : "transparent",
-                                borderRight: agentActive ? `2px solid ${agent.color}` : "2px solid transparent",
-                                transition: "all 0.12s ease",
-                                color: agentActive ? C.textPrimary : agentHovered ? C.textSecondary : C.textTertiary,
-                              }}
-                            >
-                              <div style={{
-                                width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
-                                background: agentActive ? agent.color : agent.color + "60",
-                                boxShadow: agentActive ? `0 0 6px ${agent.color}60` : "none",
-                                transition: "all 0.15s",
-                              }} />
-                              <span className="bc-sidebar-text" style={{
-                                fontFamily: FONT_SANS, fontSize: 12,
-                                fontWeight: agentActive ? 600 : 400,
-                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                              }}>{agent.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Divider + Secondary items */}
-        <div>
-          <div style={{ width: isExpanded ? "85%" : 20, height: 1, background: C.borderDefault, margin: "4px auto 4px" }} />
-          {SECONDARY_ITEMS.map(item => {
-            const active = activeView === item.id;
-            const isHovered = hoveredItem === item.id;
-            return (
+          return (
+            <div key={item.id}>
               <button
-                key={item.id}
                 className="bc-sidebar-nav-btn"
-                onClick={() => onNavigate(item.id)}
+                onClick={() => {
+                  if (isAgents && isExpanded) {
+                    onNavigate(item.id);
+                    if (!agentsExpanded) setAgentsExpanded(true);
+                  } else {
+                    onNavigate(item.id);
+                  }
+                }}
                 onMouseEnter={() => setHoveredItem(item.id)}
                 onMouseLeave={() => setHoveredItem(null)}
                 style={{
@@ -582,33 +380,100 @@ export default function Sidebar({ activeView, onNavigate }) {
                   display: "flex", alignItems: "center",
                   padding: isExpanded ? "10px 16px 10px 52px" : "10px 0",
                   justifyContent: isExpanded ? "flex-start" : "center",
-                  color: active ? C.textPrimary : isHovered ? C.textPrimary : C.textTertiary,
+                  color: active ? C.textPrimary : isHovered ? C.textPrimary : C.textSecondary,
                   borderRight: active ? `2px solid ${C.gold}` : "2px solid transparent",
                   transition: "all 0.12s ease", position: "relative",
                 }}
               >
                 <div style={{ position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)" }}>
-                  <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.6, display: "block" }} />
+                  <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.75, display: "block" }} />
+                  {isAgents && !isExpanded && activeAgentCount > 0 && (
+                    <div style={{
+                      position: "absolute", top: -2, right: -4,
+                      width: 6, height: 6, borderRadius: "50%",
+                      background: "#34D399", border: `1.5px solid ${C.bgSidebar}`,
+                      boxShadow: "0 0 4px rgba(52, 211, 153, 0.6)",
+                    }} />
+                  )}
                 </div>
                 {isExpanded && (
-                  <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: active ? 600 : 500, whiteSpace: "nowrap" }}>{item.label}</span>
+                  <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: active ? 600 : 500, whiteSpace: "nowrap", flex: 1 }}>{item.label}</span>
+                )}
+                {isAgents && isExpanded && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: "auto" }}>
+                    {activeAgentCount > 0 && (
+                      <span style={{
+                        fontFamily: FONT_MONO, fontSize: 9, color: "#34D399",
+                        background: "rgba(52, 211, 153, 0.12)", padding: "1px 6px", borderRadius: 3,
+                        lineHeight: "14px", fontWeight: 600,
+                      }}>{activeAgentCount}</span>
+                    )}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setAgentsExpanded(prev => !prev); }}
+                      style={{
+                        background: "none", border: "none", cursor: "pointer", padding: 2,
+                        color: C.textTertiary, display: "flex", alignItems: "center",
+                        transition: "transform 0.15s, color 0.15s",
+                        transform: agentsExpanded ? "rotate(0deg)" : "rotate(-90deg)",
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.color = C.textPrimary}
+                      onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}
+                    >
+                      <ChevronDown size={12} />
+                    </button>
+                  </div>
                 )}
               </button>
-            );
-          })}
-        </div>
+
+              {/* Agent sub-items: Active + Available */}
+              {isAgents && isExpanded && agentsExpanded && (
+                <div style={{ overflow: "hidden" }}>
+                  <button
+                    className="bc-sidebar-nav-btn"
+                    onClick={() => onNavigate("agents")}
+                    onMouseEnter={() => setHoveredItem("agents-active")}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    style={{
+                      width: "100%", border: "none", cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: 8,
+                      padding: "6px 20px 6px 42px",
+                      background: hoveredItem === "agents-active" ? "rgba(255,255,255,0.03)" : "transparent",
+                      transition: "all 0.12s ease",
+                      color: hoveredItem === "agents-active" ? C.textSecondary : C.textTertiary,
+                    }}
+                  >
+                    <Zap size={12} style={{ color: "#34D399" }} />
+                    <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 400, flex: 1 }}>Active</span>
+                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: activeAgentCount > 0 ? "#34D399" : C.textTertiary }}>{activeAgentCount}</span>
+                  </button>
+                  <button
+                    className="bc-sidebar-nav-btn"
+                    onClick={() => onNavigate("agents")}
+                    onMouseEnter={() => setHoveredItem("agents-catalog")}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    style={{
+                      width: "100%", border: "none", cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: 8,
+                      padding: "6px 20px 6px 42px",
+                      background: hoveredItem === "agents-catalog" ? "rgba(255,255,255,0.03)" : "transparent",
+                      transition: "all 0.12s ease",
+                      color: hoveredItem === "agents-catalog" ? C.textSecondary : C.textTertiary,
+                    }}
+                  >
+                    <BookOpen size={12} style={{ color: C.textTertiary }} />
+                    <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 400, flex: 1 }}>Available</span>
+                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{AGENTS.length}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
-      {/* ─── Profile Dropdown (Linear/Notion pattern) ──────────────────────── */}
       <ProfileDropdown
-        user={user}
-        displayName={displayName}
-        avatarUrl={avatarUrl}
-        initials={initials}
-        isExpanded={isExpanded}
-        activeView={activeView}
-        onNavigate={onNavigate}
-        signOut={signOut}
+        user={user} displayName={displayName} avatarUrl={avatarUrl} initials={initials}
+        isExpanded={isExpanded} activeView={activeView} onNavigate={onNavigate} signOut={signOut}
       />
     </div>
   );

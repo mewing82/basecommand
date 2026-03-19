@@ -209,6 +209,77 @@ function ActionDropdown({ onDraft, onChat, onTask, saved, onClose }) {
   );
 }
 
+// ─── Export Toolbar ──────────────────────────────────────────────────────────
+// Share/export toolbar for AI-generated content.
+// [Copy] [PDF] [Slides] [Email]
+
+export function ExportToolbar({ onCopy, copyLabel = "Copy", compact = false }) {
+  const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  function handleCopy() {
+    if (onCopy) onCopy();
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function handlePDF() {
+    window.print();
+  }
+
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  }
+
+  const btnStyle = {
+    display: "flex", alignItems: "center", gap: 5,
+    padding: compact ? "4px 8px" : "5px 12px", borderRadius: 6, cursor: "pointer",
+    background: "transparent", border: `1px solid ${C.borderDefault}`,
+    color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 11, fontWeight: 500,
+    transition: "all 0.15s",
+  };
+
+  const items = [
+    { label: copied ? "Copied!" : copyLabel, icon: "📋", onClick: handleCopy, highlight: copied },
+    { label: "PDF", icon: "📄", onClick: handlePDF },
+    { label: "Slides", icon: "📊", onClick: () => showToast("PowerPoint export coming soon") },
+    { label: "Email", icon: "📧", onClick: () => showToast("Email export coming soon") },
+  ];
+
+  return (
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", position: "relative" }}>
+      {items.map(item => (
+        <button
+          key={item.label}
+          onClick={item.onClick}
+          style={{
+            ...btnStyle,
+            ...(item.highlight ? { background: C.greenMuted, borderColor: C.green + "40", color: C.green } : {}),
+          }}
+          onMouseEnter={e => { if (!item.highlight) { e.currentTarget.style.borderColor = C.gold + "60"; e.currentTarget.style.color = C.gold; } }}
+          onMouseLeave={e => { if (!item.highlight) { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textTertiary; } }}
+        >
+          <span style={{ fontSize: compact ? 11 : 13 }}>{item.icon}</span>
+          {item.label}
+        </button>
+      ))}
+      {toast && (
+        <div style={{
+          position: "absolute", top: "100%", left: 0, marginTop: 6, zIndex: 50,
+          padding: "6px 12px", borderRadius: 6,
+          background: C.bgElevated, border: `1px solid ${C.borderSubtle}`,
+          fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+          animation: "fadeIn 0.15s ease",
+        }}>
+          {toast}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DropdownItem({ icon: Icon, label, onClick, highlight }) {
   return (
     <button onClick={onClick} style={{
