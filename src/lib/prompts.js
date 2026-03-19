@@ -435,23 +435,34 @@ RULES:
 
 // ─── Company Context Helper ─────────────────────────────────────────────────
 export function buildCompanyContext(companyProfile) {
-  if (!companyProfile || !companyProfile.companyName) return "";
+  if (!companyProfile) return "";
+  // Support both nested { companyProfile: { companyName } } and flat { companyName }
+  if (!companyProfile.companyName && companyProfile.companyProfile) companyProfile = companyProfile.companyProfile;
+  if (!companyProfile.companyName) return "";
 
   let ctx = `\nYOUR COMPANY CONTEXT (use this to personalize all output):\n`;
   ctx += `Company: ${companyProfile.companyName}\n`;
   if (companyProfile.productDescription) ctx += `Product: ${companyProfile.productDescription}\n`;
   if (companyProfile.senderName) ctx += `Sender: ${companyProfile.senderName}${companyProfile.senderTitle ? `, ${companyProfile.senderTitle}` : ""}\n`;
-  if (companyProfile.products?.length > 0) {
-    ctx += `Product Catalog:\n${companyProfile.products.map(p =>
-      `- ${p.name}: ${p.description || ""} (${p.price || "pricing varies"})`
-    ).join("\n")}\n`;
+  if (companyProfile.products) {
+    if (Array.isArray(companyProfile.products) && companyProfile.products.length > 0) {
+      ctx += `Product Catalog:\n${companyProfile.products.map(p =>
+        `- ${p.name}: ${p.description || ""} (${p.price || "pricing varies"})`
+      ).join("\n")}\n`;
+    } else if (typeof companyProfile.products === "string") {
+      ctx += `Products: ${companyProfile.products}\n`;
+    }
   }
   if (companyProfile.contractTerms) ctx += `Standard Contract Terms: ${companyProfile.contractTerms}\n`;
   if (companyProfile.upliftRate) ctx += `Standard Price Uplift: ${companyProfile.upliftRate}\n`;
-  if (companyProfile.competitors?.length > 0) {
-    ctx += `Competitors & Differentiation:\n${companyProfile.competitors.map(c =>
-      `- vs ${c.name}: ${c.differentiation}`
-    ).join("\n")}\n`;
+  if (companyProfile.competitors) {
+    if (Array.isArray(companyProfile.competitors) && companyProfile.competitors.length > 0) {
+      ctx += `Competitors & Differentiation:\n${companyProfile.competitors.map(c =>
+        `- vs ${c.name}: ${c.differentiation}`
+      ).join("\n")}\n`;
+    } else if (typeof companyProfile.competitors === "string") {
+      ctx += `Competitors: ${companyProfile.competitors}\n`;
+    }
   }
   if (companyProfile.valueProps) ctx += `Value Propositions: ${companyProfile.valueProps}\n`;
   if (companyProfile.discountRules) ctx += `Discount Guardrails: ${companyProfile.discountRules}\n`;
