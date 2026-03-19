@@ -1,45 +1,69 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Activity, Bot, CheckCircle, X, AlertTriangle, TrendingUp, TrendingDown, Zap } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { store } from "../../lib/storage";
 import { formatARR } from "../../lib/utils";
+import { PILLARS } from "../../lib/pillars";
 
-// ─── Agent Status Strip ─────────────────────────────────────────────────────
-const AGENTS = [
-  { key: "health-monitor", label: "Health Monitor", ck: ["health-cache"] },
-  { key: "rescue-planner", label: "Rescue Planner", ck: ["rescue-cache"] },
-  { key: "outreach-drafter", label: "Outreach Drafter", ck: ["outreach-cache"] },
-  { key: "expansion-scout", label: "Expansion Scout", ck: ["expansion-cache"] },
-  { key: "forecast-engine", label: "Forecast Engine", ck: ["forecast"] },
-  { key: "opportunity-brief", label: "Opportunity Brief", ck: ["opportunity-cache"] },
-  { key: "executive-brief", label: "Executive Brief", ck: ["leadership-cache"] },
-  { key: "meeting-prep", label: "Meeting Prep", ck: ["meeting-prep-cache"] },
-  { key: "playbook-builder", label: "Playbook Builder", ck: ["playbook-cache"] },
-];
-
-function isAgentActive(cacheKeys) {
+function isPillarActive(cacheKeys) {
   const pre = `bc2-${store._ws}-`;
   return cacheKeys.some(ck => localStorage.getItem(`${pre}${ck}`) || localStorage.getItem(`${pre}renewals-${ck}`));
 }
 
+// ─── Pillar Status Strip ────────────────────────────────────────────────────
 export function AgentStatusStrip() {
   const { isMobile } = useMediaQuery();
-  const [st] = useState(() => {
+  const navigate = useNavigate();
+
+  const [status] = useState(() => {
     const m = {};
-    for (const a of AGENTS) m[a.key] = isAgentActive(a.ck);
+    for (const p of PILLARS) m[p.id] = isPillarActive(p.cacheKeys);
     return m;
   });
 
   return (
-    <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 24, WebkitOverflowScrolling: "touch", scrollbarWidth: "thin" }}>
-      {AGENTS.map(a => {
-        const on = st[a.key];
+    <div style={{
+      display: "flex", gap: 6, marginBottom: 24,
+      padding: isMobile ? "8px 10px" : "10px 16px",
+      background: C.bgCard, borderRadius: 10,
+      border: `1px solid ${C.borderDefault}`,
+    }}>
+      {PILLARS.map((p, i) => {
+        const on = status[p.id];
+        const Icon = p.icon;
         return (
-          <div key={a.key} style={{ display: "flex", alignItems: "center", gap: 6, padding: isMobile ? "6px 10px" : "7px 14px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 20, flexShrink: 0, whiteSpace: "nowrap" }}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: on ? C.green : C.textTertiary, boxShadow: on ? `0 0 6px ${C.green}40` : "none", opacity: on ? 1 : 0.5 }} />
-            <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: on ? C.textPrimary : C.textTertiary }}>{a.label}</span>
-          </div>
+          <button
+            key={p.id}
+            onClick={() => navigate(`/app/pillars/${p.id}`)}
+            style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              padding: isMobile ? "10px 6px" : "12px 16px",
+              background: on ? `${p.color}10` : "transparent",
+              border: `1px solid ${on ? p.color + "30" : "transparent"}`,
+              borderRadius: 8, cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = `${p.color}14`; e.currentTarget.style.borderColor = `${p.color}40`; }}
+            onMouseLeave={e => { e.currentTarget.style.background = on ? `${p.color}10` : "transparent"; e.currentTarget.style.borderColor = on ? `${p.color}30` : "transparent"; }}
+          >
+            {i > 0 && (
+              <span style={{ position: "absolute", left: -6, fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, opacity: 0.3 }}>→</span>
+            )}
+            <div style={{
+              width: 7, height: 7, borderRadius: "50%",
+              background: on ? p.color : C.textTertiary,
+              boxShadow: on ? `0 0 6px ${p.color}50` : "none",
+              opacity: on ? 1 : 0.4, flexShrink: 0,
+            }} />
+            <Icon size={isMobile ? 14 : 16} style={{ color: on ? p.color : C.textTertiary, flexShrink: 0 }} />
+            <span style={{
+              fontFamily: FONT_MONO, fontSize: isMobile ? 10 : 12, fontWeight: 600,
+              color: on ? p.color : C.textTertiary,
+              letterSpacing: "0.02em",
+            }}>{p.label}</span>
+          </button>
         );
       })}
     </div>

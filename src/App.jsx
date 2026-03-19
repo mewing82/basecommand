@@ -38,6 +38,7 @@ import ForecastEngine from "./pages/agents/ForecastEngine";
 import OpportunityBrief from "./pages/agents/OpportunityBrief";
 import PlaybookBuilder from "./pages/agents/PlaybookBuilder";
 import Intelligence from "./pages/Intelligence";
+import Pillar from "./pages/Pillar";
 import Admin from "./pages/Admin";
 import Personalize from "./pages/onboarding/Personalize";
 import Setup from "./pages/onboarding/Setup";
@@ -207,6 +208,8 @@ function AppLayout() {
             <Route path="agents/coaching/playbook-builder" element={<PlaybookBuilder />} />
             {/* ─── Intelligence Hub ─────────────────────────── */}
             <Route path="intelligence" element={<Intelligence />} />
+            {/* ─── Pillar Pages (5 Renewal Pillars) ──────────── */}
+            <Route path="pillars/:pillarId" element={<Pillar />} />
             {/* ─── Other ─────────────────────────────────────── */}
             <Route path="tasks" element={<Tasks />} />
             <Route path="import" element={<Import />} />

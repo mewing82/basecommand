@@ -24,6 +24,12 @@ const VIEW_META = {
   "agents/coaching/playbook-builder": { title: "Playbook Builder", subtitle: "90/60/30 day renewal action plans" },
   // Intelligence Hub
   intelligence: { title: "Intelligence", subtitle: "Executive briefs, forecasts, and strategic reports" },
+  // Pillar pages
+  "pillars/monitor": { title: "Monitor", subtitle: "Continuous health scoring and risk detection" },
+  "pillars/predict": { title: "Predict", subtitle: "GRR/NRR forecasting and scenario modeling" },
+  "pillars/generate": { title: "Generate", subtitle: "AI-drafted emails and intervention playbooks" },
+  "pillars/identify": { title: "Identify", subtitle: "Expansion signals and upsell opportunities" },
+  "pillars/orchestrate": { title: "Orchestrate", subtitle: "Board-ready briefs, playbooks, and meeting prep" },
   // Other
   tasks: { title: "Action Center", subtitle: "Agent proposals, your tasks, and activity history" },
   import: { title: "Data Sources & Import", subtitle: "Connect and sync your renewal data" },
