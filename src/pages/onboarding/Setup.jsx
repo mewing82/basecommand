@@ -325,9 +325,12 @@ function DemoLoader({ onComplete, importing, setImporting }) {
 
 function PlanChoice({ importCount, onContinue }) {
   const [checkingOut, setCheckingOut] = useState(false);
+  const storedPlan = localStorage.getItem(ONBOARDING.plan);
+  const chosePro = storedPlan === "monthly" || storedPlan === "annual";
 
   async function handleSubscribe(plan) {
     setCheckingOut(true);
+    localStorage.removeItem(ONBOARDING.plan);
     try {
       if (!supabase) return;
       const { data } = await supabase.auth.getSession();

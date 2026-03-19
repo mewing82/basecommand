@@ -26,10 +26,11 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const plan = searchParams.get("plan");
-  const hasPlan = plan === "monthly" || plan === "annual";
+  const urlPlan = searchParams.get("plan");
+  const [selectedPlan, setSelectedPlan] = useState(urlPlan === "monthly" || urlPlan === "annual" ? "pro" : "trial");
+  const isPro = selectedPlan === "pro";
 
-  // Clear any stale plan param (payment choice is now in onboarding setup)
+  // Clear any stale plan param
   useEffect(() => {
     localStorage.removeItem(ONBOARDING.plan);
   }, []);
@@ -48,6 +49,7 @@ export default function Signup() {
     }
     setLoading(true);
     try {
+      if (isPro) localStorage.setItem(ONBOARDING.plan, "monthly");
       await signUp(email, password, name);
       setSuccess(true);
     } catch (err) {
@@ -108,8 +110,8 @@ export default function Signup() {
           padding: isMobile ? "40px 24px 24px" : "40px 48px",
         }}>
           <div style={{ width: "100%", maxWidth: 380 }}>
-            {/* Logo */}
-            <div style={{ marginBottom: 32 }}>
+            {/* Logo + heading */}
+            <div style={{ marginBottom: 24 }}>
               <div style={{
                 width: 44, height: 44, borderRadius: 12, marginBottom: 20,
                 background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
@@ -117,23 +119,46 @@ export default function Signup() {
                 fontSize: 18, fontWeight: 700, color: C.bgPrimary, fontFamily: FONT_MONO,
               }}>B</div>
               <div style={{ fontSize: 24, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>
-                Start your free trial
+                {isPro ? "Subscribe to Pro" : "Start your free trial"}
               </div>
               <div style={{ fontSize: 14, color: C.textTertiary, marginTop: 6, fontFamily: FONT_BODY }}>
                 See which renewals are at risk — in 5 minutes
               </div>
-              {hasPlan && (
-                <div style={{
-                  display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10,
-                  padding: "4px 12px", borderRadius: 6,
-                  background: C.goldMuted, border: `1px solid ${C.gold}30`,
-                }}>
-                  <Zap size={12} style={{ color: C.gold }} />
-                  <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, fontWeight: 600 }}>
-                    PRO TRIAL
+            </div>
+
+            {/* Plan toggle */}
+            <div style={{
+              display: "flex", borderRadius: 10, overflow: "hidden", marginBottom: 24,
+              border: `1px solid ${C.borderDefault}`, background: C.bgPrimary,
+            }}>
+              <button onClick={() => setSelectedPlan("trial")} style={{
+                flex: 1, padding: "12px 8px", border: "none", cursor: "pointer",
+                background: !isPro ? C.goldMuted : "transparent",
+                borderRight: `1px solid ${C.borderDefault}`,
+                transition: "all 0.15s",
+              }}>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: !isPro ? C.textPrimary : C.textTertiary }}>
+                  Free Trial
+                </div>
+                <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: !isPro ? C.gold : C.textTertiary, marginTop: 2 }}>
+                  14 days, no card
+                </div>
+              </button>
+              <button onClick={() => setSelectedPlan("pro")} style={{
+                flex: 1, padding: "12px 8px", border: "none", cursor: "pointer",
+                background: isPro ? C.goldMuted : "transparent",
+                transition: "all 0.15s",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  <Zap size={12} style={{ color: isPro ? C.gold : C.textTertiary }} />
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: isPro ? C.textPrimary : C.textTertiary }}>
+                    Pro — $49/mo
                   </span>
                 </div>
-              )}
+                <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: isPro ? C.gold : C.textTertiary, marginTop: 2 }}>
+                  Founding member price
+                </div>
+              </button>
             </div>
 
             {/* Google OAuth */}
@@ -141,7 +166,8 @@ export default function Signup() {
               type="button"
               onClick={() => {
                 setError("");
-                signInWithGoogle(plan, "/onboarding/personalize")
+                if (isPro) localStorage.setItem(ONBOARDING.plan, "monthly");
+                signInWithGoogle(isPro ? "monthly" : null, "/onboarding/personalize")
                   .catch(err => setError(err.message || "Google sign-in failed"));
               }}
               style={{
@@ -203,7 +229,7 @@ export default function Signup() {
                 cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1,
                 boxShadow: `0 4px 16px ${C.goldGlow}`,
               }}>
-                {loading ? "Creating account..." : "Start free trial"}
+                {loading ? "Creating account..." : isPro ? "Create account & subscribe" : "Start free trial"}
               </button>
             </form>
 
