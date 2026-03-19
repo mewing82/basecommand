@@ -2,28 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard, CheckSquare,
   Settings as SettingsIcon, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, LogOut,
-  Bot, BarChart3, Crown, Shield, Zap, BookOpen,
+  Bot, BarChart3, Crown, Shield,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
 import { useAppStore } from "../../store/appStore";
 import { useAuthStore } from "../../store/authStore";
-import { renewalStore } from "../../lib/storage";
 import { supabase } from "../../lib/supabase";
+import { PILLARS, isPillarActive, getActivePillarCount } from "../../lib/pillars";
 
 const WS_DEFAULT_ID = "ws_default";
-
-// ─── Agent definitions (for status tracking) ────────────────────────────────
-const AGENTS = [
-  { id: "health-monitor", label: "Health Monitor", color: "#6B8AFF" },
-  { id: "rescue-planner", label: "Rescue Planner", color: "#F87171" },
-  { id: "outreach-drafter", label: "Outreach Drafter", color: "#22D3EE" },
-  { id: "expansion-scout", label: "Expansion Scout", color: "#34D399" },
-  { id: "forecast-engine", label: "Forecast Engine", color: "#A78BFA" },
-  { id: "opportunity-brief", label: "Opportunity Brief", color: "#34D399" },
-  { id: "executive-brief", label: "Executive Brief", color: "#D4A843" },
-  { id: "meeting-prep", label: "Meeting Prep", color: "#22D3EE" },
-  { id: "playbook-builder", label: "Playbook Builder", color: "#FB923C" },
-];
 
 // ─── Nav Configuration — 5 workflow-stage groups ─────────────────────────────
 const NAV_ITEMS = [
@@ -282,23 +269,16 @@ export default function Sidebar({ activeView, onNavigate }) {
   const { sidebarCollapsed, setSidebarCollapsed } = useAppStore();
   const { user, profile, signOut } = useAuthStore();
   const [hoveredItem, setHoveredItem] = useState(null);
-  const [agentsExpanded, setAgentsExpanded] = useState(() => activeView.startsWith("agents/"));
-  const [activeAgentCount, setActiveAgentCount] = useState(0);
+  const [agentsExpanded, setAgentsExpanded] = useState(() => activeView.startsWith("agents/") || activeView.startsWith("pillars/"));
   const isExpanded = !sidebarCollapsed;
 
-  // Count "active" agents by checking for cached results
-  useEffect(() => {
-    (async () => {
-      let count = 0;
-      try { if (localStorage.getItem("bc2-ws_default-forecast")) count++; } catch { /* skip */ }
-      try { if (localStorage.getItem("bc2-ws_default-dashboard-renewal")) count++; } catch { /* skip */ }
-      const lc = await renewalStore.getLeadershipCache();
-      if (lc) count++;
-      const ec = await renewalStore.getExpansionCache();
-      if (ec) count++;
-      setActiveAgentCount(count);
-    })();
-  }, []);
+  // Count active pillars using shared detection
+  const [activePillarCount] = useState(() => getActivePillarCount());
+  const [pillarStatus] = useState(() => {
+    const m = {};
+    for (const p of PILLARS) m[p.id] = isPillarActive(p);
+    return m;
+  });
 
   const displayName = profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "";
@@ -354,7 +334,7 @@ export default function Sidebar({ activeView, onNavigate }) {
       <nav style={{ flex: 1, padding: "4px 0", overflow: "auto", display: "flex", flexDirection: "column" }}>
         {NAV_ITEMS.map(item => {
           const active = item.id === "agents"
-            ? activeView === "agents" || activeView.startsWith("agents/")
+            ? activeView === "agents" || activeView.startsWith("agents/") || activeView.startsWith("pillars/")
             : activeView === item.id;
           const isHovered = hoveredItem === item.id;
           const isAgents = item.expandable;
@@ -387,7 +367,7 @@ export default function Sidebar({ activeView, onNavigate }) {
               >
                 <div style={{ position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)" }}>
                   <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.75, display: "block" }} />
-                  {isAgents && !isExpanded && activeAgentCount > 0 && (
+                  {isAgents && !isExpanded && activePillarCount > 0 && (
                     <div style={{
                       position: "absolute", top: -2, right: -4,
                       width: 6, height: 6, borderRadius: "50%",
@@ -401,12 +381,12 @@ export default function Sidebar({ activeView, onNavigate }) {
                 )}
                 {isAgents && isExpanded && (
                   <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: "auto" }}>
-                    {activeAgentCount > 0 && (
+                    {activePillarCount > 0 && (
                       <span style={{
                         fontFamily: FONT_MONO, fontSize: 9, color: "#34D399",
                         background: "rgba(52, 211, 153, 0.12)", padding: "1px 6px", borderRadius: 3,
                         lineHeight: "14px", fontWeight: 600,
-                      }}>{activeAgentCount}</span>
+                      }}>{activePillarCount}/5</span>
                     )}
                     <button
                       onClick={(e) => { e.stopPropagation(); setAgentsExpanded(prev => !prev); }}
@@ -425,45 +405,45 @@ export default function Sidebar({ activeView, onNavigate }) {
                 )}
               </button>
 
-              {/* Agent sub-items: Active + Available */}
+              {/* Pillar sub-items */}
               {isAgents && isExpanded && agentsExpanded && (
                 <div style={{ overflow: "hidden" }}>
-                  <button
-                    className="bc-sidebar-nav-btn"
-                    onClick={() => onNavigate("agents")}
-                    onMouseEnter={() => setHoveredItem("agents-active")}
-                    onMouseLeave={() => setHoveredItem(null)}
-                    style={{
-                      width: "100%", border: "none", cursor: "pointer",
-                      display: "flex", alignItems: "center", gap: 8,
-                      padding: "6px 20px 6px 42px",
-                      background: hoveredItem === "agents-active" ? "rgba(255,255,255,0.03)" : "transparent",
-                      transition: "all 0.12s ease",
-                      color: hoveredItem === "agents-active" ? C.textSecondary : C.textTertiary,
-                    }}
-                  >
-                    <Zap size={12} style={{ color: "#34D399" }} />
-                    <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 400, flex: 1 }}>Active</span>
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: activeAgentCount > 0 ? "#34D399" : C.textTertiary }}>{activeAgentCount}</span>
-                  </button>
-                  <button
-                    className="bc-sidebar-nav-btn"
-                    onClick={() => onNavigate("agents")}
-                    onMouseEnter={() => setHoveredItem("agents-catalog")}
-                    onMouseLeave={() => setHoveredItem(null)}
-                    style={{
-                      width: "100%", border: "none", cursor: "pointer",
-                      display: "flex", alignItems: "center", gap: 8,
-                      padding: "6px 20px 6px 42px",
-                      background: hoveredItem === "agents-catalog" ? "rgba(255,255,255,0.03)" : "transparent",
-                      transition: "all 0.12s ease",
-                      color: hoveredItem === "agents-catalog" ? C.textSecondary : C.textTertiary,
-                    }}
-                  >
-                    <BookOpen size={12} style={{ color: C.textTertiary }} />
-                    <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 400, flex: 1 }}>Available</span>
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{AGENTS.length}</span>
-                  </button>
+                  {PILLARS.map(p => {
+                    const on = pillarStatus[p.id];
+                    const pillarActive = activeView === `pillars/${p.id}`;
+                    const pillarHovered = hoveredItem === `pillar-${p.id}`;
+                    const PIcon = p.icon;
+                    return (
+                      <button
+                        key={p.id}
+                        className="bc-sidebar-nav-btn"
+                        onClick={() => onNavigate(`pillars/${p.id}`)}
+                        onMouseEnter={() => setHoveredItem(`pillar-${p.id}`)}
+                        onMouseLeave={() => setHoveredItem(null)}
+                        style={{
+                          width: "100%", border: "none", cursor: "pointer",
+                          display: "flex", alignItems: "center", gap: 8,
+                          padding: "6px 20px 6px 38px",
+                          background: pillarActive ? "rgba(255,255,255,0.05)" : pillarHovered ? "rgba(255,255,255,0.03)" : "transparent",
+                          borderRight: pillarActive ? `2px solid ${p.color}` : "2px solid transparent",
+                          transition: "all 0.12s ease",
+                          color: pillarActive ? C.textPrimary : pillarHovered ? C.textSecondary : C.textTertiary,
+                        }}
+                      >
+                        <div style={{
+                          width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+                          background: on ? p.color : p.color + "40",
+                          boxShadow: on ? `0 0 5px ${p.color}50` : "none",
+                          transition: "all 0.15s",
+                        }} />
+                        <PIcon size={12} style={{ color: pillarActive ? p.color : on ? p.color : C.textTertiary, flexShrink: 0 }} />
+                        <span className="bc-sidebar-text" style={{
+                          fontFamily: FONT_MONO, fontSize: 11, fontWeight: pillarActive ? 600 : 400,
+                          letterSpacing: "0.02em",
+                        }}>{p.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>

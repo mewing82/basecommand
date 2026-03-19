@@ -1,31 +1,16 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  Activity, TrendingUp, Zap, Search, Cpu, ArrowRight, Sparkles,
-  ShieldAlert, Mail, BarChart3, DollarSign, Crown, Users, FileText,
-  CheckCircle, AlertTriangle, Clock, Bot,
+  ArrowRight, Sparkles, BarChart3,
+  CheckCircle, Bot,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
-import { renewalStore, store } from "../lib/storage";
+import { renewalStore } from "../lib/storage";
 import { PageLayout } from "../components/layout/PageLayout";
-import { Btn } from "../components/ui/index";
 import { computePortfolioHealth, computePortfolioSummary, getSeverity } from "../lib/healthScore";
 import { formatARR } from "../lib/utils";
-import { PILLARS } from "../lib/pillars";
-
-// ─── Agent detail definitions ────────────────────────────────────────────────
-const AGENT_DETAILS = {
-  "health-monitor": { name: "Health Monitor", icon: Activity, color: "#6B8AFF", route: "/app/agents/renewal/health-monitor", description: "Continuous health scoring, risk signals, behavioral archetype classification", mode: "co-pilot", cacheKey: "health-cache" },
-  "rescue-planner": { name: "Rescue Planner", icon: ShieldAlert, color: "#F87171", route: "/app/agents/renewal/rescue-planner", description: "AI-generated intervention playbooks for at-risk accounts", mode: "co-pilot", cacheKey: "rescue-cache" },
-  "outreach-drafter": { name: "Outreach Drafter", icon: Mail, color: "#22D3EE", route: "/app/agents/renewal/outreach-drafter", description: "Personalized renewal emails calibrated to health and archetype", mode: "co-pilot", cacheKey: "outreach-cache" },
-  "expansion-scout": { name: "Expansion Scout", icon: TrendingUp, color: "#34D399", route: "/app/agents/growth/expansion-scout", description: "PQL detection, upsell triggers, expansion signals from your data", mode: "co-pilot", cacheKey: "expansion-cache" },
-  "forecast-engine": { name: "Forecast Engine", icon: BarChart3, color: "#A78BFA", route: "/app/agents/growth/forecast-engine", description: "GRR/NRR forecasts with benchmarks, scenarios, and confidence tiers", mode: "co-pilot", cacheKey: "forecast" },
-  "opportunity-brief": { name: "Opportunity Brief", icon: DollarSign, color: "#34D399", route: "/app/agents/growth/opportunity-brief", description: "Pre-call expansion briefs with pricing strategy and talking points", mode: "co-pilot", cacheKey: "opportunity-cache" },
-  "executive-brief": { name: "Executive Brief", icon: Crown, color: "#D4A843", route: "/app/agents/coaching/executive-brief", description: "Board-ready summaries, talking points, and strategic recommendations", mode: "co-pilot", cacheKey: "leadership-cache" },
-  "meeting-prep": { name: "Meeting Prep", icon: Users, color: "#22D3EE", route: "/app/agents/coaching/meeting-prep", description: "Pre-call briefs with relationship context and recommended asks", mode: "co-pilot", cacheKey: "meeting-prep-cache" },
-  "playbook-builder": { name: "Playbook Builder", icon: FileText, color: "#FB923C", route: "/app/agents/coaching/playbook-builder", description: "90/60/30 day action plans with archetype-aware strategies", mode: "co-pilot", cacheKey: "playbook-cache" },
-};
+import { PILLARS, AGENT_DETAILS, isAgentCached as isAgentCachedShared } from "../lib/pillars";
 
 // ─── Pillar-specific recommendations ────────────────────────────────────────
 const RECOMMENDATIONS = {
@@ -57,8 +42,7 @@ const RECOMMENDATIONS = {
 };
 
 function isAgentCached(cacheKey) {
-  const pre = `bc2-${store._ws}-`;
-  return !!(localStorage.getItem(`${pre}${cacheKey}`) || localStorage.getItem(`${pre}renewals-${cacheKey}`));
+  return isAgentCachedShared(cacheKey);
 }
 
 export default function Pillar() {
