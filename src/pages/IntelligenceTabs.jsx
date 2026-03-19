@@ -5,7 +5,7 @@
 import {
   Crown, AlertTriangle, Zap, Check, Copy,
   ClipboardCopy, BarChart3, Target, Lightbulb, FileText,
-  Presentation, Mail, Loader, ShieldAlert,
+  Presentation, Mail, Loader, ShieldAlert, TrendingUp, TrendingDown, ArrowRight,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { formatARR } from "../lib/utils";
@@ -249,7 +249,7 @@ export function BriefTab({ briefCache, loading, startedAt, error, accounts, onGe
 }
 
 // ─── Forecast Tab ───────────────────────────────────────────────────────────
-export function ForecastTab({ forecast, loading, startedAt, error, accounts, onGenerate, onCopy, copiedSection, isMobile, healthSummary, scenarioView, setScenarioView, expandedPeriod, setExpandedPeriod, trendIcons, buildForecastText }) {
+export function ForecastTab({ forecast, loading, startedAt, error, accounts, onGenerate, onCopy, copiedSection, isMobile, healthSummary, previousForecast, scenarioView, setScenarioView, expandedPeriod, setExpandedPeriod, trendIcons, buildForecastText }) {
   const cachedAgo = useTimeAgo(forecast?._generatedAt);
 
   return (
@@ -303,6 +303,49 @@ export function ForecastTab({ forecast, loading, startedAt, error, accounts, onG
               })}
             </div>
           )}
+
+          {/* What Changed — delta vs previous forecast */}
+          {previousForecast?.metrics && forecast.metrics && (() => {
+            const prev = previousForecast.metrics;
+            const curr = forecast.metrics;
+            const parseNum = v => parseFloat(String(v || "0").replace("%", "")) || 0;
+            const deltas = [
+              { label: "GRR", prev: prev.grr, curr: curr.grr, delta: parseNum(curr.grr) - parseNum(prev.grr), unit: "%", good: "up" },
+              { label: "NRR", prev: prev.nrr, curr: curr.nrr, delta: parseNum(curr.nrr) - parseNum(prev.nrr), unit: "%", good: "up" },
+            ].filter(d => d.delta !== 0);
+            const prevAge = previousForecast._generatedAt ? calcTimeAgo(previousForecast._generatedAt) : "previous";
+            if (deltas.length === 0) return null;
+            return (
+              <div style={{
+                background: C.bgCard, border: `1px solid ${C.aiBlue}20`, borderRadius: 10,
+                padding: isMobile ? "12px 14px" : "16px 20px",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                  <ArrowRight size={14} style={{ color: C.aiBlue }} />
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.aiBlue }}>What Changed</span>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: "auto" }}>vs {prevAge}</span>
+                </div>
+                <div style={{ display: "flex", gap: isMobile ? 12 : 20, flexWrap: "wrap" }}>
+                  {deltas.map(d => {
+                    const improved = d.good === "up" ? d.delta > 0 : d.delta < 0;
+                    const DIcon = d.delta > 0 ? TrendingUp : TrendingDown;
+                    const color = improved ? C.green : C.red;
+                    return (
+                      <div key={d.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary }}>{d.label}:</span>
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{d.prev}</span>
+                        <ArrowRight size={10} style={{ color: C.textTertiary }} />
+                        <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color }}>{d.curr}</span>
+                        <span style={{ display: "flex", alignItems: "center", gap: 3, fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color, background: color + "14", padding: "2px 6px", borderRadius: 3 }}>
+                          <DIcon size={10} /> {d.delta > 0 ? "+" : ""}{d.delta.toFixed(1)}{d.unit}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Revenue Impact */}
           {forecast.metrics && healthSummary && (

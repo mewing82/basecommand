@@ -11,6 +11,40 @@ import { Btn } from "../components/ui/index";
 import { RENEWAL_LEADERSHIP_PROMPT, RENEWAL_FORECAST_PROMPT, buildCompanyContext } from "../lib/prompts";
 import { computePortfolioHealth, computePortfolioSummary } from "../lib/healthScore";
 import { BriefTab, ForecastTab } from "./IntelligenceTabs";
+import { PILLARS, isPillarActive } from "../lib/pillars";
+import { NRRWaterfall } from "../components/dashboard/DashboardWidgets";
+
+function timeAgo(ts) {
+  if (!ts) return null;
+  const m = Math.floor((Date.now() - ts) / 60000);
+  return m < 1 ? "now" : m < 60 ? `${m}m` : m < 1440 ? `${Math.floor(m / 60)}h` : `${Math.floor(m / 1440)}d`;
+}
+
+// ─── Pillar context strip ───────────────────────────────────────────────────
+const INTEL_PILLARS = ["monitor", "predict", "orchestrate"];
+
+function PillarContextStrip() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+      <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Powered by</span>
+      {PILLARS.filter(p => INTEL_PILLARS.includes(p.id)).map(p => {
+        const on = isPillarActive(p);
+        const PIcon = p.icon;
+        return (
+          <div key={p.id} style={{
+            display: "flex", alignItems: "center", gap: 5, padding: "3px 10px",
+            borderRadius: 4, background: on ? `${p.color}10` : "transparent",
+            border: `1px solid ${on ? p.color + "25" : C.borderDefault}`,
+          }}>
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: on ? p.color : C.textTertiary + "60" }} />
+            <PIcon size={10} style={{ color: on ? p.color : C.textTertiary }} />
+            <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: on ? p.color : C.textTertiary }}>{p.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 // ─── Segment filter pills (placeholder UI) ──────────────────────────────────
 function SegmentFilter() {
@@ -58,6 +92,7 @@ export default function Intelligence() {
   const [expandedPeriod, setExpandedPeriod] = useState(null);
   const [expandedForecast, setExpandedForecast] = useState(null);
   const [healthSummary, setHealthSummary] = useState(null);
+  const [previousForecast, setPreviousForecast] = useState(null); // for "What Changed" delta
 
   // Load caches on mount
   useEffect(() => { renewalStore.getLeadershipCache().then(setBriefCache); }, []);
@@ -116,6 +151,7 @@ export default function Intelligence() {
   // ─── Generate forecast ───────────────────────────────────────────────────
   async function generateForecast() {
     if (accounts.length === 0) return;
+    if (forecast) setPreviousForecast(forecast); // save for "What Changed"
     setForecastLoading(true); setForecastStartedAt(Date.now()); setForecastError(null);
     try {
       const portfolioData = await Promise.all(accounts.map(async a => {
@@ -182,19 +218,25 @@ export default function Intelligence() {
     </PageLayout>
   );
 
+  const briefAge = timeAgo(briefCache?._generatedAt);
+  const forecastAge = timeAgo(forecast?._generatedAt);
+
   const TABS = [
-    { id: "brief", label: "Executive Brief", icon: Crown },
-    { id: "forecast", label: "Forecast", icon: BarChart3 },
+    { id: "brief", label: "Executive Brief", icon: Crown, age: briefAge },
+    { id: "forecast", label: "Forecast", icon: BarChart3, age: forecastAge },
     { id: "presentations", label: "Presentations", icon: Presentation, disabled: true },
   ];
 
   return (
     <PageLayout maxWidth={1200}>
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        {/* Segment filter placeholder */}
-        <SegmentFilter />
+        {/* Pillar context + Segment filter */}
+        <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: 10 }}>
+          <PillarContextStrip />
+          <SegmentFilter />
+        </div>
 
-        {/* Tab bar */}
+        {/* Tab bar with freshness indicators */}
         <div style={{ display: "flex", gap: 4, background: C.bgCard, borderRadius: 10, padding: 4, border: `1px solid ${C.borderDefault}`, width: "fit-content" }}>
           {TABS.map(t => {
             const Icon = t.icon;
@@ -208,6 +250,9 @@ export default function Intelligence() {
                 opacity: t.disabled ? 0.4 : 1,
               }}>
                 <Icon size={14} /> {t.label}
+                {t.age && !t.disabled && (
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, opacity: 0.7 }}>{t.age}</span>
+                )}
                 {t.disabled && <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, opacity: 0.5 }}>soon</span>}
               </button>
             );
@@ -222,17 +267,20 @@ export default function Intelligence() {
           buildBriefText={buildBriefText}
         />}
 
-        {/* Forecast Tab */}
-        {tab === "forecast" && <ForecastTab
-          forecast={forecast} loading={forecastLoading} startedAt={forecastStartedAt}
-          error={forecastError} accounts={accounts} onGenerate={generateForecast}
-          onCopy={handleCopy} copiedSection={copiedSection} isMobile={isMobile}
-          healthSummary={healthSummary}
-          scenarioView={scenarioView} setScenarioView={setScenarioView}
-          expandedPeriod={expandedPeriod} setExpandedPeriod={setExpandedPeriod}
-          expandedForecast={expandedForecast} setExpandedForecast={setExpandedForecast}
-          trendIcons={trendIcons} buildForecastText={buildForecastText}
-        />}
+        {/* Forecast Tab — with NRR Waterfall and delta tracking */}
+        {tab === "forecast" && <>
+          <NRRWaterfall accounts={accounts} isMobile={isMobile} />
+          <ForecastTab
+            forecast={forecast} loading={forecastLoading} startedAt={forecastStartedAt}
+            error={forecastError} accounts={accounts} onGenerate={generateForecast}
+            onCopy={handleCopy} copiedSection={copiedSection} isMobile={isMobile}
+            healthSummary={healthSummary} previousForecast={previousForecast}
+            scenarioView={scenarioView} setScenarioView={setScenarioView}
+            expandedPeriod={expandedPeriod} setExpandedPeriod={setExpandedPeriod}
+            expandedForecast={expandedForecast} setExpandedForecast={setExpandedForecast}
+            trendIcons={trendIcons} buildForecastText={buildForecastText}
+          />
+        </>}
       </div>
     </PageLayout>
   );
