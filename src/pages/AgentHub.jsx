@@ -1,20 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, ListChecks, Clock, Bot, Cpu, Settings as SettingsIcon, ChevronUp } from "lucide-react";
+import { ListChecks, Clock, Settings as SettingsIcon, ChevronUp } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
 import { PageLayout } from "../components/layout/PageLayout";
 import { PILLARS, AGENT_DETAILS, isPillarActive, isAgentCached } from "../lib/pillars";
 import { executeAction, dismissAction } from "../lib/executionEngine";
-import { getEffectiveLevel, getCacheAge } from "../components/agents/agentHubHelpers";
-import { AutonomyDial, OpsRow, PendingReviewQueue } from "../components/agents/AgentHubParts";
+import { getEffectiveLevel } from "../components/agents/agentHubHelpers";
+import { PendingReviewQueue } from "../components/agents/AgentHubParts";
 import FleetConfigPanel from "../components/agents/FleetConfigPanel";
+import FleetWelcome from "../components/agents/FleetWelcome";
+import PillarSection from "../components/agents/PillarSection";
 
 // ─── Agent Hub ──────────────────────────────────────────────────────────────
 export default function AgentHub() {
   const navigate = useNavigate();
   const { isMobile } = useMediaQuery();
+  const configRef = useRef(null);
   const [autonomySettings, setAutonomySettings] = useState(null);
   const [pendingActions, setPendingActions] = useState([]);
   const [executedActionIds, setExecutedActionIds] = useState(new Set());
@@ -32,7 +35,6 @@ export default function AgentHub() {
     (async () => {
       let settings = await renewalStore.getAutonomySettings();
       if (!settings || Object.keys(settings).length === 0) {
-        // Seed defaults: monitoring agents run autonomously, rest are co-pilot
         settings = { risk_assessment: "draft" };
         await renewalStore.saveAutonomySettings(settings);
       }
@@ -49,6 +51,13 @@ export default function AgentHub() {
       } catch { /* skip */ }
     })();
   }, []);
+
+  // Scroll to config panel when opened via URL param
+  useEffect(() => {
+    if (fleetConfigOpen && configRef.current) {
+      configRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [fleetConfigOpen]);
 
   async function handleAutonomyUpdate(newSettings) {
     setAutonomySettings(newSettings);
@@ -77,13 +86,24 @@ export default function AgentHub() {
   const allAgents = Object.entries(AGENT_DETAILS).map(([id, d]) => ({
     ...d, agentId: id, mode: getEffectiveLevel(id, autonomySettings),
   }));
-  const opsAgents = allAgents.filter(a => a.mode !== "suggest");
-  const copilotAgents = allAgents.filter(a => a.mode === "suggest");
 
-  const autonomousCount = opsAgents.length;
-  const copilotCount = copilotAgents.length;
+  const autonomousCount = allAgents.filter(a => a.mode !== "suggest").length;
+  const copilotCount = allAgents.filter(a => a.mode === "suggest").length;
   const activePending = pendingActions.filter(a => !executedActionIds.has(a.id));
   const activePillars = PILLARS.filter(p => isPillarActive(p)).length;
+
+  // Phase detection
+  const activatedCount = allAgents.filter(a => isAgentCached(a.cacheKey)).length;
+  const phase = activatedCount === 0 ? "welcome" : activatedCount < 3 ? "activating" : "operational";
+
+  // Auto-open fleet config during activating phase (unless user manually closed it)
+  const effectiveConfigOpen = fleetConfigOpen || (phase === "activating" && fleetConfigOpen !== false);
+
+  // Pillar agent groupings
+  const pillarAgents = PILLARS.map(p => ({
+    pillar: p,
+    agents: p.agents.map(id => allAgents.find(a => a.agentId === id)).filter(Boolean),
+  }));
 
   return (
     <PageLayout maxWidth={1100}>
@@ -94,76 +114,59 @@ export default function AgentHub() {
         }
       `}</style>
 
-      {/* Pipeline banner — clickable pillars */}
-      <div style={{
-        display: "flex", alignItems: "center", gap: 4, marginBottom: isMobile ? 12 : 16,
-        padding: isMobile ? "8px 10px" : "10px 16px", background: C.bgCard, borderRadius: 8,
-        border: `1px solid ${C.borderDefault}`, overflowX: "auto",
-      }}>
-        {PILLARS.map((p, i) => {
-          const on = isPillarActive(p);
-          const PIcon = p.icon;
-          return (
-            <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              {i > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, opacity: 0.4, margin: "0 4px" }}>→</span>}
-              <button
-                onClick={() => navigate(`/app/pillars/${p.id}`)}
-                style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
-                  color: on ? p.color : C.textTertiary,
-                  padding: "4px 12px", borderRadius: 4, whiteSpace: "nowrap",
-                  background: on ? `${p.color}12` : "transparent",
-                  border: `1px solid ${on ? p.color + "25" : "transparent"}`,
-                  cursor: "pointer", transition: "all 0.12s",
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = `${p.color}18`; }}
-                onMouseLeave={e => { e.currentTarget.style.background = on ? `${p.color}12` : "transparent"; }}
-              >
-                <PIcon size={12} /> {p.label}
-              </button>
-            </div>
-          );
-        })}
-        <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, whiteSpace: "nowrap" }}>
-          {activePillars}/5 active
-        </span>
-      </div>
-
-      {/* Fleet Summary Bar */}
+      {/* ═══ A: Compact Fleet Status Header ═══ */}
       <div style={{
         display: "flex", flexDirection: isMobile ? "column" : "row",
         alignItems: isMobile ? "stretch" : "center", justifyContent: "space-between",
-        gap: isMobile ? 12 : 16, marginBottom: isMobile ? 20 : 28,
-        padding: isMobile ? "14px 14px" : "16px 22px",
+        gap: isMobile ? 10 : 12, marginBottom: isMobile ? 16 : 20,
+        padding: isMobile ? "10px 12px" : "12px 18px",
         background: C.bgCard, borderRadius: 10, border: `1px solid ${C.borderDefault}`,
       }}>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: isMobile ? 8 : 16 }}>
-          {[
-            { label: `${autonomousCount} autonomous`, color: autonomousCount > 0 ? C.amber : C.textTertiary },
-            { label: `${copilotCount} co-pilot`, color: copilotCount > 0 ? C.textPrimary : C.textTertiary },
-            { label: `${activePending.length} pending review`, color: activePending.length > 0 ? C.amber : C.textTertiary },
-          ].map((stat, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              {i > 0 && <span style={{ color: C.textTertiary, opacity: 0.3, fontFamily: FONT_MONO, fontSize: 10 }}>·</span>}
-              <span style={{ fontFamily: FONT_MONO, fontSize: fs(12, 11, isMobile), fontWeight: 600, color: stat.color }}>
-                {stat.label}
-              </span>
-            </div>
-          ))}
+        {/* Pipeline dots + stats */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          {PILLARS.map((p, i) => {
+            const on = isPillarActive(p);
+            return (
+              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                {i > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, opacity: 0.3 }}>→</span>}
+                <button
+                  onClick={() => navigate(`/app/pillars/${p.id}`)}
+                  title={`${p.label}: ${p.tagline}`}
+                  style={{
+                    width: 10, height: 10, borderRadius: "50%", padding: 0,
+                    background: on ? p.color : p.color + "30",
+                    boxShadow: on ? `0 0 6px ${p.color}50` : "none",
+                    border: "none", cursor: "pointer", transition: "all 0.15s",
+                  }}
+                />
+              </div>
+            );
+          })}
+          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: 4 }}>
+            {activePillars}/5 active
+          </span>
+          <span style={{ color: C.textTertiary, opacity: 0.3, fontFamily: FONT_MONO, fontSize: 10 }}>·</span>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: autonomousCount > 0 ? C.amber : C.textTertiary }}>
+            {autonomousCount} autonomous
+          </span>
+          <span style={{ color: C.textTertiary, opacity: 0.3, fontFamily: FONT_MONO, fontSize: 10 }}>·</span>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: copilotCount > 0 ? C.textPrimary : C.textTertiary }}>
+            {copilotCount} co-pilot
+          </span>
         </div>
-        <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+
+        {/* Action buttons */}
+        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
           <button onClick={() => setFleetConfigOpen(prev => !prev)} style={{
             display: "flex", alignItems: "center", gap: 5,
             padding: "5px 12px", borderRadius: 6, cursor: "pointer",
-            background: fleetConfigOpen ? C.gold + "18" : C.gold + "10",
-            border: `1px solid ${fleetConfigOpen ? C.gold + "40" : C.gold + "25"}`,
+            background: effectiveConfigOpen ? C.gold + "18" : C.gold + "10",
+            border: `1px solid ${effectiveConfigOpen ? C.gold + "40" : C.gold + "25"}`,
             fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.gold,
             transition: "all 0.15s",
           }}>
             <SettingsIcon size={12} /> Configure Fleet
-            <ChevronUp size={10} style={{ transition: "transform 0.15s", transform: fleetConfigOpen ? "rotate(0deg)" : "rotate(180deg)" }} />
+            <ChevronUp size={10} style={{ transition: "transform 0.15s", transform: effectiveConfigOpen ? "rotate(0deg)" : "rotate(180deg)" }} />
           </button>
           {activePending.length > 0 && (
             <button onClick={() => navigate("/app/tasks")} style={{
@@ -172,7 +175,7 @@ export default function AgentHub() {
               background: C.amber + "14", border: `1px solid ${C.amber}25`,
               fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.amber,
             }}>
-              <ListChecks size={12} /> Agent Queue
+              <ListChecks size={12} /> {activePending.length} Pending
             </button>
           )}
           {totalExecutions > 0 && (
@@ -188,41 +191,19 @@ export default function AgentHub() {
         </div>
       </div>
 
-      {/* ═══ FLEET CONFIG PANEL ═══ */}
-      {fleetConfigOpen && (
-        <FleetConfigPanel autonomySettings={autonomySettings} onUpdate={handleAutonomyUpdate} />
+      {/* ═══ B: Fleet Welcome (welcome phase only) ═══ */}
+      {phase === "welcome" && (
+        <FleetWelcome isMobile={isMobile} navigate={navigate} />
       )}
 
-      {/* ═══ OPERATIONS CENTER ═══ */}
-      <div style={{ marginBottom: isMobile ? 28 : 40 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-          <Bot size={16} style={{ color: C.amber }} />
-          <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.01em" }}>
-            Operations Center
-          </span>
-          <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
-            {autonomousCount > 0 ? `${autonomousCount} agent${autonomousCount !== 1 ? "s" : ""} running autonomously` : "No autonomous agents"}
-          </span>
-        </div>
+      {/* ═══ C: Fleet Config Panel (collapsible) ═══ */}
+      {effectiveConfigOpen && (
+        <FleetConfigPanel ref={configRef} autonomySettings={autonomySettings} onUpdate={handleAutonomyUpdate} />
+      )}
 
-        {opsAgents.length === 0 ? (
-          <div style={{
-            padding: isMobile ? "20px 16px" : "24px 22px",
-            background: C.bgCard, borderRadius: 10, border: `1px solid ${C.borderDefault}`,
-            fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6, textAlign: "center",
-          }}>
-            No agents running autonomously yet. Set an agent to Draft or Execute mode from the workbench below.
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {opsAgents.map(agent => (
-              <OpsRow key={agent.agentId} agent={agent} autonomySettings={autonomySettings} onUpdate={handleAutonomyUpdate} isMobile={isMobile} navigate={navigate} />
-            ))}
-          </div>
-        )}
-
-        {activePending.length > 0 && (
+      {/* ═══ D: Pending Review Queue ═══ */}
+      {activePending.length > 0 && (
+        <div style={{ marginBottom: isMobile ? 20 : 28 }}>
           <PendingReviewQueue
             actions={activePending}
             executedIds={executedActionIds}
@@ -231,143 +212,67 @@ export default function AgentHub() {
             onViewAll={() => navigate("/app/tasks")}
             isMobile={isMobile}
           />
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* ═══ CO-PILOT WORKBENCH ═══ */}
-      <div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-          <Cpu size={16} style={{ color: C.aiBlue }} />
-          <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.01em" }}>
-            Co-Pilot Workbench
-          </span>
-          <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
-            {copilotCount > 0 ? `${copilotCount} agent${copilotCount !== 1 ? "s" : ""} available` : "All agents autonomous"}
+      {/* ═══ E: Pillar Sections × 5 ═══ */}
+      {pillarAgents.map(({ pillar, agents }) => (
+        <PillarSection
+          key={pillar.id}
+          pillar={pillar}
+          agents={agents}
+          autonomySettings={autonomySettings}
+          onUpdate={handleAutonomyUpdate}
+          isMobile={isMobile}
+          navigate={navigate}
+        />
+      ))}
+
+      {/* ═══ F: Pipeline Progress (welcome/activating phases only) ═══ */}
+      {phase !== "operational" && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
+          padding: isMobile ? "12px 14px" : "14px 20px",
+          background: C.bgCard, borderRadius: 10,
+          border: `1px solid ${C.borderDefault}`,
+          marginTop: isMobile ? 8 : 12,
+        }}>
+          {PILLARS.map((p, i) => {
+            const on = isPillarActive(p);
+            const PIcon = p.icon;
+            return (
+              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: isMobile ? 4 : 8 }}>
+                {i > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, opacity: 0.3 }}>→</span>}
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 4,
+                  opacity: on ? 1 : 0.35,
+                }}>
+                  <PIcon size={12} style={{ color: p.color }} />
+                  {!isMobile && (
+                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: p.color }}>
+                      {p.label}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          <div style={{ flex: 1 }} />
+          <span style={{ fontFamily: FONT_BODY, fontSize: fs(12, 11, isMobile), color: C.textTertiary }}>
+            {activePillars} of 5 renewal functions active
+            {activePillars < 5 && ". " + getNextPillarHint(activePillars)}
           </span>
         </div>
-
-        {copilotAgents.length === 0 ? (
-          <div style={{
-            padding: isMobile ? "20px 16px" : "24px 22px",
-            background: C.bgCard, borderRadius: 10, border: `1px solid ${C.borderDefault}`,
-            fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6, textAlign: "center",
-          }}>
-            All agents running autonomously. Monitor them in the Operations Center above.
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 24 : 32 }}>
-            {PILLARS.map(pillar => {
-              const pillarCopilots = pillar.agents.map(id => copilotAgents.find(a => a.agentId === id)).filter(Boolean);
-              if (pillarCopilots.length === 0) return null;
-              const on = isPillarActive(pillar);
-              const PIcon = pillar.icon;
-              return (
-                <div key={pillar.id}>
-                  <button
-                    onClick={() => navigate(`/app/pillars/${pillar.id}`)}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 10, marginBottom: 14,
-                      background: "none", border: "none", cursor: "pointer", padding: 0, width: "100%",
-                    }}
-                  >
-                    <div style={{
-                      width: 8, height: 8, borderRadius: "50%", background: on ? pillar.color : pillar.color + "40",
-                      boxShadow: on ? `0 0 8px ${pillar.color}60` : "none",
-                    }} />
-                    <PIcon size={16} style={{ color: pillar.color }} />
-                    <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>
-                      {pillar.label}
-                    </span>
-                    <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>{pillar.tagline}</span>
-                    <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
-                    <span style={{
-                      fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600,
-                      color: on ? pillar.color : C.textTertiary,
-                      background: on ? `${pillar.color}12` : "transparent",
-                      padding: on ? "2px 8px" : "0", borderRadius: 3,
-                    }}>{on ? "Active" : `${pillarCopilots.length} agent${pillarCopilots.length !== 1 ? "s" : ""}`}</span>
-                    <ArrowRight size={12} style={{ color: C.textTertiary }} />
-                  </button>
-
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: isMobile ? "1fr" : `repeat(${Math.min(pillarCopilots.length, 3)}, 1fr)`,
-                    gap: isMobile ? 10 : 12,
-                  }}>
-                    {pillarCopilots.map(agent => {
-                      const AgentIcon = agent.icon;
-                      const cached = isAgentCached(agent.cacheKey);
-                      const cacheAge = getCacheAge(agent.cacheKey);
-                      return (
-                        <div
-                          key={agent.agentId}
-                          onClick={() => navigate(agent.route)}
-                          style={{
-                            background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-                            borderRadius: 12, padding: isMobile ? "14px 14px 12px" : "20px 20px 16px",
-                            cursor: "pointer", textAlign: "left", transition: "all 0.2s ease",
-                            position: "relative", overflow: "hidden",
-                          }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.boxShadow = `0 6px 24px ${agent.color}15, 0 0 0 1px ${agent.color}30`;
-                            e.currentTarget.style.transform = "translateY(-2px)";
-                          }}
-                          onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
-                        >
-                          <div style={{
-                            position: "absolute", top: -20, right: -20, width: 80, height: 80,
-                            borderRadius: "50%", background: `radial-gradient(circle, ${agent.color}10 0%, transparent 70%)`,
-                            pointerEvents: "none",
-                          }} />
-                          <div style={{ position: "relative" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                              <div style={{
-                                width: 36, height: 36, borderRadius: 9,
-                                background: agent.color + "14", border: `1px solid ${agent.color}25`,
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                              }}>
-                                <AgentIcon size={18} color={agent.color} strokeWidth={1.75} />
-                              </div>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{agent.name}</div>
-                                <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                                  <div style={{
-                                    width: 6, height: 6, borderRadius: "50%",
-                                    background: cached ? C.green : C.textTertiary + "60",
-                                    boxShadow: cached ? `0 0 4px ${C.green}40` : "none", flexShrink: 0,
-                                  }} />
-                                  <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: cached ? C.green : C.textTertiary }}>
-                                    {cached ? (cacheAge ? `Last run ${cacheAge}` : "Has results") : "Not run yet"}
-                                  </span>
-                                  <span style={{
-                                    fontFamily: FONT_MONO, fontSize: 8, fontWeight: 700,
-                                    padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", letterSpacing: "0.05em",
-                                    background: C.textTertiary + "18", color: C.textTertiary, border: `1px solid ${C.textTertiary}25`,
-                                  }}>suggest</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 8, minHeight: 36 }}>
-                              {agent.description}
-                            </div>
-                            <div onClick={e => e.stopPropagation()}>
-                              <AutonomyDial agentId={agent.agentId} autonomySettings={autonomySettings} onUpdate={handleAutonomyUpdate} />
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 12, fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: agent.color }}>
-                              {cached ? "View Results" : "Open Agent"} <ArrowRight size={11} />
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      )}
     </PageLayout>
   );
+}
+
+function getNextPillarHint(count) {
+  const hints = [
+    "Run Health Monitor to activate Monitor.",
+    "Run Forecast Engine to activate Predict.",
+    "Run Outreach Drafter to activate Generate.",
+  ];
+  return hints[count] || "";
 }

@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { ACTION_TYPE_DEFS, LEVEL_DEFS, LEVEL_COLORS } from "./agentHubHelpers";
 
-export default function FleetConfigPanel({ autonomySettings, onUpdate }) {
+const FleetConfigPanel = forwardRef(function FleetConfigPanel({ autonomySettings, onUpdate }, ref) {
   const { isMobile } = useMediaQuery();
   const [saved, setSaved] = useState(false);
 
@@ -25,7 +25,7 @@ export default function FleetConfigPanel({ autonomySettings, onUpdate }) {
   }
 
   return (
-    <div style={{
+    <div ref={ref} style={{
       padding: isMobile ? "16px 14px" : "20px 22px",
       background: C.bgCard, borderRadius: 10, border: `1px solid ${C.borderDefault}`,
       marginBottom: isMobile ? 20 : 28,
@@ -145,4 +145,6 @@ export default function FleetConfigPanel({ autonomySettings, onUpdate }) {
       </div>
     </div>
   );
-}
+});
+
+export default FleetConfigPanel;
