@@ -518,9 +518,9 @@ Return ONLY valid JSON with this structure:
   "branding": {
     "logoUrl": "URL of the company logo (from og:image, img tags with 'logo', etc.) — or null",
     "faviconUrl": "URL of the favicon — or null",
-    "primaryColor": "Primary brand color as hex (e.g. '#4F46E5') — infer from hero backgrounds, buttons, theme-color meta, CSS variables — or null",
-    "secondaryColor": "Secondary brand color as hex — or null",
-    "accentColor": "Accent/CTA color as hex (often used on buttons, links) — or null",
+    "primaryColor": "Primary brand color as hex (e.g. '#4F46E5') — infer from hero backgrounds, buttons, theme-color meta, CSS variables. MUST be an actual brand color, NOT #000000 or #FFFFFF. Return null if you cannot determine it.",
+    "secondaryColor": "Secondary brand color as hex. NOT #000000 or #FFFFFF — return null if unknown.",
+    "accentColor": "Accent/CTA color as hex (often used on buttons, links). NOT #000000 or #FFFFFF — return null if unknown.",
     "fonts": ["Font family names used on the site (from Google Fonts links, CSS) — or empty array"],
     "socialLinks": {
       "linkedin": "LinkedIn URL — or null",

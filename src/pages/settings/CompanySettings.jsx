@@ -234,11 +234,17 @@ export default function CompanySettings() {
         <div style={{ display: "flex", gap: 12, marginBottom: 12, flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "stretch" : "center" }}>
           <div style={{
             width: 56, height: 56, borderRadius: 10, flexShrink: 0,
-            background: C.bgAI, border: `1px solid ${C.borderDefault}`,
+            background: profile?.branding?.primaryColor ? `${profile.branding.primaryColor}10` : C.bgAI,
+            border: `1px solid ${C.borderDefault}`,
             display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden",
           }}>
             {profile?.branding?.logoUrl ? (
-              <img src={profile.branding.logoUrl} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+              <img
+                src={profile.branding.logoUrl} alt="Logo"
+                referrerPolicy="no-referrer"
+                style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+                onError={e => { e.target.onerror = null; e.target.style.display = "none"; }}
+              />
             ) : (
               <Image size={20} style={{ color: C.textTertiary, opacity: 0.4 }} />
             )}
@@ -269,13 +275,15 @@ export default function CompanySettings() {
             { key: "secondaryColor", label: "Secondary" },
             { key: "accentColor", label: "Accent" },
           ].map(({ key, label }) => {
-            const val = profile?.branding?.[key] || "";
+            const raw = profile?.branding?.[key] || "";
+            // Treat #000000 as unset — AI defaults to black when it can't determine
+            const val = raw && raw.toLowerCase() !== "#000000" ? raw : "";
             return (
               <div key={key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <div
                   style={{
                     width: 28, height: 28, borderRadius: 6,
-                    background: val || C.bgAI,
+                    background: val || `repeating-conic-gradient(${C.borderDefault} 0% 25%, ${C.bgAI} 0% 50%) 50% / 10px 10px`,
                     border: `1px solid ${val ? val + "60" : C.borderDefault}`,
                     cursor: "pointer", position: "relative", overflow: "hidden",
                   }}
@@ -292,7 +300,7 @@ export default function CompanySettings() {
                   <input
                     value={val}
                     onChange={e => updateProfile({ branding: { ...(profile?.branding || {}), [key]: e.target.value } })}
-                    placeholder="#000000"
+                    placeholder="Not set"
                     style={{ ...smallInputStyle, width: 80, fontSize: 10, padding: "3px 6px", fontFamily: FONT_MONO }}
                   />
                 </div>
