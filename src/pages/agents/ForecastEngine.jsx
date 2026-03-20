@@ -161,7 +161,7 @@ export default function ForecastEngine() {
         <div style={{ width: 64, height: 64, borderRadius: 16, background: "#A78BFA18", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <BarChart3 size={32} style={{ color: "#A78BFA" }} />
         </div>
-        <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: C.textPrimary, margin: 0 }}>Forecast Engine</h2>
+        <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: C.textPrimary, margin: 0 }}>Revenue Forecast Engine</h2>
         <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: 0 }}>
           Board-ready forecasts with GRR/NRR metrics, confidence tiers, scenario modeling, and industry benchmark comparisons.
         </p>

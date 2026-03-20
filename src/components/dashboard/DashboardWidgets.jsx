@@ -169,7 +169,7 @@ export function ApprovalQueue({ items, onApprove, onDismiss, onViewAll }) {
 }
 
 // ─── Activity Feed ──────────────────────────────────────────────────────────
-const FEED_AGENTS = ["Health Monitor", "Rescue Planner", "Outreach Drafter", "Expansion Scout", "Forecast Engine", "Executive Brief"];
+const FEED_AGENTS = ["Portfolio Health Monitor", "At-Risk Rescue Planner", "Renewal Outreach Drafter", "Expansion Signal Scout", "Revenue Forecast Engine", "Executive Strategy Brief"];
 const FEED_VERBS = ["flagged", "analyzed", "scored", "reviewed", "updated forecast for", "generated brief for", "identified risk in", "prepared outreach for"];
 
 function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; } return h; }

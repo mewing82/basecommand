@@ -21,7 +21,13 @@ export default function AgentHub() {
 
   useEffect(() => {
     (async () => {
-      setAutonomySettings(await renewalStore.getAutonomySettings());
+      let settings = await renewalStore.getAutonomySettings();
+      if (!settings || Object.keys(settings).length === 0) {
+        // Seed defaults: monitoring agents run autonomously, rest are co-pilot
+        settings = { risk_assessment: "draft" };
+        await renewalStore.saveAutonomySettings(settings);
+      }
+      setAutonomySettings(settings);
 
       try {
         const executions = await renewalStore.getExecutions({ limit: 500 });

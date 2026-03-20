@@ -90,7 +90,7 @@ export default function AgentQueue({ actions, onRefresh, navigate, isMobile }) {
         No agent proposals waiting for review. Run your Renewal Agents to generate actions.
       </div>
       <Btn variant="ghost" onClick={() => navigate("/app/agents/renewal/health-monitor")}>
-        <Activity size={14} /> Go to Health Monitor
+        <Activity size={14} /> Go to Portfolio Health Monitor
       </Btn>
     </div>
   );

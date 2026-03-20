@@ -164,7 +164,7 @@ ${signals}`;
             Portfolio is healthy
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginTop: 4 }}>
-            No accounts need immediate intervention. The Health Monitor is watching.
+            No accounts need immediate intervention. The Portfolio Health Monitor is watching.
           </div>
         </div>
       ) : (

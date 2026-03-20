@@ -237,7 +237,7 @@ export default function HowItWorks() {
           }}>
             {[
               { label: "Starting MRR", color: C.gold, bg: `${C.gold}20`, border: `${C.gold}30`, width: 140 },
-              { label: "+ Expansion", color: "#34D399", bg: "rgba(52, 211, 153, 0.15)", border: "rgba(52, 211, 153, 0.30)", width: 120, ai: "Expansion Scout" },
+              { label: "+ Expansion", color: "#34D399", bg: "rgba(52, 211, 153, 0.15)", border: "rgba(52, 211, 153, 0.30)", width: 120, ai: "Expansion Signal Scout" },
               { label: "− Contraction", color: C.amber, bg: "rgba(251, 191, 36, 0.12)", border: "rgba(251, 191, 36, 0.25)", width: 110, ai: "Value reinforcement" },
               { label: "− Churn", color: C.red, bg: "rgba(248, 113, 113, 0.12)", border: "rgba(248, 113, 113, 0.25)", width: 100, ai: "90-day early warning" },
               { label: "= Net MRR", color: "#34D399", bg: "rgba(52, 211, 153, 0.18)", border: "rgba(52, 211, 153, 0.35)", width: 140 },
@@ -279,9 +279,9 @@ export default function HowItWorks() {
           {/* Intervention cards */}
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 14 }}>
             {[
-              { num: "1", title: "Expansion Scout identifies PQLs", desc: "Agent detects upsell signals — new use cases, team growth, budget expansion language — and triggers expansion workflows before the opportunity window closes.", impact: "Drives NRR above 100%", color: "#34D399" },
+              { num: "1", title: "Expansion Signal Scout identifies PQLs", desc: "Agent detects upsell signals — new use cases, team growth, budget expansion language — and triggers expansion workflows before the opportunity window closes.", impact: "Drives NRR above 100%", color: "#34D399" },
               { num: "2", title: "AI detects scope reduction signals", desc: "Agent catches contraction indicators in emails, usage patterns, and support interactions. Prescribes value-reinforcement outreach before the customer downsells.", impact: "Reduces contraction losses", color: C.amber },
-              { num: "3", title: "90-day churn early warning", desc: "Predictive health scores flag at-risk accounts 90 days before renewal date. Health Monitor assigns behavioral archetypes and Rescue Planner generates intervention playbooks.", impact: "Prevents up to 71% of churn", color: C.red },
+              { num: "3", title: "90-day churn early warning", desc: "Predictive health scores flag at-risk accounts 90 days before renewal date. Portfolio Health Monitor assigns behavioral archetypes and At-Risk Rescue Planner generates intervention playbooks.", impact: "Prevents up to 71% of churn", color: C.red },
             ].map((item, i) => (
               <div key={i} style={{
                 padding: "24px 20px", borderRadius: 14,
@@ -378,9 +378,9 @@ export default function HowItWorks() {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 10, paddingLeft: isMobile ? 0 : 40 }}>
               {[
-                { name: "Renewal Agents", agents: "Health Monitor, Rescue Planner, Outreach Drafter", color: "#34D399" },
-                { name: "Growth Agents", agents: "Expansion Scout, Forecast Engine, Opportunity Brief", color: "#6366F1" },
-                { name: "Coaching Agents", agents: "Executive Brief, Meeting Prep, Playbook Builder", color: "#F59E0B" },
+                { name: "Renewal Agents", agents: "Portfolio Health Monitor, At-Risk Rescue Planner, Renewal Outreach Drafter", color: "#34D399" },
+                { name: "Growth Agents", agents: "Expansion Signal Scout, Revenue Forecast Engine, Upsell Opportunity Brief", color: "#6366F1" },
+                { name: "Coaching Agents", agents: "Executive Strategy Brief, Renewal Meeting Prep, Renewal Playbook Builder", color: "#F59E0B" },
               ].map((cat, i) => (
                 <div key={i} style={{
                   padding: "10px 14px", borderRadius: 10,

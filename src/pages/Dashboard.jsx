@@ -164,7 +164,7 @@ function DashboardCommandCenter({ userName, accounts, isMobile }) {
   ];
   const quickLinks = [
     { icon: Sparkles, label: "Agents", desc: "AI agent hub", route: "/app/agents", color: C.gold },
-    { icon: Bot, label: "Health Monitor", desc: "Portfolio health scores", route: "/app/agents/renewal/health-monitor", color: C.aiBlue },
+    { icon: Bot, label: "Health Monitor", desc: "Portfolio health scores", route: "/app/agents/renewal/health-monitor", color: "#6B8AFF" },
     { icon: BarChart3, label: "Forecast Engine", desc: "GRR/NRR forecasting", route: "/app/agents/growth/forecast-engine", color: "#A78BFA" },
     { icon: Upload, label: "Data Sources", desc: "Connect & import data", route: "/app/import", color: C.amber },
   ];
@@ -217,7 +217,7 @@ function DashboardCommandCenter({ userName, accounts, isMobile }) {
               </div>
             ); })}
           </div>
-          {!Object.keys(archCounts).length && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary }}>Run Health Monitor to classify accounts.</div>}
+          {!Object.keys(archCounts).length && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary }}>Run Portfolio Health Monitor to classify accounts.</div>}
           <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.borderDefault}`, display: "flex", flexWrap: "wrap", gap: 6 }}>
             {Object.entries(ARCHETYPES).map(([k, arch]) => <span key={k} style={{ fontFamily: FONT_BODY, fontSize: 11, color: archCounts[k] ? arch.color : C.textTertiary, opacity: archCounts[k] ? 1 : 0.5 }}>{arch.label}: {archCounts[k] || 0}</span>)}
           </div>

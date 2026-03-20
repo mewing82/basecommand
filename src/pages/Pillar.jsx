@@ -15,7 +15,7 @@ import { PILLARS, AGENT_DETAILS, isAgentCached as isAgentCachedShared } from "..
 // ─── Pillar-specific recommendations ────────────────────────────────────────
 const RECOMMENDATIONS = {
   monitor: [
-    { text: "Run Health Monitor to score all accounts", priority: "high", agentId: "health-monitor" },
+    { text: "Run Portfolio Health Monitor to score all accounts", priority: "high", agentId: "health-monitor" },
     { text: "Add context data (Gong notes, support tickets) for richer health signals", priority: "medium" },
     { text: "Set renewal dates on all accounts for accurate proximity scoring", priority: "medium" },
   ],

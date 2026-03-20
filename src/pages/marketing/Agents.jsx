@@ -57,9 +57,9 @@ const PLATFORM_CATEGORIES = [
     bg: "rgba(52, 211, 153, 0.10)",
     border: "rgba(52, 211, 153, 0.20)",
     agents: [
-      { name: "Health Monitor", icon: Activity, desc: "Continuous health scoring, risk signal detection, champion tracking. The connective tissue across all agents.", outputs: "Composite health score (0-10), severity flags, archetype classification" },
-      { name: "Rescue Planner", icon: Shield, desc: "At-risk intervention strategies with archetype-aware playbooks. Know what to do before you need to.", outputs: "Rescue playbook per account, intervention timeline, recommended actions" },
-      { name: "Outreach Drafter", icon: FileText, desc: "Personalized renewal emails that reference past wins, health context, and relationship history. Not mail-merge.", outputs: "Context-rich draft emails, follow-up sequences, personalized messaging" },
+      { name: "Portfolio Health Monitor", icon: Activity, desc: "Continuous health scoring, risk signal detection, champion tracking. The connective tissue across all agents.", outputs: "Composite health score (0-10), severity flags, archetype classification" },
+      { name: "At-Risk Rescue Planner", icon: Shield, desc: "At-risk intervention strategies with archetype-aware playbooks. Know what to do before you need to.", outputs: "Rescue playbook per account, intervention timeline, recommended actions" },
+      { name: "Renewal Outreach Drafter", icon: FileText, desc: "Personalized renewal emails that reference past wins, health context, and relationship history. Not mail-merge.", outputs: "Context-rich draft emails, follow-up sequences, personalized messaging" },
     ],
   },
   {
@@ -69,9 +69,9 @@ const PLATFORM_CATEGORIES = [
     bg: "rgba(99, 102, 241, 0.10)",
     border: "rgba(99, 102, 241, 0.20)",
     agents: [
-      { name: "Expansion Scout", icon: Target, desc: "PQL detection, upsell triggers, budget signals, and expansion opportunities surfaced automatically.", outputs: "Expansion opportunity cards, trigger alerts, upsell recommendations" },
-      { name: "Forecast Engine", icon: TrendingUp, desc: "GRR/NRR modeling with confidence tiers, scenario analysis, and benchmark comparisons.", outputs: "Board-ready forecast, confidence tiers, best-in-class comparison" },
-      { name: "Opportunity Brief", icon: BarChart3, desc: "Pre-call expansion briefs with competitive positioning and pricing scenarios.", outputs: "Expansion talking points, pricing recommendations, competitive intel" },
+      { name: "Expansion Signal Scout", icon: Target, desc: "PQL detection, upsell triggers, budget signals, and expansion opportunities surfaced automatically.", outputs: "Expansion opportunity cards, trigger alerts, upsell recommendations" },
+      { name: "Revenue Forecast Engine", icon: TrendingUp, desc: "GRR/NRR modeling with confidence tiers, scenario analysis, and benchmark comparisons.", outputs: "Board-ready forecast, confidence tiers, best-in-class comparison" },
+      { name: "Upsell Opportunity Brief", icon: BarChart3, desc: "Pre-call expansion briefs with competitive positioning and pricing scenarios.", outputs: "Expansion talking points, pricing recommendations, competitive intel" },
     ],
   },
   {
@@ -81,9 +81,9 @@ const PLATFORM_CATEGORIES = [
     bg: "rgba(245, 158, 11, 0.10)",
     border: "rgba(245, 158, 11, 0.20)",
     agents: [
-      { name: "Executive Brief", icon: Crown, desc: "Board-ready summaries, leadership intel, and strategic recommendations in minutes, not hours.", outputs: "Exec summary, portfolio health overview, CRO/CEO talking points" },
-      { name: "Meeting Prep", icon: Users, desc: "Pre-call briefs with relationship context, attendee profiles, and conversation guides.", outputs: "Account brief, attendee profiles, risk/opportunity callouts" },
-      { name: "Playbook Builder", icon: ClipboardList, desc: "90/60/30 day action plans with milestone checklists and task generation.", outputs: "Time-sequenced action plan, task generation, reminder cadence" },
+      { name: "Executive Strategy Brief", icon: Crown, desc: "Board-ready summaries, leadership intel, and strategic recommendations in minutes, not hours.", outputs: "Exec summary, portfolio health overview, CRO/CEO talking points" },
+      { name: "Renewal Meeting Prep", icon: Users, desc: "Pre-call briefs with relationship context, attendee profiles, and conversation guides.", outputs: "Account brief, attendee profiles, risk/opportunity callouts" },
+      { name: "Renewal Playbook Builder", icon: ClipboardList, desc: "90/60/30 day action plans with milestone checklists and task generation.", outputs: "Time-sequenced action plan, task generation, reminder cadence" },
     ],
   },
 ];

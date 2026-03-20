@@ -11,17 +11,17 @@ const VIEW_META = {
   accounts: { title: "Portfolio", subtitle: "Portfolio management and AI co-pilot" },
   agents: { title: "Agents", subtitle: "Your AI-powered renewal operations fleet" },
   // Renewal Agents
-  "agents/renewal/health-monitor": { title: "Health Monitor", subtitle: "Continuous health scoring and risk signal detection" },
-  "agents/renewal/rescue-planner": { title: "Rescue Planner", subtitle: "AI-generated intervention playbooks for at-risk accounts" },
-  "agents/renewal/outreach-drafter": { title: "Outreach Drafter", subtitle: "Personalized renewal emails calibrated to health and archetype" },
+  "agents/renewal/health-monitor": { title: "Portfolio Health Monitor", subtitle: "Continuous health scoring and risk signal detection" },
+  "agents/renewal/rescue-planner": { title: "At-Risk Rescue Planner", subtitle: "AI-generated intervention playbooks for at-risk accounts" },
+  "agents/renewal/outreach-drafter": { title: "Renewal Outreach Drafter", subtitle: "Personalized renewal emails calibrated to health and archetype" },
   // Growth Agents
-  "agents/growth/expansion-scout": { title: "Expansion Scout", subtitle: "PQL detection, upsell triggers, and expansion signals" },
-  "agents/growth/forecast-engine": { title: "Forecast Engine", subtitle: "GRR/NRR forecasts with industry benchmarks" },
-  "agents/growth/opportunity-brief": { title: "Opportunity Brief", subtitle: "Pre-call expansion briefs with pricing strategy" },
+  "agents/growth/expansion-scout": { title: "Expansion Signal Scout", subtitle: "PQL detection, upsell triggers, and expansion signals" },
+  "agents/growth/forecast-engine": { title: "Revenue Forecast Engine", subtitle: "GRR/NRR forecasts with industry benchmarks" },
+  "agents/growth/opportunity-brief": { title: "Upsell Opportunity Brief", subtitle: "Pre-call expansion briefs with pricing strategy" },
   // Coaching Agents
-  "agents/coaching/executive-brief": { title: "Executive Brief", subtitle: "Board-ready summaries and strategic recommendations" },
-  "agents/coaching/meeting-prep": { title: "Meeting Prep", subtitle: "Pre-call briefs with relationship context" },
-  "agents/coaching/playbook-builder": { title: "Playbook Builder", subtitle: "90/60/30 day renewal action plans" },
+  "agents/coaching/executive-brief": { title: "Executive Strategy Brief", subtitle: "Board-ready summaries and strategic recommendations" },
+  "agents/coaching/meeting-prep": { title: "Renewal Meeting Prep", subtitle: "Pre-call briefs with relationship context" },
+  "agents/coaching/playbook-builder": { title: "Renewal Playbook Builder", subtitle: "90/60/30 day renewal action plans" },
   // Intelligence Hub
   intelligence: { title: "Intelligence", subtitle: "Executive briefs, forecasts, and strategic reports" },
   // Pillar pages

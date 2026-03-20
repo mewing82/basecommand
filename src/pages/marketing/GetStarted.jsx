@@ -85,7 +85,7 @@ export default function GetStarted() {
             },
             {
               week: "Week 4", title: "Expansion Detection", color: "#34D399",
-              tasks: ["Define PQL triggers", "Configure automated routing", "Activate Expansion Scout", "Run first forecast with scenarios"],
+              tasks: ["Define PQL triggers", "Configure automated routing", "Activate Expansion Signal Scout", "Run first forecast with scenarios"],
               layer: "Full Stack Active",
             },
           ].map((item, i) => (

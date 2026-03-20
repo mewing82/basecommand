@@ -107,17 +107,17 @@ function AppLayout() {
     accounts: "Accounts",
     agents: "Agents",
     // Renewal Agents
-    "agents/renewal/health-monitor": "Health Monitor",
-    "agents/renewal/rescue-planner": "Rescue Planner",
-    "agents/renewal/outreach-drafter": "Outreach Drafter",
+    "agents/renewal/health-monitor": "Portfolio Health Monitor",
+    "agents/renewal/rescue-planner": "At-Risk Rescue Planner",
+    "agents/renewal/outreach-drafter": "Renewal Outreach Drafter",
     // Growth Agents
-    "agents/growth/expansion-scout": "Expansion Scout",
-    "agents/growth/forecast-engine": "Forecast Engine",
-    "agents/growth/opportunity-brief": "Opportunity Brief",
+    "agents/growth/expansion-scout": "Expansion Signal Scout",
+    "agents/growth/forecast-engine": "Revenue Forecast Engine",
+    "agents/growth/opportunity-brief": "Upsell Opportunity Brief",
     // Coaching Agents
-    "agents/coaching/executive-brief": "Executive Brief",
-    "agents/coaching/meeting-prep": "Meeting Prep",
-    "agents/coaching/playbook-builder": "Playbook Builder",
+    "agents/coaching/executive-brief": "Executive Strategy Brief",
+    "agents/coaching/meeting-prep": "Renewal Meeting Prep",
+    "agents/coaching/playbook-builder": "Renewal Playbook Builder",
     // Intelligence Hub
     intelligence: "Intelligence",
     // Legacy (backward compat)

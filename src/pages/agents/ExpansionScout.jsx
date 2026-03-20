@@ -118,7 +118,7 @@ export default function ExpansionScout() {
         <div style={{ width: 64, height: 64, borderRadius: 16, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <TrendingUp size={32} style={{ color: C.green }} />
         </div>
-        <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: C.textPrimary, margin: 0 }}>Expansion Scout</h2>
+        <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: C.textPrimary, margin: 0 }}>Expansion Signal Scout</h2>
         <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: 0 }}>
           Import your accounts to detect expansion opportunities, PQL triggers, and upsell signals hiding in your data.
         </p>

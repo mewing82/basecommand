@@ -40,15 +40,15 @@ export const PILLARS = [
 
 // ─── Agent detail definitions ────────────────────────────────────────────────
 export const AGENT_DETAILS = {
-  "health-monitor": { name: "Health Monitor", icon: Activity, color: "#6B8AFF", route: "/app/agents/renewal/health-monitor", description: "Continuous health scoring, risk signals, behavioral archetype classification", cacheKey: "health-cache" },
-  "rescue-planner": { name: "Rescue Planner", icon: ShieldAlert, color: "#F87171", route: "/app/agents/renewal/rescue-planner", description: "AI-generated intervention playbooks for at-risk accounts", cacheKey: "rescue-cache" },
-  "outreach-drafter": { name: "Outreach Drafter", icon: Mail, color: "#22D3EE", route: "/app/agents/renewal/outreach-drafter", description: "Personalized renewal emails calibrated to health and archetype", cacheKey: "outreach-cache" },
-  "expansion-scout": { name: "Expansion Scout", icon: TrendingUp, color: "#34D399", route: "/app/agents/growth/expansion-scout", description: "PQL detection, upsell triggers, expansion signals from your data", cacheKey: "expansion-cache" },
-  "forecast-engine": { name: "Forecast Engine", icon: BarChart3, color: "#A78BFA", route: "/app/agents/growth/forecast-engine", description: "GRR/NRR forecasts with benchmarks, scenarios, and confidence tiers", cacheKey: "forecast" },
-  "opportunity-brief": { name: "Opportunity Brief", icon: DollarSign, color: "#34D399", route: "/app/agents/growth/opportunity-brief", description: "Pre-call expansion briefs with pricing strategy and talking points", cacheKey: "opportunity-cache" },
-  "executive-brief": { name: "Executive Brief", icon: Crown, color: "#D4A843", route: "/app/agents/coaching/executive-brief", description: "Board-ready summaries, talking points, and strategic recommendations", cacheKey: "leadership-cache" },
-  "meeting-prep": { name: "Meeting Prep", icon: Users, color: "#22D3EE", route: "/app/agents/coaching/meeting-prep", description: "Pre-call briefs with relationship context and recommended asks", cacheKey: "meeting-prep-cache" },
-  "playbook-builder": { name: "Playbook Builder", icon: FileText, color: "#FB923C", route: "/app/agents/coaching/playbook-builder", description: "90/60/30 day action plans with archetype-aware strategies", cacheKey: "playbook-cache" },
+  "health-monitor": { name: "Portfolio Health Monitor", icon: Activity, color: "#6B8AFF", route: "/app/agents/renewal/health-monitor", description: "Continuous health scoring, risk signals, behavioral archetype classification", cacheKey: "health-cache" },
+  "rescue-planner": { name: "At-Risk Rescue Planner", icon: ShieldAlert, color: "#F87171", route: "/app/agents/renewal/rescue-planner", description: "AI-generated intervention playbooks for at-risk accounts", cacheKey: "rescue-cache" },
+  "outreach-drafter": { name: "Renewal Outreach Drafter", icon: Mail, color: "#22D3EE", route: "/app/agents/renewal/outreach-drafter", description: "Personalized renewal emails calibrated to health and archetype", cacheKey: "outreach-cache" },
+  "expansion-scout": { name: "Expansion Signal Scout", icon: TrendingUp, color: "#34D399", route: "/app/agents/growth/expansion-scout", description: "PQL detection, upsell triggers, expansion signals from your data", cacheKey: "expansion-cache" },
+  "forecast-engine": { name: "Revenue Forecast Engine", icon: BarChart3, color: "#A78BFA", route: "/app/agents/growth/forecast-engine", description: "GRR/NRR forecasts with benchmarks, scenarios, and confidence tiers", cacheKey: "forecast" },
+  "opportunity-brief": { name: "Upsell Opportunity Brief", icon: DollarSign, color: "#34D399", route: "/app/agents/growth/opportunity-brief", description: "Pre-call expansion briefs with pricing strategy and talking points", cacheKey: "opportunity-cache" },
+  "executive-brief": { name: "Executive Strategy Brief", icon: Crown, color: "#D4A843", route: "/app/agents/coaching/executive-brief", description: "Board-ready summaries, talking points, and strategic recommendations", cacheKey: "leadership-cache" },
+  "meeting-prep": { name: "Renewal Meeting Prep", icon: Users, color: "#22D3EE", route: "/app/agents/coaching/meeting-prep", description: "Pre-call briefs with relationship context and recommended asks", cacheKey: "meeting-prep-cache" },
+  "playbook-builder": { name: "Renewal Playbook Builder", icon: FileText, color: "#FB923C", route: "/app/agents/coaching/playbook-builder", description: "90/60/30 day action plans with archetype-aware strategies", cacheKey: "playbook-cache" },
 };
 
 // ─── Cache detection (single source of truth) ───────────────────────────────

@@ -222,7 +222,7 @@ export default function Intelligence() {
   const forecastAge = timeAgo(forecast?._generatedAt);
 
   const TABS = [
-    { id: "brief", label: "Executive Brief", icon: Crown, age: briefAge },
+    { id: "brief", label: "Executive Strategy Brief", icon: Crown, age: briefAge },
     { id: "forecast", label: "Forecast", icon: BarChart3, age: forecastAge },
     { id: "presentations", label: "Presentations", icon: Presentation, disabled: true },
   ];

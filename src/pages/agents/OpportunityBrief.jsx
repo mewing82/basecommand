@@ -136,7 +136,7 @@ export default function OpportunityBrief() {
             </div>
             {!briefs && (
               <Btn variant="ai" onClick={generateBriefs} disabled={generating}>
-                <><Sparkles size={14} /> Generate Opportunity Briefs</>
+                <><Sparkles size={14} /> Generate Upsell Opportunity Briefs</>
               </Btn>
             )}
           </div>

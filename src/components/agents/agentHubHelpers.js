@@ -11,7 +11,7 @@ export function getEffectiveLevel(agentId, autonomySettings) {
   if (!autonomySettings) return "suggest";
   let highest = 0;
   for (const at of actionTypes) {
-    const level = autonomySettings[at] || "draft";
+    const level = autonomySettings[at] || "suggest";
     const idx = AUTONOMY_LEVELS.indexOf(level);
     if (idx > highest) highest = idx;
   }
