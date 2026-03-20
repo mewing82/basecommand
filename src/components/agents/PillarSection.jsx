@@ -9,7 +9,14 @@ export default function PillarSection({ pillar, agents, autonomySettings, onUpda
   const PIcon = pillar.icon;
 
   return (
-    <div style={{ marginBottom: isMobile ? 24 : 32 }}>
+    <div style={{
+      marginBottom: isMobile ? 16 : 20,
+      background: C.bgCard,
+      border: `1px solid ${C.borderDefault}`,
+      borderTop: `2px solid ${on ? pillar.color : pillar.color + "40"}`,
+      borderRadius: 12,
+      padding: isMobile ? "14px 14px 16px" : "18px 20px 20px",
+    }}>
       {/* Pillar header */}
       <button
         onClick={() => navigate(`/app/pillars/${pillar.id}`)}
@@ -64,7 +71,7 @@ export default function PillarSection({ pillar, agents, autonomySettings, onUpda
               key={agent.agentId}
               onClick={() => navigate(agent.route)}
               style={{
-                background: C.bgCard,
+                background: C.bgPrimary,
                 border: `1px solid ${C.borderDefault}`,
                 borderLeft: borderAccent ? `3px solid ${borderAccent}40` : `1px solid ${C.borderDefault}`,
                 borderRadius: 12,
