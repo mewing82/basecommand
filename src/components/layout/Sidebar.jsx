@@ -11,7 +11,13 @@ import { renewalStore } from "../../lib/storage";
 import { supabase } from "../../lib/supabase";
 import { PILLARS, isPillarActive, getActivePillarCount } from "../../lib/pillars";
 
-// ─── Nav Configuration — 5 workflow-stage groups ─────────────────────────────
+// ─── Layout constants ────────────────────────────────────────────────────────
+// All rows: [PX padding] [ICON_W icon box] [GAP] [text] → text at 52px
+const PX = 16;
+const ICON_W = 20;
+const GAP = 16;
+
+// ─── Nav Configuration ──────────────────────────────────────────────────────
 const NAV_ITEMS = [
   { id: "dashboard", icon: LayoutDashboard, label: "Command Center" },
   { id: "accounts", icon: BarChart3, label: "Portfolio" },
@@ -20,7 +26,7 @@ const NAV_ITEMS = [
   { id: "intelligence", icon: Crown, label: "Intelligence" },
 ];
 
-// ─── Org Display (replaces workspace switcher) ──────────────────────────────
+// ─── Org Display ────────────────────────────────────────────────────────────
 function OrgDisplay({ collapsed }) {
   const { userOrgs, activeOrgId } = useAuthStore();
   const activeOrg = userOrgs.find(o => o.id === activeOrgId) || { name: "Organization" };
@@ -41,18 +47,25 @@ function OrgDisplay({ collapsed }) {
   }
 
   return (
-    <div className="bc-sidebar-ws-expanded" style={{ padding: "0 0 8px" }}>
+    <div style={{ padding: `0 ${PX}px 8px` }}>
       <div style={{
-        width: "100%", display: "flex", alignItems: "center",
-        padding: "7px 16px 7px 52px", position: "relative",
+        display: "flex", alignItems: "center", gap: GAP,
+        padding: "7px 0",
       }}>
-        <span style={{
-          position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)",
-          width: 22, height: 22, borderRadius: 5, background: C.goldMuted,
+        <div style={{
+          width: ICON_W, flexShrink: 0,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 11, fontWeight: 700, color: C.gold, fontFamily: FONT_SANS,
-        }}>{initial}</span>
-        <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        }}>
+          <div style={{
+            width: 22, height: 22, borderRadius: 5, background: C.goldMuted,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 11, fontWeight: 700, color: C.gold, fontFamily: FONT_SANS,
+          }}>{initial}</div>
+        </div>
+        <span style={{
+          fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary,
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        }}>
           {activeOrg.name}
         </span>
       </div>
@@ -60,7 +73,7 @@ function OrgDisplay({ collapsed }) {
   );
 }
 
-// ─── Profile Dropdown ────────────────────────────────────────────────────────
+// ─── Profile Dropdown ───────────────────────────────────────────────────────
 function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, activeView, onNavigate, signOut }) {
   const [open, setOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -90,21 +103,23 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
   return (
     <div ref={ref} style={{ position: "relative", padding: "8px 0 16px" }}>
       <button onClick={() => setOpen(prev => !prev)} style={{
-        width: "100%", display: "flex", alignItems: "center", gap: 10,
-        padding: isExpanded ? "8px 16px 8px 52px" : "8px 0", borderRadius: 0, cursor: "pointer",
+        width: "100%", display: "flex", alignItems: "center",
+        padding: isExpanded ? `8px ${PX}px` : "8px 0",
+        gap: isExpanded ? GAP : 0,
+        borderRadius: 0, cursor: "pointer", textAlign: "left",
         background: open ? "rgba(255,255,255,0.07)" : "transparent",
-        border: "none", justifyContent: isExpanded ? "flex-start" : "center", transition: "all 0.15s",
-        position: "relative",
+        border: "none", justifyContent: isExpanded ? "flex-start" : "center",
+        transition: "all 0.15s",
       }}
         onMouseEnter={e => { if (!open) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-        onMouseLeave={e => { if (!open) e.currentTarget.style.background = "transparent"; }}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.background = open ? "rgba(255,255,255,0.07)" : "transparent"; }}
       >
-        <div style={{ ...(isExpanded ? { position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" } : {}) }}>
+        <div style={{ width: isExpanded ? ICON_W : undefined, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {avatar}
         </div>
         {isExpanded && (
           <>
-            <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, flex: 1, textAlign: "left", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{displayName}</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, flex: 1, textAlign: "left", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{displayName}</span>
             <ChevronUp size={12} style={{ color: C.textTertiary, flexShrink: 0, transition: "transform 0.15s", transform: open ? "rotate(0deg)" : "rotate(180deg)" }} />
           </>
         )}
@@ -128,7 +143,7 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
             border: "none", textAlign: "left", transition: "background 0.12s",
           }}
             onMouseEnter={e => { if (activeView !== "settings") e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-            onMouseLeave={e => { if (activeView !== "settings") e.currentTarget.style.background = "transparent"; }}
+            onMouseLeave={e => { if (activeView !== "settings") e.currentTarget.style.background = activeView === "settings" ? C.goldMuted : "transparent"; }}
           >
             <SettingsIcon size={14} style={{ color: activeView === "settings" ? C.gold : C.textTertiary }} />
             <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: activeView === "settings" ? 600 : 400, color: activeView === "settings" ? C.textPrimary : C.textSecondary }}>Settings</span>
@@ -141,7 +156,7 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
               border: "none", textAlign: "left", transition: "background 0.12s",
             }}
               onMouseEnter={e => { if (activeView !== "admin") e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-              onMouseLeave={e => { if (activeView !== "admin") e.currentTarget.style.background = "transparent"; }}
+              onMouseLeave={e => { if (activeView !== "admin") e.currentTarget.style.background = activeView === "admin" ? `${C.red}14` : "transparent"; }}
             >
               <Shield size={14} style={{ color: activeView === "admin" ? C.red : C.textTertiary }} />
               <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: activeView === "admin" ? 600 : 400, color: activeView === "admin" ? C.textPrimary : C.textSecondary }}>Admin</span>
@@ -165,7 +180,7 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
   );
 }
 
-// ─── Sidebar ─────────────────────────────────────────────────────────────────
+// ─── Sidebar ────────────────────────────────────────────────────────────────
 export default function Sidebar({ activeView, onNavigate }) {
   const { sidebarCollapsed, setSidebarCollapsed } = useAppStore();
   const { user, profile, signOut } = useAuthStore();
@@ -173,7 +188,6 @@ export default function Sidebar({ activeView, onNavigate }) {
   const [agentsExpanded, setAgentsExpanded] = useState(() => activeView.startsWith("agents/") || activeView.startsWith("pillars/"));
   const isExpanded = !sidebarCollapsed;
 
-  // Count active pillars using shared detection
   const [activePillarCount] = useState(() => getActivePillarCount());
   const [pillarStatus] = useState(() => {
     const m = {};
@@ -181,7 +195,6 @@ export default function Sidebar({ activeView, onNavigate }) {
     return m;
   });
 
-  // Pending actions count for Actions badge
   const [pendingCount, setPendingCount] = useState(0);
   useEffect(() => {
     renewalStore.getAutopilotActions().then(actions => {
@@ -203,25 +216,29 @@ export default function Sidebar({ activeView, onNavigate }) {
     }}>
       {/* Logo */}
       <div style={{
-        padding: isExpanded ? "20px 16px 16px 52px" : "20px 0 16px",
+        padding: isExpanded ? `20px ${PX}px 16px` : "20px 0 16px",
         display: "flex", alignItems: "center",
+        gap: isExpanded ? GAP : 0,
         justifyContent: isExpanded ? "flex-start" : "center",
-        position: "relative",
       }}>
         <div style={{
-          ...(isExpanded ? { position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)" } : {}),
-          width: 28, height: 28, borderRadius: 8,
-          background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+          width: ICON_W, flexShrink: 0,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 12, fontWeight: 700, color: C.bgSidebar, fontFamily: FONT_MONO, flexShrink: 0,
-        }}>B</div>
+        }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 8,
+            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 12, fontWeight: 700, color: C.bgSidebar, fontFamily: FONT_MONO,
+          }}>B</div>
+        </div>
         {isExpanded && (
           <>
-            <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontWeight: 600, fontSize: 17, color: C.textPrimary, letterSpacing: "-0.03em", whiteSpace: "nowrap", flex: 1 }}>
+            <span style={{ fontFamily: FONT_SANS, fontWeight: 600, fontSize: 17, color: C.textPrimary, letterSpacing: "-0.03em", whiteSpace: "nowrap", flex: 1 }}>
               BaseCommand
             </span>
-            <button className="bc-sidebar-collapse-btn" onClick={() => setSidebarCollapsed(true)} style={{
-              flexShrink: 0, marginLeft: 8,
+            <button onClick={() => setSidebarCollapsed(true)} style={{
+              flexShrink: 0,
               background: "rgba(255,255,255,0.04)", border: "none", color: C.textTertiary, cursor: "pointer",
               fontSize: 12, padding: "4px 6px", borderRadius: 6, transition: "all 0.15s",
             }}
@@ -244,7 +261,7 @@ export default function Sidebar({ activeView, onNavigate }) {
 
       <OrgDisplay collapsed={!isExpanded} />
 
-      {/* Navigation — 5 workflow-stage groups */}
+      {/* Navigation */}
       <nav style={{ flex: 1, padding: "4px 0", overflow: "auto", display: "flex", flexDirection: "column" }}>
         {NAV_ITEMS.map(item => {
           const active = item.id === "agents"
@@ -256,7 +273,6 @@ export default function Sidebar({ activeView, onNavigate }) {
           return (
             <div key={item.id}>
               <button
-                className="bc-sidebar-nav-btn"
                 onClick={() => {
                   if (isAgents && isExpanded) {
                     onNavigate(item.id);
@@ -268,18 +284,19 @@ export default function Sidebar({ activeView, onNavigate }) {
                 onMouseEnter={() => setHoveredItem(item.id)}
                 onMouseLeave={() => setHoveredItem(null)}
                 style={{
-                  width: "100%",
+                  width: "100%", textAlign: "left",
                   background: active ? "rgba(255,255,255,0.07)" : isHovered ? "rgba(255,255,255,0.04)" : "none",
                   border: "none", cursor: "pointer",
                   display: "flex", alignItems: "center",
-                  padding: isExpanded ? "10px 16px 10px 52px" : "10px 0",
+                  padding: isExpanded ? `10px ${PX}px` : "10px 0",
+                  gap: isExpanded ? GAP : 0,
                   justifyContent: isExpanded ? "flex-start" : "center",
                   color: active ? C.textPrimary : isHovered ? C.textPrimary : C.textSecondary,
                   borderRight: active ? `2px solid ${C.gold}` : "2px solid transparent",
-                  transition: "all 0.12s ease", position: "relative",
+                  transition: "all 0.12s ease",
                 }}
               >
-                <div style={{ position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)" }}>
+                <div style={{ width: isExpanded ? ICON_W : undefined, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                   <item.icon size={18} strokeWidth={active ? 2 : 1.75} style={{ opacity: active ? 1 : 0.75, display: "block" }} />
                   {isAgents && !isExpanded && activePillarCount > 0 && (
                     <div style={{
@@ -291,18 +308,17 @@ export default function Sidebar({ activeView, onNavigate }) {
                   )}
                 </div>
                 {isExpanded && (
-                  <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: active ? 600 : 500, whiteSpace: "nowrap", flex: 1 }}>{item.label}</span>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: active ? 600 : 500, whiteSpace: "nowrap", flex: 1, textAlign: "left" }}>{item.label}</span>
                 )}
-                {/* Pending count badge on Actions */}
                 {item.id === "tasks" && isExpanded && pendingCount > 0 && (
                   <span style={{
                     fontFamily: FONT_MONO, fontSize: 9, color: C.amber,
                     background: C.amberMuted, padding: "1px 6px", borderRadius: 3,
-                    lineHeight: "14px", fontWeight: 600, marginLeft: "auto",
+                    lineHeight: "14px", fontWeight: 600, flexShrink: 0,
                   }}>{pendingCount}</span>
                 )}
                 {isAgents && isExpanded && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: "auto" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                     {activePillarCount > 0 && (
                       <span style={{
                         fontFamily: FONT_MONO, fontSize: 9, color: "#34D399",
@@ -338,14 +354,13 @@ export default function Sidebar({ activeView, onNavigate }) {
                     return (
                       <button
                         key={p.id}
-                        className="bc-sidebar-nav-btn"
                         onClick={() => onNavigate(`pillars/${p.id}`)}
                         onMouseEnter={() => setHoveredItem(`pillar-${p.id}`)}
                         onMouseLeave={() => setHoveredItem(null)}
                         style={{
-                          width: "100%", border: "none", cursor: "pointer",
+                          width: "100%", border: "none", cursor: "pointer", textAlign: "left",
                           display: "flex", alignItems: "center", gap: 8,
-                          padding: "6px 16px 6px 38px",
+                          padding: `6px ${PX}px 6px ${PX + ICON_W + GAP}px`,
                           background: pillarActive ? "rgba(255,255,255,0.05)" : pillarHovered ? "rgba(255,255,255,0.03)" : "transparent",
                           borderRight: pillarActive ? `2px solid ${p.color}` : "2px solid transparent",
                           transition: "all 0.12s ease",
@@ -359,9 +374,9 @@ export default function Sidebar({ activeView, onNavigate }) {
                           transition: "all 0.15s",
                         }} />
                         <PIcon size={12} style={{ color: pillarActive ? p.color : on ? p.color : C.textTertiary, flexShrink: 0 }} />
-                        <span className="bc-sidebar-text" style={{
+                        <span style={{
                           fontFamily: FONT_MONO, fontSize: 11, fontWeight: pillarActive ? 600 : 400,
-                          letterSpacing: "0.02em",
+                          letterSpacing: "0.02em", textAlign: "left",
                         }}>{p.label}</span>
                       </button>
                     );
@@ -374,21 +389,20 @@ export default function Sidebar({ activeView, onNavigate }) {
       </nav>
 
       {/* Settings gear */}
-      <div style={{ padding: "0 20px" }}>
+      <div style={{ padding: `0 ${PX + 4}px` }}>
         <div style={{ height: 1, background: C.borderDefault, margin: "4px 0" }} />
       </div>
       <button
-        className="bc-sidebar-nav-btn"
         onClick={() => onNavigate("settings")}
         onMouseEnter={() => setHoveredItem("settings-gear")}
         onMouseLeave={() => setHoveredItem(null)}
         title={isExpanded ? undefined : "Settings"}
         style={{
-          width: "100%", border: "none", cursor: "pointer",
+          width: "100%", border: "none", cursor: "pointer", textAlign: "left",
           display: "flex", alignItems: "center",
-          padding: isExpanded ? "10px 16px 10px 52px" : "10px 0",
+          padding: isExpanded ? `10px ${PX}px` : "10px 0",
+          gap: isExpanded ? GAP : 0,
           justifyContent: isExpanded ? "flex-start" : "center",
-          position: "relative",
           background: activeView === "settings"
             ? "rgba(255,255,255,0.07)"
             : hoveredItem === "settings-gear" ? "rgba(255,255,255,0.04)" : "none",
@@ -397,11 +411,11 @@ export default function Sidebar({ activeView, onNavigate }) {
           transition: "all 0.12s ease",
         }}
       >
-        <div style={{ position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)" }}>
+        <div style={{ width: isExpanded ? ICON_W : undefined, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <SettingsIcon size={18} strokeWidth={activeView === "settings" ? 2 : 1.75} style={{ opacity: activeView === "settings" ? 1 : 0.75, display: "block" }} />
         </div>
         {isExpanded && (
-          <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: activeView === "settings" ? 600 : 500, whiteSpace: "nowrap" }}>Settings</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: activeView === "settings" ? 600 : 500, whiteSpace: "nowrap", textAlign: "left" }}>Settings</span>
         )}
       </button>
 
