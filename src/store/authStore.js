@@ -37,8 +37,25 @@ export const useAuthStore = create((set, get) => ({
     return data;
   },
 
+  acceptPendingInvites: async () => {
+    if (!supabase) return;
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session?.session?.access_token;
+      if (!token) return;
+      await fetch("/api/org?action=accept-invites", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+    } catch { /* skip — invites are best-effort */ }
+  },
+
   fetchOrgs: async (userId) => {
     if (!supabase || !userId) return;
+
+    // Auto-accept any pending invites before loading orgs
+    await get().acceptPendingInvites();
+
     const { data, error } = await supabase
       .from("org_members")
       .select("org_id, role, organizations(id, name, slug)")

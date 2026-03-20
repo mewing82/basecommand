@@ -22,6 +22,7 @@ export default async function handler(req, res) {
   if (req.method === "POST" && action === "invite") return handleInvite(req, res, member);
   if (req.method === "POST" && action === "update-role") return handleUpdateRole(req, res, member);
   if (req.method === "POST" && action === "remove-member") return handleRemoveMember(req, res, member);
+  if (req.method === "POST" && action === "accept-invites") return handleAcceptInvites(req, res, member);
 
   return res.status(400).json({ error: `Unknown action: ${action}` });
 }
@@ -105,10 +106,11 @@ async function handleInvite(req, res, member) {
   if (!email) return res.status(400).json({ error: "Email is required" });
 
   const inviteRole = role === "admin" ? "admin" : "member";
+  const normalizedEmail = email.toLowerCase().trim();
 
   // Check if user already exists in Supabase Auth
   const { data: { users } } = await supabase.auth.admin.listUsers();
-  const existingUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+  const existingUser = users.find(u => u.email?.toLowerCase() === normalizedEmail);
 
   if (existingUser) {
     // Check if already a member of this org
@@ -123,7 +125,7 @@ async function handleInvite(req, res, member) {
       return res.status(409).json({ error: "User is already a member of this organization" });
     }
 
-    // Add existing user to org
+    // Add existing user to org directly
     const { error } = await supabase
       .from("org_members")
       .insert({
@@ -137,32 +139,43 @@ async function handleInvite(req, res, member) {
     return res.status(200).json({ invited: true, status: "added" });
   }
 
-  // User doesn't exist — send a Supabase invite email
-  const { data: org } = await supabase
-    .from("organizations")
-    .select("name")
-    .eq("id", member.orgId)
+  // User doesn't exist — create a pending invite record.
+  // They'll be added to the org when they sign up and accept.
+
+  // Check for existing pending invite
+  const { data: existingInvite } = await supabase
+    .from("org_invites")
+    .select("id")
+    .eq("org_id", member.orgId)
+    .eq("email", normalizedEmail)
+    .eq("status", "pending")
     .single();
 
-  const { data: invited, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-    data: { invited_org_id: member.orgId, invited_role: inviteRole },
-  });
+  if (existingInvite) {
+    return res.status(409).json({ error: "An invite is already pending for this email" });
+  }
+
+  // Generate a unique invite token
+  const token = crypto.randomUUID();
+
+  const { error: inviteError } = await supabase
+    .from("org_invites")
+    .insert({
+      org_id: member.orgId,
+      email: normalizedEmail,
+      role: inviteRole,
+      invited_by: member.userId,
+      token,
+      status: "pending",
+    });
 
   if (inviteError) return res.status(500).json({ error: inviteError.message });
 
-  // Pre-create org_members row so they're added on first login
-  if (invited?.user?.id) {
-    await supabase
-      .from("org_members")
-      .insert({
-        org_id: member.orgId,
-        user_id: invited.user.id,
-        role: inviteRole,
-        joined_at: new Date().toISOString(),
-      });
-  }
-
-  return res.status(200).json({ invited: true, status: "email_sent" });
+  return res.status(200).json({
+    invited: true,
+    status: "pending",
+    message: `Invite created for ${normalizedEmail}. They'll be added when they sign up.`,
+  });
 }
 
 async function handleUpdateRole(req, res, member) {
@@ -234,4 +247,56 @@ async function handleRemoveMember(req, res, member) {
 
   if (error) return res.status(500).json({ error: error.message });
   return res.status(200).json({ removed: true });
+}
+
+async function handleAcceptInvites(req, res, member) {
+  // Called after signup/login to auto-accept any pending invites for this user's email.
+  // Any authenticated user can accept their own invites.
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return res.status(500).json({ error: "Database not configured" });
+
+  // Get user's email
+  const { data: { user } } = await supabase.auth.admin.getUserById(member.userId);
+  if (!user?.email) return res.status(400).json({ error: "Could not resolve user email" });
+
+  const { data: pendingInvites } = await supabase
+    .from("org_invites")
+    .select("id, org_id, role")
+    .eq("email", user.email.toLowerCase())
+    .eq("status", "pending");
+
+  if (!pendingInvites || pendingInvites.length === 0) {
+    return res.status(200).json({ accepted: 0 });
+  }
+
+  let accepted = 0;
+  for (const invite of pendingInvites) {
+    // Check if already a member (avoid duplicates)
+    const { data: existing } = await supabase
+      .from("org_members")
+      .select("id")
+      .eq("org_id", invite.org_id)
+      .eq("user_id", member.userId)
+      .single();
+
+    if (!existing) {
+      const { error } = await supabase
+        .from("org_members")
+        .insert({
+          org_id: invite.org_id,
+          user_id: member.userId,
+          role: invite.role,
+          joined_at: new Date().toISOString(),
+        });
+      if (!error) accepted++;
+    }
+
+    // Mark invite as accepted regardless
+    await supabase
+      .from("org_invites")
+      .update({ status: "accepted" })
+      .eq("id", invite.id);
+  }
+
+  return res.status(200).json({ accepted });
 }
