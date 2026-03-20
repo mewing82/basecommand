@@ -1,21 +1,10 @@
 import { useState, useEffect } from "react";
-import { Bot, Mail, Shield, Zap, AlertTriangle } from "lucide-react";
+import { Bot, AlertTriangle } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { Btn } from "../../components/ui/index";
-
-const LEVELS = [
-  { id: "suggest", label: "Suggest", desc: "Agent proposes — you review before any task is created" },
-  { id: "draft", label: "Draft", desc: "Agent creates a draft task — you approve before execution" },
-  { id: "execute", label: "Execute", desc: "Agent creates and executes automatically — logged to audit trail" },
-];
-
-const ACTION_TYPES = [
-  { id: "email_draft", label: "Email Drafts", icon: Mail, color: "#22D3EE", desc: "Outreach emails, follow-ups, renewal reminders" },
-  { id: "risk_assessment", label: "Risk Assessments", icon: Shield, color: "#F87171", desc: "Health score updates, risk level changes, alerts" },
-  { id: "next_action", label: "Next Actions", icon: Zap, color: "#A78BFA", desc: "Recommended tasks, meeting preps, playbook steps" },
-];
+import { ACTION_TYPE_DEFS as ACTION_TYPES, LEVEL_DEFS as LEVELS } from "../../components/agents/agentHubHelpers";
 
 export default function AutonomySettings() {
   const { isMobile } = useMediaQuery();

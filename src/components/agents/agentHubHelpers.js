@@ -1,9 +1,22 @@
+import { Mail, Shield, Zap } from "lucide-react";
 import { C } from "../../lib/tokens";
 import { AGENT_ACTION_TYPES } from "../../lib/pillars";
 import { store } from "../../lib/storage";
 
 export const AUTONOMY_LEVELS = ["suggest", "draft", "execute"];
 export const LEVEL_COLORS = { suggest: C.textTertiary, draft: C.gold, execute: C.amber };
+
+export const ACTION_TYPE_DEFS = [
+  { id: "email_draft", label: "Email Drafts", icon: Mail, color: "#22D3EE", desc: "Outreach emails, follow-ups, renewal reminders" },
+  { id: "risk_assessment", label: "Risk Assessments", icon: Shield, color: "#F87171", desc: "Health score updates, risk level changes, alerts" },
+  { id: "next_action", label: "Next Actions", icon: Zap, color: "#A78BFA", desc: "Recommended tasks, meeting preps, playbook steps" },
+];
+
+export const LEVEL_DEFS = [
+  { id: "suggest", label: "Suggest", desc: "Agent proposes — you review before any task is created" },
+  { id: "draft", label: "Draft", desc: "Agent creates a draft task — you approve before execution" },
+  { id: "execute", label: "Execute", desc: "Agent creates and executes automatically — logged to audit trail" },
+];
 export const URGENCY_COLORS = { critical: C.red, high: C.amber, medium: C.blue };
 
 export function getEffectiveLevel(agentId, autonomySettings) {

@@ -3,7 +3,7 @@
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Zap, CheckCircle, Circle, ArrowRight, X, Sparkles } from "lucide-react";
+import { Zap, CheckCircle, Circle, ArrowRight, X, Sparkles, Bot, Settings, Activity, BarChart3 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { ONBOARDING } from "../../lib/demoData";
 
@@ -50,9 +50,10 @@ export function ButtonGroup({ options, value, onChange }) {
 
 // ─── Onboarding Checklist ────────────────────────────────────────────────────
 const CHECKLIST_ITEMS = [
-  { id: "run-agent", label: "Run your first agent", route: "/app/agents/renewal/health-monitor" },
-  { id: "review-account", label: "Review an account", route: "/app/accounts" },
-  { id: "check-health", label: "Check health scores", route: "/app/agents/renewal/health-monitor" },
+  { id: "explore-fleet", label: "Explore your agent fleet", route: "/app/agents", icon: Bot },
+  { id: "configure-autonomy", label: "Configure fleet autonomy levels", route: "/app/agents?configure=fleet", icon: Settings },
+  { id: "run-first-agent", label: "Run your first agent", route: "/app/agents/renewal/health-monitor", icon: Activity },
+  { id: "review-results", label: "Review agent results in your portfolio", route: "/app/accounts", icon: BarChart3 },
 ];
 
 export function OnboardingChecklist() {
@@ -91,7 +92,7 @@ export function OnboardingChecklist() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Sparkles size={14} style={{ color: C.gold }} />
           <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>
-            {allDone ? "You're all set!" : "Getting Started"}
+            {allDone ? "Fleet activated!" : "Activate Your Fleet"}
           </span>
         </div>
         <button onClick={handleDismiss} style={{
@@ -101,6 +102,11 @@ export function OnboardingChecklist() {
           <X size={14} />
         </button>
       </div>
+      {!allDone && (
+        <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 12, marginTop: -6 }}>
+          Complete these steps to get your AI agents running
+        </div>
+      )}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {CHECKLIST_ITEMS.map(item => {
           const done = completed.includes(item.id);
@@ -118,6 +124,7 @@ export function OnboardingChecklist() {
                 ? <CheckCircle size={16} style={{ color: C.green, flexShrink: 0 }} />
                 : <Circle size={16} style={{ color: C.textTertiary, flexShrink: 0 }} />
               }
+              {item.icon && <item.icon size={14} style={{ color: done ? C.textTertiary : C.gold, flexShrink: 0 }} />}
               <span style={{
                 fontFamily: FONT_BODY, fontSize: 13,
                 color: done ? C.textTertiary : C.textSecondary,

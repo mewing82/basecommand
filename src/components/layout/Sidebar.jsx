@@ -366,6 +366,40 @@ export default function Sidebar({ activeView, onNavigate }) {
         })}
       </nav>
 
+      {/* Settings gear */}
+      <div style={{ padding: "0 12px" }}>
+        <div style={{ height: 1, background: C.borderDefault, margin: "4px 0" }} />
+      </div>
+      <div style={{ padding: isExpanded ? "4px 12px" : "4px 0" }}>
+        <button
+          className="bc-sidebar-nav-btn"
+          onClick={() => onNavigate("settings")}
+          onMouseEnter={() => setHoveredItem("settings-gear")}
+          onMouseLeave={() => setHoveredItem(null)}
+          title={isExpanded ? undefined : "Settings"}
+          style={{
+            width: "100%", border: "none", cursor: "pointer",
+            display: "flex", alignItems: "center",
+            padding: isExpanded ? "10px 16px 10px 52px" : "10px 0",
+            justifyContent: isExpanded ? "flex-start" : "center",
+            borderRadius: 6, position: "relative",
+            background: activeView === "settings"
+              ? "rgba(255,255,255,0.07)"
+              : hoveredItem === "settings-gear" ? "rgba(255,255,255,0.04)" : "none",
+            borderRight: activeView === "settings" ? `2px solid ${C.gold}` : "2px solid transparent",
+            color: activeView === "settings" ? C.textPrimary : hoveredItem === "settings-gear" ? C.textPrimary : C.textSecondary,
+            transition: "all 0.12s ease",
+          }}
+        >
+          <div style={{ position: "absolute", left: isExpanded ? 20 : undefined, top: "50%", transform: "translateY(-50%)" }}>
+            <SettingsIcon size={18} strokeWidth={activeView === "settings" ? 2 : 1.75} style={{ opacity: activeView === "settings" ? 1 : 0.75, display: "block" }} />
+          </div>
+          {isExpanded && (
+            <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: activeView === "settings" ? 600 : 500, whiteSpace: "nowrap" }}>Settings</span>
+          )}
+        </button>
+      </div>
+
       <ProfileDropdown
         user={user} displayName={displayName} avatarUrl={avatarUrl} initials={initials}
         isExpanded={isExpanded} activeView={activeView} onNavigate={onNavigate} signOut={signOut}

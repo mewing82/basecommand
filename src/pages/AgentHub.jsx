@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, ListChecks, Clock, Bot, Cpu } from "lucide-react";
+import { ArrowRight, ListChecks, Clock, Bot, Cpu, Settings as SettingsIcon, ChevronUp } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
@@ -9,6 +9,7 @@ import { PILLARS, AGENT_DETAILS, isPillarActive, isAgentCached } from "../lib/pi
 import { executeAction, dismissAction } from "../lib/executionEngine";
 import { getEffectiveLevel, getCacheAge } from "../components/agents/agentHubHelpers";
 import { AutonomyDial, OpsRow, PendingReviewQueue } from "../components/agents/AgentHubParts";
+import FleetConfigPanel from "../components/agents/FleetConfigPanel";
 
 // ─── Agent Hub ──────────────────────────────────────────────────────────────
 export default function AgentHub() {
@@ -18,6 +19,14 @@ export default function AgentHub() {
   const [pendingActions, setPendingActions] = useState([]);
   const [executedActionIds, setExecutedActionIds] = useState(new Set());
   const [totalExecutions, setTotalExecutions] = useState(0);
+  const [fleetConfigOpen, setFleetConfigOpen] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("configure") === "fleet") {
+      window.history.replaceState({}, "", window.location.pathname);
+      return true;
+    }
+    return false;
+  });
 
   useEffect(() => {
     (async () => {
@@ -145,6 +154,17 @@ export default function AgentHub() {
           ))}
         </div>
         <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+          <button onClick={() => setFleetConfigOpen(prev => !prev)} style={{
+            display: "flex", alignItems: "center", gap: 5,
+            padding: "5px 12px", borderRadius: 6, cursor: "pointer",
+            background: fleetConfigOpen ? C.gold + "18" : C.gold + "10",
+            border: `1px solid ${fleetConfigOpen ? C.gold + "40" : C.gold + "25"}`,
+            fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.gold,
+            transition: "all 0.15s",
+          }}>
+            <SettingsIcon size={12} /> Configure Fleet
+            <ChevronUp size={10} style={{ transition: "transform 0.15s", transform: fleetConfigOpen ? "rotate(0deg)" : "rotate(180deg)" }} />
+          </button>
           {activePending.length > 0 && (
             <button onClick={() => navigate("/app/tasks")} style={{
               display: "flex", alignItems: "center", gap: 5,
@@ -167,6 +187,11 @@ export default function AgentHub() {
           )}
         </div>
       </div>
+
+      {/* ═══ FLEET CONFIG PANEL ═══ */}
+      {fleetConfigOpen && (
+        <FleetConfigPanel autonomySettings={autonomySettings} onUpdate={handleAutonomyUpdate} />
+      )}
 
       {/* ═══ OPERATIONS CENTER ═══ */}
       <div style={{ marginBottom: isMobile ? 28 : 40 }}>
