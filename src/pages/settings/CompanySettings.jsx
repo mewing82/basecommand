@@ -80,7 +80,7 @@ export default function CompanySettings() {
         token = data?.session?.access_token;
       }
       setExtractStatus("Crawling pages & extracting content...");
-      const res = await fetch("/api/website-extract", {
+      const res = await fetch("/api/ai?action=website-extract", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
