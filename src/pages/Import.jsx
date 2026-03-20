@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Mail, Upload, Database, Phone, Video } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { PageLayout } from "../components/layout/PageLayout";
 import { useAuthStore } from "../store/authStore";
@@ -73,7 +73,7 @@ export default function Import() {
         }}>
           {/* Connected Sources section */}
           {!isMobile && <div style={{
-            fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary,
+            fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary,
             textTransform: "uppercase", letterSpacing: "0.08em",
             padding: "0 12px 6px", marginBottom: 2,
           }}>Connected Sources</div>}
@@ -90,7 +90,7 @@ export default function Import() {
                   display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
                   width: isMobile ? "auto" : "100%",
                   padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8, cursor: "pointer",
-                  background: isActive ? "rgba(255,255,255,0.07)" : "transparent",
+                  background: isActive ? "rgba(0,0,0,0.05)" : "transparent",
                   border: "none",
                   borderLeft: isMobile ? "none" : (isActive ? `2px solid ${C.gold}` : "2px solid transparent"),
                   borderBottom: isMobile ? (isActive ? `2px solid ${C.gold}` : "2px solid transparent") : "none",
@@ -99,7 +99,7 @@ export default function Import() {
                   transition: "all 0.15s",
                   whiteSpace: "nowrap", flexShrink: 0,
                 }}
-                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = C.textPrimary; } }}
+                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = "rgba(0,0,0,0.03)"; e.currentTarget.style.color = C.textPrimary; } }}
                 onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textSecondary; } }}
               >
                 <Icon size={15} strokeWidth={1.75} style={{ color: source.color }} />
@@ -113,7 +113,7 @@ export default function Import() {
 
           {/* Coming Soon section */}
           {!isMobile && <div style={{
-            fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary,
+            fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary,
             textTransform: "uppercase", letterSpacing: "0.08em",
             padding: "12px 12px 6px", marginTop: 4,
           }}>Coming Soon</div>}
@@ -129,7 +129,7 @@ export default function Import() {
                   display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
                   width: isMobile ? "auto" : "100%",
                   padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8, cursor: "pointer",
-                  background: isActive ? "rgba(255,255,255,0.07)" : "transparent",
+                  background: isActive ? "rgba(0,0,0,0.05)" : "transparent",
                   border: "none",
                   borderLeft: isMobile ? "none" : (isActive ? `2px solid ${C.gold}` : "2px solid transparent"),
                   borderBottom: isMobile ? (isActive ? `2px solid ${C.gold}` : "2px solid transparent") : "none",
@@ -144,7 +144,7 @@ export default function Import() {
                 <Icon size={15} strokeWidth={1.75} style={{ color: source.color, opacity: 0.6 }} />
                 <span style={{ flex: isMobile ? undefined : 1 }}>{source.label}</span>
                 {!isMobile && <span style={{
-                  fontFamily: FONT_MONO, fontSize: 8, color: C.textTertiary,
+                  fontFamily: FONT_SANS, fontSize: 8, color: C.textTertiary,
                   padding: "1px 4px", borderRadius: 2,
                   border: `1px solid ${C.borderDefault}`,
                 }}>SOON</span>}
@@ -162,7 +162,7 @@ export default function Import() {
               display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
               width: isMobile ? "auto" : "100%",
               padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8, cursor: "pointer",
-              background: activeSource === "manual" ? "rgba(255,255,255,0.07)" : "transparent",
+              background: activeSource === "manual" ? "rgba(0,0,0,0.05)" : "transparent",
               border: "none",
               borderLeft: isMobile ? "none" : (activeSource === "manual" ? `2px solid ${C.gold}` : "2px solid transparent"),
               borderBottom: isMobile ? (activeSource === "manual" ? `2px solid ${C.gold}` : "2px solid transparent") : "none",
@@ -171,7 +171,7 @@ export default function Import() {
               transition: "all 0.15s",
               whiteSpace: "nowrap", flexShrink: 0,
             }}
-            onMouseEnter={e => { if (activeSource !== "manual") { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = C.textPrimary; } }}
+            onMouseEnter={e => { if (activeSource !== "manual") { e.currentTarget.style.background = "rgba(0,0,0,0.03)"; e.currentTarget.style.color = C.textPrimary; } }}
             onMouseLeave={e => { if (activeSource !== "manual") { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textSecondary; } }}
           >
             <Upload size={15} strokeWidth={1.75} />

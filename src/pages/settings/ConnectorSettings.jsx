@@ -4,10 +4,10 @@ import { Btn } from "../../components/ui/index";
 
 const cardStyle = { padding: "18px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 12 };
 const cardHeaderStyle = { display: "flex", alignItems: "center", gap: 8, marginBottom: 12 };
-const cardLabelStyle = { fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
+const cardLabelStyle = { fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
 const comingSoonBadge = { fontFamily: FONT_MONO, fontSize: 9, padding: "2px 6px", borderRadius: 3, border: `1px solid ${C.borderDefault}`, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.03em" };
 const statusBadge = { fontFamily: FONT_MONO, fontSize: 9, padding: "2px 6px", borderRadius: 3, border: `1px solid ${C.borderDefault}`, color: C.textTertiary };
-const rowStyle = { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid rgba(255,255,255,0.04)` };
+const rowStyle = { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid rgba(0,0,0,0.03)` };
 const rowLeftStyle = { display: "flex", alignItems: "center", gap: 10 };
 const rowRightStyle = { display: "flex", alignItems: "center", gap: 8 };
 
@@ -93,7 +93,7 @@ export default function ConnectorSettings() {
       {/* Communication card */}
       <div style={cardStyle}>
         <div style={cardHeaderStyle}>
-          <MessageSquare size={16} style={{ color: "#A78BFA" }} />
+          <MessageSquare size={16} style={{ color: "#8B5CF6" }} />
           <span style={cardLabelStyle}>Communication</span>
         </div>
         {/* Slack row */}

@@ -154,7 +154,7 @@ export default function TeamSettings() {
       <div style={cardStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
           <Users size={16} style={{ color: C.gold }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Organization</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Organization</span>
         </div>
         <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 8 : 24 }}>
           <div>
@@ -178,9 +178,9 @@ export default function TeamSettings() {
       <div style={cardStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
           <Users size={16} style={{ color: C.aiBlue }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Members</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Members</span>
           <div style={{ flex: 1 }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{members.length} total</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>{members.length} total</span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -194,7 +194,7 @@ export default function TeamSettings() {
                 display: "flex", flexDirection: isMobile ? "column" : "row",
                 alignItems: isMobile ? "stretch" : "center", gap: isMobile ? 6 : 12,
                 padding: isMobile ? "10px 12px" : "10px 14px",
-                background: isCurrentUser ? "rgba(255,255,255,0.03)" : "transparent",
+                background: isCurrentUser ? "rgba(0,0,0,0.02)" : "transparent",
                 borderRadius: 8, border: `1px solid ${isCurrentUser ? C.borderSubtle : C.borderDefault}`,
               }}>
                 {/* Avatar + name + email */}
@@ -216,7 +216,7 @@ export default function TeamSettings() {
                         <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.gold, background: C.goldMuted, padding: "1px 5px", borderRadius: 3 }}>YOU</span>
                       )}
                     </div>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {m.email}
                     </div>
                   </div>
@@ -225,7 +225,7 @@ export default function TeamSettings() {
                 {/* Role + joined + actions */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                   {joinDate && (
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>
                       Joined {joinDate}
                     </span>
                   )}
@@ -236,7 +236,7 @@ export default function TeamSettings() {
                       onChange={e => handleRoleChange(m.id, e.target.value)}
                       style={{
                         background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 6,
-                        padding: "3px 8px", color: role.color, fontFamily: FONT_MONO, fontSize: 10,
+                        padding: "3px 8px", color: role.color, fontFamily: FONT_SANS, fontSize: 10,
                         fontWeight: 600, cursor: "pointer", outline: "none",
                       }}
                     >
@@ -246,7 +246,7 @@ export default function TeamSettings() {
                   ) : (
                     <span style={{
                       display: "inline-flex", alignItems: "center", gap: 4,
-                      fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600,
+                      fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600,
                       padding: "3px 8px", borderRadius: 5,
                       color: role.color, background: `${role.color}14`, border: `1px solid ${role.color}20`,
                     }}>
@@ -287,7 +287,7 @@ export default function TeamSettings() {
         <div style={{ ...cardStyle, border: `1px solid ${C.gold}25` }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
             <Mail size={16} style={{ color: C.gold }} />
-            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Invite Team Member</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.gold, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Invite Team Member</span>
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 12, lineHeight: 1.5 }}>
             Send an invite to add someone to your organization. They'll get access to the shared renewal portfolio and agent outputs.
@@ -338,7 +338,7 @@ export default function TeamSettings() {
         <div style={cardStyle}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <Copy size={14} style={{ color: C.textTertiary }} />
-            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Invite Link</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Invite Link</span>
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 8 }}>
             Share this link with teammates to let them sign up directly into your organization.
@@ -346,7 +346,7 @@ export default function TeamSettings() {
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <div style={{
               flex: 1, padding: "8px 12px", background: C.bgAI, borderRadius: 8,
-              border: `1px solid ${C.borderDefault}`, fontFamily: FONT_MONO, fontSize: 12,
+              border: `1px solid ${C.borderDefault}`, fontFamily: FONT_SANS, fontSize: 12,
               color: C.textSecondary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>
               {inviteLink}
@@ -359,7 +359,7 @@ export default function TeamSettings() {
                 background: copied ? C.greenMuted : C.bgAI,
                 border: `1px solid ${copied ? C.green + "40" : C.borderDefault}`,
                 color: copied ? C.green : C.textSecondary,
-                fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+                fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600,
                 transition: "all 0.15s",
               }}
             >

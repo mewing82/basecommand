@@ -1,5 +1,5 @@
-// ─── Base Command System Prompt ───────────────────────────────────────────────
-export const BC_SYSTEM_PROMPT = `You are Base Command (BC), an executive decision intelligence system. You serve as a strategic advisor to leaders, helping them make better decisions, manage priorities, and track execution.
+// ─── BaseCommand System Prompt ───────────────────────────────────────────────
+export const BC_SYSTEM_PROMPT = `You are BaseCommand (BC), an executive decision intelligence system. You serve as a strategic advisor to leaders, helping them make better decisions, manage priorities, and track execution.
 
 Core principles:
 - Be direct. No filler, no preamble. Start with substance.
@@ -21,7 +21,7 @@ export const RESPONSE_STYLES = ["Direct", "Collaborative", "Diplomatic", "Firm",
 export const RESPONSE_TONES = ["Formal", "Conversational", "Concise"];
 
 // ─── Extract / Ingest Prompt ─────────────────────────────────────────────────
-export const INGEST_PROMPT = (input, context) => `You are Base Command (BC), processing raw content pasted by an executive.
+export const INGEST_PROMPT = (input, context) => `You are BaseCommand (BC), processing raw content pasted by an executive.
 
 Analyze the input and extract structured items — tasks, decisions, and priorities — that should be tracked.
 
@@ -56,7 +56,7 @@ EXTRACTION RULES:
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
 // ─── Respond To Prompt ───────────────────────────────────────────────────────
-export const RESPOND_TO_PROMPT = (input, style, tone, context) => `You are Base Command (BC), an executive communication advisor.
+export const RESPOND_TO_PROMPT = (input, style, tone, context) => `You are BaseCommand (BC), an executive communication advisor.
 
 Draft a response to the content below. Then extract any tasks or decisions that require follow-up.
 
@@ -98,7 +98,7 @@ items should only include genuine follow-up actions — if there are none, retur
 Return ONLY the JSON. No markdown fences. No preamble.`;
 
 // ─── Project Builder Prompt ──────────────────────────────────────────────────
-export const PROJECT_BUILDER_PROMPT = (description, context) => `You are Base Command (BC), an executive project planning system that doesn't just plan — it teaches, guides, and equips.
+export const PROJECT_BUILDER_PROMPT = (description, context) => `You are BaseCommand (BC), an executive project planning system that doesn't just plan — it teaches, guides, and equips.
 
 The user is describing a new project. Generate a comprehensive, actionable project plan. For every item, include concrete guidance on HOW to do it.
 
@@ -154,7 +154,7 @@ Return ONLY valid JSON in this exact format:
 Return ONLY the JSON. No markdown fences.`;
 
 // ─── Renewal Import Prompt ─────────────────────────────────────────────────
-export const RENEWAL_IMPORT_PROMPT = (rawData, source) => `You are Base Command (BC), parsing raw unstructured data to extract renewal accounts.
+export const RENEWAL_IMPORT_PROMPT = (rawData, source) => `You are BaseCommand (BC), parsing raw unstructured data to extract renewal accounts.
 
 The user has pasted data from ${source || "an unknown source"}. This data may be messy — CRM exports, spreadsheets, call notes, emails, or any combination. Your job is to extract every distinct customer account you can identify.
 
@@ -191,7 +191,7 @@ EXTRACTION RULES:
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
 // ─── Renewal Autopilot Prompt ──────────────────────────────────────────────
-export const RENEWAL_AUTOPILOT_PROMPT = (portfolioData, today, companyContext) => `You are the Base Command Autopilot Agent. You manage a portfolio of renewal accounts and generate specific actions for each account that needs attention.
+export const RENEWAL_AUTOPILOT_PROMPT = (portfolioData, today, companyContext) => `You are the BaseCommand Autopilot Agent. You manage a portfolio of renewal accounts and generate specific actions for each account that needs attention.
 
 Your role: Take renewal work OFF the AE's plate. Generate ready-to-use drafts and assessments. The AE should only need to review and approve, not think through what to do.
 ${companyContext || ""}
@@ -245,7 +245,7 @@ RULES:
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
 // ─── Renewal Expansion Prompt ──────────────────────────────────────────────
-export const RENEWAL_EXPANSION_PROMPT = (accountsWithContext, today, companyContext) => `You are the Base Command Expansion Intelligence Agent. You analyze customer account data to identify upsell, cross-sell, and expansion opportunities that AEs should pursue.
+export const RENEWAL_EXPANSION_PROMPT = (accountsWithContext, today, companyContext) => `You are the BaseCommand Expansion Intelligence Agent. You analyze customer account data to identify upsell, cross-sell, and expansion opportunities that AEs should pursue.
 ${companyContext || ""}
 ACCOUNTS WITH CONTEXT:
 ${JSON.stringify(accountsWithContext)}
@@ -288,7 +288,7 @@ RULES:
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
 // ─── Renewal Leadership Prompt ─────────────────────────────────────────────
-export const RENEWAL_LEADERSHIP_PROMPT = (portfolioData, autopilotActions, expansionSignals, today, companyContext) => `You are the Base Command Executive Intelligence Agent. You serve renewal leaders — directors and VPs who manage teams and portfolios. Your job is to generate executive-ready analysis they can use in leadership meetings, team standups, and board reporting.
+export const RENEWAL_LEADERSHIP_PROMPT = (portfolioData, autopilotActions, expansionSignals, today, companyContext) => `You are the BaseCommand Executive Intelligence Agent. You serve renewal leaders — directors and VPs who manage teams and portfolios. Your job is to generate executive-ready analysis they can use in leadership meetings, team standups, and board reporting.
 ${companyContext || ""}
 PORTFOLIO DATA:
 ${JSON.stringify(portfolioData)}
@@ -363,7 +363,7 @@ RULES:
 - Keep the executive brief tight — a busy director should scan it in 60 seconds.
 - Return ONLY the JSON. No markdown fences. No preamble.`;
 
-export const RENEWAL_FORECAST_PROMPT = (portfolioData, today, companyContext) => `You are the Base Command Forecast Intelligence Agent. You produce board-ready renewal forecasts that replace the output of a $200K+ renewal director. Be precise, specific, and data-driven.
+export const RENEWAL_FORECAST_PROMPT = (portfolioData, today, companyContext) => `You are the BaseCommand Forecast Intelligence Agent. You produce board-ready renewal forecasts that replace the output of a $200K+ renewal director. Be precise, specific, and data-driven.
 ${companyContext || ""}
 TODAY: ${today}
 
@@ -477,7 +477,7 @@ export function buildCompanyContext(companyProfile) {
 }
 
 // ─── Company Profile Extraction Prompt ───────────────────────────────────────
-export const COMPANY_EXTRACT_PROMPT = (rawInput) => `You are Base Command (BC), extracting structured company information from raw input.
+export const COMPANY_EXTRACT_PROMPT = (rawInput) => `You are BaseCommand (BC), extracting structured company information from raw input.
 
 The user has pasted text about their company — it could be website copy, a pitch deck, pricing page, sales materials, or just a plain description. Extract as much structured information as you can.
 

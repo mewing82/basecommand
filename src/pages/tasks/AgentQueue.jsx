@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   Check, ArrowRight, Bot, Clock, ThumbsUp, ThumbsDown, Activity,
 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, fs } from "../../lib/tokens";
 import { Btn } from "../../components/ui/index";
 import { getPillarForAction } from "../../lib/pillars";
 import { executeAction, dismissAction } from "../../lib/executionEngine";
@@ -104,7 +104,7 @@ export default function AgentQueue({ actions, onRefresh, navigate, isMobile }) {
           padding: "10px 18px", borderRadius: 8, background: C.bgCard,
           border: `1px solid ${C.green}40`, color: C.green,
           fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600,
-          boxShadow: `0 4px 20px rgba(0,0,0,0.4)`,
+          boxShadow: `0 4px 20px rgba(0,0,0,0.10)`,
         }}>{toast}</div>
       )}
 
@@ -135,7 +135,7 @@ export default function AgentQueue({ actions, onRefresh, navigate, isMobile }) {
             padding: "4px 10px", borderRadius: 5, border: `1px solid ${filterUrgency === u ? (URGENCY_COLORS[u] || C.aiBlue) + "40" : C.borderDefault}`,
             background: filterUrgency === u ? (URGENCY_COLORS[u] || C.aiBlue) + "14" : "transparent",
             color: filterUrgency === u ? (URGENCY_COLORS[u] || C.textPrimary) : C.textTertiary,
-            fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, cursor: "pointer", textTransform: "capitalize",
+            fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, cursor: "pointer", textTransform: "capitalize",
           }}>{u === "all" ? "All urgency" : u}</button>
         ))}
         {/* Action type filter */}
@@ -144,7 +144,7 @@ export default function AgentQueue({ actions, onRefresh, navigate, isMobile }) {
             padding: "4px 10px", borderRadius: 5, border: `1px solid ${filterType === t ? C.aiBlue + "40" : C.borderDefault}`,
             background: filterType === t ? C.aiBlueMuted : "transparent",
             color: filterType === t ? C.aiBlue : C.textTertiary,
-            fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, cursor: "pointer",
+            fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, cursor: "pointer",
           }}>{t.replace("_", " ")}</button>
         ))}
       </div>
@@ -187,27 +187,27 @@ export default function AgentQueue({ actions, onRefresh, navigate, isMobile }) {
                     {isSelected && <Check size={10} style={{ color: C.aiBlue }} />}
                   </button>
                   <span style={{
-                    fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600, textTransform: "uppercase",
+                    fontFamily: FONT_SANS, fontSize: 9, fontWeight: 600, textTransform: "uppercase",
                     color: urgColor, background: urgColor + "18", padding: "2px 6px", borderRadius: 3,
                     letterSpacing: "0.04em",
                   }}>{action.urgency}</span>
                   {pillar && (
                     <span style={{
-                      fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600, textTransform: "uppercase",
+                      fontFamily: FONT_SANS, fontSize: 9, fontWeight: 600, textTransform: "uppercase",
                       color: pillar.color, background: pillar.color + "14", padding: "2px 6px", borderRadius: 3,
                       letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 3,
                     }}><pillar.icon size={9} /> {pillar.label}</span>
                   )}
                   <span style={{
-                    fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600, textTransform: "uppercase",
+                    fontFamily: FONT_SANS, fontSize: 9, fontWeight: 600, textTransform: "uppercase",
                     color: C.aiBlue, background: C.aiBlueMuted, padding: "2px 6px", borderRadius: 3,
                   }}>{action.type?.replace("_", " ") || "action"}</span>
                   {action.accountName && (
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>
                       {action.accountName}
                     </span>
                   )}
-                  <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: "auto" }}>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, marginLeft: "auto" }}>
                     <Clock size={10} style={{ verticalAlign: "middle", marginRight: 3 }} />
                     {new Date(action.createdAt).toLocaleDateString()}
                   </span>
@@ -229,7 +229,7 @@ export default function AgentQueue({ actions, onRefresh, navigate, isMobile }) {
                     padding: "8px 12px", background: C.bgAI, borderRadius: 6,
                     border: `1px solid ${C.borderAI}`, marginBottom: 12,
                   }}>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>Why this matters</div>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>Why this matters</div>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5 }}>
                       {action.reasoning}
                     </div>

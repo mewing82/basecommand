@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, Sparkles, Loader, DollarSign, Copy, Check, ArrowRight } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { callAI } from "../../lib/ai";
@@ -39,7 +39,7 @@ function CopyBtn({ text }) {
   return (
     <button onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{
       background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
-      fontFamily: FONT_MONO, fontSize: 10, color: copied ? C.green : C.textTertiary, padding: "4px 8px", borderRadius: 4,
+      fontFamily: FONT_SANS, fontSize: 10, color: copied ? C.green : C.textTertiary, padding: "4px 8px", borderRadius: 4,
     }}>{copied ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}</button>
   );
 }
@@ -103,8 +103,8 @@ export default function OpportunityBrief() {
     <PageLayout maxWidth={900}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Growth Agent</span>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#16A368", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
+          <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Growth Agent</span>
         </div>
       </div>
 
@@ -171,20 +171,20 @@ export default function OpportunityBrief() {
                     <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>{brief.accountName}</div>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>{brief.opportunity_summary?.slice(0, 100)}...</div>
                   </div>
-                  {brief.estimated_expansion && <span style={{ fontFamily: FONT_MONO, fontSize: 14, fontWeight: 700, color: C.green }}>{brief.estimated_expansion}</span>}
+                  {brief.estimated_expansion && <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700, color: C.green }}>{brief.estimated_expansion}</span>}
                 </button>
 
                 {isExpanded && (
                   <div style={{ padding: isMobile ? "0 12px 14px" : "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
                     <div style={{ marginTop: 14, marginBottom: 14 }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", marginBottom: 6 }}>Opportunity</div>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", marginBottom: 6 }}>Opportunity</div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>{brief.opportunity_summary}</div>
                     </div>
 
                     {brief.talking_points?.length > 0 && (
                       <div style={{ marginBottom: 14 }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                          <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase" }}>Talking Points</div>
+                          <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase" }}>Talking Points</div>
                           <CopyBtn text={brief.talking_points.join("\n• ")} />
                         </div>
                         {brief.talking_points.map((tp, ti) => (
@@ -195,17 +195,17 @@ export default function OpportunityBrief() {
 
                     <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 10, marginBottom: 14 }}>
                       <div style={{ padding: "10px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}` }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Pricing Approach</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Pricing Approach</div>
                         <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.5 }}>{brief.pricing_approach}</div>
                       </div>
                       <div style={{ padding: "10px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}` }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Competitive Position</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Competitive Position</div>
                         <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.5 }}>{brief.competitive_positioning}</div>
                       </div>
                     </div>
 
                     <div style={{ padding: "10px 14px", background: C.goldMuted, borderRadius: 8, border: `1px solid ${C.gold}20` }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.gold, textTransform: "uppercase", marginBottom: 4 }}>Recommended Ask</div>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.gold, textTransform: "uppercase", marginBottom: 4 }}>Recommended Ask</div>
                       <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{brief.recommended_ask}</div>
                     </div>
 

@@ -101,7 +101,7 @@ export default function ExecutionLog({ isMobile }) {
             border: `1px solid ${statusFilter === s ? (STATUS_CONFIG[s]?.color || C.aiBlue) + "40" : C.borderDefault}`,
             background: statusFilter === s ? (STATUS_CONFIG[s]?.color || C.aiBlue) + "14" : "transparent",
             color: statusFilter === s ? (STATUS_CONFIG[s]?.color || C.textPrimary) : C.textTertiary,
-            fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, cursor: "pointer", textTransform: "capitalize",
+            fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, cursor: "pointer", textTransform: "capitalize",
           }}>{s === "all" ? "All" : s}</button>
         ))}
         {uniqueAgents.length > 1 && (
@@ -115,7 +115,7 @@ export default function ExecutionLog({ isMobile }) {
                   border: `1px solid ${agentFilter === a ? C.aiBlue + "40" : C.borderDefault}`,
                   background: agentFilter === a ? C.aiBlueMuted : "transparent",
                   color: agentFilter === a ? C.aiBlue : C.textTertiary,
-                  fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, cursor: "pointer",
+                  fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, cursor: "pointer",
                 }}>{detail?.name || a}</button>
               );
             })}
@@ -166,7 +166,7 @@ export default function ExecutionLog({ isMobile }) {
                     <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary }}>{entry.actionType?.replace("_", " ")}</span>
                   </div>
                 </div>
-                <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, flexShrink: 0 }}>
+                <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, flexShrink: 0 }}>
                   {timeStr}
                 </span>
                 <ChevronDown size={12} style={{
@@ -181,13 +181,13 @@ export default function ExecutionLog({ isMobile }) {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 10 }}>
                     {entry.inputSummary && (
                       <div>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Input</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Input</div>
                         <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.5 }}>{entry.inputSummary}</div>
                       </div>
                     )}
                     {entry.outputSummary && (
                       <div>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Output</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Output</div>
                         <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.5 }}>{entry.outputSummary}</div>
                       </div>
                     )}
@@ -199,8 +199,8 @@ export default function ExecutionLog({ isMobile }) {
                   )}
                   {entry.metadata && Object.keys(entry.metadata).length > 0 && (
                     <div style={{ marginTop: 8 }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Metadata</div>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, lineHeight: 1.5 }}>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 4 }}>Metadata</div>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, lineHeight: 1.5 }}>
                         {Object.entries(entry.metadata).map(([k, v]) => (
                           <span key={k} style={{ marginRight: 12 }}>{k}: {String(v)}</span>
                         ))}
@@ -208,7 +208,7 @@ export default function ExecutionLog({ isMobile }) {
                     </div>
                   )}
                   {entry.executedAt && (
-                    <div style={{ marginTop: 6, fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
+                    <div style={{ marginTop: 6, fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>
                       Executed: {new Date(entry.executedAt).toLocaleString()}
                     </div>
                   )}

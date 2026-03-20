@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckSquare, Bot, History } from "lucide-react";
-import { C, FONT_SANS, FONT_MONO } from "../lib/tokens";
+import { C, FONT_SANS } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
 import { PageLayout } from "../components/layout/PageLayout";
@@ -66,7 +66,7 @@ export default function Tasks() {
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
               flex: isMobile ? "0 0 auto" : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               padding: isMobile ? "10px 14px" : "10px 16px", borderRadius: 8, border: "none", cursor: "pointer",
-              background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
+              background: isActive ? "rgba(0,0,0,0.05)" : "transparent",
               color: isActive ? C.textPrimary : C.textSecondary,
               fontFamily: FONT_SANS, fontSize: 13, fontWeight: isActive ? 600 : 500,
               transition: "all 0.15s", whiteSpace: "nowrap",
@@ -75,7 +75,7 @@ export default function Tasks() {
               {tab.label}
               {tab.count > 0 && (
                 <span style={{
-                  fontFamily: FONT_MONO, fontSize: 10, fontWeight: 700,
+                  fontFamily: FONT_SANS, fontSize: 10, fontWeight: 700,
                   color: tab.color || C.textTertiary,
                   background: (tab.color || C.textTertiary) + "18",
                   padding: "1px 6px", borderRadius: 4, minWidth: 18, textAlign: "center",

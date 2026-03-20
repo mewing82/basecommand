@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { useAuthStore } from "../../store/authStore";
 import { ONBOARDING } from "../../lib/demoData";

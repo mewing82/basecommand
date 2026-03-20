@@ -149,7 +149,7 @@ export default function IntegrationSettings() {
           </div>
           <button onClick={handleGenerate} disabled={generating} style={{
             display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8,
-            background: C.gold, border: "none", color: C.bgPrimary, fontFamily: FONT_SANS,
+            background: C.gold, border: "none", color: C.textOnPrimary, fontFamily: FONT_SANS,
             fontSize: 13, fontWeight: 600, cursor: generating ? "wait" : "pointer",
             opacity: generating ? 0.7 : 1, whiteSpace: "nowrap",
           }}>

@@ -35,10 +35,10 @@ export function Btn({ children, onClick, variant = "ghost", disabled, style: ext
     lg: { padding: "10px 22px", fontSize: 14 },
   };
   const variants = {
-    primary: { background: hovered ? C.goldHover : C.gold, color: "#0F1013", fontWeight: 600, boxShadow: hovered ? `0 0 20px ${C.goldGlow}` : "none" },
-    ghost: { background: hovered ? "rgba(255,255,255,0.06)" : "transparent", color: hovered ? C.textPrimary : C.textSecondary },
+    primary: { background: hovered ? C.goldHover : C.gold, color: C.textOnPrimary, fontWeight: 600, boxShadow: hovered ? `0 0 20px ${C.goldGlow}` : "none" },
+    ghost: { background: hovered ? "rgba(0,0,0,0.04)" : "transparent", color: hovered ? C.textPrimary : C.textSecondary },
     danger: { background: hovered ? C.redMuted : "transparent", color: C.red, border: `1px solid ${hovered ? C.red + "40" : "transparent"}` },
-    outline: { background: hovered ? "rgba(255,255,255,0.04)" : "transparent", color: hovered ? C.textPrimary : C.textSecondary, border: `1px solid ${hovered ? C.borderSubtle : C.borderDefault}` },
+    outline: { background: hovered ? "rgba(0,0,0,0.03)" : "transparent", color: hovered ? C.textPrimary : C.textSecondary, border: `1px solid ${hovered ? C.borderSubtle : C.borderDefault}` },
     ai: { background: hovered ? C.aiBlueMuted : C.aiBlueGlow, color: C.aiBlue, border: `1px solid ${hovered ? C.aiBlue + "30" : "transparent"}` },
   };
   return (
@@ -98,16 +98,16 @@ export function Modal({ title, onClose, children, width = 580 }) {
         background: C.bgElevated, border: `1px solid ${C.borderSubtle}`, borderRadius: 14,
         width: "100%", maxWidth: width, maxHeight: "90vh", overflow: "auto",
         padding: 28, position: "relative",
-        boxShadow: "0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03)",
+        boxShadow: "0 24px 48px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.02)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
           <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.02em" }}>{title}</div>
           <button onClick={onClose} style={{
-            background: "rgba(255,255,255,0.06)", border: "none", color: C.textTertiary, cursor: "pointer",
+            background: "rgba(0,0,0,0.04)", border: "none", color: C.textTertiary, cursor: "pointer",
             fontSize: 14, padding: "4px 8px", borderRadius: 6, transition: "all 0.15s",
           }}
-            onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.10)"; e.currentTarget.style.color = C.textPrimary; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = C.textTertiary; }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.06)"; e.currentTarget.style.color = C.textPrimary; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(0,0,0,0.04)"; e.currentTarget.style.color = C.textTertiary; }}
           >✕</button>
         </div>
         {children}
@@ -145,7 +145,7 @@ export function HealthBar({ score }) {
   const color = healthColor(score);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+      <div style={{ flex: 1, height: 3, background: "rgba(0,0,0,0.04)", borderRadius: 2, overflow: "hidden" }}>
         <div style={{ width: `${score || 0}%`, height: "100%", background: `linear-gradient(90deg, ${color}, ${color}CC)`, borderRadius: 2, transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }} />
       </div>
       <span style={{ fontFamily: FONT_MONO, fontSize: 11, color, minWidth: 30, fontWeight: 500 }}>{score !== null && score !== undefined ? `${score}%` : "—"}</span>
@@ -195,7 +195,7 @@ export function Section({ title, count, children, onViewAll, action }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontFamily: FONT_SANS, fontSize: 17, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em" }}>{title}</span>
-          {count !== undefined && <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary, fontWeight: 500 }}>{count}</span>}
+          {count !== undefined && <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, fontWeight: 500 }}>{count}</span>}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {action}
@@ -228,7 +228,7 @@ export function ProjectFilterPills({ projects, filterProject, setFilterProject }
       <button onClick={() => setFilterProject(null)} style={{
         padding: "5px 12px", borderRadius: 8, cursor: "pointer",
         border: `1px solid ${filterProject === null ? C.borderSubtle : C.borderDefault}`,
-        background: filterProject === null ? "rgba(255,255,255,0.08)" : "transparent",
+        background: filterProject === null ? "rgba(0,0,0,0.05)" : "transparent",
         color: filterProject === null ? C.textPrimary : C.textSecondary,
         fontFamily: FONT_SANS, fontSize: 12, fontWeight: filterProject === null ? 600 : 400,
         transition: "all 0.15s ease",
@@ -237,7 +237,7 @@ export function ProjectFilterPills({ projects, filterProject, setFilterProject }
         <button key={p.id} onClick={() => setFilterProject(filterProject === p.id ? null : p.id)} style={{
           padding: "5px 12px", borderRadius: 8, cursor: "pointer",
           border: `1px solid ${filterProject === p.id ? C.borderSubtle : C.borderDefault}`,
-          background: filterProject === p.id ? "rgba(255,255,255,0.08)" : "transparent",
+          background: filterProject === p.id ? "rgba(0,0,0,0.05)" : "transparent",
           color: filterProject === p.id ? C.textPrimary : C.textSecondary,
           fontFamily: FONT_SANS, fontSize: 12, fontWeight: filterProject === p.id ? 600 : 400,
           transition: "all 0.15s ease", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
@@ -271,7 +271,7 @@ export function LifecycleBar({ status, onAdvance, statuses, statusLabels }) {
               style={{
                 width: "100%", height: 4, borderRadius: 2, border: "none",
                 cursor: isNext ? "pointer" : "default",
-                background: isCurrent ? `linear-gradient(90deg, ${C.gold}, ${C.goldHover})` : isPast ? `${C.gold}50` : "rgba(255,255,255,0.06)",
+                background: isCurrent ? `linear-gradient(90deg, ${C.gold}, ${C.goldHover})` : isPast ? `${C.gold}50` : "rgba(0,0,0,0.04)",
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 boxShadow: isCurrent ? `0 0 8px ${C.goldGlow}` : "none",
               }}
@@ -323,7 +323,7 @@ function inlineMarkdownJsx(text) {
       return <em key={i}>{part.slice(1, -1)}</em>;
     }
     if (part.startsWith("`") && part.endsWith("`")) {
-      return <code key={i} style={{ fontFamily: FONT_MONO, fontSize: 12, background: "rgba(255,255,255,0.05)", padding: "1px 4px", borderRadius: 3 }}>{part.slice(1, -1)}</code>;
+      return <code key={i} style={{ fontFamily: FONT_MONO, fontSize: 12, background: "rgba(0,0,0,0.03)", padding: "1px 4px", borderRadius: 3 }}>{part.slice(1, -1)}</code>;
     }
     return part;
   });
@@ -376,7 +376,7 @@ export function AIConfigPicker({ value, onChange }) {
           position: "absolute", bottom: "100%", right: 0, zIndex: 200,
           background: C.bgElevated, border: `1px solid ${C.borderSubtle}`,
           borderRadius: R.sm + 2, padding: 3, marginBottom: 4, minWidth: 180,
-          boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
+          boxShadow: "0 6px 20px rgba(0,0,0,0.10)",
         }}>
           <button
             role="option"

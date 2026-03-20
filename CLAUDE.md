@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 BaseCommand is an AI-powered renewal intelligence platform — a React SPA with serverless API functions deployed on Vercel. It provides a fleet of specialized AI agents organized into Renewal, Growth, and Coaching categories that run the entire renewal workflow, from data import to execution, with human oversight at every step.
 
-**Current version:** 0.8.0
+**Current version:** 0.9.0
 **Positioning:** AI-Powered Renewal Intelligence — "AI-powered renewal workflows, from co-pilot to fully autonomous"
 
 ## Commands
@@ -23,7 +23,7 @@ BaseCommand is an AI-powered renewal intelligence platform — a React SPA with 
 - **Entry:** `index.html` → `src/main.jsx` → `src/App.jsx`
 - **Stack:** React 19, React Router v7, Zustand for state management
 - **Language:** JavaScript (JSX), no TypeScript
-- **Styling:** Inline styles with design tokens from `src/lib/tokens.js` (Command Indigo theme). Dark background (`#0F1013`), indigo primary (`#6366F1`), cyan AI accent (`#22D3EE`). Fonts: Space Grotesk (display/headings), Inter (body), JetBrains Mono (code/data).
+- **Styling:** Inline styles with design tokens from `src/lib/tokens.js` (Signal Amber theme). Light background (`#FCFCFD`), amber primary (`#C07D10`), teal AI accent (`#069572`). Fonts: Outfit (display/headings), Inter (body), JetBrains Mono (timestamps/badges/code only).
 
 ### Routing
 
@@ -83,8 +83,10 @@ src/
 - **`api/ai.js`** — Main AI proxy. Routes to Anthropic or OpenAI based on `provider` field. Normalizes all responses to Anthropic message format. Resolves tier from org subscription.
 - **`api/claude.js`** — Simple Anthropic-only proxy (legacy/direct endpoint).
 - **`api/ai-keys.js`** — CRUD for user API keys stored in Vercel KV.
-- **`api/lib/auth.js`** — Shared auth helpers: `resolveUser()`, `resolveOrgMember()`, `getSupabaseAdmin()`.
+- **`api/lib/auth.js`** — Shared auth helpers: `resolveUser()`, `resolveOrgMember()`, `resolveIntegrationKey()`, `getSupabaseAdmin()`.
 - **`api/org.js`** — Organization API: get info + members, update name/settings.
+- **`api/import/external.js`** — External import API: POST (create accounts), PATCH (update), GET (context/portfolio). Auth via integration keys.
+- **`api/executions.js`** — Agent execution log: GET (list, JWT auth), POST (log, dual auth: JWT or integration key).
 - **`api/connectors/`** — Gmail and Outlook OAuth2 flows (auth, callback, disconnect, status) plus `scan.js` for email extraction.
 - **`scripts/dev-api.js`** — Local dev API server (port 3001).
 

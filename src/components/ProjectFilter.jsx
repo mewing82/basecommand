@@ -23,7 +23,7 @@ export function ProjectFilterPills({ projects, filterProject, setFilterProject }
       <button onClick={() => setFilterProject(null)} style={{
         padding: "5px 12px", borderRadius: R.md, cursor: "pointer",
         border: `1px solid ${filterProject === null ? C.borderSubtle : C.borderDefault}`,
-        background: filterProject === null ? "rgba(255,255,255,0.08)" : "transparent",
+        background: filterProject === null ? "rgba(0,0,0,0.05)" : "transparent",
         color: filterProject === null ? C.textPrimary : C.textSecondary,
         fontFamily: FONT_SANS, fontSize: 12, fontWeight: filterProject === null ? 600 : 400,
         transition: "all 0.15s ease",
@@ -32,7 +32,7 @@ export function ProjectFilterPills({ projects, filterProject, setFilterProject }
         <button key={p.id} onClick={() => setFilterProject(filterProject === p.id ? null : p.id)} style={{
           padding: "5px 12px", borderRadius: R.md, cursor: "pointer",
           border: `1px solid ${filterProject === p.id ? C.borderSubtle : C.borderDefault}`,
-          background: filterProject === p.id ? "rgba(255,255,255,0.08)" : "transparent",
+          background: filterProject === p.id ? "rgba(0,0,0,0.05)" : "transparent",
           color: filterProject === p.id ? C.textPrimary : C.textSecondary,
           fontFamily: FONT_SANS, fontSize: 12, fontWeight: filterProject === p.id ? 600 : 400,
           transition: "all 0.15s ease", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",

@@ -85,7 +85,7 @@ export default function CommandPalette({ onClose }) {
       <div className="bc-command-palette-modal" style={{
         background: C.bgElevated, border: `1px solid ${C.borderSubtle}`, borderRadius: 14,
         width: "100%", maxWidth: 580, overflow: "hidden",
-        boxShadow: "0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03)",
+        boxShadow: "0 24px 48px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.02)",
       }}>
         <div className="bc-command-input" style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: `1px solid ${C.borderDefault}` }}>
           <span style={{ color: C.textTertiary, fontSize: 16, opacity: 0.6 }}>⌕</span>
@@ -93,17 +93,17 @@ export default function CommandPalette({ onClose }) {
             placeholder="Search or type / for commands..."
             style={{ flex: 1, background: "none", border: "none", outline: "none", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 400, letterSpacing: "-0.01em" }}
           />
-          <kbd className="bc-command-kbd" style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, background: "rgba(255,255,255,0.06)", padding: "3px 8px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.06)" }}>ESC</kbd>
+          <kbd className="bc-command-kbd" style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, background: "rgba(0,0,0,0.04)", padding: "3px 8px", borderRadius: 5, border: "1px solid rgba(0,0,0,0.04)" }}>ESC</kbd>
         </div>
 
         {results.length > 0 && (
           <div className="bc-command-results" style={{ maxHeight: 380, overflow: "auto", padding: "4px 0" }}>
             {results.map((r, i) => (
               <button key={i} onClick={r.action} className="bc-command-result-btn" style={{
-                width: "100%", background: i === selectedIdx ? "rgba(255,255,255,0.06)" : "none", border: "none", cursor: "pointer",
+                width: "100%", background: i === selectedIdx ? "rgba(0,0,0,0.04)" : "none", border: "none", cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 12, padding: "10px 18px", textAlign: "left", transition: "background 0.1s ease",
               }}
-                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; setSelectedIdx(i); }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.03)"; setSelectedIdx(i); }}
                 onMouseLeave={e => { if (i !== selectedIdx) e.currentTarget.style.background = "none"; }}
               >
                 {r.type === "action" ? (

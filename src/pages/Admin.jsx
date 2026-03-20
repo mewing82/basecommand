@@ -193,7 +193,7 @@ export default function Admin() {
           <div style={{
             display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 100px",
             padding: "10px 16px", borderBottom: `1px solid ${C.borderDefault}`,
-            background: "rgba(255,255,255,0.02)",
+            background: "rgba(0,0,0,0.02)",
           }}>
             {["Email", "Tier", "Status", "Role", "AI Calls", "Actions"].map(h => (
               <div key={h} style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
@@ -268,7 +268,7 @@ export default function Admin() {
               {/* Edit panel */}
               {isEditing && (
                 <div style={{
-                  padding: "16px 20px", background: "rgba(255,255,255,0.02)",
+                  padding: "16px 20px", background: "rgba(0,0,0,0.02)",
                   borderBottom: `1px solid ${C.borderDefault}`,
                   display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end",
                 }}>

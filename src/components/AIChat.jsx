@@ -2,7 +2,7 @@
 // Deduplicates the "custom prompt + send + response" pattern used across views
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
-import { C, FONT_SANS, FONT_MONO, S, R } from "../lib/tokens";
+import { C, FONT_SANS, S, R } from "../lib/tokens";
 import { callAIForEntity } from "../lib/ai.js";
 import { AIPanel, AIConfigPicker } from "./ui/index";
 
@@ -35,7 +35,7 @@ export default function AIChat({ entityType, entityId, contextBuilder, placehold
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: S.sm }}>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>
           Ask BC
         </div>
         <AIConfigPicker value={aiConfig} onChange={setAiConfig} />
@@ -64,7 +64,7 @@ export default function AIChat({ entityType, entityId, contextBuilder, placehold
             borderRadius: R.sm + 2, padding: "7px 14px",
             cursor: customPrompt.trim() && !aiLoading ? "pointer" : "not-allowed",
             color: customPrompt.trim() && !aiLoading ? C.bgPrimary : C.textTertiary,
-            fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+            fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600,
           }}
         >
           <Sparkles size={12} />

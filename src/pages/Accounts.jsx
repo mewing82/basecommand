@@ -153,7 +153,7 @@ export default function Accounts() {
     const acct = selectedAccount; const items = await renewalStore.getContext(acct.id);
     const daysToRenewal = acct.renewalDate ? Math.ceil((new Date(acct.renewalDate) - new Date()) / 86400000) : null;
     const contextSummary = items.length === 0 ? "No context items ingested yet." : items.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 800)}`).join("\n\n");
-    return `You are a Renewal Co-Pilot inside Base Command.\n\nACCOUNT:\n- Name: ${acct.name}\n- ARR: $${(acct.arr || 0).toLocaleString()}\n- Renewal: ${acct.renewalDate || "Not set"}${daysToRenewal !== null ? ` (${daysToRenewal} days)` : ""}\n- Risk: ${acct.riskLevel}\n\nINGESTED DATA (${items.length}):\n${contextSummary}\n\nToday: ${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}\n\nCAPABILITIES: Email drafting, conversation prep, risk analysis, pricing strategies, next best actions, contract analysis, stakeholder mapping.\n\nGUIDELINES: Be direct and actionable. Reference account data. Use markdown. **Bold** key points.`;
+    return `You are a Renewal Co-Pilot inside BaseCommand.\n\nACCOUNT:\n- Name: ${acct.name}\n- ARR: $${(acct.arr || 0).toLocaleString()}\n- Renewal: ${acct.renewalDate || "Not set"}${daysToRenewal !== null ? ` (${daysToRenewal} days)` : ""}\n- Risk: ${acct.riskLevel}\n\nINGESTED DATA (${items.length}):\n${contextSummary}\n\nToday: ${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}\n\nCAPABILITIES: Email drafting, conversation prep, risk analysis, pricing strategies, next best actions, contract analysis, stakeholder mapping.\n\nGUIDELINES: Be direct and actionable. Reference account data. Use markdown. **Bold** key points.`;
   }
 
   async function handleSend() {
@@ -207,7 +207,7 @@ export default function Accounts() {
                 border: `1px solid ${active ? C.gold + "60" : C.borderDefault}`,
                 background: active ? C.goldMuted : "transparent",
                 color: active ? C.gold : C.textTertiary,
-                fontFamily: FONT_MONO, fontSize: 10, fontWeight: active ? 600 : 400,
+                fontFamily: FONT_SANS, fontSize: 10, fontWeight: active ? 600 : 400,
                 transition: "all 0.12s",
               }}>≤{w.l}</button>
             );
@@ -254,7 +254,7 @@ export default function Accounts() {
         <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 12, padding: 32, minHeight: 400, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
           <div style={{ width: 56, height: 56, borderRadius: 14, background: C.goldMuted, display: "flex", alignItems: "center", justifyContent: "center" }}><MessageSquare size={28} style={{ color: C.gold }} /></div>
           <div><h2 style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: C.textPrimary, margin: "0 0 4px", textAlign: "center" }}>No Accounts Yet</h2>
-            <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textTertiary, maxWidth: 360, lineHeight: 1.5, margin: "8px 0 0", textAlign: "center" }}>Add your first account to start working with the Account Intelligence co-pilot.</p></div>
+            <p style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textTertiary, maxWidth: 360, lineHeight: 1.5, margin: "8px 0 0", textAlign: "center" }}>Add your first account to start working with the Account Intelligence co-pilot.</p></div>
           <Btn variant="primary" onClick={() => setShowAddAccount(true)}><Plus size={14} /> Add Account</Btn>
         </div>
       ) : (<>
@@ -277,8 +277,8 @@ export default function Accounts() {
                 const selected = selectedAccount?.id === account.id; const rc = { high: C.red, medium: C.amber, low: C.green };
                 const health = healthMap[account.id];
                 const archInfo = health?.archetypeInfo;
-                return (<button key={account.id} onClick={() => { setSelectedAccountId(account.id); if (isMobile) setMobilePane("chat"); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer", textAlign: "left", background: selected ? "rgba(255,255,255,0.07)" : "transparent", border: "none", borderLeft: `3px solid ${selected ? C.gold : "transparent"}`, transition: "all 0.12s" }}
-                  onMouseEnter={e => { if (!selected) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }} onMouseLeave={e => { if (!selected) e.currentTarget.style.background = "transparent"; }}>
+                return (<button key={account.id} onClick={() => { setSelectedAccountId(account.id); if (isMobile) setMobilePane("chat"); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer", textAlign: "left", background: selected ? "rgba(0,0,0,0.05)" : "transparent", border: "none", borderLeft: `3px solid ${selected ? C.gold : "transparent"}`, transition: "all 0.12s" }}
+                  onMouseEnter={e => { if (!selected) e.currentTarget.style.background = "rgba(0,0,0,0.03)"; }} onMouseLeave={e => { if (!selected) e.currentTarget.style.background = "transparent"; }}>
                   <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0, background: rc[account.riskLevel] || C.textTertiary }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: selected ? 600 : 500, color: selected ? C.textPrimary : C.textSecondary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{account.name}</div>
@@ -313,24 +313,24 @@ export default function Accounts() {
                     onMouseEnter={e => e.currentTarget.style.color = C.textPrimary} onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}><Pencil size={12} /></button>
                   <button onClick={() => setConfirmDeleteId(selectedAccount.id)} title="Delete account" style={{ display: "flex", alignItems: "center", padding: "3px 6px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", color: C.textTertiary, transition: "color 0.15s" }}
                     onMouseEnter={e => e.currentTarget.style.color = C.red} onMouseLeave={e => e.currentTarget.style.color = C.textTertiary}><Trash2 size={12} /></button>
-                  {!isMobile && <button onClick={() => setShowContext(!showContext)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 10px", background: showContext ? "rgba(255,255,255,0.07)" : "transparent", border: `1px solid ${showContext ? C.aiBlue + "40" : C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: showContext ? C.aiBlue : C.textTertiary }}><Eye size={12} /> Context{contextItems.length > 0 ? ` (${contextItems.length})` : ""}</button>}
+                  {!isMobile && <button onClick={() => setShowContext(!showContext)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 10px", background: showContext ? "rgba(0,0,0,0.05)" : "transparent", border: `1px solid ${showContext ? C.aiBlue + "40" : C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 11, fontWeight: 500, color: showContext ? C.aiBlue : C.textTertiary }}><Eye size={12} /> Context{contextItems.length > 0 ? ` (${contextItems.length})` : ""}</button>}
                 </div>
               </div>
               {/* Thread bar */}
               <div style={{ padding: isMobile ? "8px 14px" : "8px 20px", borderBottom: `1px solid ${C.borderDefault}`, display: "flex", alignItems: "center", gap: 8, flexShrink: 0, background: C.bgPrimary }}>
-                <button onClick={() => setShowThreadList(!showThreadList)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", background: showThreadList ? "rgba(255,255,255,0.07)" : "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.textSecondary }}>
+                <button onClick={() => setShowThreadList(!showThreadList)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", background: showThreadList ? "rgba(0,0,0,0.05)" : "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.textSecondary }}>
                   <MessageSquare size={13} />{activeThreadId ? (threads.find(t => t.id === activeThreadId)?.title || "Conversation") : "No conversation"}<ChevronDown size={12} style={{ transform: showThreadList ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
                 </button>
                 <div style={{ flex: 1 }} />
                 <button onClick={() => createThread()} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.textSecondary }}><Plus size={13} /> New</button>
-                {threads.length > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{threads.length} thread{threads.length !== 1 ? "s" : ""}</span>}
+                {threads.length > 0 && <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>{threads.length} thread{threads.length !== 1 ? "s" : ""}</span>}
               </div>
               {/* Thread list dropdown */}
               {showThreadList && threads.length > 0 && (
                 <div style={{ borderBottom: `1px solid ${C.borderDefault}`, background: C.bgPrimary, maxHeight: 200, overflow: "auto", flexShrink: 0 }}>
                   {[...threads].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt)).map(thread => {
                     const isActive = thread.id === activeThreadId;
-                    return (<div key={thread.id} onClick={() => { setActiveThreadId(thread.id); setShowThreadList(false); }} style={{ display: "flex", alignItems: "center", padding: "8px 20px", gap: 8, background: isActive ? "rgba(255,255,255,0.05)" : "transparent", cursor: "pointer", borderLeft: `2px solid ${isActive ? C.aiBlue : "transparent"}` }}>
+                    return (<div key={thread.id} onClick={() => { setActiveThreadId(thread.id); setShowThreadList(false); }} style={{ display: "flex", alignItems: "center", padding: "8px 20px", gap: 8, background: isActive ? "rgba(0,0,0,0.03)" : "transparent", cursor: "pointer", borderLeft: `2px solid ${isActive ? C.aiBlue : "transparent"}` }}>
                       <MessageSquare size={12} style={{ color: isActive ? C.aiBlue : C.textTertiary, flexShrink: 0 }} />
                       <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: isActive ? C.textPrimary : C.textSecondary, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{thread.title}</span>
                       <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{new Date(thread.lastMessageAt || thread.createdAt).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
@@ -421,7 +421,7 @@ export default function Accounts() {
                 {["csv", "text", "image"].map(type => {
                   const items = contextByType[type]; if (items.length === 0) return null; const cfg = typeConfig[type]; const TypeIcon = cfg.icon;
                   return (<div key={type}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><TypeIcon size={13} style={{ color: cfg.color }} /><span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: cfg.color }}>{cfg.label}</span><span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>({items.length})</span></div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><TypeIcon size={13} style={{ color: cfg.color }} /><span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: cfg.color }}>{cfg.label}</span><span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>({items.length})</span></div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                       {items.map(item => (<div key={item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", background: C.bgPrimary, borderRadius: 6, border: `1px solid ${C.borderDefault}` }}>
                         {type === "image" && item.content && <img src={item.content} alt={item.label} style={{ width: 28, height: 28, borderRadius: 4, objectFit: "cover", flexShrink: 0 }} />}
@@ -543,17 +543,17 @@ function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
       {/* Quick stats row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
         <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>ARR</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>ARR</div>
           <div style={{ fontFamily: FONT_MONO, fontSize: 18, fontWeight: 700, color: C.textPrimary }}>{formatARR(account.arr)}</div>
         </div>
         <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Renewal</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Renewal</div>
           <div style={{ fontFamily: FONT_MONO, fontSize: 18, fontWeight: 700, color: isOverdue ? C.red : daysToRenewal <= 30 ? C.amber : C.textPrimary }}>
             {daysToRenewal !== null ? (isOverdue ? `${Math.abs(daysToRenewal)}d overdue` : `${daysToRenewal}d`) : "—"}
           </div>
         </div>
         <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${riskColors[account.riskLevel]}20` }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Risk</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Risk</div>
           <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: riskColors[account.riskLevel], textTransform: "capitalize" }}>{account.riskLevel}</div>
         </div>
       </div>
@@ -564,7 +564,7 @@ function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: health.archetypeInfo.color, boxShadow: `0 0 6px ${health.archetypeInfo.color}60` }} />
             <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: health.archetypeInfo.color }}>{health.archetypeInfo.label}</span>
-            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>
               {health.score.toFixed(1)}/10
             </span>
           </div>
@@ -573,7 +573,7 @@ function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
           </div>
           {health.renewalProbability != null && (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>Renewal probability:</span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>Renewal probability:</span>
               <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color: health.renewalProbability >= 0.7 ? C.green : health.renewalProbability >= 0.4 ? C.amber : C.red }}>
                 {Math.round(health.renewalProbability * 100)}%
               </span>
@@ -585,7 +585,7 @@ function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
       {/* AI Signals */}
       {signals.length > 0 && (
         <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Key Signals</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Key Signals</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {signals.map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -600,7 +600,7 @@ function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
       {/* Summary */}
       {account.summary && (
         <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Account Summary</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Account Summary</div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.6 }}>{account.summary}</div>
         </div>
       )}
@@ -608,7 +608,7 @@ function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
       {/* Contacts */}
       {account.contacts?.length > 0 && (
         <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Contacts</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Contacts</div>
           {account.contacts.map((c, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: i < account.contacts.length - 1 ? 6 : 0 }}>
               <div style={{ width: 24, height: 24, borderRadius: 6, background: C.goldMuted, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: C.gold, flexShrink: 0 }}>
@@ -616,7 +616,7 @@ function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
               </div>
               <div>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.textPrimary }}>{c.name}</div>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{c.role || c.email || ""}</div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>{c.role || c.email || ""}</div>
               </div>
             </div>
           ))}
@@ -627,7 +627,7 @@ function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
       <div style={{ padding: "12px 14px", borderRadius: 8, background: `${C.aiBlue}06`, border: `1px solid ${C.aiBlue}15` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
           <Sparkles size={12} style={{ color: C.aiBlue }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Recommended Actions</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Recommended Actions</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {actions.map((a, i) => (
@@ -652,7 +652,7 @@ function AccountIntelPanel({ account, contextItems, health, onStartChat }) {
       <div style={{ padding: "12px 14px", borderRadius: 8, background: C.bgPrimary, border: `1px solid ${C.borderDefault}` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
           <MessageSquare size={12} style={{ color: C.gold }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Ask Co-Pilot</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Ask Co-Pilot</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {[

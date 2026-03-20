@@ -43,7 +43,7 @@ export default function Renewals() {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}30`, borderRadius: 8, padding: "6px 14px" }}>
             <Sparkles size={14} style={{ color: C.aiBlue }} />
-            <span style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600, color: C.aiBlue, letterSpacing: "0.04em" }}>MODE: CO-PILOT</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: C.aiBlue, letterSpacing: "0.04em" }}>MODE: CO-PILOT</span>
           </div>
           <Btn variant="primary" onClick={() => setShowAddAccount(true)} size="sm"><Plus size={14} /> Add Account</Btn>
         </div>
@@ -78,7 +78,7 @@ function Placeholder({ icon: Icon, title, agent, description }) {
       <div style={{ width: 56, height: 56, borderRadius: 14, background: C.goldMuted, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={28} style={{ color: C.gold }} /></div>
       <div><h2 style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: C.textPrimary, margin: "0 0 4px" }}>{title}</h2>
         <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textTertiary, maxWidth: 400, margin: "0 auto 8px", lineHeight: 1.5 }}>{description}</p>
-        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Future agent: {agent}</span></div>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>Future agent: {agent}</span></div>
     </div>
   );
 }
@@ -174,7 +174,7 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
           <button key={i} onClick={item.action} disabled={!item.action} style={{ display: "flex", gap: 14, padding: "14px 18px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, cursor: item.action ? "pointer" : "default", textAlign: "left", transition: "all 0.15s", width: "100%" }}
             onMouseEnter={e => { if (item.action) { e.currentTarget.style.borderColor = C.aiBlue + "40"; e.currentTarget.style.background = C.bgCardHover; } }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.background = C.bgCard; }}>
-            <span style={{ fontFamily: FONT_MONO, fontSize: 16, fontWeight: 700, color: C.aiBlue, opacity: 0.5, flexShrink: 0, width: 24 }}>{item.step}</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: C.aiBlue, opacity: 0.5, flexShrink: 0, width: 24 }}>{item.step}</span>
             <div><div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{item.label}</div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.4 }}>{item.desc}</div></div>
             {item.action && <ArrowRight size={14} style={{ color: C.aiBlue, flexShrink: 0, alignSelf: "center", opacity: 0.5 }} />}
@@ -194,7 +194,7 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
         {[{ label: "Total ARR", value: fmt$(totalARR), color: C.textPrimary }, { label: "At-Risk ARR", value: fmt$(atRiskARR), color: atRiskARR > 0 ? C.red : C.textTertiary }, { label: "Due 30 Days", value: due30, color: due30 > 0 ? C.red : C.green }, { label: "Due 60 Days", value: due60, color: due60 > 0 ? C.amber : C.textTertiary }, { label: "Due 90 Days", value: due90, color: due90 > 0 ? C.textSecondary : C.textTertiary }].map((stat, i) => (
           <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: "16px 18px" }}>
             <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{stat.label}</div>
-            <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: stat.color }}>{stat.value}</div>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: stat.color }}>{stat.value}</div>
           </div>
         ))}
       </div>
@@ -205,9 +205,9 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, position: "relative" }}>
           <div style={{ width: 28, height: 28, borderRadius: 8, background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}25`, display: "flex", alignItems: "center", justifyContent: "center" }}><Bot size={14} color={C.aiBlue} /></div>
           <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Autopilot</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Autopilot Agent</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Autopilot Agent</span>
           {cachedAgo && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>· {cachedAgo}</span>}
-          <button onClick={generateAutopilot} disabled={loading} style={{ background: loading ? C.aiBlueMuted : "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.aiBlue : C.textTertiary, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={generateAutopilot} disabled={loading} style={{ background: loading ? C.aiBlueMuted : "rgba(0,0,0,0.04)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.aiBlue : C.textTertiary, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
             <Sparkles size={11} style={{ animation: loading ? "aiPulse 2s ease-in-out infinite" : "none" }} />{loading ? "Analyzing..." : "Refresh"}
           </button>
         </div>
@@ -218,7 +218,7 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
             <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.7, marginBottom: 12 }}>{autopilot.status.summary}</div>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
               {[{ label: "Managing", value: autopilot.status.managing || accounts.length, color: C.aiBlue }, { label: "Pending Actions", value: pendingActions.length, color: pendingActions.length > 0 ? C.amber : C.textTertiary }, { label: "Expansion Signals", value: autopilot.expansionHighlights?.length || 0, color: C.green }].map((s, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontFamily: FONT_MONO, fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</span><span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>{s.label}</span></div>
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</span><span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>{s.label}</span></div>
               ))}
             </div>
           </div>
@@ -228,7 +228,7 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
       {/* Actions Feed */}
       {pendingActions.length > 0 && (
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Actions to Review</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /><span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{pendingActions.length} pending</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Actions to Review</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /><span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary }}>{pendingActions.length} pending</span></div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {pendingActions.map(action => {
               const color = urgencyColors[action.urgency] || C.textTertiary;
@@ -253,7 +253,7 @@ function RenewalsAutopilot({ accounts, onNavigate, onSwitchTab }) {
                       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, margin: "12px 0", padding: "12px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}` }}>
                         {action.description && <div style={{ marginBottom: 8 }}>{action.description}</div>}
                         {action.draft && <div style={{ whiteSpace: "pre-wrap", fontFamily: FONT_BODY, fontSize: 13, color: C.textPrimary, lineHeight: 1.6 }}>{action.draft}</div>}
-                        {action.reasoning && <div style={{ marginTop: 8, fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Reasoning: {action.reasoning}</div>}
+                        {action.reasoning && <div style={{ marginTop: 8, fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>Reasoning: {action.reasoning}</div>}
                       </div>
                       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                         {action.draft && <button onClick={() => handleCopy(action.draft, action.id)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 6, cursor: "pointer", background: "transparent", border: `1px solid ${C.borderDefault}`, color: copiedId === action.id ? C.green : C.textSecondary, fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500 }}>{copiedId === action.id ? <Check size={12} /> : <Copy size={12} />}{copiedId === action.id ? "Copied" : "Copy"}</button>}
@@ -396,7 +396,7 @@ function RenewalsLeadership({ accounts, onNavigate, onSwitchTab }) {
           { label: "Strategic Recommendations", desc: "AI-identified process improvements, segmentation insights, and resource allocation suggestions" }
         ].map((item, i) => (
           <div key={i} style={{ display: "flex", gap: 14, padding: "14px 18px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, textAlign: "left" }}>
-            <span style={{ fontFamily: FONT_MONO, fontSize: 16, fontWeight: 700, color: C.gold, opacity: 0.5, flexShrink: 0, width: 24 }}>{i + 1}</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: C.gold, opacity: 0.5, flexShrink: 0, width: 24 }}>{i + 1}</span>
             <div><div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{item.label}</div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.4 }}>{item.desc}</div></div>
           </div>
@@ -416,12 +416,12 @@ function RenewalsLeadership({ accounts, onNavigate, onSwitchTab }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, position: "relative" }}>
           <div style={{ width: 28, height: 28, borderRadius: 8, background: C.goldMuted, border: `1px solid ${C.gold}25`, display: "flex", alignItems: "center", justifyContent: "center" }}><Crown size={14} color={C.gold} /></div>
           <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Executive Strategy Brief</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Executive Intelligence Agent</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Executive Intelligence Agent</span>
           {cachedAgo && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>· {cachedAgo}</span>}
-          {cache?.executiveBrief && <button onClick={() => handleCopy(buildBriefText(), "brief")} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: copiedSection === "brief" ? C.green : C.textTertiary }}>
+          {cache?.executiveBrief && <button onClick={() => handleCopy(buildBriefText(), "brief")} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "rgba(0,0,0,0.04)", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: copiedSection === "brief" ? C.green : C.textTertiary }}>
             {copiedSection === "brief" ? <Check size={11} /> : <ClipboardCopy size={11} />}{copiedSection === "brief" ? "Copied" : "Copy Brief"}
           </button>}
-          <button onClick={generateAnalysis} disabled={loading} style={{ background: loading ? C.goldMuted : "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.gold : C.textTertiary, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={generateAnalysis} disabled={loading} style={{ background: loading ? C.goldMuted : "rgba(0,0,0,0.04)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.gold : C.textTertiary, display: "flex", alignItems: "center", gap: 6 }}>
             <Sparkles size={11} style={{ animation: loading ? "aiPulse 2s ease-in-out infinite" : "none" }} />{loading ? "Analyzing..." : "Refresh"}
           </button>
         </div>
@@ -445,10 +445,10 @@ function RenewalsLeadership({ accounts, onNavigate, onSwitchTab }) {
                     <div key={i} style={{ padding: "12px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}` }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                         <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{n.title}</span>
-                        {n.impact && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.amber, marginLeft: "auto" }}>{n.impact}</span>}
+                        {n.impact && <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.amber, marginLeft: "auto" }}>{n.impact}</span>}
                       </div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{n.detail}</div>
-                      {n.accounts?.length > 0 && <div style={{ marginTop: 6, display: "flex", gap: 4, flexWrap: "wrap" }}>{n.accounts.map((a, ai) => <span key={ai} style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, background: C.bgCard, padding: "2px 6px", borderRadius: 3, border: `1px solid ${C.borderDefault}` }}>{a}</span>)}</div>}
+                      {n.accounts?.length > 0 && <div style={{ marginTop: 6, display: "flex", gap: 4, flexWrap: "wrap" }}>{n.accounts.map((a, ai) => <span key={ai} style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, background: C.bgCard, padding: "2px 6px", borderRadius: 3, border: `1px solid ${C.borderDefault}` }}>{a}</span>)}</div>}
                     </div>
                   ))}
                 </div>
@@ -470,7 +470,7 @@ function RenewalsLeadership({ accounts, onNavigate, onSwitchTab }) {
               <div style={{ borderTop: `1px solid ${C.borderDefault}`, paddingTop: 14 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                   <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textSecondary }}>Talking Points</span>
-                  <button onClick={() => handleCopy(cache.executiveBrief.talkingPoints.map(tp => `• ${tp}`).join("\n"), "tp")} style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 10, color: copiedSection === "tp" ? C.green : C.textTertiary }}>
+                  <button onClick={() => handleCopy(cache.executiveBrief.talkingPoints.map(tp => `• ${tp}`).join("\n"), "tp")} style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 10, color: copiedSection === "tp" ? C.green : C.textTertiary }}>
                     {copiedSection === "tp" ? <Check size={10} /> : <Copy size={10} />}{copiedSection === "tp" ? "Copied" : "Copy"}
                   </button>
                 </div>
@@ -530,7 +530,7 @@ function RenewalsLeadership({ accounts, onNavigate, onSwitchTab }) {
                   onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; }} onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; }}>
                   <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{period.label}</div>
                   <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: C.textPrimary, marginBottom: 8 }}>{fmt$(data.total || 0)}</div>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 2 }}>{data.accounts || 0} accounts</div>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 2 }}>{data.accounts || 0} accounts</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 8 }}>
                     {[{ label: "Committed", value: data.committed, color: C.green }, { label: "Best Case", value: data.bestCase, color: C.amber }, { label: "At Risk", value: data.atRisk, color: C.red }].map(bucket => (
                       <div key={bucket.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -579,7 +579,7 @@ function RenewalsLeadership({ accounts, onNavigate, onSwitchTab }) {
                 <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>{rec.title}</div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5, marginBottom: 8 }}>{rec.rationale}</div>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 6 }}><Zap size={12} style={{ color: C.gold, flexShrink: 0, marginTop: 2 }} /><span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.gold, fontWeight: 500 }}>{rec.action}</span></div>
-                {rec.impact && <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Impact: {rec.impact}</div>}
+                {rec.impact && <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>Impact: {rec.impact}</div>}
               </div>
             ))}
           </div>
@@ -713,7 +713,7 @@ function RenewalsImport({ existingAccounts, onAccountsCreated, onSwitchTab }) {
         style={{ width: "100%", padding: "16px 18px", borderRadius: 10, background: C.bgCard, border: `1px solid ${C.borderDefault}`, color: C.textPrimary, fontFamily: FONT_MONO, fontSize: 13, outline: "none", resize: "vertical", lineHeight: 1.6, boxSizing: "border-box" }}
         onFocus={e => e.target.style.borderColor = C.aiBlue} onBlur={e => e.target.style.borderColor = C.borderDefault} />
 
-      {rawData.trim() ? <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{rawData.split(/\s+/).length} words · {(new Blob([rawData]).size / 1024).toFixed(1)} KB</div>
+      {rawData.trim() ? <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>{rawData.split(/\s+/).length} words · {(new Blob([rawData]).size / 1024).toFixed(1)} KB</div>
       : <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
           {[{ title: "CRM Exports", desc: "Salesforce reports, HubSpot exports, even messy CSV files with inconsistent columns", icon: FileText, color: C.green },
             { title: "Call Notes & Transcripts", desc: "Gong summaries, meeting notes, or any text with customer details mentioned", icon: MessageSquare, color: C.amber },
@@ -742,7 +742,7 @@ function RenewalsImport({ existingAccounts, onAccountsCreated, onSwitchTab }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
           <Sparkles size={14} style={{ color: C.aiBlue }} />
           <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>AI Extraction Complete</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.aiBlue, marginLeft: "auto" }}>{extracted.length} accounts found</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.aiBlue, marginLeft: "auto" }}>{extracted.length} accounts found</span>
         </div>
         {aiSummary && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>{aiSummary}</div>}
         {warnings.length > 0 && <div style={{ marginTop: 8 }}>{warnings.map((w, i) => <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6, fontFamily: FONT_BODY, fontSize: 12, color: C.amber, lineHeight: 1.4, marginTop: 4 }}><AlertTriangle size={12} style={{ flexShrink: 0, marginTop: 1 }} />{w}</div>)}</div>}
@@ -887,9 +887,9 @@ function RenewalsExpansion({ accounts, onNavigate }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
           <div style={{ width: 28, height: 28, borderRadius: 8, background: C.green + "18", display: "flex", alignItems: "center", justifyContent: "center" }}><TrendingUp size={14} color={C.green} /></div>
           <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Expansion Intelligence</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Analyzing {accountsWithContext.length} accounts</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Analyzing {accountsWithContext.length} accounts</span>
           {cachedAgo && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>· {cachedAgo}</span>}
-          <button onClick={analyzeExpansion} disabled={loading} style={{ background: loading ? C.green + "18" : "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.green : C.textTertiary, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={analyzeExpansion} disabled={loading} style={{ background: loading ? C.green + "18" : "rgba(0,0,0,0.04)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.green : C.textTertiary, display: "flex", alignItems: "center", gap: 6 }}>
             <Sparkles size={11} style={{ animation: loading ? "aiPulse 2s ease-in-out infinite" : "none" }} />{loading ? "Analyzing..." : "Refresh"}
           </button>
         </div>
@@ -906,7 +906,7 @@ function RenewalsExpansion({ accounts, onNavigate }) {
       {/* Opportunity Cards */}
       {cache?.opportunities?.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Opportunities</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /><span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{cache.opportunities.length} signals</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Opportunities</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /><span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary }}>{cache.opportunities.length} signals</span></div>
           {cache.opportunities.map((opp, i) => {
             const color = signalColors[opp.signalType] || C.green;
             const matchedAccount = accounts.find(a => a.name === opp.accountName || a.id === opp.accountId);
@@ -917,14 +917,14 @@ function RenewalsExpansion({ accounts, onNavigate }) {
                   <TrendingUp size={14} style={{ color }} />
                   <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>{opp.accountName}</span>
                   <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color, background: color + "18", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", letterSpacing: "0.04em" }}>{signalLabels[opp.signalType] || opp.signalType}</span>
-                  {opp.confidence && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: confColors[opp.confidence] || C.textTertiary }}>{opp.confidence}</span>}
+                  {opp.confidence && <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: confColors[opp.confidence] || C.textTertiary }}>{opp.confidence}</span>}
                   {opp.estimatedValue && <span style={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, color: C.green, marginLeft: "auto" }}>{opp.estimatedValue}</span>}
                 </div>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>{opp.title}</div>
                 {opp.evidence && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 8, padding: "8px 12px", background: C.bgPrimary, borderRadius: 6, borderLeft: `2px solid ${color}40` }}>"{opp.evidence}"</div>}
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Zap size={12} style={{ color: C.gold }} /><span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.gold, fontWeight: 500 }}>{opp.recommendedAction}</span>
-                  {opp.urgency && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: "auto", textTransform: "uppercase" }}>{opp.urgency}</span>}
+                  {opp.urgency && <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, marginLeft: "auto", textTransform: "uppercase" }}>{opp.urgency}</span>}
                   {matchedAccount && <button onClick={() => onNavigate(matchedAccount.id)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}><ArrowRight size={10} />View</button>}
                 </div>
               </div>
@@ -980,7 +980,7 @@ function RenewalsAccountsView({ accounts, selectedAccount, onSelectAccount, onAd
     const acct = selectedAccount; const items = await renewalStore.getContext(acct.id);
     const daysToRenewal = acct.renewalDate ? Math.ceil((new Date(acct.renewalDate) - new Date()) / 86400000) : null;
     const contextSummary = items.length === 0 ? "No context items ingested yet." : items.map(ci => ci.type === "image" ? `[IMAGE] ${ci.label}` : `[${ci.type?.toUpperCase()}] ${ci.label}: ${ci.content?.slice(0, 800)}`).join("\n\n");
-    return `You are a Renewal Co-Pilot inside Base Command.\n\nACCOUNT:\n- Name: ${acct.name}\n- ARR: $${(acct.arr || 0).toLocaleString()}\n- Renewal: ${acct.renewalDate || "Not set"}${daysToRenewal !== null ? ` (${daysToRenewal} days)` : ""}\n- Risk: ${acct.riskLevel}\n\nINGESTED DATA (${items.length}):\n${contextSummary}\n\nToday: ${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}\n\nCAPABILITIES: Email drafting, conversation prep, risk analysis, pricing strategies, next best actions, contract analysis, stakeholder mapping.\n\nGUIDELINES: Be direct and actionable. Reference account data. Use markdown. **Bold** key points.`;
+    return `You are a Renewal Co-Pilot inside BaseCommand.\n\nACCOUNT:\n- Name: ${acct.name}\n- ARR: $${(acct.arr || 0).toLocaleString()}\n- Renewal: ${acct.renewalDate || "Not set"}${daysToRenewal !== null ? ` (${daysToRenewal} days)` : ""}\n- Risk: ${acct.riskLevel}\n\nINGESTED DATA (${items.length}):\n${contextSummary}\n\nToday: ${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}\n\nCAPABILITIES: Email drafting, conversation prep, risk analysis, pricing strategies, next best actions, contract analysis, stakeholder mapping.\n\nGUIDELINES: Be direct and actionable. Reference account data. Use markdown. **Bold** key points.`;
   }
 
   async function handleSend() {
@@ -1020,8 +1020,8 @@ function RenewalsAccountsView({ accounts, selectedAccount, onSelectAccount, onAd
         <div style={{ flex: 1, overflow: "auto" }}>
           {accounts.map(account => {
             const selected = selectedAccount?.id === account.id; const rc = { high: C.red, medium: C.amber, low: C.green };
-            return (<button key={account.id} onClick={() => onSelectAccount(account.id)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer", textAlign: "left", background: selected ? "rgba(255,255,255,0.07)" : "transparent", border: "none", borderLeft: `3px solid ${selected ? C.gold : "transparent"}`, transition: "all 0.12s" }}
-              onMouseEnter={e => { if (!selected) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }} onMouseLeave={e => { if (!selected) e.currentTarget.style.background = "transparent"; }}>
+            return (<button key={account.id} onClick={() => onSelectAccount(account.id)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer", textAlign: "left", background: selected ? "rgba(0,0,0,0.05)" : "transparent", border: "none", borderLeft: `3px solid ${selected ? C.gold : "transparent"}`, transition: "all 0.12s" }}
+              onMouseEnter={e => { if (!selected) e.currentTarget.style.background = "rgba(0,0,0,0.03)"; }} onMouseLeave={e => { if (!selected) e.currentTarget.style.background = "transparent"; }}>
               <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0, background: rc[account.riskLevel] || C.textTertiary }} />
               <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: selected ? 600 : 500, color: selected ? C.textPrimary : C.textSecondary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{account.name}</div>
                 <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginTop: 2 }}>${(account.arr || 0).toLocaleString()}</div></div>
@@ -1041,24 +1041,24 @@ function RenewalsAccountsView({ accounts, selectedAccount, onSelectAccount, onAd
                 <span key={i} style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: chip.color, background: C.bgPrimary, padding: "3px 10px", borderRadius: 4, border: `1px solid ${C.borderDefault}`, textTransform: "capitalize" }}>{chip.label}</span>
               ))}
               <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: C.aiBlue, background: C.aiBlueMuted, padding: "3px 10px", borderRadius: 4 }}>Co-Pilot</span>
-              <button onClick={() => setShowContext(!showContext)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 10px", background: showContext ? "rgba(255,255,255,0.07)" : "transparent", border: `1px solid ${showContext ? C.aiBlue + "40" : C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, fontWeight: 500, color: showContext ? C.aiBlue : C.textTertiary }}><Eye size={12} /> Context{contextItems.length > 0 ? ` (${contextItems.length})` : ""}</button>
+              <button onClick={() => setShowContext(!showContext)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 10px", background: showContext ? "rgba(0,0,0,0.05)" : "transparent", border: `1px solid ${showContext ? C.aiBlue + "40" : C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 11, fontWeight: 500, color: showContext ? C.aiBlue : C.textTertiary }}><Eye size={12} /> Context{contextItems.length > 0 ? ` (${contextItems.length})` : ""}</button>
             </div>
           </div>
           {/* Thread bar */}
           <div style={{ padding: "8px 20px", borderBottom: `1px solid ${C.borderDefault}`, display: "flex", alignItems: "center", gap: 8, flexShrink: 0, background: C.bgPrimary }}>
-            <button onClick={() => setShowThreadList(!showThreadList)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", background: showThreadList ? "rgba(255,255,255,0.07)" : "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.textSecondary }}>
+            <button onClick={() => setShowThreadList(!showThreadList)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", background: showThreadList ? "rgba(0,0,0,0.05)" : "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.textSecondary }}>
               <MessageSquare size={13} />{activeThreadId ? (threads.find(t => t.id === activeThreadId)?.title || "Conversation") : "No conversation"}<ChevronDown size={12} style={{ transform: showThreadList ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
             </button>
             <div style={{ flex: 1 }} />
             <button onClick={() => createThread()} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: C.textSecondary }}><Plus size={13} /> New</button>
-            {threads.length > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{threads.length} thread{threads.length !== 1 ? "s" : ""}</span>}
+            {threads.length > 0 && <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>{threads.length} thread{threads.length !== 1 ? "s" : ""}</span>}
           </div>
           {/* Thread list dropdown */}
           {showThreadList && threads.length > 0 && (
             <div style={{ borderBottom: `1px solid ${C.borderDefault}`, background: C.bgPrimary, maxHeight: 200, overflow: "auto", flexShrink: 0 }}>
               {[...threads].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt)).map(thread => {
                 const isActive = thread.id === activeThreadId;
-                return (<div key={thread.id} onClick={() => { setActiveThreadId(thread.id); setShowThreadList(false); }} style={{ display: "flex", alignItems: "center", padding: "8px 20px", gap: 8, background: isActive ? "rgba(255,255,255,0.05)" : "transparent", cursor: "pointer", borderLeft: `2px solid ${isActive ? C.aiBlue : "transparent"}` }}>
+                return (<div key={thread.id} onClick={() => { setActiveThreadId(thread.id); setShowThreadList(false); }} style={{ display: "flex", alignItems: "center", padding: "8px 20px", gap: 8, background: isActive ? "rgba(0,0,0,0.03)" : "transparent", cursor: "pointer", borderLeft: `2px solid ${isActive ? C.aiBlue : "transparent"}` }}>
                   <MessageSquare size={12} style={{ color: isActive ? C.aiBlue : C.textTertiary, flexShrink: 0 }} />
                   <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: isActive ? C.textPrimary : C.textSecondary, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{thread.title}</span>
                   <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>{new Date(thread.lastMessageAt || thread.createdAt).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
@@ -1158,7 +1158,7 @@ function RenewalsAccountsView({ accounts, selectedAccount, onSelectAccount, onAd
             {["csv", "text", "image"].map(type => {
               const items = contextByType[type]; if (items.length === 0) return null; const cfg = typeConfig[type]; const TypeIcon = cfg.icon;
               return (<div key={type}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><TypeIcon size={13} style={{ color: cfg.color }} /><span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: cfg.color }}>{cfg.label}</span><span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>({items.length})</span></div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><TypeIcon size={13} style={{ color: cfg.color }} /><span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: cfg.color }}>{cfg.label}</span><span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>({items.length})</span></div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {items.map(item => (<div key={item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", background: C.bgPrimary, borderRadius: 6, border: `1px solid ${C.borderDefault}` }}>
                     {type === "image" && item.content && <img src={item.content} alt={item.label} style={{ width: 28, height: 28, borderRadius: 4, objectFit: "cover", flexShrink: 0 }} />}

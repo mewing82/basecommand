@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { CreditCard, Zap, Clock, ExternalLink, CheckCircle, AlertTriangle } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useAuthStore } from "../../store/authStore";
 import { supabase } from "../../lib/supabase";
 
@@ -90,8 +90,8 @@ export default function BillingSettings() {
           </div>
           {isPro && (
             <span style={{
-              fontFamily: FONT_MONO, fontSize: 10, padding: "2px 8px", borderRadius: 4,
-              background: C.gold, color: C.bgPrimary, fontWeight: 600, textTransform: "uppercase",
+              fontFamily: FONT_SANS, fontSize: 10, padding: "2px 8px", borderRadius: 4,
+              background: C.gold, color: C.textOnPrimary, fontWeight: 600, textTransform: "uppercase",
             }}>ACTIVE</span>
           )}
         </div>
@@ -145,7 +145,7 @@ export default function BillingSettings() {
             <button onClick={() => handleUpgrade("monthly")} disabled={upgrading} style={{
               padding: "10px 20px", borderRadius: 10, border: "none",
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-              color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+              color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
               cursor: upgrading ? "wait" : "pointer", opacity: upgrading ? 0.7 : 1,
             }}>
               $49/mo &middot; Monthly

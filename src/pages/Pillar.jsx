@@ -98,12 +98,12 @@ export default function Pillar() {
           const isCurrent = p.id === pillarId;
           return (
             <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              {i > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, opacity: 0.4, margin: "0 4px" }}>→</span>}
+              {i > 0 && <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, opacity: 0.4, margin: "0 4px" }}>→</span>}
               <button
                 onClick={() => navigate(`/app/pillars/${p.id}`)}
                 style={{
                   display: "flex", alignItems: "center", gap: 6,
-                  fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+                  fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600,
                   color: isCurrent ? p.color : C.textTertiary,
                   padding: "4px 12px", borderRadius: 4, whiteSpace: "nowrap",
                   background: isCurrent ? `${p.color}14` : "transparent",
@@ -133,9 +133,9 @@ export default function Pillar() {
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
             <h1 style={{ fontFamily: FONT_SANS, fontSize: fs(26, 20, isMobile), fontWeight: 700, color: C.textPrimary, margin: 0 }}>{pillar.label}</h1>
             <span style={{
-              fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, textTransform: "uppercase",
+              fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, textTransform: "uppercase",
               color: pillarActive ? C.green : C.textTertiary,
-              background: pillarActive ? C.greenMuted : "rgba(255,255,255,0.06)",
+              background: pillarActive ? C.greenMuted : "rgba(0,0,0,0.04)",
               padding: "3px 8px", borderRadius: 4,
             }}>{pillarActive ? "Active" : "Idle"}</span>
           </div>
@@ -143,7 +143,7 @@ export default function Pillar() {
             {pillar.tagline}
           </p>
         </div>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary, flexShrink: 0 }}>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, flexShrink: 0 }}>
           {activeCount}/{totalAgents} agents active
         </div>
       </div>
@@ -177,7 +177,7 @@ export default function Pillar() {
                       <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{agent.name}</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
                         <div style={{ width: 6, height: 6, borderRadius: "50%", background: cached ? C.green : C.textTertiary, boxShadow: cached ? `0 0 4px ${C.green}40` : "none" }} />
-                        <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: cached ? C.green : C.textTertiary }}>{cached ? "Active" : "Not run yet"}</span>
+                        <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: cached ? C.green : C.textTertiary }}>{cached ? "Active" : "Not run yet"}</span>
                       </div>
                     </div>
                   </div>
@@ -185,7 +185,7 @@ export default function Pillar() {
                     {agent.description}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: LEVEL_COLORS[agent.mode] || C.textTertiary, background: "rgba(255,255,255,0.06)", padding: "2px 8px", borderRadius: 4, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>{agent.mode}</span>
+                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: LEVEL_COLORS[agent.mode] || C.textTertiary, background: "rgba(0,0,0,0.04)", padding: "2px 8px", borderRadius: 4, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>{agent.mode}</span>
                     <div style={{ flex: 1 }} />
                     <button
                       onClick={() => navigate(agent.route)}
@@ -262,7 +262,7 @@ export default function Pillar() {
               { label: "At-Risk ARR", value: formatARR(portfolioSummary.atRiskARR), color: portfolioSummary.atRiskARR > 0 ? C.red : C.green },
             ].map((stat, i) => (
               <div key={i} style={{ padding: "10px 14px", background: C.bgPrimary, border: `1px solid ${C.borderDefault}`, borderRadius: 8 }}>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>{stat.label}</div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>{stat.label}</div>
                 <div style={{ fontFamily: FONT_MONO, fontSize: fs(18, 16, isMobile), fontWeight: 700, color: stat.color, marginTop: 4 }}>{stat.value}</div>
               </div>
             ))}

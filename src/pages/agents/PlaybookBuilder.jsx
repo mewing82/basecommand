@@ -100,7 +100,7 @@ export default function PlaybookBuilder() {
     } catch (err) { setError(err.message); } finally { setGenerating(false); }
   }
 
-  const phaseColors = { "90": "#6366F1", "60": "#FBBF24", "30": "#F87171" };
+  const phaseColors = { "90": "#C07D10", "60": "#E09B20", "30": "#DC4A3D" };
 
   return (
     <PageLayout maxWidth={900}>
@@ -118,8 +118,8 @@ export default function PlaybookBuilder() {
       )}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Coaching Agent</span>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#16A368", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
+          <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Coaching Agent</span>
         </div>
       </div>
 
@@ -200,7 +200,7 @@ export default function PlaybookBuilder() {
                   <div style={{ padding: isMobile ? "0 12px 14px" : "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
                     {pb.archetype_notes && (
                       <div style={{ marginTop: 14, padding: "10px 14px", background: C.bgAI, borderRadius: 8, border: `1px solid ${C.borderAI}`, marginBottom: 14 }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>Archetype Strategy</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>Archetype Strategy</div>
                         <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.5 }}>{pb.archetype_notes}</div>
                       </div>
                     )}
@@ -228,7 +228,7 @@ export default function PlaybookBuilder() {
                               }}>
                                 <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary }}>{action.action}</div>
                                 <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
-                                  {action.owner_hint && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>Owner: {action.owner_hint}</span>}
+                                  {action.owner_hint && <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>Owner: {action.owner_hint}</span>}
                                   {action.why && <span style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary }}>{action.why}</span>}
                                 </div>
                                 <ActionMenu accountName={pb.accountName} actionText={action.action} compact />
@@ -241,7 +241,7 @@ export default function PlaybookBuilder() {
 
                     {pb.key_milestones?.length > 0 && (
                       <div style={{ marginBottom: 14 }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", marginBottom: 6 }}>Key Milestones</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", marginBottom: 6 }}>Key Milestones</div>
                         {pb.key_milestones.map((m, mi) => (
                           <div key={mi} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0" }}>
                             <Check size={12} style={{ color: C.green }} />
@@ -253,7 +253,7 @@ export default function PlaybookBuilder() {
 
                     {pb.success_criteria && (
                       <div style={{ padding: "10px 14px", background: C.greenMuted, borderRadius: 8, border: `1px solid ${C.green}20` }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.green, textTransform: "uppercase", marginBottom: 3 }}>Success Criteria</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.green, textTransform: "uppercase", marginBottom: 3 }}>Success Criteria</div>
                         <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textPrimary }}>{pb.success_criteria}</div>
                       </div>
                     )}

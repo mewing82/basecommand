@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
 import { User, Target, Crown, TrendingUp, Settings2, Rocket, Monitor } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { renewalStore } from "../../lib/storage";
 import { useAppStore } from "../../store/appStore";
 
 const cardStyle = { padding: "18px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 12 };
 const cardHeaderStyle = { display: "flex", alignItems: "center", gap: 8, marginBottom: 12 };
-const cardLabelStyle = { fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
+const cardLabelStyle = { fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
 
 const PERSONAS = [
   { id: "specialist", title: "Renewal Specialist", desc: "Running the renewal process day-to-day", Icon: Target, color: C.aiBlue },
   { id: "director", title: "Renewal Leader", desc: "Managing a renewal portfolio and team", Icon: Crown, color: C.gold },
   { id: "revenue_leader", title: "Revenue Leader", desc: "VP/CRO managing sales with renewal responsibility", Icon: TrendingUp, color: C.green },
   { id: "revops", title: "RevOps", desc: "Operationalizing revenue processes and data", Icon: Settings2, color: C.amber },
-  { id: "founder", title: "Founder", desc: "Running a SaaS company, managing renewals directly", Icon: Rocket, color: "#A78BFA" },
+  { id: "founder", title: "Founder", desc: "Running a SaaS company, managing renewals directly", Icon: Rocket, color: "#8B5CF6" },
 ];
 
 export default function ProfileSettings() {
@@ -71,7 +71,7 @@ export default function ProfileSettings() {
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary }}>Theme</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>Dark</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary }}>Dark</span>
         </div>
       </div>
     </div>

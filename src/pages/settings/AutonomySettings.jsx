@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Bot, AlertTriangle } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { Btn } from "../../components/ui/index";
@@ -37,7 +37,7 @@ export default function AutonomySettings() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
         <Bot size={20} style={{ color: C.aiBlue }} />
         <span style={{ fontFamily: FONT_SANS, fontSize: fs(18, 16, isMobile), fontWeight: 700, color: C.textPrimary }}>Autonomy Controls</span>
-        {saved && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.green, marginLeft: "auto" }}>Saved</span>}
+        {saved && <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.green, marginLeft: "auto" }}>Saved</span>}
       </div>
       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6, marginBottom: 24 }}>
         Control how autonomous each action type is. All actions are logged to the execution audit trail regardless of level.
@@ -143,7 +143,7 @@ export default function AutonomySettings() {
         marginTop: 16, padding: "12px 16px", borderRadius: 8,
         background: C.bgAI, border: `1px solid ${C.borderAI}`,
       }}>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.aiBlue, textTransform: "uppercase", marginBottom: 4 }}>How it works</div>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.aiBlue, textTransform: "uppercase", marginBottom: 4 }}>How it works</div>
         <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.6 }}>
           <strong style={{ color: C.textSecondary }}>Suggest</strong> — Agents generate proposals in the Agent Queue for you to manually create tasks.{" "}
           <strong style={{ color: C.textSecondary }}>Draft</strong> — Agents create draft tasks automatically; you approve in the queue.{" "}

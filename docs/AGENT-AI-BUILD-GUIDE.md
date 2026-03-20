@@ -1,6 +1,6 @@
-# agent.ai Build Guide — 4 BaseCommand Agents
+# agent.ai Build Guide — BaseCommand Agent Fleet
 
-**Last updated:** 2026-03-17 | **Live agents:** 4 on agent.ai
+**Last updated:** 2026-03-20 | **Live agents:** 4 Knowledge + 5 Workflow on agent.ai
 
 > Step-by-step directions mapped to the actual agent.ai Knowledge Agent interface.
 > Each agent has: Chat Settings, Knowledge Base, and Tools sections.
@@ -48,7 +48,7 @@ Here's a messy CSV export — deduplicate and structure it into clean renewal ac
 
 **System Instructions:**
 ```
-You are Base Command (BC), an AI-powered renewal intelligence platform that parses raw unstructured data to extract renewal accounts.
+You are BaseCommand (BC), an AI-powered renewal intelligence platform that parses raw unstructured data to extract renewal accounts.
 
 Users will paste messy data — CRM exports, spreadsheets, call notes, emails, or any combination. Your job is to extract every distinct customer account you can identify and return them in a clean, structured format.
 
@@ -123,7 +123,7 @@ Draft a renewal outreach email for a $200K account where usage is up 40% and the
 
 **System Instructions:**
 ```
-You are the Base Command Autopilot Agent. You take renewal account details and generate specific, ready-to-use actions that a renewal manager or AE can execute immediately.
+You are the BaseCommand Autopilot Agent. You take renewal account details and generate specific, ready-to-use actions that a renewal manager or AE can execute immediately.
 
 Your role: Take renewal work OFF the AE's plate. Generate ready-to-use drafts and assessments. The AE should only need to review and approve, not think through what to do.
 
@@ -189,7 +189,7 @@ Summarize our portfolio health and give me strategic recommendations for the qua
 
 **System Instructions:**
 ```
-You are the Base Command Executive Intelligence Agent. You serve renewal leaders — directors and VPs who manage teams and portfolios. Your job is to generate executive-ready analysis they can use in leadership meetings, team standups, and board reporting.
+You are the BaseCommand Executive Intelligence Agent. You serve renewal leaders — directors and VPs who manage teams and portfolios. Your job is to generate executive-ready analysis they can use in leadership meetings, team standups, and board reporting.
 
 When users provide portfolio data, generate:
 
@@ -268,7 +268,7 @@ I need a forecast summary I can paste into a board email — here's my portfolio
 
 **System Instructions:**
 ```
-You are the Base Command Forecast Intelligence Agent. You produce board-ready renewal forecasts with the precision and depth of a $200K+ renewal director. Be precise, specific, and data-driven.
+You are the BaseCommand Forecast Intelligence Agent. You produce board-ready renewal forecasts with the precision and depth of a $200K+ renewal director. Be precise, specific, and data-driven.
 
 When users provide renewal portfolio data, produce:
 
@@ -475,12 +475,181 @@ If they don't have BaseCommand yet, direct them to basecommand.ai/signup to crea
 
 ---
 
-## v2 Enhancements (After v1 is Live)
+## Workflow Agent: HubSpot Sync
+
+The killer feature: one-click HubSpot → BaseCommand sync. Built entirely on agent.ai's platform — no BaseCommand code changes needed. agent.ai has 8 native HubSpot v2 actions.
+
+### Architecture
+
+```
+User authorizes HubSpot on agent.ai (per-agent OAuth)
+    ↓
+Knowledge Agent (e.g., CRM Parser): "Import from HubSpot"
+    ↓
+"HubSpot Sync" Workflow Agent:
+    Step 1: hubspot.v2.search_objects — find deals by stage/renewal date
+    Step 2: hubspot.v2.lookup_object — get associated contacts for each deal
+    Step 3: invoke_llm — transform + enrich (infer risk level, synthesize notes)
+    Step 4: rest_call POST /api/import/external — save accounts to BaseCommand
+    Step 5: rest_call POST /api/executions — log the sync event
+    Step 6: output_formatter — show summary to user
+    ↓
+Accounts appear in BaseCommand portfolio with "hubspot-sync" tag
+```
+
+### HubSpot → BaseCommand Data Mapping
+
+| HubSpot Field | BaseCommand Field |
+|---|---|
+| `Company.name` | `name` |
+| `Deal.amount` | `arr` |
+| `Deal.closedate` | `renewalDate` |
+| `Deal.dealstage` + `Deal.pipeline` | `riskLevel` (LLM infers from stage) |
+| Associated contacts (name, email, jobtitle) | `contacts[]` |
+| Recent notes + activities | `notes` (LLM synthesizes) |
+
+### Workflow Agent Configuration
+
+**Name:** `HubSpot Sync`
+
+**Description:** Syncs renewal accounts from HubSpot CRM into BaseCommand portfolio.
+
+**Steps:**
+
+1. **hubspot.v2.search_objects** — Search deals with `closedate` in next 12 months
+   ```json
+   { "objectType": "deals", "filterGroups": [{ "filters": [{ "propertyName": "closedate", "operator": "BETWEEN", "value": "NOW", "highValue": "+365d" }] }], "properties": ["dealname", "amount", "closedate", "dealstage", "pipeline"] }
+   ```
+2. **hubspot.v2.lookup_object** — For each deal, get associated contacts
+   ```json
+   { "objectType": "contacts", "associations": { "dealId": "{deal.id}" }, "properties": ["firstname", "lastname", "email", "jobtitle"] }
+   ```
+3. **invoke_llm** — Transform deals into BaseCommand format, infer risk levels
+   ```
+   Prompt: Given these HubSpot deals and contacts, structure them as BaseCommand accounts.
+   For risk_level, infer from deal stage: "closedwon"→low, "qualifiedtobuy"→medium, all others→high.
+   Return JSON: { accounts: [{ name, arr, renewalDate, riskLevel, contacts, notes, tags: ["hubspot-sync"] }] }
+   ```
+4. **rest_call** — POST to BaseCommand import API
+   ```
+   POST https://basecommand.ai/api/import/external
+   Authorization: Bearer {user_api_key}
+   Body: { accounts: [...] }
+   ```
+5. **rest_call** — POST execution log
+   ```
+   POST https://basecommand.ai/api/executions
+   Authorization: Bearer {user_api_key}
+   Body: { agentId: "hubspot-sync", actionType: "import", inputSummary: "HubSpot sync: {n} deals", outputSummary: "{created} imported, {skipped} skipped", status: "completed" }
+   ```
+6. **output_formatter** — Return summary to user
+
+---
+
+## Workflow Agent: Health Check
+
+**Name:** `Health Check`
+
+**Trigger:** Knowledge Agent tool — when user asks "check health of [account]"
+
+**Steps:**
+1. **rest_call** — GET account context
+   ```
+   GET https://basecommand.ai/api/import/external?action=context&accountId={id}
+   Authorization: Bearer {user_api_key}
+   ```
+2. **invoke_llm** — Generate health assessment (composite score, risk signals, archetype)
+3. **rest_call** — POST execution log
+   ```
+   POST https://basecommand.ai/api/executions
+   Authorization: Bearer {user_api_key}
+   Body: { agentId: "health-check", actionType: "analysis", accountId: "{id}", outputSummary: "Health: {score}/10, Archetype: {type}", status: "completed" }
+   ```
+
+---
+
+## Workflow Agent: Forecast Snapshot
+
+**Name:** `Forecast Snapshot`
+
+**Trigger:** Knowledge Agent tool — when user asks "forecast my portfolio"
+
+**Steps:**
+1. **rest_call** — GET portfolio summary
+   ```
+   GET https://basecommand.ai/api/import/external?action=portfolio
+   Authorization: Bearer {user_api_key}
+   ```
+2. **invoke_llm** — Generate GRR/NRR forecast, scenarios, risk callouts
+3. **rest_call** — POST execution log
+
+---
+
+## Workflow Agent: Outreach Draft
+
+**Name:** `Outreach Draft`
+
+**Trigger:** Knowledge Agent tool — when user asks "draft outreach for [account]"
+
+**Steps:**
+1. **rest_call** — GET account context
+2. **invoke_llm** — Generate personalized renewal email calibrated to health + archetype
+3. **rest_call** — POST execution log
+
+---
+
+## Updated BaseCommand API Endpoints
+
+The following API endpoints are available for workflow agents:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/import/external` | Create accounts (existing) |
+| `PATCH` | `/api/import/external` | Update account: `{ accountId, updates: { arr?, riskLevel?, contacts?, notes? } }` |
+| `GET` | `/api/import/external?action=context&accountId=xxx` | Get account + context items + tasks |
+| `GET` | `/api/import/external?action=portfolio` | Portfolio summary (count, ARR, risk breakdown, next renewals) |
+| `GET` | `/api/executions` | List executions (JWT auth only) |
+| `POST` | `/api/executions` | Log execution (JWT or integration key) |
+
+All endpoints accept `Authorization: Bearer bc_live_xxx` (integration key).
+
+---
+
+## Knowledge Agent Updates for Paid Program
+
+### For ALL 4 Knowledge Agents — add to system instructions:
+
+```
+WORKFLOW TOOLS:
+- When user asks to "import from HubSpot" or "sync HubSpot", invoke the HubSpot Sync workflow agent.
+- When user asks to "save" or "add to BaseCommand", invoke the Save to BaseCommand workflow agent.
+- When user asks to "check health" of an account, invoke the Health Check workflow agent.
+- When user asks to "forecast" their portfolio, invoke the Forecast Snapshot workflow agent.
+- When user asks to "draft outreach" for an account, invoke the Outreach Draft workflow agent.
+- After importing accounts, proactively offer: "Want me to run a health check on these accounts?"
+
+HUBSPOT-FIRST ONBOARDING:
+- When a new user starts chatting, lead with: "Connect your HubSpot to get started — I can import your renewal pipeline in seconds."
+- If they don't have HubSpot, offer the manual paste workflow as fallback.
+```
+
+### New Knowledge Agents (expand from 4 → 7):
+
+| New Agent | Maps to Internal Agent | Prompt Source |
+|---|---|---|
+| **Rescue Strategy** | Rescue Planner | Adapted from RENEWAL_AUTOPILOT_PROMPT |
+| **Expansion Scout** | Expansion Scout | RENEWAL_EXPANSION_PROMPT |
+| **Meeting Prep** | Meeting Prep | New prompt (brief + talking points + questions) |
+
+---
+
+## v2 Enhancements (After Paid Program Launch)
 
 | Enhancement | Which Agents | What It Does |
 |-------------|-------------|-------------|
 | **Google Sheets Connection** | CRM Data Parser | Users link a sheet instead of pasting data |
 | **Get Company Financial Profile Action** | CRM Parser, Autopilot | Enrich accounts with real financial data |
 | **Find LinkedIn Profile Action** | Autopilot | Find contacts for accounts missing stakeholders |
-| **HubSpot Connection** | CRM Data Parser | Pull data directly from HubSpot CRM |
 | **Salesforce Connection** | CRM Data Parser | Pull data directly from Salesforce |
+| **Email agent.ai connector** | Outreach Draft | Send drafted emails directly from agent.ai |
+| **Lead Magnet Email Gate** | Premium agents | Capture emails → auto-create HubSpot contacts |

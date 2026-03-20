@@ -7,9 +7,9 @@ export const AUTONOMY_LEVELS = ["suggest", "draft", "execute"];
 export const LEVEL_COLORS = { suggest: C.textTertiary, draft: C.gold, execute: C.amber };
 
 export const ACTION_TYPE_DEFS = [
-  { id: "email_draft", label: "Email Drafts", icon: Mail, color: "#22D3EE", desc: "Outreach emails, follow-ups, renewal reminders" },
-  { id: "risk_assessment", label: "Risk Assessments", icon: Shield, color: "#F87171", desc: "Health score updates, risk level changes, alerts" },
-  { id: "next_action", label: "Next Actions", icon: Zap, color: "#A78BFA", desc: "Recommended tasks, meeting preps, playbook steps" },
+  { id: "email_draft", label: "Email Drafts", icon: Mail, color: "#069572", desc: "Outreach emails, follow-ups, renewal reminders" },
+  { id: "risk_assessment", label: "Risk Assessments", icon: Shield, color: "#DC4A3D", desc: "Health score updates, risk level changes, alerts" },
+  { id: "next_action", label: "Next Actions", icon: Zap, color: "#8B5CF6", desc: "Recommended tasks, meeting preps, playbook steps" },
 ];
 
 export const LEVEL_DEFS = [

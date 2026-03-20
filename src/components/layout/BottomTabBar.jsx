@@ -54,7 +54,7 @@ export default function BottomTabBar({ activeView, onNavigate }) {
           borderTop: `1px solid ${C.borderSubtle}`,
           borderRadius: "16px 16px 0 0",
           padding: "12px 0 8px",
-          boxShadow: "0 -8px 30px rgba(0,0,0,0.4)",
+          boxShadow: "0 -8px 30px rgba(0,0,0,0.08)",
         }}>
           <div style={{
             width: 36, height: 4, borderRadius: 2,

@@ -68,12 +68,12 @@ export default function Library() {
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>Source:</span>
           {[[null, "All"], ["upload", "Upload"], ["project", "Project"]].map(([val, lbl]) => (
-            <button key={lbl} onClick={() => setFilterSource(val)} style={{ padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer", background: filterSource === val ? C.blue : "rgba(255,255,255,0.04)", color: filterSource === val ? "#fff" : C.textTertiary, fontSize: 11, fontFamily: FONT_MONO, fontWeight: filterSource === val ? 700 : 400 }}>{lbl}</button>
+            <button key={lbl} onClick={() => setFilterSource(val)} style={{ padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer", background: filterSource === val ? C.blue : "rgba(0,0,0,0.03)", color: filterSource === val ? "#fff" : C.textTertiary, fontSize: 11, fontFamily: FONT_MONO, fontWeight: filterSource === val ? 700 : 400 }}>{lbl}</button>
           ))}
         </div>
         <div style={{ display: "flex", gap: 4 }}>
           {[["newest", "Newest"], ["oldest", "Oldest"]].map(([val, lbl]) => (
-            <button key={val} onClick={() => setSortBy(val)} style={{ padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer", background: sortBy === val ? "rgba(255,255,255,0.08)" : "transparent", color: sortBy === val ? C.textPrimary : C.textSecondary, fontSize: 11, fontFamily: FONT_MONO, fontWeight: sortBy === val ? 600 : 400 }}>{lbl}</button>
+            <button key={val} onClick={() => setSortBy(val)} style={{ padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer", background: sortBy === val ? "rgba(0,0,0,0.05)" : "transparent", color: sortBy === val ? C.textPrimary : C.textSecondary, fontSize: 11, fontFamily: FONT_MONO, fontWeight: sortBy === val ? 600 : 400 }}>{lbl}</button>
           ))}
         </div>
       </div>

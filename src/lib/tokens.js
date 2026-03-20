@@ -1,52 +1,89 @@
 // ─── Design Tokens ────────────────────────────────────────────────────────────
-// "Command Indigo" — AI-native design system
-// Warm-neutral dark base (not pure black) for accessibility
-// Dual accent: Indigo = human actions/authority, Cyan = AI intelligence/data
+// "Signal Amber" — BaseCommand brand system
+// Warm amber primary, Insight Teal for AI, warm slate neutrals
+// Light-first with warm brown-black dark mode
 
 export const C = {
-  // Backgrounds — warm-neutral layered depth system
-  bgPrimary: "#0F1013",
-  bgCard: "#171921",
-  bgCardHover: "#1E2029",
-  bgSidebar: "#0B0C0F",
-  bgAI: "#0F1319",
-  bgElevated: "#1E2029",
-  bgSurface: "#262830",
+  // Backgrounds — light-first
+  bgPrimary: "#FCFCFD",
+  bgCard: "#FFFFFF",
+  bgCardHover: "#F8F9FB",
+  bgSidebar: "#FFFFFF",
+  bgAI: "#F0FDF9",
+  bgElevated: "#FFFFFF",
+  bgSurface: "#F0F2F5",
   // Borders
-  borderDefault: "#262830",
-  borderActive: "#6366F1",
-  borderSubtle: "#32353D",
-  borderAI: "#1E2A4A",
-  // Text — high contrast hierarchy (no pure white — prevents halation)
-  textPrimary: "#ECEDF0",
-  textSecondary: "#9CA3AF",
-  textTertiary: "#8B95A5",
-  // Primary accent — indigo for human actions, decisions, authority
-  gold: "#6366F1",
-  goldHover: "#818CF8",
-  goldMuted: "rgba(99, 102, 241, 0.14)",
-  goldGlow: "rgba(99, 102, 241, 0.06)",
-  // AI accent — cyan for AI-generated content, intelligence, data
-  aiBlue: "#22D3EE",
-  aiBlueMuted: "rgba(34, 211, 238, 0.10)",
-  aiBlueGlow: "rgba(34, 211, 238, 0.06)",
-  // Status — desaturated for dark mode
-  green: "#34D399",
-  greenMuted: "rgba(52, 211, 153, 0.12)",
-  amber: "#FBBF24",
-  amberMuted: "rgba(251, 191, 36, 0.12)",
-  red: "#F87171",
-  redMuted: "rgba(248, 113, 113, 0.12)",
-  blue: "#6366F1",
-  blueMuted: "rgba(99, 102, 241, 0.12)",
+  borderDefault: "#E2E5EB",
+  borderActive: "#E09B20",
+  borderSubtle: "#F0F2F5",
+  borderAI: "#9AF5D6",
+  // Text
+  textPrimary: "#161A25",
+  textSecondary: "#4A5162",
+  textTertiary: "#9AA1B0",
+  textOnPrimary: "#FFFFFF",
+  // Primary accent — Signal Amber
+  gold: "#C07D10",
+  goldHover: "#E09B20",
+  goldMuted: "rgba(224, 155, 32, 0.08)",
+  goldGlow: "rgba(224, 155, 32, 0.04)",
+  // AI accent — Insight Teal
+  aiBlue: "#069572",
+  aiBlueMuted: "rgba(6, 149, 114, 0.06)",
+  aiBlueGlow: "rgba(6, 149, 114, 0.03)",
+  // Status
+  green: "#16A368",
+  greenMuted: "rgba(22, 163, 104, 0.08)",
+  amber: "#E09B20",
+  amberMuted: "rgba(224, 155, 32, 0.08)",
+  red: "#DC4A3D",
+  redMuted: "rgba(220, 74, 61, 0.08)",
+  blue: "#3B82F6",
+  blueMuted: "rgba(59, 130, 246, 0.08)",
   // Special
-  purple: "#A78BFA",
-  purpleMuted: "rgba(167, 139, 250, 0.12)",
+  purple: "#8B5CF6",
+  purpleMuted: "rgba(139, 92, 246, 0.08)",
+};
+
+// Dark mode tokens (for future theme toggle)
+export const C_DARK = {
+  bgPrimary: "#141110",
+  bgCard: "#1C1814",
+  bgCardHover: "#241F1A",
+  bgSidebar: "#110E0A",
+  bgAI: "rgba(42, 211, 162, 0.04)",
+  bgElevated: "#1C1814",
+  bgSurface: "#241F1A",
+  borderDefault: "#2A2318",
+  borderActive: "#E09B20",
+  borderSubtle: "#1C1814",
+  borderAI: "rgba(42, 211, 162, 0.15)",
+  textPrimary: "#F0EBE3",
+  textSecondary: "#BFB6A5",
+  textTertiary: "#7A7164",
+  textOnPrimary: "#141110",
+  gold: "#F5B742",
+  goldHover: "#FFD074",
+  goldMuted: "rgba(245, 183, 66, 0.10)",
+  goldGlow: "rgba(245, 183, 66, 0.05)",
+  aiBlue: "#2AD3A2",
+  aiBlueMuted: "rgba(42, 211, 162, 0.08)",
+  aiBlueGlow: "rgba(42, 211, 162, 0.04)",
+  green: "#2AD3A2",
+  greenMuted: "rgba(42, 211, 162, 0.10)",
+  amber: "#F5B742",
+  amberMuted: "rgba(245, 183, 66, 0.10)",
+  red: "#DC4A3D",
+  redMuted: "rgba(248, 113, 113, 0.10)",
+  blue: "#60A5FA",
+  blueMuted: "rgba(96, 165, 250, 0.10)",
+  purple: "#8B5CF6",
+  purpleMuted: "rgba(167, 139, 250, 0.10)",
 };
 
 // ─── Typography ──────────────────────────────────────────────────────────────
 export const FONT_MONO = "'JetBrains Mono', monospace";
-export const FONT_DISPLAY = "'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif";
+export const FONT_DISPLAY = "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif";
 export const FONT_BODY = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 export const FONT_SANS = FONT_DISPLAY; // backward compat
 
@@ -81,11 +118,11 @@ export const DECISION_TEMPLATES = {
 // ─── XP / Gamification ───────────────────────────────────────────────────────
 export const XP_ACTIONS = { task_complete: 10, decision_made: 15, document_added: 5, ai_interaction: 3, priority_achieved: 20 };
 export const RANK_LEVELS = [
-  { name: "Rookie", threshold: 0, color: "#64748B", flavor: "You have a desk. Barely." },
-  { name: "Operator", threshold: 50, color: "#3A7CA5", flavor: "You know where the buttons are." },
-  { name: "Strategist", threshold: 150, color: "#6366F1", flavor: "People pretend to listen now." },
-  { name: "Mastermind", threshold: 300, color: "#2D8653", flavor: "You break things on purpose. And it works." },
-  { name: "The Architect", threshold: 500, color: "#A855F7", flavor: "They don't schedule meetings with you. You schedule them." },
+  { name: "Rookie", threshold: 0, color: "#9AA1B0", flavor: "You have a desk. Barely." },
+  { name: "Operator", threshold: 50, color: "#3B82F6", flavor: "You know where the buttons are." },
+  { name: "Strategist", threshold: 150, color: "#C07D10", flavor: "People pretend to listen now." },
+  { name: "Mastermind", threshold: 300, color: "#069572", flavor: "You break things on purpose. And it works." },
+  { name: "The Architect", threshold: 500, color: "#8B5CF6", flavor: "They don't schedule meetings with you. You schedule them." },
 ];
 
 export const SUPPORTED_DOC_TYPES = [".txt", ".md", ".docx", ".jsx"];
@@ -135,9 +172,9 @@ export const R = { sm: 4, md: 8, lg: 12, xl: 14 };
 
 // ─── Hover Levels ───────────────────────────────────────────────────────────
 export const HOVER = {
-  subtle: "rgba(255,255,255,0.04)",
-  default: "rgba(255,255,255,0.06)",
-  strong: "rgba(255,255,255,0.10)",
+  subtle: "rgba(0,0,0,0.03)",
+  default: "rgba(0,0,0,0.04)",
+  strong: "rgba(0,0,0,0.06)",
 };
 
 // ─── Breakpoints ────────────────────────────────────────────────────────────

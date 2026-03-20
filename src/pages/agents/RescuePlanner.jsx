@@ -142,9 +142,9 @@ ${signals}`;
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
           <div style={{
             width: 8, height: 8, borderRadius: "50%",
-            background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
+            background: "#16A368", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
           }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>
             Renewal Agent
           </span>
         </div>
@@ -239,7 +239,7 @@ ${signals}`;
                     width: 36, height: 36, borderRadius: 8, flexShrink: 0,
                     background: severity.color + "14", border: `1px solid ${severity.color}30`,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: FONT_MONO, fontSize: 13, fontWeight: 700, color: severity.color,
+                    fontFamily: FONT_SANS, fontSize: 13, fontWeight: 700, color: severity.color,
                   }}>
                     {plan.save_probability}%
                   </div>
@@ -263,7 +263,7 @@ ${signals}`;
                   <div style={{ padding: isMobile ? "0 12px 14px" : "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
                     {/* Diagnosis */}
                     <div style={{ marginTop: 16, marginBottom: 16 }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
                         Diagnosis
                       </div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6 }}>
@@ -273,7 +273,7 @@ ${signals}`;
 
                     {/* Archetype strategy */}
                     <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
                         Archetype Strategy
                       </div>
                       <div style={{
@@ -286,7 +286,7 @@ ${signals}`;
 
                     {/* Actions */}
                     <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
                         Action Plan
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -302,7 +302,7 @@ ${signals}`;
                                 width: 22, height: 22, borderRadius: 6, flexShrink: 0,
                                 background: (pc[action.priority] || C.textTertiary) + "18",
                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                fontFamily: FONT_MONO, fontSize: 10, fontWeight: 700,
+                                fontFamily: FONT_SANS, fontSize: 10, fontWeight: 700,
                                 color: pc[action.priority] || C.textTertiary,
                               }}>{ai + 1}</div>
                               <div style={{ flex: 1 }}>
@@ -310,11 +310,11 @@ ${signals}`;
                                   {action.action}
                                 </div>
                                 <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
-                                  <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
+                                  <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>
                                     <Clock size={10} style={{ marginRight: 3, verticalAlign: "middle" }} />{action.timeline}
                                   </span>
                                   {action.owner_hint && (
-                                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
+                                    <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>
                                       Owner: {action.owner_hint}
                                     </span>
                                   )}
@@ -334,7 +334,7 @@ ${signals}`;
                     {/* Talking points */}
                     {plan.talking_points?.length > 0 && (
                       <div style={{ marginBottom: 16 }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
                           Talking Points
                         </div>
                         {plan.talking_points.map((tp, ti) => (
@@ -353,7 +353,7 @@ ${signals}`;
                       padding: "10px 14px", borderRadius: 8,
                       background: C.redMuted, border: `1px solid ${C.red}20`,
                     }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.red, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.red, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
                         Risk If No Action
                       </div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>

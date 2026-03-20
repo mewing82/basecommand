@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Settings as SettingsIcon, User } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, fs } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { useAuthStore } from "../../store/authStore";
 import { renewalStore } from "../../lib/storage";
@@ -103,7 +103,7 @@ export default function TopBar({ currentView, onCommandPalette }) {
         </div>
         {meta.subtitle && !isMobile && (
           <div style={{
-            fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
+            fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary,
             marginTop: 2, letterSpacing: "0.02em", opacity: 0.7,
           }}>
             {meta.subtitle}
@@ -116,20 +116,20 @@ export default function TopBar({ currentView, onCommandPalette }) {
         onClick={onCommandPalette}
         style={{
           display: isMobile ? "none" : "flex", alignItems: "center", gap: 10,
-          background: "rgba(255,255,255,0.04)", border: `1px solid ${C.borderDefault}`,
+          background: "rgba(0,0,0,0.03)", border: `1px solid ${C.borderDefault}`,
           borderRadius: 8, padding: "6px 14px", cursor: "pointer",
           color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 13,
           transition: "all 0.15s ease", minWidth: 200, flexShrink: 0,
         }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.background = "rgba(0,0,0,0.04)"; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.background = "rgba(0,0,0,0.03)"; }}
       >
         <span style={{ opacity: 0.5 }}>&#x2315;</span>
         <span>Search...</span>
         <kbd style={{
-          marginLeft: "auto", fontFamily: FONT_MONO,
-          background: "rgba(255,255,255,0.06)", padding: "2px 7px",
-          borderRadius: 5, fontSize: 11, border: "1px solid rgba(255,255,255,0.06)",
+          marginLeft: "auto", fontFamily: FONT_SANS,
+          background: "rgba(0,0,0,0.04)", padding: "2px 7px",
+          borderRadius: 5, fontSize: 11, border: "1px solid rgba(0,0,0,0.04)",
         }}>&#x2318;K</kbd>
       </button>
 
@@ -187,7 +187,7 @@ export default function TopBar({ currentView, onCommandPalette }) {
               background: C.bgElevated,
               border: `1px solid ${C.borderSubtle}`,
               borderRadius: 10,
-              boxShadow: "0 8px 24px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)",
               zIndex: 9999,
               padding: "12px 0",
               fontFamily: FONT_SANS,
@@ -241,7 +241,7 @@ export default function TopBar({ currentView, onCommandPalette }) {
                 textAlign: "left",
                 transition: "background 0.1s ease",
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.03)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
             >
               <SettingsIcon size={14} style={{ opacity: 0.6 }} />
@@ -266,7 +266,7 @@ export default function TopBar({ currentView, onCommandPalette }) {
                 textAlign: "left",
                 transition: "background 0.1s ease",
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.03)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
             >
               <LogOut size={14} style={{ opacity: 0.6 }} />

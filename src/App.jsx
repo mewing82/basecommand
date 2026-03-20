@@ -4,7 +4,7 @@ import { Menu, Search } from "lucide-react";
 import { useAppStore } from "./store/appStore";
 import { useEntityStore } from "./store/entityStore";
 import { useAuthStore } from "./store/authStore";
-import { C, FONT_SANS, FONT_MONO, APP_MOBILE_PX } from "./lib/tokens";
+import { C, FONT_SANS, APP_MOBILE_PX } from "./lib/tokens";
 import { useMediaQuery } from "./lib/useMediaQuery";
 import Sidebar from "./components/layout/Sidebar";
 import TopBar from "./components/layout/TopBar";
@@ -88,15 +88,15 @@ function AppLayout() {
         alignItems: "center", justifyContent: "center", gap: 16,
         background: C.bgPrimary,
       }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: 12,
-          background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 18, fontWeight: 700, color: C.bgPrimary,
-          fontFamily: FONT_MONO, animation: "aiPulse 2s ease-in-out infinite",
-        }}>B</div>
+        <div style={{ animation: "aiPulse 2s ease-in-out infinite" }}>
+          <svg width="40" height="40" viewBox="0 0 44 44" fill="none">
+            <path d="M8 8L22 22L8 36" stroke={C.gold} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M20 8L34 22L20 36" stroke={C.goldHover} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="34" cy="22" r="3.5" fill={C.aiBlue}/>
+          </svg>
+        </div>
         <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textTertiary, fontWeight: 500 }}>
-          Loading Base Command...
+          Loading BaseCommand...
         </div>
       </div>
     );

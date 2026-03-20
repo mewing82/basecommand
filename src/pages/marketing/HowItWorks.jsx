@@ -4,19 +4,19 @@ import {
   Activity, Brain, FileText, Target, CheckCircle2,
   Upload, Mail, Table, Cloud,
 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
 // ─── Archetypes ──────────────────────────────────────────────────────────────
 
 const ARCHETYPES = [
-  { name: "Power User", probability: 90, strategy: "Expansion play", color: "#34D399" },
-  { name: "Enthusiastic Adopter", probability: 80, strategy: "Safe renewal, nurture", color: "#22D3EE" },
-  { name: "Convert", probability: 68, strategy: "Targeted upsell", color: "#6366F1" },
+  { name: "Power User", probability: 90, strategy: "Expansion play", color: "#16A368" },
+  { name: "Enthusiastic Adopter", probability: 80, strategy: "Safe renewal, nurture", color: "#069572" },
+  { name: "Convert", probability: 68, strategy: "Targeted upsell", color: "#C07D10" },
   { name: "Explorer", probability: 50, strategy: "Guided adoption", color: "#F59E0B" },
   { name: "Struggler", probability: 28, strategy: "Immediate intervention", color: "#FB923C" },
-  { name: "Disconnected", probability: 5, strategy: "Last-resort rescue", color: "#F87171" },
+  { name: "Disconnected", probability: 5, strategy: "Last-resort rescue", color: "#DC4A3D" },
 ];
 
 export default function HowItWorks() {
@@ -32,8 +32,8 @@ export default function HowItWorks() {
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 20px", borderRadius: 20, marginBottom: 24,
-          background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-          fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
+          background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+          fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_SANS,
           letterSpacing: "0.03em", textTransform: "uppercase",
           maxWidth: "100%", textAlign: "center",
         }}>
@@ -47,7 +47,7 @@ export default function HowItWorks() {
         }}>
           How BaseCommand{" "}
           <span style={{
-            background: `linear-gradient(135deg, ${C.aiBlue}, #34D399)`,
+            background: `linear-gradient(135deg, ${C.aiBlue}, #16A368)`,
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
           }}>Actually Works</span>
         </h1>
@@ -62,7 +62,7 @@ export default function HowItWorks() {
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
           maxWidth: 620, margin: "20px auto 0", padding: "12px 16px",
-          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+          background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>BaseCommand runs a 5-function AI pipeline</strong> — Monitor, Predict, Generate, Identify, Orchestrate — powered by 9 specialized agents organized into Renewal, Growth, and Coaching categories. The system scores health continuously, drafts outreach automatically, and surfaces expansion signals from your data.
         </p>
@@ -74,8 +74,8 @@ export default function HowItWorks() {
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 20px", borderRadius: 20, marginBottom: 16,
-            background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
+            background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_SANS,
             letterSpacing: "0.03em", textTransform: "uppercase",
             maxWidth: "100%", textAlign: "center",
           }}>
@@ -105,7 +105,7 @@ export default function HowItWorks() {
                 desc: "Data parsing, signal detection, outreach drafting, risk scoring — running continuously without manual effort.",
                 items: ["Parse & structure CRM data", "Score account health in real-time", "Draft personalized renewal emails", "Detect expansion & churn signals"],
                 icon: Bot, color: C.aiBlue,
-                bg: "rgba(34, 211, 238, 0.06)", border: "rgba(34, 211, 238, 0.20)",
+                bg: "rgba(6, 149, 114, 0.06)", border: "rgba(6, 149, 114, 0.20)",
               },
               {
                 stage: "Continuous Orchestration",
@@ -118,7 +118,7 @@ export default function HowItWorks() {
                 stage: "Human Execution",
                 desc: "You handle what humans do best — strategy, relationship building, negotiation, and high-value conversations.",
                 items: ["Approve or modify AI drafts", "Lead strategic conversations", "Build champion relationships", "Make judgment calls on saves"],
-                icon: Users, color: "#34D399",
+                icon: Users, color: "#16A368",
                 bg: "rgba(52, 211, 153, 0.06)", border: "rgba(52, 211, 153, 0.20)",
               },
             ].flatMap((item, i) => {
@@ -187,7 +187,7 @@ export default function HowItWorks() {
             </svg>
           </div>
           <div style={{
-            textAlign: "center", fontFamily: FONT_MONO, fontSize: 11,
+            textAlign: "center", fontFamily: FONT_SANS, fontSize: 11,
             color: C.textTertiary, opacity: 0.5,
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           }}>
@@ -204,7 +204,7 @@ export default function HowItWorks() {
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 20px", borderRadius: 20, marginBottom: 16,
             background: "rgba(52, 211, 153, 0.10)", border: "1px solid rgba(52, 211, 153, 0.20)",
-            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: "#34D399", fontFamily: FONT_MONO,
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: "#16A368", fontFamily: FONT_SANS,
             letterSpacing: "0.03em", textTransform: "uppercase",
             maxWidth: "100%", textAlign: "center",
           }}>
@@ -237,18 +237,18 @@ export default function HowItWorks() {
           }}>
             {[
               { label: "Starting MRR", color: C.gold, bg: `${C.gold}20`, border: `${C.gold}30`, width: 140 },
-              { label: "+ Expansion", color: "#34D399", bg: "rgba(52, 211, 153, 0.15)", border: "rgba(52, 211, 153, 0.30)", width: 120, ai: "Expansion Signal Scout" },
+              { label: "+ Expansion", color: "#16A368", bg: "rgba(52, 211, 153, 0.15)", border: "rgba(52, 211, 153, 0.30)", width: 120, ai: "Expansion Signal Scout" },
               { label: "− Contraction", color: C.amber, bg: "rgba(251, 191, 36, 0.12)", border: "rgba(251, 191, 36, 0.25)", width: 110, ai: "Value reinforcement" },
               { label: "− Churn", color: C.red, bg: "rgba(248, 113, 113, 0.12)", border: "rgba(248, 113, 113, 0.25)", width: 100, ai: "90-day early warning" },
-              { label: "= Net MRR", color: "#34D399", bg: "rgba(52, 211, 153, 0.18)", border: "rgba(52, 211, 153, 0.35)", width: 140 },
+              { label: "= Net MRR", color: "#16A368", bg: "rgba(52, 211, 153, 0.18)", border: "rgba(52, 211, 153, 0.35)", width: 140 },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: isMobile ? 1 : undefined }}>
                   {isMobile ? null : (item.ai ? (
                     <div style={{
-                      fontFamily: FONT_MONO, fontSize: 10, color: C.aiBlue,
+                      fontFamily: FONT_SANS, fontSize: 10, color: C.aiBlue,
                       padding: "4px 10px", borderRadius: 6,
-                      background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
+                      background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
                       whiteSpace: "nowrap",
                     }}>
                       AI: {item.ai}
@@ -260,7 +260,7 @@ export default function HowItWorks() {
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
                     <span style={{
-                      fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+                      fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600,
                       color: item.color, whiteSpace: "nowrap",
                     }}>
                       {item.label}
@@ -279,7 +279,7 @@ export default function HowItWorks() {
           {/* Intervention cards */}
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 14 }}>
             {[
-              { num: "1", title: "Expansion Signal Scout identifies PQLs", desc: "Agent detects upsell signals — new use cases, team growth, budget expansion language — and triggers expansion workflows before the opportunity window closes.", impact: "Drives NRR above 100%", color: "#34D399" },
+              { num: "1", title: "Expansion Signal Scout identifies PQLs", desc: "Agent detects upsell signals — new use cases, team growth, budget expansion language — and triggers expansion workflows before the opportunity window closes.", impact: "Drives NRR above 100%", color: "#16A368" },
               { num: "2", title: "AI detects scope reduction signals", desc: "Agent catches contraction indicators in emails, usage patterns, and support interactions. Prescribes value-reinforcement outreach before the customer downsells.", impact: "Reduces contraction losses", color: C.amber },
               { num: "3", title: "90-day churn early warning", desc: "Predictive health scores flag at-risk accounts 90 days before renewal date. Portfolio Health Monitor assigns behavioral archetypes and At-Risk Rescue Planner generates intervention playbooks.", impact: "Prevents up to 71% of churn", color: C.red },
             ].map((item, i) => (
@@ -292,12 +292,12 @@ export default function HowItWorks() {
                     width: 28, height: 28, borderRadius: 8,
                     background: `${item.color}18`, border: `1px solid ${item.color}30`,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: FONT_MONO, fontSize: 12, fontWeight: 700, color: item.color,
+                    fontFamily: FONT_SANS, fontSize: 12, fontWeight: 700, color: item.color,
                   }}>
                     {item.num}
                   </div>
                   <div style={{
-                    fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600,
+                    fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600,
                     color: C.aiBlue, letterSpacing: "0.03em", textTransform: "uppercase",
                   }}>
                     AI Intervention
@@ -305,7 +305,7 @@ export default function HowItWorks() {
                 </div>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 8 }}>{item.title}</div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 12 }}>{item.desc}</div>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: item.color, fontWeight: 600 }}>{item.impact}</div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: item.color, fontWeight: 600 }}>{item.impact}</div>
               </div>
             ))}
           </div>
@@ -319,7 +319,7 @@ export default function HowItWorks() {
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 20px", borderRadius: 20, marginBottom: 16,
             background: C.goldMuted, border: `1px solid ${C.gold}20`,
-            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS,
             letterSpacing: "0.03em", textTransform: "uppercase",
             maxWidth: "100%", textAlign: "center",
           }}>
@@ -345,7 +345,7 @@ export default function HowItWorks() {
             background: "rgba(52, 211, 153, 0.08)", border: "1px solid rgba(52, 211, 153, 0.20)",
             borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px", display: "flex", alignItems: "center", gap: isMobile ? 12 : 20,
           }}>
-            <Users size={20} color="#34D399" style={{ flexShrink: 0 }} />
+            <Users size={20} color="#16A368" style={{ flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 700, color: C.textPrimary, marginBottom: 2 }}>Human CSM Escalation</div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary }}>High-value strategic execution — relationship building, negotiation, judgment calls.</div>
@@ -353,7 +353,7 @@ export default function HowItWorks() {
             <div style={{
               padding: "4px 10px", borderRadius: 6,
               background: "rgba(52, 211, 153, 0.12)", border: "1px solid rgba(52, 211, 153, 0.20)",
-              fontFamily: FONT_MONO, fontSize: 10, color: "#34D399", whiteSpace: "nowrap",
+              fontFamily: FONT_SANS, fontSize: 10, color: "#16A368", whiteSpace: "nowrap",
               display: isMobile ? "none" : undefined,
             }}>BaseCommand</div>
           </div>
@@ -372,14 +372,14 @@ export default function HowItWorks() {
               <div style={{
                 padding: "4px 10px", borderRadius: 6,
                 background: C.goldMuted, border: `1px solid ${C.gold}25`,
-                fontFamily: FONT_MONO, fontSize: 10, color: C.gold, whiteSpace: "nowrap",
+                fontFamily: FONT_SANS, fontSize: 10, color: C.gold, whiteSpace: "nowrap",
                 display: isMobile ? "none" : undefined,
               }}>BaseCommand</div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 10, paddingLeft: isMobile ? 0 : 40 }}>
               {[
-                { name: "Renewal Agents", agents: "Portfolio Health Monitor, At-Risk Rescue Planner, Renewal Outreach Drafter", color: "#34D399" },
-                { name: "Growth Agents", agents: "Expansion Signal Scout, Revenue Forecast Engine, Upsell Opportunity Brief", color: "#6366F1" },
+                { name: "Renewal Agents", agents: "Portfolio Health Monitor, At-Risk Rescue Planner, Renewal Outreach Drafter", color: "#16A368" },
+                { name: "Growth Agents", agents: "Expansion Signal Scout, Revenue Forecast Engine, Upsell Opportunity Brief", color: "#C07D10" },
                 { name: "Coaching Agents", agents: "Executive Strategy Brief, Renewal Meeting Prep, Renewal Playbook Builder", color: "#F59E0B" },
               ].map((cat, i) => (
                 <div key={i} style={{
@@ -395,7 +395,7 @@ export default function HowItWorks() {
 
           {/* Layer 2 */}
           <div style={{
-            background: "rgba(34, 211, 238, 0.06)", border: "1px solid rgba(34, 211, 238, 0.20)",
+            background: "rgba(6, 149, 114, 0.06)", border: "1px solid rgba(6, 149, 114, 0.20)",
             borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px", display: "flex", alignItems: "center", gap: isMobile ? 12 : 20,
           }}>
             <Cpu size={20} color={C.aiBlue} style={{ flexShrink: 0 }} />
@@ -405,8 +405,8 @@ export default function HowItWorks() {
             </div>
             <div style={{
               padding: "4px 10px", borderRadius: 6,
-              background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-              fontFamily: FONT_MONO, fontSize: 10, color: C.aiBlue, whiteSpace: "nowrap",
+              background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+              fontFamily: FONT_SANS, fontSize: 10, color: C.aiBlue, whiteSpace: "nowrap",
               display: isMobile ? "none" : undefined,
             }}>BaseCommand</div>
           </div>
@@ -425,7 +425,7 @@ export default function HowItWorks() {
               <div style={{
                 padding: "4px 10px", borderRadius: 6,
                 background: C.bgSurface, border: `1px solid ${C.borderSubtle}`,
-                fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, whiteSpace: "nowrap",
+                fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, whiteSpace: "nowrap",
                 display: isMobile ? "none" : undefined,
               }}>You connect</div>
             </div>
@@ -457,7 +457,7 @@ export default function HowItWorks() {
                 }}>
                   <Cloud size={11} color={C.textTertiary} style={{ opacity: 0.5 }} />
                   <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>{name}</span>
-                  <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, opacity: 0.6 }}>soon</span>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, opacity: 0.6 }}>soon</span>
                 </div>
               ))}
             </div>
@@ -502,7 +502,7 @@ export default function HowItWorks() {
                     background: `linear-gradient(90deg, ${arch.color}60, ${arch.color})`,
                   }} />
                 </div>
-                <span style={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, color: arch.color, minWidth: 40, textAlign: "right" }}>{arch.probability}%</span>
+                <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: arch.color, minWidth: 40, textAlign: "right" }}>{arch.probability}%</span>
               </div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, minWidth: isMobile ? "auto" : 180, textAlign: isMobile ? "left" : "right" }}>{arch.strategy}</div>
             </div>
@@ -540,7 +540,7 @@ export default function HowItWorks() {
             <Link to="/get-started" style={{
               padding: "14px 32px", borderRadius: 10,
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-              color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
+              color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
               textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
               display: "inline-flex", alignItems: "center", gap: 8, minHeight: 44,
             }}>

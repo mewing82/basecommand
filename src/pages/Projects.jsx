@@ -58,14 +58,14 @@ export default function Projects() {
       {!createMode && (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 8 }}>
           <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>Source:</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>Source:</span>
             {[[null, "All"], ["builder", "AI Builder"], ["import", "Import"], ["manual", "Manual"]].map(([val, lbl]) => (
-              <button key={lbl} onClick={() => setFilterSource(val)} style={{ padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer", background: filterSource === val ? "rgba(255,255,255,0.08)" : "transparent", color: filterSource === val ? C.textPrimary : C.textSecondary, fontSize: 11, fontFamily: FONT_MONO, fontWeight: filterSource === val ? 700 : 400 }}>{lbl}</button>
+              <button key={lbl} onClick={() => setFilterSource(val)} style={{ padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer", background: filterSource === val ? "rgba(0,0,0,0.05)" : "transparent", color: filterSource === val ? C.textPrimary : C.textSecondary, fontSize: 11, fontFamily: FONT_MONO, fontWeight: filterSource === val ? 700 : 400 }}>{lbl}</button>
             ))}
           </div>
           <div style={{ display: "flex", gap: 4 }}>
             {[["default", "Default"], ["newest", "Newest"], ["oldest", "Oldest"]].map(([val, lbl]) => (
-              <button key={val} onClick={() => setSortBy(val)} style={{ padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer", background: sortBy === val ? "rgba(255,255,255,0.08)" : "transparent", color: sortBy === val ? C.textPrimary : C.textSecondary, fontSize: 11, fontFamily: FONT_MONO, fontWeight: sortBy === val ? 600 : 400 }}>{lbl}</button>
+              <button key={val} onClick={() => setSortBy(val)} style={{ padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer", background: sortBy === val ? "rgba(0,0,0,0.05)" : "transparent", color: sortBy === val ? C.textPrimary : C.textSecondary, fontSize: 11, fontFamily: FONT_MONO, fontWeight: sortBy === val ? 600 : 400 }}>{lbl}</button>
             ))}
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function Projects() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {active.length > 0 && (
               <div>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Active ({active.length})</div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Active ({active.length})</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {active.map(p => <ProjectCard key={p.id} project={p} expanded={expandedId === p.id} onToggle={() => setExpandedId(expandedId === p.id ? null : p.id)} onUpdate={u => updateProject(p.id, u)} onDelete={() => deleteProject(p.id)} tasks={tasks} decisions={decisions} priorities={priorities} />)}
                 </div>
@@ -90,7 +90,7 @@ export default function Projects() {
             )}
             {other.length > 0 && (
               <div>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Other ({other.length})</div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Other ({other.length})</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {other.map(p => <ProjectCard key={p.id} project={p} expanded={expandedId === p.id} onToggle={() => setExpandedId(expandedId === p.id ? null : p.id)} onUpdate={u => updateProject(p.id, u)} onDelete={() => deleteProject(p.id)} tasks={tasks} decisions={decisions} priorities={priorities} />)}
                 </div>
@@ -251,7 +251,7 @@ function ProjectBuilder({ onCommit, onCancel }) {
   if (!plan) return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.gold, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> Describe Your Project</div>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.gold, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> Describe Your Project</div>
         <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, marginBottom: 16 }}>Tell BC what you're working on. BC will build a full project plan with tasks, decisions, and milestones.</div>
       </div>
       <textarea value={input} onChange={e => setInput(e.target.value)} placeholder={"Describe your project...\n\nExamples:\n• Building an AI-powered decision tool, ship MVP in 6 weeks\n• Evaluating a Senior AE role — research comp, prep interviews\n• Launching renewal AI agents, need pilot plan"} style={{ width: "100%", minHeight: 200, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8, padding: 16, resize: "vertical", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 14, lineHeight: 1.6, outline: "none", boxSizing: "border-box" }} onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") generate(); }} />
@@ -277,14 +277,14 @@ function ProjectBuilder({ onCommit, onCancel }) {
       </div>
       {plan.bc_analysis && (
         <div style={{ background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "14px 18px", marginBottom: 24 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.aiBlue, marginBottom: 8, letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> BC ANALYSIS</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.aiBlue, marginBottom: 8, letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 4 }}><Sparkles size={10} /> BC ANALYSIS</div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textPrimary, lineHeight: 1.6 }}>{renderMarkdown(plan.bc_analysis)}</div>
         </div>
       )}
       {/* Milestones */}
       {(plan.milestones || []).length > 0 && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Milestones</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Milestones</div>
           <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
             {plan.milestones.map((m, i) => (
               <div key={i} style={{ minWidth: 180, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8, padding: "12px 14px", flexShrink: 0 }}>
@@ -299,20 +299,20 @@ function ProjectBuilder({ onCommit, onCancel }) {
       {(plan.tasks || []).length > 0 && (
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-            <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em" }}>Tasks ({plan.tasks.length})</div>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em" }}>Tasks ({plan.tasks.length})</div>
             <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => { const s = { ...selected }; plan.tasks.forEach((_, i) => s[`task_${i}`] = true); setSelected(s); }} style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 11, fontFamily: FONT_MONO }}>All</button>
-              <button onClick={() => { const s = { ...selected }; plan.tasks.forEach((_, i) => s[`task_${i}`] = false); setSelected(s); }} style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 11, fontFamily: FONT_MONO }}>None</button>
+              <button onClick={() => { const s = { ...selected }; plan.tasks.forEach((_, i) => s[`task_${i}`] = true); setSelected(s); }} style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 11, fontFamily: FONT_SANS }}>All</button>
+              <button onClick={() => { const s = { ...selected }; plan.tasks.forEach((_, i) => s[`task_${i}`] = false); setSelected(s); }} style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 11, fontFamily: FONT_SANS }}>None</button>
             </div>
           </div>
           {groupTasksByPhase(plan.tasks).map((phase, pi) => (
             <div key={pi} style={{ marginBottom: 12 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.blue, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>{phase.label}</div>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.blue, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>{phase.label}</div>
               {phase.items.map(task => {
                 const i = task._index; const key = `task_${i}`; const isSelected = selected[key];
                 return (
                   <div key={i} onClick={() => setSelected(s => ({ ...s, [key]: !s[key] }))} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: isSelected ? C.bgCardHover : C.bgCard, border: `1px solid ${isSelected ? C.borderActive : C.borderDefault}`, borderRadius: 8, padding: "12px 14px", marginBottom: 6, cursor: "pointer", transition: "all 0.15s" }}>
-                    <div style={{ width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1, border: `2px solid ${isSelected ? C.gold : C.borderDefault}`, background: isSelected ? C.gold : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>{isSelected && <span style={{ color: C.bgPrimary, fontSize: 11, fontWeight: 700 }}>✓</span>}</div>
+                    <div style={{ width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1, border: `2px solid ${isSelected ? C.gold : C.borderDefault}`, background: isSelected ? C.gold : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>{isSelected && <span style={{ color: C.textOnPrimary, fontSize: 11, fontWeight: 700 }}>✓</span>}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
                         <Badge label="Task" color={C.blue} /><span style={{ fontFamily: FONT_MONO, fontSize: 11, color: priorityColor(task.priority) }}>{task.priority}</span>
@@ -331,10 +331,10 @@ function ProjectBuilder({ onCommit, onCancel }) {
       {/* Decisions */}
       {(plan.decisions || []).length > 0 && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Decisions ({plan.decisions.length})</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Decisions ({plan.decisions.length})</div>
           {plan.decisions.map((dec, i) => { const key = `decision_${i}`; const isSelected = selected[key]; return (
             <div key={i} onClick={() => setSelected(s => ({ ...s, [key]: !s[key] }))} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: isSelected ? C.bgCardHover : C.bgCard, border: `1px solid ${isSelected ? C.borderActive : C.borderDefault}`, borderRadius: 8, padding: "12px 14px", marginBottom: 6, cursor: "pointer", transition: "all 0.15s" }}>
-              <div style={{ width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1, border: `2px solid ${isSelected ? C.gold : C.borderDefault}`, background: isSelected ? C.gold : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>{isSelected && <span style={{ color: C.bgPrimary, fontSize: 11, fontWeight: 700 }}>✓</span>}</div>
+              <div style={{ width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1, border: `2px solid ${isSelected ? C.gold : C.borderDefault}`, background: isSelected ? C.gold : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>{isSelected && <span style={{ color: C.textOnPrimary, fontSize: 11, fontWeight: 700 }}>✓</span>}</div>
               <div style={{ flex: 1 }}>
                 <Badge label="Decision" color={C.gold} />
                 <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginTop: 3 }}>{dec.title}</div>
@@ -347,10 +347,10 @@ function ProjectBuilder({ onCommit, onCancel }) {
       {/* Priorities */}
       {(plan.priorities || []).length > 0 && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Priorities ({plan.priorities.length})</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Priorities ({plan.priorities.length})</div>
           {plan.priorities.map((pri, i) => { const key = `priority_${i}`; const isSelected = selected[key]; return (
             <div key={i} onClick={() => setSelected(s => ({ ...s, [key]: !s[key] }))} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: isSelected ? C.bgCardHover : C.bgCard, border: `1px solid ${isSelected ? C.borderActive : C.borderDefault}`, borderRadius: 8, padding: "12px 14px", marginBottom: 6, cursor: "pointer", transition: "all 0.15s" }}>
-              <div style={{ width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1, border: `2px solid ${isSelected ? C.gold : C.borderDefault}`, background: isSelected ? C.gold : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>{isSelected && <span style={{ color: C.bgPrimary, fontSize: 11, fontWeight: 700 }}>✓</span>}</div>
+              <div style={{ width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1, border: `2px solid ${isSelected ? C.gold : C.borderDefault}`, background: isSelected ? C.gold : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>{isSelected && <span style={{ color: C.textOnPrimary, fontSize: 11, fontWeight: 700 }}>✓</span>}</div>
               <div style={{ flex: 1 }}>
                 <Badge label="Priority" color={C.amber} />
                 <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, marginTop: 3 }}>{pri.title}</div>
@@ -362,9 +362,9 @@ function ProjectBuilder({ onCommit, onCancel }) {
       )}
       {/* Refine */}
       <div style={{ marginBottom: 20, background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "12px 14px" }}>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Refine with BC</div>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Refine with BC</div>
         <div style={{ display: "flex", gap: 8 }}>
-          <input value={refinePrompt} onChange={e => setRefinePrompt(e.target.value)} onKeyDown={e => e.key === "Enter" && refine()} placeholder="Add more tasks, adjust timeline, split phases..." disabled={refining} style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "7px 12px", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 13, outline: "none" }} />
+          <input value={refinePrompt} onChange={e => setRefinePrompt(e.target.value)} onKeyDown={e => e.key === "Enter" && refine()} placeholder="Add more tasks, adjust timeline, split phases..." disabled={refining} style={{ flex: 1, background: "rgba(0,0,0,0.03)", border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "7px 12px", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 13, outline: "none" }} />
           <button onClick={refine} disabled={!refinePrompt.trim() || refining} style={{ background: refinePrompt.trim() && !refining ? C.gold : "transparent", border: `1px solid ${refinePrompt.trim() && !refining ? C.gold : C.borderAI}`, borderRadius: 6, padding: "7px 14px", cursor: refinePrompt.trim() && !refining ? "pointer" : "not-allowed", color: refinePrompt.trim() && !refining ? C.bgPrimary : C.textTertiary, fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600 }}>{refining ? "..." : <Sparkles size={12} />}</button>
         </div>
       </div>
@@ -412,7 +412,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
         {project.description && <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.5, marginBottom: 10, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{project.description}</div>}
         {totalTasks > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ flex: 1, height: 3, background: "rgba(0,0,0,0.04)", borderRadius: 2, overflow: "hidden" }}>
               <div style={{ width: `${progress}%`, height: "100%", background: progress === 100 ? C.green : `linear-gradient(90deg, ${C.blue}, ${C.gold})`, borderRadius: 2, transition: "width 0.5s" }} />
             </div>
             <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: progress === 100 ? C.green : C.textTertiary }}>{completedTasks}/{totalTasks}</span>
@@ -428,7 +428,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
             {PROJECT_STATUSES.map(s => (
               <button key={s} onClick={() => onUpdate({ status: s })} style={{
                 padding: "4px 12px", borderRadius: 6, border: "none", cursor: "pointer",
-                background: project.status === s ? `${statusColor(s)}22` : "rgba(255,255,255,0.04)",
+                background: project.status === s ? `${statusColor(s)}22` : "rgba(0,0,0,0.03)",
                 color: project.status === s ? statusColor(s) : C.textTertiary,
                 fontFamily: FONT_MONO, fontSize: 11, fontWeight: project.status === s ? 600 : 400,
               }}>{PROJECT_STATUS_LABELS[s]}</button>
@@ -438,7 +438,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
           {/* Linked tasks */}
           {linkedItems.tasks.length > 0 && (
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Tasks ({linkedItems.tasks.length})</div>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Tasks ({linkedItems.tasks.length})</div>
               {linkedItems.tasks.map(t => (
                 <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
                   <span style={{ color: t.status === "complete" ? C.green : "#555", fontSize: 11 }}>{t.status === "complete" ? "✓" : "○"}</span>
@@ -451,7 +451,7 @@ function ProjectCard({ project, expanded, onToggle, onUpdate, onDelete, tasks, d
           {/* Linked decisions */}
           {linkedItems.decisions.length > 0 && (
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Decisions ({linkedItems.decisions.length})</div>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Decisions ({linkedItems.decisions.length})</div>
               {linkedItems.decisions.map(d => (
                 <div key={d.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
                   <Diamond size={10} style={{ color: C.gold }} />

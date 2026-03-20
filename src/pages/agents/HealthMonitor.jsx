@@ -17,7 +17,7 @@ function ScoreBar({ score, size = "md" }) {
   const pct = (score / 10) * 100;
   const h = size === "sm" ? 4 : 6;
   return (
-    <div style={{ width: "100%", height: h, borderRadius: h / 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+    <div style={{ width: "100%", height: h, borderRadius: h / 2, background: "rgba(0,0,0,0.04)", overflow: "hidden" }}>
       <div style={{
         width: `${pct}%`, height: "100%", borderRadius: h / 2,
         background: `linear-gradient(90deg, ${sev.color}CC, ${sev.color})`,
@@ -30,7 +30,7 @@ function ScoreBar({ score, size = "md" }) {
 function SeverityBadge({ severity }) {
   return (
     <span style={{
-      fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600,
+      fontFamily: FONT_SANS, fontSize: 9, fontWeight: 600,
       color: severity.color, textTransform: "uppercase",
       background: severity.color + "18", padding: "2px 7px", borderRadius: 3,
       letterSpacing: "0.04em",
@@ -43,7 +43,7 @@ function ArchetypeBadge({ archetype }) {
   if (!info) return null;
   return (
     <span style={{
-      fontFamily: FONT_MONO, fontSize: 9, fontWeight: 600,
+      fontFamily: FONT_SANS, fontSize: 9, fontWeight: 600,
       color: info.color, textTransform: "uppercase",
       background: info.color + "14", padding: "2px 7px", borderRadius: 3,
       border: `1px solid ${info.color}30`,
@@ -60,7 +60,7 @@ function SignalBreakdown({ signals, isMobile }) {
         const s = signals[key];
         return (
           <div key={key} style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 6 : 10, flexWrap: isMobile ? "wrap" : "nowrap" }}>
-            <div style={{ minWidth: isMobile ? "auto" : 120, width: isMobile ? "auto" : 120, fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, flexShrink: 0 }}>
+            <div style={{ minWidth: isMobile ? "auto" : 120, width: isMobile ? "auto" : 120, fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, flexShrink: 0 }}>
               {s.label}
             </div>
             <div style={{ flex: 1 }}>
@@ -105,7 +105,7 @@ function AccountHealthCard({ account, health, defaultExpanded = false, isMobile,
           background: health.severity.color + "14",
           border: `1px solid ${health.severity.color}30`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontFamily: FONT_MONO, fontSize: 16, fontWeight: 700,
+          fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700,
           color: health.severity.color,
         }}>
           {health.score}
@@ -136,7 +136,7 @@ function AccountHealthCard({ account, health, defaultExpanded = false, isMobile,
       {/* Expanded: signal breakdown + actions */}
       {expanded && (
         <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.borderDefault}` }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
             Signal Breakdown
           </div>
           <SignalBreakdown signals={health.signals} isMobile={isMobile} />
@@ -207,9 +207,9 @@ export default function HealthMonitor() {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{
               width: 8, height: 8, borderRadius: "50%",
-              background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
+              background: "#16A368", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
             }} />
-            <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>
               Renewal Agent
             </span>
           </div>
@@ -242,10 +242,10 @@ export default function HealthMonitor() {
             { label: "Healthy", value: `${summary.severityCounts.healthy + summary.severityCounts.low}`, sub: "on track", color: C.green },
           ].map((stat, i) => (
             <div key={i} style={{ ...cardStyle, padding: isMobile ? "14px 12px" : "18px 20px" }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
                 {stat.label}
               </div>
-              <div style={{ fontFamily: FONT_MONO, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: stat.color, letterSpacing: "-0.02em" }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: stat.color, letterSpacing: "-0.02em" }}>
                 {stat.value}
               </div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, marginTop: 2 }}>
@@ -259,7 +259,7 @@ export default function HealthMonitor() {
       {/* Archetype distribution */}
       {summary && summary.total > 0 && (
         <div style={{ ...cardStyle, padding: isMobile ? "14px 12px" : "18px 20px", marginBottom: 20 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
             Behavioral Archetypes
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -272,7 +272,7 @@ export default function HealthMonitor() {
                   background: info.color + "10", border: `1px solid ${info.color}25`,
                   display: "flex", alignItems: "center", gap: 8,
                 }}>
-                  <span style={{ fontFamily: FONT_MONO, fontSize: 16, fontWeight: 700, color: info.color }}>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: info.color }}>
                     {count}
                   </span>
                   <div>
@@ -326,11 +326,11 @@ export default function HealthMonitor() {
       <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
         {[
           { id: "all", label: "All" },
-          { id: "critical", label: "Critical", color: "#F87171" },
-          { id: "high", label: "High", color: "#FBBF24" },
-          { id: "medium", label: "Medium", color: "#A78BFA" },
-          { id: "low", label: "Low", color: "#34D399" },
-          { id: "healthy", label: "Healthy", color: "#22D3EE" },
+          { id: "critical", label: "Critical", color: "#DC4A3D" },
+          { id: "high", label: "High", color: "#E09B20" },
+          { id: "medium", label: "Medium", color: "#8B5CF6" },
+          { id: "low", label: "Low", color: "#16A368" },
+          { id: "healthy", label: "Healthy", color: "#069572" },
         ].map(tab => {
           const isActive = filter === tab.id;
           const count = tab.id === "all" ? healthResults.length : healthResults.filter(r => r.health.severity.label.toLowerCase() === tab.id).length;
@@ -345,7 +345,7 @@ export default function HealthMonitor() {
               transition: "all 0.15s",
             }}>
               {tab.label}
-              <span style={{ fontFamily: FONT_MONO, fontSize: 10, opacity: 0.7 }}>{count}</span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 10, opacity: 0.7 }}>{count}</span>
             </button>
           );
         })}

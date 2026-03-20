@@ -49,7 +49,7 @@ export function AgentStatusStrip() {
             onMouseLeave={e => { e.currentTarget.style.background = on ? `${p.color}10` : "transparent"; e.currentTarget.style.borderColor = on ? `${p.color}30` : "transparent"; }}
           >
             {i > 0 && (
-              <span style={{ position: "absolute", left: -6, fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, opacity: 0.3 }}>→</span>
+              <span style={{ position: "absolute", left: -6, fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, opacity: 0.3 }}>→</span>
             )}
             <div style={{
               width: 7, height: 7, borderRadius: "50%",
@@ -59,7 +59,7 @@ export function AgentStatusStrip() {
             }} />
             <Icon size={isMobile ? 14 : 16} style={{ color: on ? p.color : C.textTertiary, flexShrink: 0 }} />
             <span style={{
-              fontFamily: FONT_MONO, fontSize: isMobile ? 10 : 12, fontWeight: 600,
+              fontFamily: FONT_SANS, fontSize: isMobile ? 10 : 12, fontWeight: 600,
               color: on ? p.color : C.textTertiary,
               letterSpacing: "0.02em",
             }}>{p.label}</span>
@@ -125,7 +125,7 @@ export function ApprovalQueue({ items, onApprove, onDismiss, onViewAll }) {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
         <Bot size={16} style={{ color: C.aiBlue }} />
         <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>Approval Queue</span>
-        {items.length > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.amber, marginLeft: "auto" }}>{items.length}</span>}
+        {items.length > 0 && <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.amber, marginLeft: "auto" }}>{items.length}</span>}
       </div>
       {items.length === 0 ? (
         <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6 }}>No pending approvals. Agents will surface recommendations here.</div>
@@ -216,7 +216,7 @@ export function ActivityFeed({ accounts }) {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
         <Activity size={16} style={{ color: C.aiBlue }} />
         <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary }}>Agent Activity</span>
-        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Last 7 days</span>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Last 7 days</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {items.map(item => {

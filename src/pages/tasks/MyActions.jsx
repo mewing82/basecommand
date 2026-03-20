@@ -225,7 +225,7 @@ export default function MyActions({ tasks, setTasks, accounts, persona, navigate
           {FILTERS.map(f => (
             <button key={f.id} onClick={() => setFilter(f.id)} style={{
               padding: "6px 14px", borderRadius: 6, border: "none", cursor: "pointer",
-              background: filter === f.id ? "rgba(255,255,255,0.1)" : "transparent",
+              background: filter === f.id ? "rgba(0,0,0,0.06)" : "transparent",
               color: filter === f.id ? C.textPrimary : C.textTertiary,
               fontFamily: FONT_SANS, fontSize: 13, fontWeight: filter === f.id ? 600 : 500,
             }}>{f.label}</button>
@@ -235,7 +235,7 @@ export default function MyActions({ tasks, setTasks, accounts, persona, navigate
           {[{ id: "active", label: "Active" }, { id: "complete", label: "Done" }, { id: "all", label: "All" }].map(f => (
             <button key={f.id} onClick={() => setStatusFilter(f.id)} style={{
               padding: "6px 14px", borderRadius: 6, border: "none", cursor: "pointer",
-              background: statusFilter === f.id ? "rgba(255,255,255,0.1)" : "transparent",
+              background: statusFilter === f.id ? "rgba(0,0,0,0.06)" : "transparent",
               color: statusFilter === f.id ? C.textPrimary : C.textTertiary,
               fontFamily: FONT_SANS, fontSize: 13, fontWeight: statusFilter === f.id ? 600 : 500,
             }}>{f.label}</button>
@@ -280,7 +280,7 @@ export default function MyActions({ tasks, setTasks, accounts, persona, navigate
                       <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, textTransform: "uppercase", padding: "2px 6px", borderRadius: 3, color: taskTypeColor, background: taskTypeBg, letterSpacing: "0.04em" }}>{taskTypeLabel}</span>
                       <span style={{ width: 6, height: 6, borderRadius: "50%", background: PRIORITY_COLORS[task.priority] || C.textTertiary }} title={`${task.priority} priority`} />
                       {task.recurrence && task.recurrence !== "none" && (
-                        <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, display: "flex", alignItems: "center", gap: 3 }}>
+                        <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, display: "flex", alignItems: "center", gap: 3 }}>
                           <RefreshCw size={10} /> {task.recurrence}
                         </span>
                       )}
@@ -417,7 +417,7 @@ function CreateTaskModal({ accounts, isMobile, onClose, onCreate }) {
         <FormField label="Due Date">
           <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} style={{
             width: "100%", padding: "10px 12px", borderRadius: 8, background: C.bgCard,
-            border: `1px solid ${C.borderDefault}`, color: C.textPrimary, fontFamily: FONT_MONO,
+            border: `1px solid ${C.borderDefault}`, color: C.textPrimary, fontFamily: FONT_SANS,
             fontSize: 14, outline: "none", colorScheme: "dark", boxSizing: "border-box",
           }} />
         </FormField>

@@ -129,8 +129,8 @@ function PriorityCard({ priority, rank, expanded, onToggle, onUpdate, onDelete, 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
               <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, lineHeight: 1.4 }}>{priority.title}</div>
               <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
-                <button onClick={e => { e.stopPropagation(); onMoveUp(); }} disabled={!canMoveUp} style={{ background: "none", border: "none", cursor: canMoveUp ? "pointer" : "default", color: canMoveUp ? C.textSecondary : "rgba(255,255,255,0.1)", fontSize: 12, padding: "2px 4px", display: "flex" }}><ChevronUp size={12} /></button>
-                <button onClick={e => { e.stopPropagation(); onMoveDown(); }} disabled={!canMoveDown} style={{ background: "none", border: "none", cursor: canMoveDown ? "pointer" : "default", color: canMoveDown ? C.textSecondary : "rgba(255,255,255,0.1)", fontSize: 12, padding: "2px 4px", display: "flex" }}><ChevronDown size={12} /></button>
+                <button onClick={e => { e.stopPropagation(); onMoveUp(); }} disabled={!canMoveUp} style={{ background: "none", border: "none", cursor: canMoveUp ? "pointer" : "default", color: canMoveUp ? C.textSecondary : "rgba(0,0,0,0.06)", fontSize: 12, padding: "2px 4px", display: "flex" }}><ChevronUp size={12} /></button>
+                <button onClick={e => { e.stopPropagation(); onMoveDown(); }} disabled={!canMoveDown} style={{ background: "none", border: "none", cursor: canMoveDown ? "pointer" : "default", color: canMoveDown ? C.textSecondary : "rgba(0,0,0,0.06)", fontSize: 12, padding: "2px 4px", display: "flex" }}><ChevronDown size={12} /></button>
               </div>
             </div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8, marginBottom: 10, alignItems: "center" }}>
@@ -162,7 +162,7 @@ function PriorityCard({ priority, rank, expanded, onToggle, onUpdate, onDelete, 
               {priority.description && <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, marginBottom: 14 }}>{priority.description}</div>}
               {(priority.successMetrics || []).length > 0 && (
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Success Metrics</div>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Success Metrics</div>
                   {priority.successMetrics.map((m, i) => (<div key={i} style={{ display: "flex", gap: 8, padding: "3px 0", fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary }}><span style={{ color: C.gold }}>•</span>{m}</div>))}
                 </div>
               )}

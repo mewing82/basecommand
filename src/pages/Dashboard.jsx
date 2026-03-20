@@ -88,7 +88,7 @@ function DashboardOnboarding({ userName, isMobile, onAccountsChanged }) {
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.amber, flexShrink: 0 }} />
                 <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textPrimary, flex: 1 }}>{acct.name}</span>
                 {acct.arr > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>${acct.arr.toLocaleString()}</span>}
-                {acct.renewalDate && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>{acct.renewalDate}</span>}
+                {acct.renewalDate && <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>{acct.renewalDate}</span>}
               </div>
             ))}
           </div>
@@ -164,8 +164,8 @@ function DashboardCommandCenter({ userName, accounts, isMobile }) {
   ];
   const quickLinks = [
     { icon: Sparkles, label: "Agents", desc: "AI agent hub", route: "/app/agents", color: C.gold },
-    { icon: Bot, label: "Health Monitor", desc: "Portfolio health scores", route: "/app/agents/renewal/health-monitor", color: "#6B8AFF" },
-    { icon: BarChart3, label: "Forecast Engine", desc: "GRR/NRR forecasting", route: "/app/agents/growth/forecast-engine", color: "#A78BFA" },
+    { icon: Bot, label: "Health Monitor", desc: "Portfolio health scores", route: "/app/agents/renewal/health-monitor", color: "#3B82F6" },
+    { icon: BarChart3, label: "Forecast Engine", desc: "GRR/NRR forecasting", route: "/app/agents/growth/forecast-engine", color: "#8B5CF6" },
     { icon: Upload, label: "Data Sources", desc: "Connect & import data", route: "/app/import", color: C.amber },
   ];
 
@@ -196,7 +196,7 @@ function DashboardCommandCenter({ userName, accounts, isMobile }) {
         {stats.map((s, i) => (
           <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: "16px 18px" }}>
             <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{s.label}</div>
-            <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: s.color }}>{s.value}</div>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: s.color }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -213,7 +213,7 @@ function DashboardCommandCenter({ userName, accounts, isMobile }) {
               <div key={k} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, background: `${arch.color}12`, border: `1px solid ${arch.color}25` }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: arch.color }} />
                 <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: arch.color }}>{arch.label}</span>
-                <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: arch.color, opacity: 0.8 }}>({n})</span>
+                <span style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, color: arch.color, opacity: 0.8 }}>({n})</span>
               </div>
             ); })}
           </div>

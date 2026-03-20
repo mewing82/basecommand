@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ListChecks, Clock, Bot, Settings as SettingsIcon, ChevronUp } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
 import { PageLayout } from "../components/layout/PageLayout";
@@ -124,7 +124,7 @@ export default function AgentHub() {
           Agent Hub
         </span>
         <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
-        <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>
           {allAgents.length} agents · {activePillars}/5 pillars
         </span>
       </div>
@@ -143,7 +143,7 @@ export default function AgentHub() {
             const on = isPillarActive(p);
             return (
               <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                {i > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, opacity: 0.3 }}>→</span>}
+                {i > 0 && <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, opacity: 0.3 }}>→</span>}
                 <button
                   onClick={() => navigate(`/app/pillars/${p.id}`)}
                   title={`${p.label}: ${p.tagline}`}
@@ -157,15 +157,15 @@ export default function AgentHub() {
               </div>
             );
           })}
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: 4 }}>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, marginLeft: 4 }}>
             {activePillars}/5 active
           </span>
-          <span style={{ color: C.textTertiary, opacity: 0.3, fontFamily: FONT_MONO, fontSize: 10 }}>·</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: autonomousCount > 0 ? C.amber : C.textTertiary }}>
+          <span style={{ color: C.textTertiary, opacity: 0.3, fontFamily: FONT_SANS, fontSize: 10 }}>·</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: autonomousCount > 0 ? C.amber : C.textTertiary }}>
             {autonomousCount} autonomous
           </span>
-          <span style={{ color: C.textTertiary, opacity: 0.3, fontFamily: FONT_MONO, fontSize: 10 }}>·</span>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: copilotCount > 0 ? C.textPrimary : C.textTertiary }}>
+          <span style={{ color: C.textTertiary, opacity: 0.3, fontFamily: FONT_SANS, fontSize: 10 }}>·</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: copilotCount > 0 ? C.textPrimary : C.textTertiary }}>
             {copilotCount} co-pilot
           </span>
         </div>
@@ -193,7 +193,7 @@ export default function AgentHub() {
               display: "flex", alignItems: "center", gap: 5,
               padding: "5px 12px", borderRadius: 6, cursor: "pointer",
               background: C.amber + "14", border: `1px solid ${C.amber}25`,
-              fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.amber,
+              fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: C.amber,
             }}>
               <ListChecks size={12} /> {activePending.length} Pending
             </button>
@@ -202,8 +202,8 @@ export default function AgentHub() {
             <button onClick={() => navigate("/app/tasks")} style={{
               display: "flex", alignItems: "center", gap: 5,
               padding: "5px 12px", borderRadius: 6, cursor: "pointer",
-              background: "rgba(255,255,255,0.04)", border: `1px solid ${C.borderDefault}`,
-              fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.textTertiary,
+              background: "rgba(0,0,0,0.03)", border: `1px solid ${C.borderDefault}`,
+              fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: C.textTertiary,
             }}>
               <Clock size={12} /> Execution Log
             </button>
@@ -262,14 +262,14 @@ export default function AgentHub() {
             const PIcon = p.icon;
             return (
               <div key={p.id} style={{ display: "flex", alignItems: "center", gap: isMobile ? 4 : 8 }}>
-                {i > 0 && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, opacity: 0.3 }}>→</span>}
+                {i > 0 && <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, opacity: 0.3 }}>→</span>}
                 <div style={{
                   display: "flex", alignItems: "center", gap: 4,
                   opacity: on ? 1 : 0.35,
                 }}>
                   <PIcon size={12} style={{ color: p.color }} />
                   {!isMobile && (
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: p.color }}>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: p.color }}>
                       {p.label}
                     </span>
                   )}

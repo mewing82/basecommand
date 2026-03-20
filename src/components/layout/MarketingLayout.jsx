@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ArrowRight } from "lucide-react";
-import { C, FONT_SANS, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS } from "../../lib/tokens";
 import { useAuthStore } from "../../store/authStore";
 import { supabase } from "../../lib/supabase";
 import { useMediaQuery } from "../../lib/useMediaQuery";
@@ -44,14 +44,13 @@ export default function MarketingLayout() {
         borderBottom: `1px solid ${C.borderDefault}`,
       }}>
         <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 9,
-            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, fontWeight: 700, color: C.bgPrimary, fontFamily: FONT_MONO,
-          }}>B</div>
-          <span style={{ fontSize: 18, fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.03em" }}>
-            Base Command
+          <svg width="32" height="32" viewBox="0 0 44 44" fill="none">
+            <path d="M8 8L22 22L8 36" stroke={C.gold} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M20 8L34 22L20 36" stroke={C.goldHover} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="34" cy="22" r="3.5" fill={C.aiBlue}/>
+          </svg>
+          <span style={{ fontSize: 18, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.02em" }}>
+            BaseCommand
           </span>
         </Link>
 
@@ -115,7 +114,7 @@ export default function MarketingLayout() {
               onClick={() => navigate("/app")}
               style={{
                 padding: "8px 20px", borderRadius: 8, border: "none",
-                background: C.gold, color: C.bgPrimary,
+                background: C.gold, color: C.textOnPrimary,
                 fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
                 cursor: "pointer", transition: "all 0.15s",
                 minHeight: 44,
@@ -143,7 +142,7 @@ export default function MarketingLayout() {
                 className="bc-nav-hide-mobile"
                 style={{
                   padding: "8px 20px", borderRadius: 8, fontSize: 14, fontWeight: 600,
-                  background: C.gold, color: C.bgPrimary, textDecoration: "none",
+                  background: C.gold, color: C.textOnPrimary, textDecoration: "none",
                   transition: "all 0.15s",
                 }}
               >
@@ -217,7 +216,7 @@ export default function MarketingLayout() {
         gap: isMobile ? 16 : 0, textAlign: isMobile ? "center" : undefined,
       }}>
         <span style={{ fontSize: 13, color: C.textTertiary }}>
-          Base Command &copy; {new Date().getFullYear()}
+          BaseCommand &copy; {new Date().getFullYear()}
         </span>
         <div style={{ display: "flex", gap: isMobile ? 16 : 24, flexWrap: "wrap", justifyContent: isMobile ? "center" : undefined }}>
           <Link to="/pricing" style={{ fontSize: 13, color: C.textTertiary, textDecoration: "none" }}>Pricing</Link>
@@ -250,7 +249,7 @@ export default function MarketingLayout() {
           <Link to="/signup" style={{
             padding: "10px 20px", borderRadius: 10,
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-            color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+            color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
             textDecoration: "none", display: "flex", alignItems: "center", gap: 6,
             minHeight: 44, whiteSpace: "nowrap",
           }}>

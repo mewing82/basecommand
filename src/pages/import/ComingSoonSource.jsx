@@ -37,7 +37,7 @@ export default function ComingSoonSource({ label, color, icon: Icon, description
           color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em",
           padding: "3px 10px", borderRadius: 4,
           border: `1px solid ${C.borderDefault}`,
-          background: "rgba(255,255,255,0.03)",
+          background: "rgba(0,0,0,0.02)",
         }}>Coming Soon</span>
 
         {/* Description */}

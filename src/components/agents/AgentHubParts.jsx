@@ -33,9 +33,9 @@ export function AutonomyDial({ agentId, autonomySettings, onUpdate, compact }) {
             style={{
               display: "flex", alignItems: "center", gap: 3,
               padding: "3px 8px", borderRadius: 4, cursor: "pointer",
-              background: isActive ? color + "18" : "rgba(255,255,255,0.03)",
+              background: isActive ? color + "18" : "rgba(0,0,0,0.02)",
               border: `1px solid ${isActive ? color + "30" : C.borderDefault}`,
-              fontFamily: FONT_MONO, fontSize: 9, fontWeight: isActive ? 600 : 400,
+              fontFamily: FONT_SANS, fontSize: 9, fontWeight: isActive ? 600 : 400,
               color: isActive ? color : C.textTertiary,
               opacity: isBeyond ? 0.4 : isActive ? 1 : 0.6,
               transition: "all 0.15s",
@@ -88,7 +88,7 @@ export function OpsRow({ agent, autonomySettings, onUpdate, isMobile, navigate }
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{agent.name}</span>
             <span style={{
-              fontFamily: FONT_MONO, fontSize: 9, fontWeight: 700,
+              fontFamily: FONT_SANS, fontSize: 9, fontWeight: 700,
               padding: "1px 6px", borderRadius: 3, textTransform: "uppercase",
               letterSpacing: "0.05em",
               background: modeColor + "18", color: modeColor, border: `1px solid ${modeColor}25`,
@@ -114,7 +114,7 @@ export function OpsRow({ agent, autonomySettings, onUpdate, isMobile, navigate }
           boxShadow: cached ? `0 0 4px ${C.green}40` : "none",
           ...(isExecuteMode && cached ? { animation: "bc-pulse-glow 2s ease-in-out infinite" } : {}),
         }} />
-        <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: cached ? C.green : C.textTertiary, whiteSpace: "nowrap" }}>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: cached ? C.green : C.textTertiary, whiteSpace: "nowrap" }}>
           {cached ? (cacheAge ? `Last run ${cacheAge}` : "Has results") : "Not run yet"}
         </span>
       </div>
@@ -161,7 +161,7 @@ export function PendingReviewQueue({ actions, executedIds, onApprove, onDismiss,
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
                 <span style={{
-                  fontFamily: FONT_MONO, fontSize: 8, fontWeight: 700,
+                  fontFamily: FONT_SANS, fontSize: 8, fontWeight: 700,
                   padding: "2px 6px", borderRadius: 3, textTransform: "uppercase",
                   background: c + "18", color: c, border: `1px solid ${c}25`, flexShrink: 0,
                 }}>{action.urgency || "medium"}</span>

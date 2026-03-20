@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, fs } from "../../lib/tokens";
 import { isAgentCached } from "../../lib/pillars";
 import { getEffectiveLevel, getCacheAge, LEVEL_COLORS } from "./agentHubHelpers";
 import { AutonomyDial } from "./AgentHubParts";
@@ -42,7 +42,7 @@ export default function PillarSection({ pillar, agents, autonomySettings, onUpda
         </span>
         <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
         <span style={{
-          fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600,
+          fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600,
           color: on ? pillar.color : C.textTertiary,
           background: on ? `${pillar.color}12` : "transparent",
           padding: on ? "2px 8px" : "0", borderRadius: 3,
@@ -117,11 +117,11 @@ export default function PillarSection({ pillar, agents, autonomySettings, onUpda
                         ...(mode === "execute" && cached ? { animation: "bc-pulse-glow 2s ease-in-out infinite" } : {}),
                         flexShrink: 0,
                       }} />
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: cached ? C.green : C.textTertiary }}>
+                      <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: cached ? C.green : C.textTertiary }}>
                         {cached ? (cacheAge ? `Last run ${cacheAge}` : "Has results") : "Not run yet"}
                       </span>
                       <span style={{
-                        fontFamily: FONT_MONO, fontSize: 8, fontWeight: 700,
+                        fontFamily: FONT_SANS, fontSize: 8, fontWeight: 700,
                         padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", letterSpacing: "0.05em",
                         background: modeColor + "18", color: modeColor, border: `1px solid ${modeColor}25`,
                       }}>

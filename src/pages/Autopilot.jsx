@@ -108,7 +108,7 @@ export default function Autopilot() {
           <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg, ${C.aiBlue}20, ${C.gold}20)`, display: "flex", alignItems: "center", justifyContent: "center" }}><Bot size={32} style={{ color: C.aiBlue }} /></div>
           <div>
             <h2 style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Your Renewal Autopilot</h2>
-            <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>BaseCommand takes renewal work off your plate. Import your customer data — even a messy spreadsheet works — and the autopilot will generate outreach emails, flag risks, and surface expansion opportunities.</p>
+            <p style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>BaseCommand takes renewal work off your plate. Import your customer data — even a messy spreadsheet works — and the autopilot will generate outreach emails, flag risks, and surface expansion opportunities.</p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400, width: "100%" }}>
             <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em" }}>Get Started</div>
@@ -116,7 +116,7 @@ export default function Autopilot() {
               <button key={i} onClick={item.action} disabled={!item.action} style={{ display: "flex", gap: 14, padding: "14px 18px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, cursor: item.action ? "pointer" : "default", textAlign: "left", transition: "all 0.15s", width: "100%" }}
                 onMouseEnter={e => { if (item.action) { e.currentTarget.style.borderColor = C.aiBlue + "40"; e.currentTarget.style.background = C.bgCardHover; } }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.background = C.bgCard; }}>
-                <span style={{ fontFamily: FONT_MONO, fontSize: 16, fontWeight: 700, color: C.aiBlue, opacity: 0.5, flexShrink: 0, width: 24 }}>{item.step}</span>
+                <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: C.aiBlue, opacity: 0.5, flexShrink: 0, width: 24 }}>{item.step}</span>
                 <div><div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{item.label}</div>
                   <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.4 }}>{item.desc}</div></div>
                 {item.action && <ArrowRight size={14} style={{ color: C.aiBlue, flexShrink: 0, alignSelf: "center", opacity: 0.5 }} />}
@@ -131,7 +131,7 @@ export default function Autopilot() {
             {[{ label: "Total ARR", value: fmt$(totalARR), color: C.textPrimary }, { label: "At-Risk ARR", value: fmt$(atRiskARR), color: atRiskARR > 0 ? C.red : C.textTertiary }, { label: "Due 30 Days", value: due30, color: due30 > 0 ? C.red : C.green }, { label: "Due 60 Days", value: due60, color: due60 > 0 ? C.amber : C.textTertiary }, { label: "Due 90 Days", value: due90, color: due90 > 0 ? C.textSecondary : C.textTertiary }].map((stat, i) => (
               <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: "16px 18px" }}>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{stat.label}</div>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: 600, color: stat.color }}>{stat.value}</div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: stat.color }}>{stat.value}</div>
               </div>
             ))}
           </div>
@@ -142,9 +142,9 @@ export default function Autopilot() {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, position: "relative" }}>
               <div style={{ width: 28, height: 28, borderRadius: 8, background: C.aiBlueMuted, border: `1px solid ${C.aiBlue}25`, display: "flex", alignItems: "center", justifyContent: "center" }}><Bot size={14} color={C.aiBlue} /></div>
               <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Autopilot</span>
-              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Autopilot Agent</span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Autopilot Agent</span>
               {cachedAgo && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>· {cachedAgo}</span>}
-              <button onClick={generateAutopilot} disabled={loading} style={{ background: loading ? C.aiBlueMuted : "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.aiBlue : C.textTertiary, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
+              <button onClick={generateAutopilot} disabled={loading} style={{ background: loading ? C.aiBlueMuted : "rgba(0,0,0,0.04)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.aiBlue : C.textTertiary, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
                 <Sparkles size={11} style={{ animation: loading ? "aiPulse 2s ease-in-out infinite" : "none" }} />{loading ? "Analyzing..." : "Refresh"}
               </button>
             </div>
@@ -155,7 +155,7 @@ export default function Autopilot() {
                 <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.7, marginBottom: 12 }}>{autopilot.status.summary}</div>
                 <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                   {[{ label: "Managing", value: autopilot.status.managing || accounts.length, color: C.aiBlue }, { label: "Pending Actions", value: pendingActions.length, color: pendingActions.length > 0 ? C.amber : C.textTertiary }, { label: "Expansion Signals", value: autopilot.expansionHighlights?.length || 0, color: C.green }].map((s, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontFamily: FONT_MONO, fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</span><span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>{s.label}</span></div>
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontFamily: FONT_SANS, fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</span><span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>{s.label}</span></div>
                   ))}
                 </div>
               </div>
@@ -165,7 +165,7 @@ export default function Autopilot() {
           {/* Actions Feed */}
           {pendingActions.length > 0 && (
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Actions to Review</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /><span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary }}>{pendingActions.length} pending</span></div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Actions to Review</span><div style={{ flex: 1, height: 1, background: C.borderDefault }} /><span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary }}>{pendingActions.length} pending</span></div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {pendingActions.map(action => {
                   const color = urgencyColors[action.urgency] || C.textTertiary;
@@ -190,7 +190,7 @@ export default function Autopilot() {
                           <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.6, margin: "12px 0", padding: "12px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}` }}>
                             {action.description && <div style={{ marginBottom: 8 }}>{action.description}</div>}
                             {action.draft && <div style={{ whiteSpace: "pre-wrap", fontFamily: FONT_BODY, fontSize: 13, color: C.textPrimary, lineHeight: 1.6 }}>{action.draft}</div>}
-                            {action.reasoning && <div style={{ marginTop: 8, fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Reasoning: {action.reasoning}</div>}
+                            {action.reasoning && <div style={{ marginTop: 8, fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>Reasoning: {action.reasoning}</div>}
                           </div>
                           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                             {action.draft && <button onClick={() => handleCopy(action.draft, action.id)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 6, cursor: "pointer", background: "transparent", border: `1px solid ${C.borderDefault}`, color: copiedId === action.id ? C.green : C.textSecondary, fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500 }}>{copiedId === action.id ? <Check size={12} /> : <Copy size={12} />}{copiedId === action.id ? "Copied" : "Copy"}</button>}

@@ -76,7 +76,7 @@ export default function Leadership() {
         <div style={{ width: 64, height: 64, borderRadius: 16, background: `linear-gradient(135deg, ${C.gold}20, ${C.aiBlue}20)`, display: "flex", alignItems: "center", justifyContent: "center" }}><Crown size={32} style={{ color: C.gold }} /></div>
         <div>
           <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 18, isMobile), fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Your Renewal Command Center</h2>
-          <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Built for renewal leaders who need portfolio-level visibility, not account-level execution. Import your portfolio data to unlock executive briefs, forecasting, and strategic insights.</p>
+          <p style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>Built for renewal leaders who need portfolio-level visibility, not account-level execution. Import your portfolio data to unlock executive briefs, forecasting, and strategic insights.</p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400, width: "100%" }}>
           <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em" }}>What You'll Get</div>
@@ -85,7 +85,7 @@ export default function Leadership() {
             { label: "Strategic Recommendations", desc: "AI-identified process improvements, segmentation insights, and resource allocation suggestions" }
           ].map((item, i) => (
             <div key={i} style={{ display: "flex", gap: 14, padding: "14px 18px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, textAlign: "left" }}>
-              <span style={{ fontFamily: FONT_MONO, fontSize: 16, fontWeight: 700, color: C.gold, opacity: 0.5, flexShrink: 0, width: 24 }}>{i + 1}</span>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: C.gold, opacity: 0.5, flexShrink: 0, width: 24 }}>{i + 1}</span>
               <div><div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{item.label}</div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.4 }}>{item.desc}</div></div>
             </div>
@@ -107,12 +107,12 @@ export default function Leadership() {
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, position: "relative" }}>
             <div style={{ width: 28, height: 28, borderRadius: 8, background: C.goldMuted, border: `1px solid ${C.gold}25`, display: "flex", alignItems: "center", justifyContent: "center" }}><Crown size={14} color={C.gold} /></div>
             <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary }}>Executive Brief</span>
-            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Executive Intelligence Agent</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginLeft: "auto" }}>Executive Intelligence Agent</span>
             {cachedAgo && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>· {cachedAgo}</span>}
-            {cache?.executiveBrief && <button onClick={() => handleCopy(buildBriefText(), "brief")} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: copiedSection === "brief" ? C.green : C.textTertiary }}>
+            {cache?.executiveBrief && <button onClick={() => handleCopy(buildBriefText(), "brief")} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "rgba(0,0,0,0.04)", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: copiedSection === "brief" ? C.green : C.textTertiary }}>
               {copiedSection === "brief" ? <Check size={11} /> : <ClipboardCopy size={11} />}{copiedSection === "brief" ? "Copied" : "Copy Brief"}
             </button>}
-            <button onClick={generateAnalysis} disabled={loading} style={{ background: loading ? C.goldMuted : "rgba(255,255,255,0.06)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.gold : C.textTertiary, display: "flex", alignItems: "center", gap: 6 }}>
+            <button onClick={generateAnalysis} disabled={loading} style={{ background: loading ? C.goldMuted : "rgba(0,0,0,0.04)", border: "none", borderRadius: 6, padding: "4px 10px", cursor: loading ? "wait" : "pointer", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500, color: loading ? C.gold : C.textTertiary, display: "flex", alignItems: "center", gap: 6 }}>
               <Sparkles size={11} style={{ animation: loading ? "aiPulse 2s ease-in-out infinite" : "none" }} />{loading ? "Analyzing..." : "Refresh"}
             </button>
           </div>
@@ -144,10 +144,10 @@ export default function Leadership() {
                       <div key={i} style={{ padding: "12px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}` }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                           <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary }}>{n.title}</span>
-                          {n.impact && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.amber, marginLeft: "auto" }}>{n.impact}</span>}
+                          {n.impact && <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.amber, marginLeft: "auto" }}>{n.impact}</span>}
                         </div>
                         <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{n.detail}</div>
-                        {n.accounts?.length > 0 && <div style={{ marginTop: 6, display: "flex", gap: 4, flexWrap: "wrap" }}>{n.accounts.map((a, ai) => <span key={ai} style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, background: C.bgCard, padding: "2px 6px", borderRadius: 3, border: `1px solid ${C.borderDefault}` }}>{a}</span>)}</div>}
+                        {n.accounts?.length > 0 && <div style={{ marginTop: 6, display: "flex", gap: 4, flexWrap: "wrap" }}>{n.accounts.map((a, ai) => <span key={ai} style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, background: C.bgCard, padding: "2px 6px", borderRadius: 3, border: `1px solid ${C.borderDefault}` }}>{a}</span>)}</div>}
                       </div>
                     ))}
                   </div>
@@ -169,7 +169,7 @@ export default function Leadership() {
                 <div style={{ borderTop: `1px solid ${C.borderDefault}`, paddingTop: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textSecondary }}>Talking Points</span>
-                    <button onClick={() => handleCopy(cache.executiveBrief.talkingPoints.map(tp => `• ${tp}`).join("\n"), "tp")} style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 10, color: copiedSection === "tp" ? C.green : C.textTertiary }}>
+                    <button onClick={() => handleCopy(cache.executiveBrief.talkingPoints.map(tp => `• ${tp}`).join("\n"), "tp")} style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "transparent", border: `1px solid ${C.borderDefault}`, borderRadius: 4, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 10, color: copiedSection === "tp" ? C.green : C.textTertiary }}>
                       {copiedSection === "tp" ? <Check size={10} /> : <Copy size={10} />}{copiedSection === "tp" ? "Copied" : "Copy"}
                     </button>
                   </div>
@@ -217,8 +217,8 @@ export default function Leadership() {
               <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
               {cache.forecast.retentionRate && <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>Retention Rate</span>
-                <span style={{ fontFamily: FONT_MONO, fontSize: 16, fontWeight: 700, color: C.green }}>{cache.forecast.retentionRate}</span>
-                {cache.forecast.retentionRateConfidence && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: { high: C.green, medium: C.amber, low: C.red }[cache.forecast.retentionRateConfidence] || C.textTertiary, textTransform: "uppercase" }}>{cache.forecast.retentionRateConfidence}</span>}
+                <span style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 700, color: C.green }}>{cache.forecast.retentionRate}</span>
+                {cache.forecast.retentionRateConfidence && <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: { high: C.green, medium: C.amber, low: C.red }[cache.forecast.retentionRateConfidence] || C.textTertiary, textTransform: "uppercase" }}>{cache.forecast.retentionRateConfidence}</span>}
               </div>}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 8 : 10 }}>
@@ -230,7 +230,7 @@ export default function Leadership() {
                     onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; }} onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; }}>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{period.label}</div>
                     <div style={{ fontFamily: FONT_MONO, fontSize: fs(20, 18, isMobile), fontWeight: 600, color: C.textPrimary, marginBottom: 8 }}>{fmt$(data.total || 0)}</div>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 2 }}>{data.accounts || 0} accounts</div>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 2 }}>{data.accounts || 0} accounts</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 8 }}>
                       {[{ label: "Committed", value: data.committed, color: C.green }, { label: "Best Case", value: data.bestCase, color: C.amber }, { label: "At Risk", value: data.atRisk, color: C.red }].map(bucket => (
                         <div key={bucket.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -279,7 +279,7 @@ export default function Leadership() {
                   <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>{rec.title}</div>
                   <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.5, marginBottom: 8 }}>{rec.rationale}</div>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 6 }}><Zap size={12} style={{ color: C.gold, flexShrink: 0, marginTop: 2 }} /><span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.gold, fontWeight: 500 }}>{rec.action}</span></div>
-                  {rec.impact && <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>Impact: {rec.impact}</div>}
+                  {rec.impact && <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary }}>Impact: {rec.impact}</div>}
                   <ActionMenu actionText={rec.action} />
                 </div>
               ))}

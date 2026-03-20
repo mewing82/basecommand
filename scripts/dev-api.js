@@ -104,8 +104,30 @@ const server = createServer(async (req, res) => {
 
   // External import — not available in local dev (requires KV + Supabase service role)
   if (req.url.startsWith("/api/import/external")) {
+    if (req.method === "GET" && req.url.includes("action=portfolio")) {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ count: 0, totalArr: 0, byRisk: {}, nextRenewals: [], note: "Local dev stub" }));
+      return;
+    }
     res.writeHead(501, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "External import requires deployment to Vercel. Use `vercel dev` for full testing." }));
+    return;
+  }
+
+  // Executions — stub for local dev
+  if (req.url.startsWith("/api/executions")) {
+    if (req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ executions: [], pagination: { limit: 50, offset: 0, count: 0, hasMore: false }, note: "Local dev stub" }));
+      return;
+    }
+    if (req.method === "POST") {
+      res.writeHead(201, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, executionId: "exec-dev-stub", note: "Local dev stub" }));
+      return;
+    }
+    res.writeHead(405, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Method not allowed" }));
     return;
   }
 

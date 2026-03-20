@@ -8,7 +8,7 @@ import { Btn } from "../../components/ui/index";
 
 const cardStyle = { padding: "18px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 12 };
 const cardHeaderStyle = { display: "flex", alignItems: "center", gap: 8, marginBottom: 12 };
-const cardLabelStyle = { fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
+const cardLabelStyle = { fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
 
 export default function AISettings() {
   const [testStatus, setTestStatus] = useState("");
@@ -98,7 +98,7 @@ export default function AISettings() {
       {/* BYOK Advanced Section */}
       <button onClick={() => setShowBYOK(!showBYOK)} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: showBYOK ? 12 : 0 }}>
         <Key size={12} style={{ color: C.textTertiary }} />
-        <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Use Your Own API Key (Advanced)</span>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Use Your Own API Key (Advanced)</span>
         {showBYOK ? <ChevronUp size={12} style={{ color: C.textTertiary }} /> : <ChevronDown size={12} style={{ color: C.textTertiary }} />}
       </button>
 
@@ -115,14 +115,14 @@ export default function AISettings() {
                 <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textPrimary }}>{k.label}</span>
                 <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary }}>...{k.lastFour}</span>
               </div>
-              <button onClick={async () => { await store.delete("ai-key", k.id); setApiKeys(prev => prev.filter(x => x.id !== k.id)); for (const cfg of aiConfigs.filter(c => c.keyId === k.keyId)) { await store.delete("ai-config", cfg.id); } setAiConfigs(prev => prev.filter(c => c.keyId !== k.keyId)); }} style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 11, fontFamily: FONT_MONO }}>Remove</button>
+              <button onClick={async () => { await store.delete("ai-key", k.id); setApiKeys(prev => prev.filter(x => x.id !== k.id)); for (const cfg of aiConfigs.filter(c => c.keyId === k.keyId)) { await store.delete("ai-config", cfg.id); } setAiConfigs(prev => prev.filter(c => c.keyId !== k.keyId)); }} style={{ background: "none", border: "none", color: C.textTertiary, cursor: "pointer", fontSize: 11, fontFamily: FONT_SANS }}>Remove</button>
             </div>
           ))}
 
           {showAddKey ? (
             <div style={{ padding: 12, background: C.bgPrimary, border: `1px solid ${C.borderDefault}`, borderRadius: 6, marginBottom: 8 }}>
               <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-                {Object.entries(AI_PROVIDERS).map(([pid, p]) => (<button key={pid} onClick={() => setNewKeyProvider(pid)} style={{ padding: "4px 12px", borderRadius: 5, cursor: "pointer", fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, border: `1px solid ${newKeyProvider === pid ? C.borderSubtle : C.borderDefault}`, background: newKeyProvider === pid ? "rgba(255,255,255,0.08)" : "transparent", color: newKeyProvider === pid ? C.textPrimary : C.textSecondary }}>{p.label}</button>))}
+                {Object.entries(AI_PROVIDERS).map(([pid, p]) => (<button key={pid} onClick={() => setNewKeyProvider(pid)} style={{ padding: "4px 12px", borderRadius: 5, cursor: "pointer", fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, border: `1px solid ${newKeyProvider === pid ? C.borderSubtle : C.borderDefault}`, background: newKeyProvider === pid ? "rgba(0,0,0,0.05)" : "transparent", color: newKeyProvider === pid ? C.textPrimary : C.textSecondary }}>{p.label}</button>))}
               </div>
               <input value={newKeyLabel} onChange={e => setNewKeyLabel(e.target.value)} placeholder="Label (e.g. Work key)" style={{ width: "100%", marginBottom: 8, background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "7px 10px", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 13, outline: "none", boxSizing: "border-box" }} />
               <input type="password" value={newKeyValue} onChange={e => setNewKeyValue(e.target.value)} placeholder={AI_PROVIDERS[newKeyProvider]?.keyPlaceholder || "API key"} style={{ width: "100%", marginBottom: 10, background: C.bgAI, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "7px 10px", color: C.textPrimary, fontFamily: FONT_MONO, fontSize: 12, outline: "none", boxSizing: "border-box" }} />

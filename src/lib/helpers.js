@@ -1,5 +1,5 @@
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, RANK_LEVELS } from "./tokens";
+import { C, FONT_SANS, FONT_BODY, RANK_LEVELS } from "./tokens";
 import mammoth from "mammoth";
 
 let _idCounter = 0;

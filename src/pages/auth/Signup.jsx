@@ -114,12 +114,13 @@ export default function Signup() {
           <div style={{ width: "100%", maxWidth: 380 }}>
             {/* Logo + heading */}
             <div style={{ marginBottom: 24 }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: 12, marginBottom: 20,
-                background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 18, fontWeight: 700, color: C.bgPrimary, fontFamily: FONT_MONO,
-              }}>B</div>
+              <div style={{ marginBottom: 20, width: 44 }}>
+                <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+                  <path d="M8 8L22 22L8 36" stroke={C.gold} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 8L34 22L20 36" stroke={C.goldHover} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="34" cy="22" r="3.5" fill={C.aiBlue}/>
+                </svg>
+              </div>
               <div style={{ fontSize: 24, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>
                 {isPro ? "Subscribe to Pro" : "Start your free trial"}
               </div>
@@ -227,7 +228,7 @@ export default function Signup() {
               <button type="submit" disabled={loading} style={{
                 width: "100%", padding: "13px 0", borderRadius: 10, border: "none",
                 background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-                color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+                color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
                 cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1,
                 boxShadow: `0 4px 16px ${C.goldGlow}`,
               }}>

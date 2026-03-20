@@ -5,7 +5,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, MessageSquare, CheckSquare, Sparkles, ChevronDown } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { renewalStore } from "../../lib/storage";
 
 // ─── AI Loading Progress ─────────────────────────────────────────────────────
@@ -75,7 +75,7 @@ export function AILoadingProgress({ phases = DEFAULT_PHASES, startedAt }) {
           }} />
         </div>
         <div style={{
-          fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary,
+          fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary,
           marginTop: 6, letterSpacing: "0.03em",
         }}>
           {Math.floor(elapsed / 1000)}s elapsed
@@ -133,7 +133,7 @@ export function ActionMenu({ accountName, accountId, actionText, compact = false
             display: "flex", alignItems: "center", gap: 4,
             padding: "4px 10px", borderRadius: 6, cursor: "pointer",
             background: "transparent", border: `1px solid ${C.borderDefault}`,
-            color: C.textTertiary, fontFamily: FONT_MONO, fontSize: 10,
+            color: C.textTertiary, fontFamily: FONT_SANS, fontSize: 10,
             transition: "all 0.15s",
           }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold; e.currentTarget.style.color = C.gold; }}
@@ -200,7 +200,7 @@ function ActionDropdown({ onDraft, onChat, onTask, saved, onClose }) {
       position: "absolute", top: "100%", right: 0, marginTop: 4, zIndex: 50,
       minWidth: 160, padding: 4, borderRadius: 8,
       background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-      boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
     }}>
       <DropdownItem icon={Mail} label="Draft outreach" onClick={() => { onDraft(); onClose(); }} />
       <DropdownItem icon={MessageSquare} label="Start conversation" onClick={() => { onChat(); onClose(); }} />
@@ -270,7 +270,7 @@ export function ExportToolbar({ onCopy, copyLabel = "Copy", compact = false }) {
           padding: "6px 12px", borderRadius: 6,
           background: C.bgElevated, border: `1px solid ${C.borderSubtle}`,
           fontFamily: FONT_SANS, fontSize: 12, color: C.textSecondary,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
           animation: "fadeIn 0.15s ease",
         }}>
           {toast}
@@ -291,7 +291,7 @@ function DropdownItem({ icon: Icon, label, onClick, highlight }) {
       fontFamily: FONT_SANS, fontSize: 12, fontWeight: 500,
       transition: "background 0.12s",
     }}
-      onMouseEnter={e => e.currentTarget.style.background = highlight ? C.greenMuted : "rgba(255,255,255,0.05)"}
+      onMouseEnter={e => e.currentTarget.style.background = highlight ? C.greenMuted : "rgba(0,0,0,0.03)"}
       onMouseLeave={e => e.currentTarget.style.background = highlight ? C.greenMuted : "transparent"}
     >
       <Icon size={13} />

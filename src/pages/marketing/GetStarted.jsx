@@ -3,7 +3,7 @@ import {
   ArrowRight, Bot, CheckCircle2, Calendar, Sparkles,
   ChevronRight, ExternalLink,
 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
@@ -29,7 +29,7 @@ export default function GetStarted() {
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 20px", borderRadius: 20, marginBottom: 24,
           background: C.goldMuted, border: `1px solid ${C.gold}20`,
-          fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+          fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS,
           letterSpacing: "0.03em", textTransform: "uppercase",
         }}>
           <Calendar size={12} />
@@ -58,7 +58,7 @@ export default function GetStarted() {
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
           maxWidth: 620, margin: "20px auto 0", padding: "12px 16px",
-          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+          background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>Go from spreadsheets to AI-powered renewals in 4 weeks.</strong> Week 1: import and health scoring. Week 2: outreach and forecasting. Week 3: expansion intelligence. Week 4: full supervised autopilot. Free 14-day Pro trial, no credit card required.
         </p>
@@ -84,7 +84,7 @@ export default function GetStarted() {
               layer: "Agents",
             },
             {
-              week: "Week 4", title: "Expansion Detection", color: "#34D399",
+              week: "Week 4", title: "Expansion Detection", color: "#16A368",
               tasks: ["Define PQL triggers", "Configure automated routing", "Activate Expansion Signal Scout", "Run first forecast with scenarios"],
               layer: "Full Stack Active",
             },
@@ -94,7 +94,7 @@ export default function GetStarted() {
               borderRadius: 14, padding: isMobile ? "18px 14px" : "24px 20px", position: "relative",
             }}>
               <div style={{
-                fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+                fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600,
                 color: item.color, letterSpacing: "0.05em", textTransform: "uppercase",
                 marginBottom: 6,
               }}>
@@ -117,7 +117,7 @@ export default function GetStarted() {
                   </div>
                 ))}
               </div>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: item.color, opacity: 0.7 }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: item.color, opacity: 0.7 }}>
                 Activates: {item.layer}
               </div>
               {i < 3 && (
@@ -137,7 +137,7 @@ export default function GetStarted() {
       {/* ─── ROI Calculator ───────────────────────────────────────────────── */}
       <section style={{ padding: isMobile ? "0 20px 60px" : "0 40px 80px", maxWidth: 900, margin: "0 auto" }}>
         <div style={{
-          background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(99, 102, 241, 0.08))`,
+          background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(224, 155, 32, 0.08))`,
           border: `1px solid rgba(52, 211, 153, 0.15)`,
           borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px", textAlign: "center",
         }}>
@@ -167,9 +167,9 @@ export default function GetStarted() {
                 background: C.bgCard, borderRadius: 12, padding: "20px 16px",
                 border: `1px solid ${C.borderDefault}`,
               }}>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 13, color: C.textTertiary, marginBottom: 4 }}>{ex.portfolio}</div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textTertiary, marginBottom: 4 }}>{ex.portfolio}</div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 8 }}>{ex.improvement}</div>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 22, fontWeight: 700, color: ex.color }}>{ex.result}</div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 22, fontWeight: 700, color: ex.color }}>{ex.result}</div>
               </div>
             ))}
           </div>
@@ -192,8 +192,8 @@ export default function GetStarted() {
             <div style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "8px 20px", borderRadius: 20, marginBottom: 16,
-              background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-              fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
+              background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+              fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_SANS,
               letterSpacing: "0.03em", textTransform: "uppercase",
             }}>
               <Sparkles size={12} />
@@ -224,7 +224,7 @@ export default function GetStarted() {
                 background: C.bgPrimary, border: `1px solid ${C.borderDefault}`,
                 textDecoration: "none", transition: "border-color 0.15s",
               }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(34, 211, 238, 0.30)"}
+                onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(6, 149, 114, 0.30)"}
                 onMouseLeave={e => e.currentTarget.style.borderColor = C.borderDefault}
               >
                 <Bot size={20} color={C.aiBlue} style={{ flexShrink: 0 }} />
@@ -259,7 +259,7 @@ export default function GetStarted() {
             display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center",
             padding: isMobile ? "8px 16px" : "8px 20px", borderRadius: 20, marginBottom: 20,
             background: C.goldMuted, border: `1px solid ${C.gold}20`,
-            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS,
             letterSpacing: "0.03em", textTransform: "uppercase", maxWidth: "100%", textAlign: "center",
           }}>
             Founding member pricing — first 100 customers
@@ -302,7 +302,7 @@ export default function GetStarted() {
             <Link to="/signup" style={{
               padding: "14px 36px", borderRadius: 10,
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-              color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
+              color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
               textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
               textAlign: "center", minHeight: 44,
             }}>

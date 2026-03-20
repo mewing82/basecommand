@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { HardDrive, Download, Upload, AlertTriangle, Info } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { store } from "../../lib/storage";
 import { useAuthStore } from "../../store/authStore";
@@ -9,7 +9,7 @@ import { SettingsRow } from "./SettingsShared";
 
 const cardStyle = { padding: "18px 20px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, marginBottom: 12 };
 const cardHeaderStyle = { display: "flex", alignItems: "center", gap: 8, marginBottom: 12 };
-const cardLabelStyle = { fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
+const cardLabelStyle = { fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 };
 
 export default function DataSettings() {
   const { isMobile } = useMediaQuery();

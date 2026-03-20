@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Zap, CheckCircle, Circle, ArrowRight, X, Sparkles, Bot, Settings, Activity, BarChart3 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { ONBOARDING } from "../../lib/demoData";
 
 // ─── Progress Bar ────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@ export function OnboardingChecklist() {
               background: "transparent", border: "none", textAlign: "left",
               transition: "background 0.12s",
             }}
-              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.03)"}
               onMouseLeave={e => e.currentTarget.style.background = "transparent"}
             >
               {done
@@ -159,7 +159,7 @@ export function TrialBanner({ trialDaysLeft }) {
       background: `${C.aiBlue}08`, border: `1px solid ${C.aiBlue}20`,
     }}>
       <Zap size={14} style={{ color: C.aiBlue, flexShrink: 0 }} />
-      <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.aiBlue, flex: 1 }}>
+      <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.aiBlue, flex: 1 }}>
         {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} of Pro trial — all agents unlocked
       </span>
       <button onClick={handleDismiss} style={{

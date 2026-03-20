@@ -3,7 +3,7 @@ import {
   Sparkles, ArrowRight, Brain, Target, FileText, Users,
   Activity, ChevronRight, Bot, CheckCircle2,
 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
@@ -65,7 +65,7 @@ export default function Landing() {
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
           maxWidth: 620, margin: "0 auto 36px", padding: "12px 16px",
-          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+          background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>BaseCommand is an AI-powered renewal intelligence platform.</strong> Nine specialized agents monitor account health, draft outreach, forecast retention, and surface expansion signals — running your entire renewal workflow from co-pilot mode to supervised autopilot.
         </p>
@@ -74,7 +74,7 @@ export default function Landing() {
           <Link to="/signup?plan=monthly" style={{
             padding: "14px 32px", borderRadius: 10, border: "none",
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-            color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
+            color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
             textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
             transition: "all 0.15s", textAlign: "center", minHeight: 44,
             display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -124,7 +124,7 @@ export default function Landing() {
                 background: C.bgCard, border: `1px solid ${C.borderDefault}`,
                 borderRadius: 12, padding: "16px",
               }}>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, color: C.gold, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>
                   {row.dimension}
                 </div>
                 <div style={{ display: "flex", gap: 12 }}>
@@ -132,7 +132,7 @@ export default function Landing() {
                     <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, opacity: 0.5, lineHeight: 1.4 }}>{row.oldSub}</div>
                   </div>
-                  <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: "rgba(34, 211, 238, 0.04)", border: "1px solid rgba(34, 211, 238, 0.10)" }}>
+                  <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: "rgba(6, 149, 114, 0.04)", border: "1px solid rgba(6, 149, 114, 0.10)" }}>
                     <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.aiBlue, lineHeight: 1.4 }}>{row.newSub}</div>
                   </div>
@@ -160,7 +160,7 @@ export default function Landing() {
               <div style={{
                 padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
                 color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
-                background: "rgba(34, 211, 238, 0.04)",
+                background: "rgba(6, 149, 114, 0.04)",
               }}>
                 AI-Driven RevOps
               </div>
@@ -176,7 +176,7 @@ export default function Landing() {
                 borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
               }}>
                 <div style={{
-                  padding: "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+                  padding: "18px 24px", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600,
                   color: C.gold, display: "flex", alignItems: "center",
                 }}>
                   {row.dimension}
@@ -187,7 +187,7 @@ export default function Landing() {
                 </div>
                 <div style={{
                   padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
-                  background: "rgba(34, 211, 238, 0.04)",
+                  background: "rgba(6, 149, 114, 0.04)",
                 }}>
                   <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
                   <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.aiBlue }}>{row.newSub}</div>
@@ -205,7 +205,7 @@ export default function Landing() {
             display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center",
             padding: isMobile ? "8px 16px" : "8px 20px", borderRadius: 20, marginBottom: 16,
             background: C.goldMuted, border: `1px solid ${C.gold}20`,
-            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS,
             letterSpacing: "0.03em", textTransform: "uppercase", maxWidth: "100%", textAlign: "center",
           }}>
             The AI-Powered Renewal Workflow
@@ -226,11 +226,11 @@ export default function Landing() {
 
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(5, 1fr)", gap: isMobile ? 12 : 10 }}>
           {[
-            { fn: "Monitor", desc: "Scans health signals 24/7 across unified systems.", icon: Activity, color: "#34D399" },
-            { fn: "Predict", desc: "Scores churn risk 90–180 days before the renewal.", icon: Brain, color: "#6366F1" },
-            { fn: "Generate", desc: "Drafts hyper-personalized, context-rich outreach.", icon: FileText, color: "#22D3EE" },
+            { fn: "Monitor", desc: "Scans health signals 24/7 across unified systems.", icon: Activity, color: "#16A368" },
+            { fn: "Predict", desc: "Scores churn risk 90–180 days before the renewal.", icon: Brain, color: "#C07D10" },
+            { fn: "Generate", desc: "Drafts hyper-personalized, context-rich outreach.", icon: FileText, color: "#069572" },
             { fn: "Identify", desc: "Flags expansion and upsell triggers automatically.", icon: Target, color: "#F59E0B" },
-            { fn: "Orchestrate", desc: "Keeps humans focused solely on high-value, strategic conversations.", icon: Users, color: "#A78BFA" },
+            { fn: "Orchestrate", desc: "Keeps humans focused solely on high-value, strategic conversations.", icon: Users, color: "#8B5CF6" },
           ].map((item, i) => {
             const Icon = item.icon;
             return (
@@ -247,7 +247,7 @@ export default function Landing() {
                   <Icon size={20} color={item.color} />
                 </div>
                 <div style={{
-                  fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600,
+                  fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600,
                   color: item.color, letterSpacing: "0.06em", textTransform: "uppercase",
                   marginBottom: 8,
                 }}>
@@ -293,8 +293,8 @@ export default function Landing() {
             <div style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "8px 20px", borderRadius: 20, marginBottom: 16,
-              background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
-              fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_MONO,
+              background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+              fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_SANS,
               letterSpacing: "0.03em", textTransform: "uppercase",
             }}>
               <Sparkles size={12} />
@@ -326,7 +326,7 @@ export default function Landing() {
                 textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
                 minHeight: 44,
               }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(34, 211, 238, 0.30)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(34, 211, 238, 0.06)"; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(6, 149, 114, 0.30)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(6, 149, 114, 0.06)"; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.boxShadow = "none"; }}
               >
                 <Bot size={20} color={C.aiBlue} style={{ flexShrink: 0 }} />
@@ -361,7 +361,7 @@ export default function Landing() {
             display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center",
             padding: isMobile ? "8px 16px" : "8px 20px", borderRadius: 20, marginBottom: 20,
             background: C.goldMuted, border: `1px solid ${C.gold}20`,
-            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_MONO,
+            fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.gold, fontFamily: FONT_SANS,
             letterSpacing: "0.03em", textTransform: "uppercase", maxWidth: "100%", textAlign: "center",
           }}>
             Founding member pricing — first 100 customers
@@ -405,7 +405,7 @@ export default function Landing() {
             <Link to="/signup" style={{
               padding: "14px 36px", borderRadius: 10,
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-              color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
+              color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
               textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
               textAlign: "center", minHeight: 44,
             }}>

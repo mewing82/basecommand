@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useAuthStore } from "../../store/authStore";
 import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
@@ -35,17 +35,18 @@ export default function Login() {
       <div style={{ width: "100%", maxWidth: 400 }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12, margin: "0 auto 16px",
-            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 18, fontWeight: 700, color: C.bgPrimary, fontFamily: FONT_MONO,
-          }}>B</div>
+          <div style={{ margin: "0 auto 16px", width: 44 }}>
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+              <path d="M8 8L22 22L8 36" stroke={C.gold} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M20 8L34 22L20 36" stroke={C.goldHover} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="34" cy="22" r="3.5" fill={C.aiBlue}/>
+            </svg>
+          </div>
           <div style={{ fontSize: 22, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>
             Welcome back
           </div>
           <div style={{ fontSize: 14, color: C.textTertiary, marginTop: 6, fontFamily: FONT_BODY }}>
-            Sign in to Base Command
+            Sign in to BaseCommand
           </div>
         </div>
 
@@ -138,7 +139,7 @@ export default function Login() {
           <button type="submit" disabled={loading} style={{
             width: "100%", padding: "12px 0", borderRadius: 10, border: "none",
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-            color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+            color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
             cursor: loading ? "wait" : "pointer", opacity: loading ? 0.7 : 1,
             transition: "all 0.15s", boxShadow: `0 4px 16px ${C.goldGlow}`,
           }}>

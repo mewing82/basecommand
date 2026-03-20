@@ -6,7 +6,7 @@ import {
   Crown, Users, ClipboardList,
   ChevronRight,
 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
@@ -27,7 +27,7 @@ const LIVE_AGENTS = [
     tryIt: "Describe any account. Get a ready-to-use action plan.",
     link: "https://agent.ai/agent/basecommand-autopilot",
     icon: Shield,
-    color: "#34D399",
+    color: "#16A368",
   },
   {
     name: "Exec Brief Generator",
@@ -43,7 +43,7 @@ const LIVE_AGENTS = [
     tryIt: "Paste renewal data. Get a full GRR/NRR forecast.",
     link: "https://agent.ai/agent/basecommand-forecast",
     icon: TrendingUp,
-    color: "#A78BFA",
+    color: "#8B5CF6",
   },
 ];
 
@@ -53,7 +53,7 @@ const PLATFORM_CATEGORIES = [
   {
     title: "Renewal Agents",
     tagline: "Protect revenue",
-    color: "#34D399",
+    color: "#16A368",
     bg: "rgba(52, 211, 153, 0.10)",
     border: "rgba(52, 211, 153, 0.20)",
     agents: [
@@ -65,9 +65,9 @@ const PLATFORM_CATEGORIES = [
   {
     title: "Growth Agents",
     tagline: "Find expansion",
-    color: "#6366F1",
-    bg: "rgba(99, 102, 241, 0.10)",
-    border: "rgba(99, 102, 241, 0.20)",
+    color: "#C07D10",
+    bg: "rgba(224, 155, 32, 0.10)",
+    border: "rgba(224, 155, 32, 0.20)",
     agents: [
       { name: "Expansion Signal Scout", icon: Target, desc: "PQL detection, upsell triggers, budget signals, and expansion opportunities surfaced automatically.", outputs: "Expansion opportunity cards, trigger alerts, upsell recommendations" },
       { name: "Revenue Forecast Engine", icon: TrendingUp, desc: "GRR/NRR modeling with confidence tiers, scenario analysis, and benchmark comparisons.", outputs: "Board-ready forecast, confidence tiers, best-in-class comparison" },
@@ -101,7 +101,7 @@ export default function Agents() {
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 20px", borderRadius: 20, marginBottom: 24,
-          background: "rgba(34, 211, 238, 0.10)", border: "1px solid rgba(34, 211, 238, 0.20)",
+          background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
           fontSize: isMobile ? 12 : 14, fontWeight: 500, color: C.aiBlue, fontFamily: FONT_SANS,
           flexWrap: "wrap", maxWidth: "100%",
         }}>
@@ -116,7 +116,7 @@ export default function Agents() {
         }}>
           Try Our AI Agents{" "}
           <span style={{
-            background: `linear-gradient(135deg, ${C.aiBlue}, #34D399)`,
+            background: `linear-gradient(135deg, ${C.aiBlue}, #16A368)`,
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
           }}>Free on agent.ai</span>
         </h1>
@@ -131,7 +131,7 @@ export default function Agents() {
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
           maxWidth: 620, margin: "0 auto", padding: "12px 16px",
-          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+          background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>Free AI agents on agent.ai:</strong> CRM Data Parser cleans messy data into structured accounts. Renewal Autopilot generates action plans with draft emails. Exec Brief Generator creates board-ready summaries. Forecast Intelligence produces GRR/NRR forecasts with confidence tiers.
         </p>
@@ -147,7 +147,7 @@ export default function Agents() {
             background: C.green, boxShadow: `0 0 8px ${C.green}80`,
           }} />
           <span style={{
-            fontFamily: FONT_MONO, fontSize: isMobile ? 12 : 14, fontWeight: 600,
+            fontFamily: FONT_SANS, fontSize: isMobile ? 12 : 14, fontWeight: 600,
             color: C.green, letterSpacing: "0.05em", textTransform: "uppercase",
             padding: isMobile ? "8px 0" : "8px 20px",
           }}>
@@ -246,7 +246,7 @@ export default function Agents() {
               padding: "12px 24px", borderRadius: 10, minHeight: 44,
               display: "inline-flex", alignItems: "center", justifyContent: "center",
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-              color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+              color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
               textDecoration: "none", whiteSpace: "nowrap", textAlign: "center",
             }}>
               Start Free
@@ -334,7 +334,7 @@ export default function Agents() {
                         {agent.desc}
                       </p>
                       <div style={{
-                        fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
+                        fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary,
                         padding: "8px 10px", background: C.bgPrimary,
                         borderRadius: 6, border: `1px solid ${C.borderDefault}`,
                         lineHeight: 1.5, opacity: 0.8, overflowWrap: "break-word",
@@ -373,7 +373,7 @@ export default function Agents() {
             display: "inline-flex", alignItems: "center", justifyContent: "center",
             padding: "14px 36px", borderRadius: 10, minHeight: 44,
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-            color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
+            color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
             textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
           }}>
             Get Started Free

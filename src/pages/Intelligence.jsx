@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Crown, BarChart3, Upload, Presentation, TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { C, FONT_SANS, FONT_MONO, fs } from "../lib/tokens";
+import { C, FONT_SANS, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore, store } from "../lib/storage";
 import { callAI } from "../lib/ai";
@@ -26,7 +26,7 @@ const INTEL_PILLARS = ["monitor", "predict", "orchestrate"];
 function PillarContextStrip() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-      <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Powered by</span>
+      <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Powered by</span>
       {PILLARS.filter(p => INTEL_PILLARS.includes(p.id)).map(p => {
         const on = isPillarActive(p);
         const PIcon = p.icon;
@@ -38,7 +38,7 @@ function PillarContextStrip() {
           }}>
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: on ? p.color : C.textTertiary + "60" }} />
             <PIcon size={10} style={{ color: on ? p.color : C.textTertiary }} />
-            <span style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: on ? p.color : C.textTertiary }}>{p.label}</span>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: on ? p.color : C.textTertiary }}>{p.label}</span>
           </div>
         );
       })}
@@ -209,7 +209,7 @@ export default function Intelligence() {
         </div>
         <div>
           <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 18, isMobile), fontWeight: 700, color: C.textPrimary, margin: "0 0 8px" }}>Intelligence Hub</h2>
-          <p style={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>
+          <p style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: "0.01em", opacity: 0.8, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: "0 auto" }}>
             Executive briefs and forecasting powered by AI. Import your portfolio data to unlock board-ready insights, GRR/NRR metrics, and strategic recommendations.
           </p>
         </div>
@@ -244,16 +244,16 @@ export default function Intelligence() {
               <button key={t.id} onClick={() => !t.disabled && setTab(t.id)} style={{
                 display: "flex", alignItems: "center", gap: 6, padding: isMobile ? "8px 12px" : "8px 18px",
                 borderRadius: 8, border: "none", cursor: t.disabled ? "default" : "pointer",
-                background: tab === t.id ? "rgba(255,255,255,0.1)" : "transparent",
+                background: tab === t.id ? "rgba(0,0,0,0.06)" : "transparent",
                 color: t.disabled ? C.textTertiary + "60" : tab === t.id ? C.textPrimary : C.textTertiary,
                 fontFamily: FONT_SANS, fontSize: 13, fontWeight: tab === t.id ? 600 : 500,
                 opacity: t.disabled ? 0.4 : 1,
               }}>
                 <Icon size={14} /> {t.label}
                 {t.age && !t.disabled && (
-                  <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, opacity: 0.7 }}>{t.age}</span>
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, opacity: 0.7 }}>{t.age}</span>
                 )}
-                {t.disabled && <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, opacity: 0.5 }}>soon</span>}
+                {t.disabled && <span style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, opacity: 0.5 }}>soon</span>}
               </button>
             );
           })}

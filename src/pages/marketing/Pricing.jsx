@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Check, Sparkles, ArrowRight, ChevronRight, Zap } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { usePageMeta, useJsonLd, PAGE_SEO, buildFAQSchema } from "../../lib/seo";
 
@@ -93,7 +93,7 @@ export default function Pricing() {
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
           maxWidth: 620, margin: "0 auto", padding: "12px 16px",
-          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+          background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>BaseCommand offers a free forever tier</strong> (10 accounts, 50 AI calls/month) and a 14-day Pro trial with no credit card required. Founding member pricing: $49/month locked for life for the first 100 Pro customers.
         </p>
@@ -142,7 +142,7 @@ export default function Pricing() {
                 position: "absolute", top: 16, right: 16,
                 padding: "4px 10px", borderRadius: 6,
                 background: C.goldMuted, color: C.gold,
-                fontSize: 11, fontWeight: 600, fontFamily: FONT_MONO,
+                fontSize: 11, fontWeight: 600, fontFamily: FONT_SANS,
               }}>
                 {tier.badge}
               </div>
@@ -157,7 +157,7 @@ export default function Pricing() {
 
             <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
               <span style={{
-                fontFamily: FONT_MONO, fontSize: isMobile ? 32 : 40, fontWeight: 700,
+                fontFamily: FONT_SANS, fontSize: isMobile ? 32 : 40, fontWeight: 700,
                 color: C.textPrimary, letterSpacing: "-0.02em",
               }}>
                 {tier.price}
@@ -177,7 +177,7 @@ export default function Pricing() {
 
             {tier.annualNote && (
               <div style={{
-                fontFamily: FONT_MONO, fontSize: 11, color: C.gold,
+                fontFamily: FONT_SANS, fontSize: 11, color: C.gold,
                 marginBottom: 8,
               }}>
                 {tier.annualNote}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { User, Building2, Sparkles, Plug, Database, CreditCard, Users, Key, Bot } from "lucide-react";
-import { C, FONT_SANS, FONT_MONO, fs } from "../lib/tokens";
+import { C, FONT_SANS, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { PageLayout } from "../components/layout/PageLayout";
 import ProfileSettings from "./settings/ProfileSettings";
@@ -54,7 +54,7 @@ export default function Settings() {
                 width: isMobile ? "auto" : "100%",
                 padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8,
                 cursor: "pointer",
-                background: isActive ? "rgba(255,255,255,0.07)" : "transparent",
+                background: isActive ? "rgba(0,0,0,0.05)" : "transparent",
                 border: "none",
                 borderLeft: isMobile ? "none" : (isActive ? `2px solid ${C.gold}` : "2px solid transparent"),
                 borderBottom: isMobile ? (isActive ? `2px solid ${C.gold}` : "2px solid transparent") : "none",
@@ -63,7 +63,7 @@ export default function Settings() {
                 transition: "all 0.15s",
                 whiteSpace: "nowrap", flexShrink: 0,
               }}
-                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = C.textPrimary; } }}
+                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = "rgba(0,0,0,0.03)"; e.currentTarget.style.color = C.textPrimary; } }}
                 onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textSecondary; } }}
               >
                 <Icon size={15} strokeWidth={1.75} />

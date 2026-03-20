@@ -1,14 +1,31 @@
 /**
- * GET /api/executions — Paginated, filterable execution log endpoint.
- * Query params: status, agent_id, account_id, limit, offset
+ * Agent execution log endpoint.
+ *
+ * GET  /api/executions — Paginated, filterable execution log (JWT auth)
+ * POST /api/executions — Log an execution from external agent (dual auth: JWT or integration key)
+ *
+ * Query params (GET): status, agent_id, account_id, limit, offset
  */
-import { resolveOrgMember, getSupabaseAdmin } from "./lib/auth.js";
+import { resolveOrgMember, resolveIntegrationKey, getSupabaseAdmin } from "./lib/auth.js";
 
 export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
+  // CORS for external callers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Org-Id");
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
   }
 
+  if (req.method === "GET") return handleGet(req, res);
+  if (req.method === "POST") return handlePost(req, res);
+
+  return res.status(405).json({ error: "Method not allowed" });
+}
+
+// ─── GET: list executions (JWT auth) ──────────────────────────────────────
+async function handleGet(req, res) {
   const member = await resolveOrgMember(req);
   if (!member) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -53,4 +70,57 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
+}
+
+// ─── POST: log execution (dual auth — JWT or integration key) ─────────────
+async function handlePost(req, res) {
+  // Try integration key first, then JWT
+  let userId, orgId;
+  const intKey = await resolveIntegrationKey(req);
+  if (intKey) {
+    userId = intKey.userId;
+    orgId = intKey.orgId;
+  } else {
+    const member = await resolveOrgMember(req);
+    if (!member) {
+      return res.status(401).json({ error: "Unauthorized. Provide JWT or integration key." });
+    }
+    userId = member.userId;
+    orgId = member.orgId;
+  }
+
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    return res.status(500).json({ error: "Database not configured" });
+  }
+
+  const { agentId, actionType, accountId, inputSummary, outputSummary, status, metadata } = req.body || {};
+
+  if (!agentId || !actionType) {
+    return res.status(400).json({ error: "agentId and actionType are required" });
+  }
+
+  const now = new Date().toISOString();
+  const id = `exec-${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+  const row = {
+    id,
+    user_id: userId,
+    org_id: orgId || null,
+    agent_id: agentId,
+    action_type: actionType,
+    account_id: accountId || null,
+    input_summary: inputSummary || null,
+    output_summary: outputSummary || null,
+    status: status || "completed",
+    metadata: metadata || {},
+    created_at: now,
+  };
+
+  const { error } = await supabase.from("agent_executions").insert(row);
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.status(201).json({ success: true, executionId: id });
 }

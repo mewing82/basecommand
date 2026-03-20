@@ -1,5 +1,5 @@
 import { ArrowRight, Lightbulb, FileEdit, Zap } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY, fs } from "../../lib/tokens";
 import { LEVEL_DEFS, LEVEL_COLORS } from "./agentHubHelpers";
 
 const MODE_CARDS = [
@@ -82,7 +82,7 @@ export default function FleetWelcome({ isMobile, navigate }) {
                   <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700, color }}>
                     {card.title}
                   </div>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     {card.subtitle}
                   </div>
                 </div>
@@ -90,7 +90,7 @@ export default function FleetWelcome({ isMobile, navigate }) {
               <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, lineHeight: 1.5, marginBottom: 6 }}>
                 {card.desc}
               </div>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary }}>
                 Best for: {card.bestFor}
               </div>
             </div>

@@ -10,7 +10,7 @@ export function inlineMarkdown(text) {
       return <em key={i}>{part.slice(1, -1)}</em>;
     }
     if (part.startsWith("`") && part.endsWith("`")) {
-      return <code key={i} style={{ fontFamily: FONT_MONO, fontSize: 12, background: "rgba(255,255,255,0.05)", padding: "1px 4px", borderRadius: 3 }}>{part.slice(1, -1)}</code>;
+      return <code key={i} style={{ fontFamily: FONT_MONO, fontSize: 12, background: "rgba(0,0,0,0.03)", padding: "1px 4px", borderRadius: 3 }}>{part.slice(1, -1)}</code>;
     }
     return part;
   });

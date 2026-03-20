@@ -4,7 +4,7 @@ import {
   ChevronRight, Cloud, Activity, Database, FileText,
   Brain,
 } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
@@ -51,7 +51,7 @@ export default function Why() {
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
           maxWidth: 620, margin: "20px auto 0", padding: "12px 16px",
-          background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid rgba(255,255,255,0.06)`,
+          background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>Traditional renewal playbooks have broken down.</strong> 58% of SaaS companies report lower NRR despite record CS spending. AI-powered renewal operations detect risk 90 days earlier, prevent up to 71% of churn, and turn retention from cost center to growth engine.
         </p>
@@ -99,13 +99,13 @@ export default function Why() {
               icon: Brain,
               title: "You see churn too late",
               problem: "Churn signals are visible in hindsight, invisible in foresight. By the time you notice, the customer has already decided.",
-              color: "#F87171",
+              color: "#DC4A3D",
             },
             {
               icon: TrendingDown,
               title: "Expansion hides in plain sight",
               problem: "Upsell opportunities are buried in usage data nobody's watching. Revenue growth goes uncaptured quarter after quarter.",
-              color: "#A78BFA",
+              color: "#8B5CF6",
             },
             {
               icon: BarChart3,
@@ -158,7 +158,7 @@ export default function Why() {
               display: "flex", alignItems: "center", gap: 14,
             }}>
               <div style={{
-                fontFamily: FONT_MONO, fontSize: isMobile ? 16 : 20, fontWeight: 700,
+                fontFamily: FONT_SANS, fontSize: isMobile ? 16 : 20, fontWeight: 700,
                 color: stat.color, flexShrink: 0, minWidth: isMobile ? "auto" : 70,
               }}>
                 {stat.value}
@@ -204,7 +204,7 @@ export default function Why() {
                   background: C.bgCard, border: `1px solid ${C.borderDefault}`,
                   borderRadius: 12, padding: "16px",
                 }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, color: C.gold, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, color: C.gold, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>
                     {row.dimension}
                   </div>
                   <div style={{ display: "flex", gap: 12 }}>
@@ -212,7 +212,7 @@ export default function Why() {
                       <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, opacity: 0.5, lineHeight: 1.4 }}>{row.oldSub}</div>
                     </div>
-                    <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: "rgba(34, 211, 238, 0.04)", border: "1px solid rgba(34, 211, 238, 0.10)" }}>
+                    <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: "rgba(6, 149, 114, 0.04)", border: "1px solid rgba(6, 149, 114, 0.10)" }}>
                       <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.aiBlue, lineHeight: 1.4 }}>{row.newSub}</div>
                     </div>
@@ -239,7 +239,7 @@ export default function Why() {
                 <div style={{
                   padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
                   color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
-                  background: "rgba(34, 211, 238, 0.04)",
+                  background: "rgba(6, 149, 114, 0.04)",
                 }}>
                   AI-Driven RevOps
                 </div>
@@ -250,7 +250,7 @@ export default function Why() {
                   borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
                 }}>
                   <div style={{
-                    padding: "18px 24px", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+                    padding: "18px 24px", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600,
                     color: C.gold, display: "flex", alignItems: "center",
                   }}>
                     {row.dimension}
@@ -261,7 +261,7 @@ export default function Why() {
                   </div>
                   <div style={{
                     padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
-                    background: "rgba(34, 211, 238, 0.04)",
+                    background: "rgba(6, 149, 114, 0.04)",
                   }}>
                     <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.aiBlue }}>{row.newSub}</div>
@@ -310,7 +310,7 @@ export default function Why() {
             {
               value: "6.3–6.9x", headline: "EV/TTM revenue multiples",
               detail: "for AI-powered SaaS companies vs. 3–4x for traditional operators",
-              color: "#A78BFA",
+              color: "#8B5CF6",
             },
           ].map((stat, i) => (
             <div key={i} style={{
@@ -319,7 +319,7 @@ export default function Why() {
               display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "flex-start", gap: isMobile ? 8 : 20,
             }}>
               <div style={{
-                fontFamily: FONT_MONO, fontSize: isMobile ? 24 : 28, fontWeight: 700,
+                fontFamily: FONT_SANS, fontSize: isMobile ? 24 : 28, fontWeight: 700,
                 color: stat.color, letterSpacing: "-0.03em",
                 flexShrink: 0, minWidth: 80,
               }}>
@@ -343,7 +343,7 @@ export default function Why() {
         </div>
 
         <div style={{
-          background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(99, 102, 241, 0.08))`,
+          background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(224, 155, 32, 0.08))`,
           border: `1px solid rgba(52, 211, 153, 0.15)`,
           borderRadius: 14, padding: isMobile ? "20px 20px" : "24px 32px", marginTop: 20, textAlign: "center",
         }}>
@@ -367,11 +367,11 @@ export default function Why() {
             textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
             minHeight: 44,
           }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(34, 211, 238, 0.30)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(34, 211, 238, 0.06)"; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(6, 149, 114, 0.30)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(6, 149, 114, 0.06)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.boxShadow = "none"; }}
           >
             <div style={{
-              fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+              fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600,
               color: C.aiBlue, letterSpacing: "0.05em", textTransform: "uppercase",
               marginBottom: 10,
             }}>
@@ -406,7 +406,7 @@ export default function Why() {
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.boxShadow = "none"; }}
           >
             <div style={{
-              fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600,
+              fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600,
               color: C.gold, letterSpacing: "0.05em", textTransform: "uppercase",
               marginBottom: 10,
             }}>

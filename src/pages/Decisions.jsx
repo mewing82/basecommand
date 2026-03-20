@@ -64,7 +64,7 @@ export default function Decisions() {
       <div className="bc-filter-row" style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
         {["all", ...DECISION_STATUSES].map(s => (
           <button key={s} onClick={() => setFilterStatus(s)} style={{
-            background: filterStatus === s ? "rgba(255,255,255,0.08)" : "transparent",
+            background: filterStatus === s ? "rgba(0,0,0,0.05)" : "transparent",
             border: `1px solid ${filterStatus === s ? C.borderSubtle : C.borderDefault}`,
             borderRadius: 8, color: filterStatus === s ? C.textPrimary : C.textSecondary,
             fontFamily: FONT_SANS, fontSize: 13, fontWeight: filterStatus === s ? 600 : 400, padding: "5px 12px", cursor: "pointer", transition: "all 0.15s ease",
@@ -80,7 +80,7 @@ export default function Decisions() {
             <button key={lbl} onClick={() => setFilterSource(val)} style={{
               padding: "4px 10px", borderRadius: 6, cursor: "pointer",
               border: `1px solid ${filterSource === val ? C.borderSubtle : C.borderDefault}`,
-              background: filterSource === val ? "rgba(255,255,255,0.08)" : "transparent",
+              background: filterSource === val ? "rgba(0,0,0,0.05)" : "transparent",
               color: filterSource === val ? C.textPrimary : C.textSecondary,
               fontSize: 13, fontFamily: FONT_SANS, fontWeight: filterSource === val ? 600 : 400, transition: "all 0.15s ease",
             }}>{lbl}</button>
@@ -90,7 +90,7 @@ export default function Decisions() {
           {[["default", "Default"], ["newest", "Newest"], ["oldest", "Oldest"]].map(([val, lbl]) => (
             <button key={val} onClick={() => setSortBy(val)} style={{
               padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer",
-              background: sortBy === val ? "rgba(255,255,255,0.08)" : "transparent",
+              background: sortBy === val ? "rgba(0,0,0,0.05)" : "transparent",
               color: sortBy === val ? C.textPrimary : C.textSecondary,
               fontSize: 13, fontFamily: FONT_SANS, fontWeight: sortBy === val ? 500 : 400,
             }}>{lbl}</button>
@@ -202,7 +202,7 @@ function DecisionCard({ decision, expanded, onToggle, onUpdate, onDelete, tasks,
       {expanded && (
         <div style={{ borderTop: `1px solid ${C.borderDefault}` }} onClick={e => e.stopPropagation()}>
           {/* Pipeline */}
-          <div style={{ padding: "12px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
+          <div style={{ padding: "12px 16px", borderBottom: `1px solid rgba(0,0,0,0.03)` }}>
             <div style={{ display: "flex", gap: 4 }}>
               {DECISION_STATUSES.map((s, i) => {
                 const isPast = i < currentIdx;
@@ -211,7 +211,7 @@ function DecisionCard({ decision, expanded, onToggle, onUpdate, onDelete, tasks,
                 return (
                   <button key={s} onClick={() => (isNext || isPast) ? onUpdate({ status: s }) : null} style={{
                     flex: 1, padding: "6px 4px", borderRadius: 6, border: "none",
-                    background: isCurrent ? `${C.gold}25` : isPast ? `${C.gold}10` : "rgba(255,255,255,0.03)",
+                    background: isCurrent ? `${C.gold}25` : isPast ? `${C.gold}10` : "rgba(0,0,0,0.02)",
                     cursor: isNext || isPast ? "pointer" : "default",
                     fontFamily: FONT_MONO, fontSize: 11, fontWeight: isCurrent ? 700 : 400,
                     color: isCurrent ? C.gold : isPast ? C.gold + "90" : C.textTertiary,
@@ -234,11 +234,11 @@ function DecisionCard({ decision, expanded, onToggle, onUpdate, onDelete, tasks,
               </div>
             </div>
           ) : decision.context ? (
-            <div style={{ padding: "14px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
+            <div style={{ padding: "14px 16px", borderBottom: `1px solid rgba(0,0,0,0.03)` }}>
               <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{decision.context}</div>
               {decision.outcome && (
                 <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${C.borderDefault}` }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>Outcome</div>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>Outcome</div>
                   <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textPrimary, lineHeight: 1.6 }}>{decision.outcome}</div>
                 </div>
               )}
@@ -247,8 +247,8 @@ function DecisionCard({ decision, expanded, onToggle, onUpdate, onDelete, tasks,
 
           {/* Linked tasks */}
           {linkedTasks.length > 0 && (
-            <div style={{ padding: "10px 16px", borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Linked Tasks ({linkedTasks.length})</div>
+            <div style={{ padding: "10px 16px", borderBottom: `1px solid rgba(0,0,0,0.03)` }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Linked Tasks ({linkedTasks.length})</div>
               {linkedTasks.map(t => (
                 <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0" }}>
                   <span style={{ color: priorityColor(t.priority), fontSize: 8 }}>●</span>
@@ -281,7 +281,7 @@ function DecisionCard({ decision, expanded, onToggle, onUpdate, onDelete, tasks,
                 border: `1px solid ${customPrompt.trim() && !aiLoading ? C.gold : C.borderAI}`,
                 borderRadius: 6, padding: "7px 14px", cursor: customPrompt.trim() && !aiLoading ? "pointer" : "not-allowed",
                 color: customPrompt.trim() && !aiLoading ? C.bgPrimary : C.textTertiary,
-                fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600,
+                fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600,
               }}><Sparkles size={12} /></button>
             </div>
             <AIPanel response={aiResponse} loading={aiLoading} error={aiError} />
@@ -313,7 +313,7 @@ function DecisionFormModal({ onClose, onCreate }) {
           {Object.entries(DECISION_TEMPLATES).map(([key, t]) => (
             <button key={key} onClick={() => handleTemplateChange(key)} style={{
               padding: "4px 10px", borderRadius: 6, border: `1px solid ${template === key ? C.borderSubtle : C.borderDefault}`,
-              background: template === key ? "rgba(255,255,255,0.08)" : "transparent",
+              background: template === key ? "rgba(0,0,0,0.05)" : "transparent",
               color: template === key ? C.textPrimary : C.textSecondary, fontFamily: FONT_MONO, fontSize: 11, cursor: "pointer",
             }}>{t.label}</button>
           ))}

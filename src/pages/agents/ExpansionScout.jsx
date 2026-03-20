@@ -13,9 +13,9 @@ import { formatARR } from "../../lib/utils";
 import { AILoadingProgress, ActionMenu } from "../../components/ui/AgentWidgets";
 
 const SIGNAL_COLORS = {
-  usage_growth: "#34D399", feature_request: "#22D3EE", team_expansion: "#6366F1",
-  contract_timing: "#FBBF24", competitive_displacement: "#F87171", product_gap: "#A78BFA",
-  pql_trigger: "#34D399", budget_signal: "#22D3EE",
+  usage_growth: "#16A368", feature_request: "#069572", team_expansion: "#C07D10",
+  contract_timing: "#E09B20", competitive_displacement: "#DC4A3D", product_gap: "#8B5CF6",
+  pql_trigger: "#16A368", budget_signal: "#069572",
 };
 const SIGNAL_LABELS = {
   usage_growth: "Usage Growth", feature_request: "Feature Request", team_expansion: "Team Expansion",
@@ -144,8 +144,8 @@ export default function ExpansionScout() {
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Growth Agent</span>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#16A368", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
+          <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Growth Agent</span>
         </div>
       </div>
 
@@ -162,7 +162,7 @@ export default function ExpansionScout() {
               {growthAccounts.length} growth-ready account{growthAccounts.length !== 1 ? "s" : ""}
             </span>
             {totalExpansionValue && (
-              <span style={{ fontFamily: FONT_MONO, fontSize: isMobile ? 12 : 14, fontWeight: 700, color: C.green, marginLeft: isMobile ? 0 : "auto" }}>
+              <span style={{ fontFamily: FONT_SANS, fontSize: isMobile ? 12 : 14, fontWeight: 700, color: C.green, marginLeft: isMobile ? 0 : "auto" }}>
                 {totalExpansionValue} estimated expansion
               </span>
             )}
@@ -173,7 +173,7 @@ export default function ExpansionScout() {
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {growthAccounts.slice(0, 8).map(({ account, health }) => (
               <span key={account.id} style={{
-                fontFamily: FONT_MONO, fontSize: 11, padding: "3px 8px", borderRadius: 4,
+                fontFamily: FONT_SANS, fontSize: 11, padding: "3px 8px", borderRadius: 4,
                 background: ARCHETYPES[health.archetype].color + "14",
                 border: `1px solid ${ARCHETYPES[health.archetype].color}25`,
                 color: ARCHETYPES[health.archetype].color,
@@ -264,11 +264,11 @@ export default function ExpansionScout() {
                   <TrendingUp size={14} style={{ color }} />
                   <span style={{ fontFamily: FONT_SANS, fontSize: fs(15, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>{opp.accountName}</span>
                   <span style={{
-                    fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color,
+                    fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color,
                     background: color + "18", padding: "2px 6px", borderRadius: 3,
                     textTransform: "uppercase", letterSpacing: "0.04em",
                   }}>{SIGNAL_LABELS[opp.signalType] || opp.signalType}</span>
-                  {opp.confidence && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: confColors[opp.confidence] || C.textTertiary }}>{opp.confidence}</span>}
+                  {opp.confidence && <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: confColors[opp.confidence] || C.textTertiary }}>{opp.confidence}</span>}
                   {opp.estimatedValue && <span style={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, color: C.green, marginLeft: "auto" }}>{opp.estimatedValue}</span>}
                 </div>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>{opp.title}</div>
@@ -282,7 +282,7 @@ export default function ExpansionScout() {
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Zap size={12} style={{ color: C.gold }} />
                   <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.gold, fontWeight: 500 }}>{opp.recommendedAction}</span>
-                  {opp.urgency && <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, marginLeft: "auto", textTransform: "uppercase" }}>{opp.urgency}</span>}
+                  {opp.urgency && <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, marginLeft: "auto", textTransform: "uppercase" }}>{opp.urgency}</span>}
                   {matchedAccount && (
                     <button onClick={() => navigate("/app/accounts", { state: { accountId: matchedAccount.id } })} style={{
                       display: "flex", alignItems: "center", gap: 4, padding: "2px 8px",

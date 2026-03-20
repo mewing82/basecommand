@@ -94,7 +94,7 @@ function CopyButton({ text }) {
     <button onClick={handleCopy} style={{
       background: "none", border: "none", cursor: "pointer",
       display: "flex", alignItems: "center", gap: 4,
-      fontFamily: FONT_MONO, fontSize: 10, color: copied ? C.green : C.textTertiary,
+      fontFamily: FONT_SANS, fontSize: 10, color: copied ? C.green : C.textTertiary,
       padding: "4px 8px", borderRadius: 4,
     }}>
       {copied ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
@@ -105,7 +105,7 @@ function CopyButton({ text }) {
 const STRATEGY_COLORS = {
   renewal: { color: C.gold, label: "Renewal" },
   expansion: { color: C.green, label: "Expansion" },
-  executive: { color: C.purple || "#A78BFA", label: "Executive" },
+  executive: { color: C.purple || "#8B5CF6", label: "Executive" },
   value: { color: C.aiBlue, label: "Value" },
   risk_mitigation: { color: C.red, label: "Risk Mitigation" },
 };
@@ -331,8 +331,8 @@ export default function OutreachDrafter() {
             <ArrowLeft size={14} /> Back
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
-            <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Renewal Agent</span>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#16A368", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
+            <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Renewal Agent</span>
           </div>
         </div>
 
@@ -383,7 +383,7 @@ export default function OutreachDrafter() {
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                       <Sparkles size={13} style={{ color: C.gold }} />
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.gold, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
+                      <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.gold, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
                         Recommended: {recommended.strategyLabel}
                       </span>
                     </div>
@@ -397,7 +397,7 @@ export default function OutreachDrafter() {
                 {activeStrategy && (
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                     <span style={{
-                      fontFamily: FONT_MONO, fontSize: 10, color: displayStratInfo?.color,
+                      fontFamily: FONT_SANS, fontSize: 10, color: displayStratInfo?.color,
                       background: (displayStratInfo?.color || C.textTertiary) + "14",
                       padding: "3px 8px", borderRadius: 4, textTransform: "uppercase", fontWeight: 600,
                     }}>{displayLabel}</span>
@@ -415,13 +415,13 @@ export default function OutreachDrafter() {
                   borderRadius: 10, padding: isMobile ? 14 : 20, marginBottom: 16,
                 }}>
                   {displayDraft.target_contact && (
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8 }}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 8 }}>
                       To: {displayDraft.target_contact}
                     </div>
                   )}
                   <div style={{ marginBottom: 14 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Subject</div>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Subject</div>
                       <CopyButton text={displayDraft.subject} />
                     </div>
                     <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, padding: "8px 12px", background: C.bgPrimary, borderRadius: 6, border: `1px solid ${C.borderDefault}`, marginTop: 4 }}>
@@ -430,7 +430,7 @@ export default function OutreachDrafter() {
                   </div>
                   <div style={{ marginBottom: 14 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Email Body</div>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Email Body</div>
                       <CopyButton text={displayDraft.body} />
                     </div>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.7, padding: "12px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}`, marginTop: 4, whiteSpace: "pre-wrap" }}>
@@ -440,13 +440,13 @@ export default function OutreachDrafter() {
                   <div style={{ display: "flex", gap: 12, flexDirection: isMobile ? "column" : "row" }}>
                     {displayDraft.context_used && (
                       <div style={{ flex: 1, padding: "8px 12px", background: C.bgAI, borderRadius: 6, border: `1px solid ${C.borderAI}` }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>Context Used</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>Context Used</div>
                         <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, lineHeight: 1.4 }}>{displayDraft.context_used}</div>
                       </div>
                     )}
                     {displayDraft.recommended_send_window && (
                       <div style={{ padding: "8px 12px", background: C.bgPrimary, borderRadius: 6, border: `1px solid ${C.borderDefault}` }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 3 }}>Send Window</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 3 }}>Send Window</div>
                         <div style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: C.textPrimary }}>{displayDraft.recommended_send_window}</div>
                       </div>
                     )}
@@ -458,7 +458,7 @@ export default function OutreachDrafter() {
                   padding: "16px 18px", borderRadius: 10,
                   background: C.bgCard, border: `1px solid ${C.borderDefault}`,
                 }}>
-                  <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
                     Try a different angle
                   </div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -511,13 +511,13 @@ export default function OutreachDrafter() {
     <PageLayout maxWidth={900}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
-          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Renewal Agent</span>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#16A368", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
+          <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Renewal Agent</span>
         </div>
       </div>
 
       <div style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: isMobile ? "12px 12px" : "16px 20px", marginBottom: 20 }}>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>Outreach Type</div>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>Outreach Type</div>
         <div style={{ display: "flex", gap: 8, flexDirection: isMobile ? "column" : "row" }}>
           {[
             { id: "renewal", label: "Renewal Follow-up", desc: "Accounts renewing within 90 days", color: C.gold },
@@ -594,14 +594,14 @@ export default function OutreachDrafter() {
                   <div style={{ padding: isMobile ? "0 12px 14px" : "0 20px 20px", borderTop: `1px solid ${C.borderDefault}` }}>
                     <div style={{ marginTop: 14, marginBottom: 12 }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Subject</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Subject</div>
                         <CopyButton text={draft.subject} />
                       </div>
                       <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, padding: "8px 12px", background: C.bgPrimary, borderRadius: 6, border: `1px solid ${C.borderDefault}`, marginTop: 4 }}>{draft.subject}</div>
                     </div>
                     <div style={{ marginBottom: 12 }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Email Body</div>
+                        <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Email Body</div>
                         <CopyButton text={draft.body} />
                       </div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.7, padding: "12px 14px", background: C.bgPrimary, borderRadius: 8, border: `1px solid ${C.borderDefault}`, marginTop: 4, whiteSpace: "pre-wrap" }}>{draft.body}</div>
@@ -609,13 +609,13 @@ export default function OutreachDrafter() {
                     <div style={{ display: "flex", gap: 12, flexDirection: isMobile ? "column" : "row" }}>
                       {draft.context_used && (
                         <div style={{ flex: 1, padding: "8px 12px", background: C.bgAI, borderRadius: 6, border: `1px solid ${C.borderAI}` }}>
-                          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>Context Used</div>
+                          <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.aiBlue, textTransform: "uppercase", marginBottom: 3 }}>Context Used</div>
                           <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, lineHeight: 1.4 }}>{draft.context_used}</div>
                         </div>
                       )}
                       {draft.recommended_send_window && (
                         <div style={{ padding: "8px 12px", background: C.bgPrimary, borderRadius: 6, border: `1px solid ${C.borderDefault}` }}>
-                          <div style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 3 }}>Send Window</div>
+                          <div style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", marginBottom: 3 }}>Send Window</div>
                           <div style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: C.textPrimary }}>{draft.recommended_send_window}</div>
                         </div>
                       )}

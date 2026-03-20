@@ -1,6 +1,6 @@
 import { useState, forwardRef } from "react";
 import { AlertTriangle, RotateCcw } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { ACTION_TYPE_DEFS, LEVEL_DEFS, LEVEL_COLORS } from "./agentHubHelpers";
 
@@ -35,7 +35,7 @@ const FleetConfigPanel = forwardRef(function FleetConfigPanel({ autonomySettings
           Fleet Autonomy Levels
         </span>
         <div style={{ flex: 1 }} />
-        {saved && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.green }}>Saved</span>}
+        {saved && <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.green }}>Saved</span>}
         <button
           onClick={() => {
             const defaults = { risk_assessment: "draft", auto_approve_critical: false };
@@ -48,7 +48,7 @@ const FleetConfigPanel = forwardRef(function FleetConfigPanel({ autonomySettings
             display: "flex", alignItems: "center", gap: 4,
             padding: "3px 8px", borderRadius: 4, cursor: "pointer",
             background: "transparent", border: `1px solid ${C.borderDefault}`,
-            fontFamily: FONT_MONO, fontSize: 9, fontWeight: 500, color: C.textTertiary,
+            fontFamily: FONT_SANS, fontSize: 9, fontWeight: 500, color: C.textTertiary,
             transition: "all 0.12s",
           }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = C.textSecondary; e.currentTarget.style.color = C.textSecondary; }}
@@ -72,7 +72,7 @@ const FleetConfigPanel = forwardRef(function FleetConfigPanel({ autonomySettings
           const currentLevel = autonomySettings[at.id] || "draft";
           return (
             <div key={at.id} style={{
-              background: "rgba(255,255,255,0.02)", border: `1px solid ${C.borderDefault}`,
+              background: "rgba(0,0,0,0.02)", border: `1px solid ${C.borderDefault}`,
               borderRadius: 10, padding: "14px 14px 12px",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
@@ -104,7 +104,7 @@ const FleetConfigPanel = forwardRef(function FleetConfigPanel({ autonomySettings
                         textAlign: "center",
                         border: `1px solid ${isActive ? color + "60" : C.borderDefault}`,
                         background: isActive ? color + "14" : "transparent",
-                        fontFamily: FONT_MONO, fontSize: 10, fontWeight: isActive ? 700 : 500,
+                        fontFamily: FONT_SANS, fontSize: 10, fontWeight: isActive ? 700 : 500,
                         color: isActive ? color : C.textTertiary,
                         transition: "all 0.12s",
                       }}
@@ -123,7 +123,7 @@ const FleetConfigPanel = forwardRef(function FleetConfigPanel({ autonomySettings
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
         padding: "10px 14px", borderRadius: 8,
-        background: "rgba(255,255,255,0.02)", border: `1px solid ${C.borderDefault}`,
+        background: "rgba(0,0,0,0.02)", border: `1px solid ${C.borderDefault}`,
       }}>
         <AlertTriangle size={14} style={{ color: C.amber, flexShrink: 0 }} />
         <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSecondary, flex: 1 }}>

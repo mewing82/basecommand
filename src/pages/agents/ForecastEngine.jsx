@@ -31,7 +31,7 @@ function BenchmarkBar({ value, metric }) {
 
   return (
     <div style={{ marginTop: 8 }}>
-      <div style={{ position: "relative", height: 8, borderRadius: 4, background: "rgba(255,255,255,0.06)", overflow: "visible" }}>
+      <div style={{ position: "relative", height: 8, borderRadius: 4, background: "rgba(0,0,0,0.04)", overflow: "visible" }}>
         {/* Fill to value */}
         <div style={{
           position: "absolute", left: 0, top: 0, height: "100%", borderRadius: 4,
@@ -50,10 +50,10 @@ function BenchmarkBar({ value, metric }) {
         }} />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-        <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary }}>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary }}>
           Median: {bench.median}%
         </span>
-        <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.green }}>
+        <span style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.green }}>
           Best-in-class: {bench.bestInClass}%
         </span>
       </div>
@@ -158,8 +158,8 @@ export default function ForecastEngine() {
   if (accounts.length === 0) return (
     <PageLayout maxWidth={1100}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20, textAlign: "center" }}>
-        <div style={{ width: 64, height: 64, borderRadius: 16, background: "#A78BFA18", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <BarChart3 size={32} style={{ color: "#A78BFA" }} />
+        <div style={{ width: 64, height: 64, borderRadius: 16, background: "#8B5CF618", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <BarChart3 size={32} style={{ color: "#8B5CF6" }} />
         </div>
         <h2 style={{ fontFamily: FONT_SANS, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: C.textPrimary, margin: 0 }}>Revenue Forecast Engine</h2>
         <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, maxWidth: 480, lineHeight: 1.6, margin: 0 }}>
@@ -178,8 +178,8 @@ export default function ForecastEngine() {
       <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: isMobile ? 8 : 0 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#34D399", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
-            <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Growth Agent</span>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#16A368", boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)" }} />
+            <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.08em" }}>Growth Agent</span>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -223,7 +223,7 @@ export default function ForecastEngine() {
                   <div key={i} style={{ background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, padding: isMobile ? "12px 12px" : "16px 18px" }}>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{m.label}</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: m.color, textTransform: "capitalize" }}>{m.value}</span>
+                      <span style={{ fontFamily: FONT_SANS, fontSize: fs(22, 20, isMobile), fontWeight: 700, color: m.color, textTransform: "capitalize" }}>{m.value}</span>
                       {TrendIcon && <TrendIcon size={16} style={{ color: m.color }} />}
                     </div>
                     {m.benchmark && <BenchmarkBar value={m.value} metric={m.benchmark} />}
@@ -252,13 +252,13 @@ export default function ForecastEngine() {
           {forecast.narrative && (
             <div style={{
               background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
-              border: "1px solid #A78BFA25", borderLeft: "3px solid #A78BFA",
+              border: "1px solid #8B5CF625", borderLeft: "3px solid #8B5CF6",
               borderRadius: 12, padding: isMobile ? "14px 12px" : "22px 26px", position: "relative", overflow: "hidden",
             }}>
-              <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, #A78BFA15 0%, transparent 70%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, #8B5CF615 0%, transparent 70%)", pointerEvents: "none" }} />
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, position: "relative" }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: "#A78BFA18", border: "1px solid #A78BFA25", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <BarChart3 size={14} color="#A78BFA" />
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: "#8B5CF618", border: "1px solid #8B5CF625", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <BarChart3 size={14} color="#8B5CF6" />
                 </div>
                 <span style={{ fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile), fontWeight: 600, color: C.textPrimary }}>Forecast Intelligence</span>
               </div>
@@ -291,14 +291,14 @@ export default function ForecastEngine() {
                   const totalBar = (data.committed?.arr || 0) + (data.bestCase?.arr || 0) + (data.atRisk?.arr || 0);
                   return (
                     <button key={period.key} onClick={() => setExpandedPeriod(expanded ? null : period.key)} style={{
-                      background: C.bgCard, border: `1px solid ${expanded ? "#A78BFA40" : C.borderDefault}`,
+                      background: C.bgCard, border: `1px solid ${expanded ? "#8B5CF640" : C.borderDefault}`,
                       borderRadius: 12, padding: isMobile ? "14px 12px" : "18px 20px", cursor: "pointer", textAlign: "left", transition: "all 0.15s",
                     }}>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 6 }}>{period.label}</div>
                       <div style={{ fontFamily: FONT_MONO, fontSize: fs(22, 18, isMobile), fontWeight: 700, color: C.textPrimary, marginBottom: 4 }}>{formatARR(data.total || 0)}</div>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 10 }}>{data.accountCount || 0} accounts</div>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 10 }}>{data.accountCount || 0} accounts</div>
                       {totalBar > 0 && (
-                        <div style={{ display: "flex", height: 6, borderRadius: 3, overflow: "hidden", marginBottom: 12, background: "rgba(255,255,255,0.04)" }}>
+                        <div style={{ display: "flex", height: 6, borderRadius: 3, overflow: "hidden", marginBottom: 12, background: "rgba(0,0,0,0.03)" }}>
                           {data.committed?.arr > 0 && <div style={{ width: `${(data.committed.arr / totalBar) * 100}%`, background: C.green }} />}
                           {data.bestCase?.arr > 0 && <div style={{ width: `${(data.bestCase.arr / totalBar) * 100}%`, background: C.amber }} />}
                           {data.atRisk?.arr > 0 && <div style={{ width: `${(data.atRisk.arr / totalBar) * 100}%`, background: C.red }} />}
@@ -319,7 +319,7 @@ export default function ForecastEngine() {
                             {expanded && tier.accts?.length > 0 && (
                               <div style={{ marginLeft: 12, marginTop: 4, display: "flex", flexWrap: "wrap", gap: 3 }}>
                                 {tier.accts.map((name, i) => (
-                                  <span key={i} style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, background: C.bgPrimary, padding: "2px 6px", borderRadius: 3, border: `1px solid ${C.borderDefault}` }}>{name}</span>
+                                  <span key={i} style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, background: C.bgPrimary, padding: "2px 6px", borderRadius: 3, border: `1px solid ${C.borderDefault}` }}>{name}</span>
                                 ))}
                               </div>
                             )}
@@ -343,12 +343,12 @@ export default function ForecastEngine() {
               <div style={{ display: "flex", gap: 4, marginBottom: 14, background: C.bgCard, borderRadius: 8, padding: 3, border: `1px solid ${C.borderDefault}`, width: "fit-content" }}>
                 {[
                   { id: "bestCase", label: "Best Case", color: C.green },
-                  { id: "expected", label: "Expected", color: "#A78BFA" },
+                  { id: "expected", label: "Expected", color: "#8B5CF6" },
                   { id: "downside", label: "Downside", color: C.red },
                 ].map(s => (
                   <button key={s.id} onClick={() => setScenarioView(s.id)} style={{
                     padding: "6px 16px", borderRadius: 6, border: "none", cursor: "pointer",
-                    background: scenarioView === s.id ? "rgba(255,255,255,0.1)" : "transparent",
+                    background: scenarioView === s.id ? "rgba(0,0,0,0.06)" : "transparent",
                     color: scenarioView === s.id ? s.color : C.textTertiary,
                     fontFamily: FONT_SANS, fontSize: 13, fontWeight: scenarioView === s.id ? 600 : 500,
                   }}>{s.label}</button>
@@ -363,7 +363,7 @@ export default function ForecastEngine() {
                     </div>
                     <div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, marginBottom: 4 }}>GRR</div>
-                      <div style={{ fontFamily: FONT_MONO, fontSize: 28, fontWeight: 700, color: scenarioView === "downside" ? C.red : scenarioView === "bestCase" ? C.green : "#A78BFA" }}>
+                      <div style={{ fontFamily: FONT_MONO, fontSize: 28, fontWeight: 700, color: scenarioView === "downside" ? C.red : scenarioView === "bestCase" ? C.green : "#8B5CF6" }}>
                         {forecast.scenarios[scenarioView].grr || "—"}
                       </div>
                     </div>
@@ -418,11 +418,11 @@ export default function ForecastEngine() {
                       width: 28, height: 28, borderRadius: 8, flexShrink: 0,
                       background: C.goldMuted, border: `1px solid ${C.gold}20`,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: FONT_MONO, fontSize: 12, fontWeight: 700, color: C.gold,
+                      fontFamily: FONT_SANS, fontSize: 12, fontWeight: 700, color: C.gold,
                     }}>{action.priority}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 3 }}>{action.action}</div>
-                      <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.green, fontWeight: 600 }}>{action.impact}</span>
+                      <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.green, fontWeight: 600 }}>{action.impact}</span>
                       <ActionMenu accountName={action.accountName} actionText={action.action} />
                     </div>
                   </div>

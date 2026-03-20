@@ -311,7 +311,7 @@ function DemoLoader({ onComplete, importing, setImporting }) {
         display: "inline-flex", alignItems: "center", gap: 8,
         padding: "10px 24px", borderRadius: 10, border: "none",
         background: `linear-gradient(135deg, ${C.aiBlue}, ${C.aiBlue}CC)`,
-        color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+        color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
         cursor: importing ? "wait" : "pointer", opacity: importing ? 0.7 : 1,
       }}>
         {importing ? <><Loader size={14} style={{ animation: "spin 1s linear infinite" }} /> Loading...</>
@@ -385,7 +385,7 @@ function PlanChoice({ importCount, onContinue }) {
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "11px 22px", borderRadius: 10, border: "none",
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-              color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+              color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
               cursor: checkingOut ? "wait" : "pointer", opacity: checkingOut ? 0.7 : 1,
               boxShadow: `0 4px 16px ${C.goldGlow}`,
             }}>
@@ -451,7 +451,7 @@ function ImportPreview({ rows, onImport, importing }) {
           <div key={i} style={{
             display: "flex", gap: 12, padding: "8px 12px", fontSize: 12,
             borderBottom: i < preview.length - 1 ? `1px solid ${C.borderDefault}` : "none",
-            background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)",
+            background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.02)",
           }}>
             <span style={{ flex: 2, color: C.textPrimary, fontFamily: FONT_SANS, fontWeight: 500 }}>{r.name}</span>
             <span style={{ flex: 1, color: C.textSecondary, fontFamily: FONT_MONO }}>{r.arr ? `$${r.arr.toLocaleString()}` : "—"}</span>
@@ -468,7 +468,7 @@ function ImportPreview({ rows, onImport, importing }) {
         marginTop: 12, display: "inline-flex", alignItems: "center", gap: 8,
         padding: "10px 24px", borderRadius: 10, border: "none",
         background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-        color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+        color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
         cursor: importing ? "wait" : "pointer", opacity: importing ? 0.7 : 1,
         boxShadow: `0 4px 16px ${C.goldGlow}`,
       }}>
