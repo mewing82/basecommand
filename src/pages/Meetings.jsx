@@ -22,7 +22,7 @@ export default function Meetings() {
             <h1 style={{ fontFamily: FONT_SANS, fontSize: 26, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 6px" }}>Meetings</h1>
             <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, fontFamily: FONT_BODY }}>A log of meetings you've ingested. Ask BC anything about any of them.</p>
           </div>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.textTertiary, marginTop: 4 }}>{meetings.length} logged</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.textTertiary, marginTop: 4 }}>{meetings.length} logged</span>
         </div>
       </div>
       {meetings.length > 0 && (
@@ -89,7 +89,7 @@ function MeetingCard({ meeting, expanded, onToggle }) {
         <div style={{ borderTop: `1px solid ${C.borderDefault}`, padding: "16px 18px" }}>
           {meeting.summary && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>BC Summary</div>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>BC Summary</div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, lineHeight: 1.7, background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 8, padding: "12px 14px" }}>{meeting.summary}</div>
             </div>
           )}
@@ -106,7 +106,7 @@ function MeetingCard({ meeting, expanded, onToggle }) {
               {showRaw && <div style={{ marginTop: 8, fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 6, padding: "10px 14px", maxHeight: 200, overflowY: "auto", whiteSpace: "pre-wrap" }}>{meeting.rawContent}</div>}
             </div>
           )}
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ask BC</div>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ask BC</div>
           <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
             <input value={customPrompt} onChange={e => setCustomPrompt(e.target.value)} onKeyDown={e => e.key === "Enter" && askBC()} placeholder="What decisions came out of this?..." disabled={aiLoading} style={{ flex: 1, background: C.bgAI, border: `1px solid ${C.borderAI}`, borderRadius: 6, padding: "7px 12px", color: C.textPrimary, fontFamily: FONT_SANS, fontSize: 13, outline: "none" }} />
             <button onClick={askBC} disabled={!customPrompt.trim() || aiLoading} style={{ background: customPrompt.trim() && !aiLoading ? C.gold : "transparent", border: `1px solid ${customPrompt.trim() && !aiLoading ? C.gold : C.borderAI}`, borderRadius: 6, padding: "7px 14px", cursor: customPrompt.trim() && !aiLoading ? "pointer" : "not-allowed", color: customPrompt.trim() && !aiLoading ? C.bgPrimary : C.textTertiary, fontFamily: FONT_MONO, fontSize: 12, fontWeight: 600 }}><Sparkles size={12} /></button>
