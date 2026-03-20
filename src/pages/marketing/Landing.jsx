@@ -77,6 +77,7 @@ export default function Landing() {
             color: C.bgPrimary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600,
             textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
             transition: "all 0.15s", textAlign: "center", minHeight: 44,
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
           }}>
             Start 14-Day Pro Trial
           </Link>

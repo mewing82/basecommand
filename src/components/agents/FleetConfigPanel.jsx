@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, RotateCcw } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { ACTION_TYPE_DEFS, LEVEL_DEFS, LEVEL_COLORS } from "./agentHubHelpers";
@@ -34,7 +34,28 @@ export default function FleetConfigPanel({ autonomySettings, onUpdate }) {
         <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700, color: C.textPrimary }}>
           Fleet Autonomy Levels
         </span>
-        {saved && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.green, marginLeft: "auto" }}>Saved</span>}
+        <div style={{ flex: 1 }} />
+        {saved && <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.green }}>Saved</span>}
+        <button
+          onClick={() => {
+            const defaults = { risk_assessment: "draft", auto_approve_critical: false };
+            onUpdate(defaults);
+            setSaved(true);
+            setTimeout(() => setSaved(false), 1500);
+          }}
+          title="Reset to defaults"
+          style={{
+            display: "flex", alignItems: "center", gap: 4,
+            padding: "3px 8px", borderRadius: 4, cursor: "pointer",
+            background: "transparent", border: `1px solid ${C.borderDefault}`,
+            fontFamily: FONT_MONO, fontSize: 9, fontWeight: 500, color: C.textTertiary,
+            transition: "all 0.12s",
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = C.textSecondary; e.currentTarget.style.color = C.textSecondary; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.color = C.textTertiary; }}
+        >
+          <RotateCcw size={9} /> Reset
+        </button>
       </div>
       <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, lineHeight: 1.5, marginBottom: 16 }}>
         Control how autonomous each action type is. All actions are logged regardless of level.

@@ -11,6 +11,7 @@ import { PageLayout } from "../components/layout/PageLayout";
 import { computePortfolioHealth, computePortfolioSummary, getSeverity } from "../lib/healthScore";
 import { formatARR } from "../lib/utils";
 import { PILLARS, AGENT_DETAILS, isAgentCached as isAgentCachedShared } from "../lib/pillars";
+import { getEffectiveLevel, LEVEL_COLORS } from "../components/agents/agentHubHelpers";
 
 // ─── Pillar-specific recommendations ────────────────────────────────────────
 const RECOMMENDATIONS = {
@@ -50,6 +51,7 @@ export default function Pillar() {
   const navigate = useNavigate();
   const { isMobile } = useMediaQuery();
   const [portfolioSummary, setPortfolioSummary] = useState(null);
+  const [autonomySettings, setAutonomySettings] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -62,12 +64,17 @@ export default function Pillar() {
       const results = computePortfolioHealth(accts, contextMap);
       setPortfolioSummary(computePortfolioSummary(results));
     })();
+    renewalStore.getAutonomySettings().then(setAutonomySettings);
   }, []);
 
   const pillar = PILLARS.find(p => p.id === pillarId);
   if (!pillar) return <PageLayout><div style={{ padding: 40, textAlign: "center", color: C.textTertiary }}>Pillar not found</div></PageLayout>;
 
-  const agents = pillar.agents.map(id => AGENT_DETAILS[id]).filter(Boolean);
+  const agents = pillar.agents.map(id => {
+    const d = AGENT_DETAILS[id];
+    if (!d) return null;
+    return { ...d, agentId: id, mode: getEffectiveLevel(id, autonomySettings) };
+  }).filter(Boolean);
   const recs = RECOMMENDATIONS[pillarId] || [];
   const Icon = pillar.icon;
   const pillarIdx = PILLARS.findIndex(p => p.id === pillarId);
@@ -178,7 +185,7 @@ export default function Pillar() {
                     {agent.description}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, background: "rgba(255,255,255,0.06)", padding: "2px 8px", borderRadius: 4 }}>{agent.mode}</span>
+                    <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: LEVEL_COLORS[agent.mode] || C.textTertiary, background: "rgba(255,255,255,0.06)", padding: "2px 8px", borderRadius: 4, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>{agent.mode}</span>
                     <div style={{ flex: 1 }} />
                     <button
                       onClick={() => navigate(agent.route)}

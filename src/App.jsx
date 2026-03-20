@@ -159,7 +159,7 @@ function AppLayout() {
           position: "sticky", top: 0, zIndex: 50,
           background: `${C.bgPrimary}F2`, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
           borderBottom: `1px solid ${C.borderDefault}`,
-          padding: isMobile ? "0 12px" : "0 24px", height: 56,
+          padding: isMobile ? "0 var(--bc-page-px)" : "0 var(--bc-page-px)", height: 56,
           display: "flex", alignItems: "center", gap: 12,
         }}>
           <button

@@ -41,10 +41,10 @@ function OrgDisplay({ collapsed }) {
   }
 
   return (
-    <div className="bc-sidebar-ws-expanded" style={{ padding: "0 12px 8px" }}>
+    <div className="bc-sidebar-ws-expanded" style={{ padding: "0 0 8px" }}>
       <div style={{
-        width: "100%", display: "flex", alignItems: "center", gap: 8,
-        padding: "7px 10px", borderRadius: 6,
+        width: "100%", display: "flex", alignItems: "center", gap: 10,
+        padding: "7px 16px 7px 20px", borderRadius: 0,
         background: "transparent",
         border: "1px solid transparent",
       }}>
@@ -89,15 +89,15 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
   );
 
   return (
-    <div ref={ref} style={{ position: "relative", padding: isExpanded ? "8px 12px 16px" : "8px 0 16px" }}>
+    <div ref={ref} style={{ position: "relative", padding: "8px 0 16px" }}>
       <button onClick={() => setOpen(prev => !prev)} style={{
         width: "100%", display: "flex", alignItems: "center", gap: 10,
-        padding: isExpanded ? "8px 8px" : "8px 0", borderRadius: 8, cursor: "pointer",
-        background: open ? "rgba(255,255,255,0.07)" : activeView === "settings" ? "rgba(255,255,255,0.05)" : "transparent",
+        padding: isExpanded ? "8px 16px 8px 20px" : "8px 0", borderRadius: 0, cursor: "pointer",
+        background: open ? "rgba(255,255,255,0.07)" : "transparent",
         border: "none", justifyContent: isExpanded ? "flex-start" : "center", transition: "all 0.15s",
       }}
         onMouseEnter={e => { if (!open) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-        onMouseLeave={e => { if (!open && activeView !== "settings") e.currentTarget.style.background = "transparent"; }}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.background = "transparent"; }}
       >
         {avatar}
         {isExpanded && (
@@ -110,7 +110,7 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
 
       {open && (
         <div style={{
-          position: "absolute", bottom: "100%", left: isExpanded ? 12 : -4, right: isExpanded ? 12 : -4,
+          position: "absolute", bottom: "100%", left: isExpanded ? 0 : -4, right: isExpanded ? 0 : -4,
           minWidth: isExpanded ? undefined : 200, zIndex: 200,
           background: C.bgElevated, border: `1px solid ${C.borderSubtle}`,
           borderRadius: 10, padding: 4, marginBottom: 4, boxShadow: "0 -8px 30px rgba(0,0,0,0.4)",
@@ -200,8 +200,8 @@ export default function Sidebar({ activeView, onNavigate }) {
       overflow: "hidden", zIndex: 100, flexShrink: 0,
     }}>
       {/* Logo */}
-      <div style={{ padding: isExpanded ? "20px 20px 16px" : "20px 0 16px", display: "flex", alignItems: "center", gap: 10, justifyContent: isExpanded ? "space-between" : "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ padding: isExpanded ? "20px 16px 16px 20px" : "20px 0 16px", display: "flex", alignItems: "center", gap: 10, justifyContent: isExpanded ? "flex-start" : "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
@@ -216,6 +216,7 @@ export default function Sidebar({ activeView, onNavigate }) {
         </div>
         {isExpanded && (
           <button className="bc-sidebar-collapse-btn" onClick={() => setSidebarCollapsed(true)} style={{
+            marginLeft: "auto", flexShrink: 0,
             background: "rgba(255,255,255,0.04)", border: "none", color: C.textTertiary, cursor: "pointer",
             fontSize: 12, padding: "4px 6px", borderRadius: 6, transition: "all 0.15s",
           }}
@@ -338,7 +339,7 @@ export default function Sidebar({ activeView, onNavigate }) {
                         style={{
                           width: "100%", border: "none", cursor: "pointer",
                           display: "flex", alignItems: "center", gap: 8,
-                          padding: "6px 20px 6px 38px",
+                          padding: "6px 16px 6px 38px",
                           background: pillarActive ? "rgba(255,255,255,0.05)" : pillarHovered ? "rgba(255,255,255,0.03)" : "transparent",
                           borderRight: pillarActive ? `2px solid ${p.color}` : "2px solid transparent",
                           transition: "all 0.12s ease",
@@ -367,38 +368,36 @@ export default function Sidebar({ activeView, onNavigate }) {
       </nav>
 
       {/* Settings gear */}
-      <div style={{ padding: "0 12px" }}>
+      <div style={{ padding: "0 20px" }}>
         <div style={{ height: 1, background: C.borderDefault, margin: "4px 0" }} />
       </div>
-      <div style={{ padding: isExpanded ? "4px 12px" : "4px 0" }}>
-        <button
-          className="bc-sidebar-nav-btn"
-          onClick={() => onNavigate("settings")}
-          onMouseEnter={() => setHoveredItem("settings-gear")}
-          onMouseLeave={() => setHoveredItem(null)}
-          title={isExpanded ? undefined : "Settings"}
-          style={{
-            width: "100%", border: "none", cursor: "pointer",
-            display: "flex", alignItems: "center",
-            padding: isExpanded ? "10px 16px 10px 52px" : "10px 0",
-            justifyContent: isExpanded ? "flex-start" : "center",
-            borderRadius: 6, position: "relative",
-            background: activeView === "settings"
-              ? "rgba(255,255,255,0.07)"
-              : hoveredItem === "settings-gear" ? "rgba(255,255,255,0.04)" : "none",
-            borderRight: activeView === "settings" ? `2px solid ${C.gold}` : "2px solid transparent",
-            color: activeView === "settings" ? C.textPrimary : hoveredItem === "settings-gear" ? C.textPrimary : C.textSecondary,
-            transition: "all 0.12s ease",
-          }}
-        >
-          <div style={{ position: "absolute", left: isExpanded ? 20 : undefined, top: "50%", transform: "translateY(-50%)" }}>
-            <SettingsIcon size={18} strokeWidth={activeView === "settings" ? 2 : 1.75} style={{ opacity: activeView === "settings" ? 1 : 0.75, display: "block" }} />
-          </div>
-          {isExpanded && (
-            <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: activeView === "settings" ? 600 : 500, whiteSpace: "nowrap" }}>Settings</span>
-          )}
-        </button>
-      </div>
+      <button
+        className="bc-sidebar-nav-btn"
+        onClick={() => onNavigate("settings")}
+        onMouseEnter={() => setHoveredItem("settings-gear")}
+        onMouseLeave={() => setHoveredItem(null)}
+        title={isExpanded ? undefined : "Settings"}
+        style={{
+          width: "100%", border: "none", cursor: "pointer",
+          display: "flex", alignItems: "center",
+          padding: isExpanded ? "10px 16px 10px 52px" : "10px 0",
+          justifyContent: isExpanded ? "flex-start" : "center",
+          position: "relative",
+          background: activeView === "settings"
+            ? "rgba(255,255,255,0.07)"
+            : hoveredItem === "settings-gear" ? "rgba(255,255,255,0.04)" : "none",
+          borderRight: activeView === "settings" ? `2px solid ${C.gold}` : "2px solid transparent",
+          color: activeView === "settings" ? C.textPrimary : hoveredItem === "settings-gear" ? C.textPrimary : C.textSecondary,
+          transition: "all 0.12s ease",
+        }}
+      >
+        <div style={{ position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)" }}>
+          <SettingsIcon size={18} strokeWidth={activeView === "settings" ? 2 : 1.75} style={{ opacity: activeView === "settings" ? 1 : 0.75, display: "block" }} />
+        </div>
+        {isExpanded && (
+          <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: activeView === "settings" ? 600 : 500, whiteSpace: "nowrap" }}>Settings</span>
+        )}
+      </button>
 
       <ProfileDropdown
         user={user} displayName={displayName} avatarUrl={avatarUrl} initials={initials}
