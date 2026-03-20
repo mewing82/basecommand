@@ -33,7 +33,7 @@ export default function PillarSection({ pillar, agents, autonomySettings, onUpda
         <PIcon size={16} style={{ color: pillar.color }} />
         <span style={{
           fontFamily: FONT_SANS, fontSize: fs(16, 14, isMobile),
-          fontWeight: 600, color: C.textPrimary, letterSpacing: "-0.01em",
+          fontWeight: 600, color: pillar.color, letterSpacing: "-0.01em",
         }}>
           {pillar.label}
         </span>
