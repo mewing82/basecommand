@@ -382,6 +382,14 @@ async function handleWebsiteExtract(req, res) {
       return res.status(422).json({ error: "AI returned invalid JSON", raw: text.slice(0, 500) });
     }
 
+    // Enrich with reliable fallbacks
+    const domain = baseUrl.hostname.replace(/^www\./, "");
+    if (!profile.branding) profile.branding = {};
+    // Google Favicon API — always works
+    if (!profile.branding.faviconUrl) {
+      profile.branding.faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+    }
+
     return res.status(200).json({ profile, pages, totalChars: allText.length });
   } catch (e) {
     return res.status(500).json({ error: e.message });
@@ -490,7 +498,14 @@ function weDiscoverLinks(text, targetPaths) {
 }
 
 function weBuildPrompt(websiteText, origin) {
-  return `Extract structured company information from this website content. The website is: ${origin}
+  const domain = new URL(origin).hostname.replace(/^www\./, "");
+  return `Extract structured company information about the company at ${origin} (domain: ${domain}).
+
+You have two sources of information:
+1. WEBSITE CONTENT extracted below (may be incomplete if the site is a JavaScript SPA)
+2. YOUR TRAINING KNOWLEDGE about this company
+
+IMPORTANT: If the website content is sparse or mostly JavaScript configuration, USE YOUR TRAINING KNOWLEDGE to fill in company details, products, pricing, branding, and competitors. Many modern websites are SPAs that don't return useful HTML to server-side fetches. You likely know this company — use what you know.
 
 WEBSITE CONTENT:
 ${websiteText}
@@ -516,14 +531,14 @@ Return ONLY valid JSON with this structure:
   "securityCerts": "Security certifications mentioned (SOC2, HIPAA, ISO 27001, etc.) — or null",
   "integrations": "Key integrations or technology partners mentioned — or null",
   "branding": {
-    "logoUrl": "URL of the company logo (from og:image, img tags with 'logo', etc.) — or null",
+    "logoUrl": "Full URL to the company logo. Check [LOGO IMG] tags first. If not found, try ${origin}/logo.png or ${origin}/images/logo.svg. For well-known companies, use a known public logo URL if you have one. Return null only as last resort.",
     "faviconUrl": "URL of the favicon — or null",
-    "primaryColor": "Primary brand color as hex (e.g. '#4F46E5') — infer from hero backgrounds, buttons, theme-color meta, CSS variables. MUST be an actual brand color, NOT #000000 or #FFFFFF. Return null if you cannot determine it.",
-    "secondaryColor": "Secondary brand color as hex. NOT #000000 or #FFFFFF — return null if unknown.",
-    "accentColor": "Accent/CTA color as hex (often used on buttons, links). NOT #000000 or #FFFFFF — return null if unknown.",
-    "fonts": ["Font family names used on the site (from Google Fonts links, CSS) — or empty array"],
+    "primaryColor": "Primary brand color as hex. For well-known companies (Dropbox=#0061FF, Slack=#4A154B, Salesforce=#00A1E0, HubSpot=#FF7A59, etc.), USE YOUR KNOWLEDGE of their brand color. For others, infer from CSS/meta. NEVER return #000000 or #FFFFFF. Return null if truly unknown.",
+    "secondaryColor": "Secondary brand color as hex. Use your knowledge of the brand. NOT #000000/#FFFFFF — null if unknown.",
+    "accentColor": "Accent/CTA color as hex. NOT #000000/#FFFFFF — null if unknown.",
+    "fonts": ["Font family names — from [GOOGLE FONT] tags, CSS, or your knowledge of the brand's typography"],
     "socialLinks": {
-      "linkedin": "LinkedIn URL — or null",
+      "linkedin": "LinkedIn company URL — check [SOCIAL LINK] tags or use your knowledge — or null",
       "twitter": "Twitter/X URL — or null",
       "youtube": "YouTube URL — or null"
     }
@@ -531,12 +546,12 @@ Return ONLY valid JSON with this structure:
 }
 
 EXTRACTION RULES:
-- Extract everything you can find. Leave fields as null if not present.
-- For products: extract every distinct plan, tier, SKU, or add-on. Include pricing if visible.
-- For competitors: look for "vs", "alternative to", "compared to", "unlike" language. Also infer from positioning.
-- For value props: synthesize from hero copy, feature highlights, "why choose us" sections.
-- For branding: look at [META theme-color], [CSS COLORS], [LOGO IMG], [FAVICON], [GOOGLE FONT], and [SOCIAL LINK] tags in the extracted content. For colors, pick the most prominent/intentional brand colors, not generic grays or whites.
-- For logoUrl: prefer full absolute URLs. If relative, prepend ${origin}.
+- CRITICAL: For well-known companies, USE YOUR TRAINING KNOWLEDGE to fill in ALL fields. Do not return null/empty just because the HTML was sparse.
+- For products: include all known plans/tiers with current pricing if you know them.
+- For competitors: include major known competitors even if not mentioned on the site.
+- For branding colors: if you know the company's brand colors from your training, USE THEM. This is the most reliable source for major brands.
+- For logoUrl: prefer URLs from the HTML. If none found, return null (we have a fallback).
+- For socialLinks: check [SOCIAL LINK] tags first, then use your knowledge of the company's social presence.
 - Clean up and normalize — don't copy-paste raw HTML artifacts.
 - Return ONLY the JSON. No markdown fences. No explanation.`;
 }
