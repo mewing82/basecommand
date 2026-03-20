@@ -66,7 +66,7 @@ export default function Library() {
       <ProjectFilterPills projects={projects} filterProject={filterProject} setFilterProject={setFilterProject} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>Source:</span>
+          <span style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>Source:</span>
           {[[null, "All"], ["upload", "Upload"], ["project", "Project"]].map(([val, lbl]) => (
             <button key={lbl} onClick={() => setFilterSource(val)} style={{ padding: "3px 10px", borderRadius: 12, border: "none", cursor: "pointer", background: filterSource === val ? C.blue : "rgba(0,0,0,0.03)", color: filterSource === val ? "#fff" : C.textTertiary, fontSize: 11, fontFamily: FONT_MONO, fontWeight: filterSource === val ? 700 : 400 }}>{lbl}</button>
           ))}
