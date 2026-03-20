@@ -1,6 +1,6 @@
 # BASECOMMAND — THE PLAN
 
-**Version:** 0.7.0 | **Last updated:** 2026-03-19
+**Version:** 0.8.0 | **Last updated:** 2026-03-19
 
 **BHAG: The Autonomous Revenue Intelligence Layer**
 Co-pilot → Supervised Autopilot → Full Autonomous

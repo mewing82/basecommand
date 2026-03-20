@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 BaseCommand is an AI-powered renewal intelligence platform — a React SPA with serverless API functions deployed on Vercel. It provides a fleet of specialized AI agents organized into Renewal, Growth, and Coaching categories that run the entire renewal workflow, from data import to execution, with human oversight at every step.
 
-**Current version:** 0.7.0
+**Current version:** 0.8.0
 **Positioning:** AI-Powered Renewal Intelligence — "AI-powered renewal workflows, from co-pilot to fully autonomous"
 
 ## Commands

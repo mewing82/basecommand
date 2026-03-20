@@ -1,7 +1,7 @@
 # BaseCommand Master Plan
 
 > **Living document.** Updated as decisions are made. Single source of truth for vision, business model, and what we're building.
-> **Last updated:** 2026-03-19 (Epic 18 — Discovery Optimization plan, Epic 8 Phase 1 completed) | **Version:** 0.7.1
+> **Last updated:** 2026-03-19 (Epic 19 — Agent Hub + Team + Company Profile redesign) | **Version:** 0.8.0
 > **Previous versions:** `docs/archive/PLAN-v0.4.0-2026-03-17.md`
 
 ---
@@ -366,12 +366,66 @@ Invisible org/team foundation so the data model supports teams from day one. No 
 | **Individual** | $49/mo founding, $149/mo list | 1 | Renamed from "Pro" for clarity |
 | **Team** | $149/mo flat | Unlimited | No seat counting. Outcome-framed. |
 
-### Phase 2 (future)
-- Invite flow UI (send email, accept token, join org)
-- Role management UI (promote/demote members)
-- Org switcher in sidebar (for users in multiple orgs)
-- Team activity feed
-- Portfolio filtering by assigned_to
+### Phase 2 (partially completed 2026-03-19)
+- ✅ Team Management settings page (view members, roles, join dates)
+- ✅ Invite flow API (invite by email → org_invites table → auto-accept on signup)
+- ✅ Role management UI (promote/demote members, remove members)
+- ✅ Accept-invites API (auto-joins org on login if pending invite exists)
+- ⏸️ Invite email delivery — blocked on Google Workspace SMTP setup
+- ⏸️ Org switcher in sidebar (for users in multiple orgs)
+- ⏸️ Team activity feed
+- ⏸️ Portfolio filtering by assigned_to
+
+---
+
+## Epic 19: Agent Hub + Team + Company Profile Redesign
+
+**Status: Completed (2026-03-19)**
+
+Major UX pass across three areas: Agent Hub redesign, Team Management, and AI-powered Company Profile setup.
+
+### What was built
+
+**Agent Hub redesign:**
+- Phase-driven layout: welcome → activating → operational (adapts to user progress)
+- FleetWelcome hero with 3-mode explainer (Suggest/Draft/Execute)
+- 5 PillarSections replace dual-zone Operations Center / Co-Pilot Workbench
+- Each pillar in a bordered card with color-accented top border
+- Pillar labels rendered in their own color for visual hierarchy
+- Compact Fleet Status Header with pipeline dots + stats
+- Prominent "Configure Fleet" button (solid indigo fill)
+- Page header with Bot icon and agent/pillar count
+
+**Team Management (Settings → Team):**
+- Full team settings page: org info, member list, role badges
+- Invite flow with org_invites table (avoids Supabase trigger conflicts)
+- Role management (admin/member dropdown for owners/admins)
+- Member removal with confirmation
+- Auto-accept pending invites on login via acceptPendingInvites()
+
+**Company Profile — AI Website Scanner:**
+- URL-only extraction: enter website, AI crawls homepage + 5 subpages
+- Extracts: company name, products, pricing, competitors, value props, contract terms
+- Brand Kit: logo URL, favicon, primary/secondary/accent colors, fonts, social links
+- AI uses training knowledge for SPA sites that return empty HTML
+- Google Favicon API fallback for reliable favicons
+- Overwrite mode: new URL replaces all fields (preserves sender name + strategy)
+
+**Infrastructure fixes:**
+- Sidebar nav redesigned: flexbox layout replaces absolute positioning (6+ failed patches)
+- global.css imported (was never loaded — root cause of zero padding across all pages)
+- Double padding eliminated (horizontal padding on main, vertical on PageLayout)
+- Merged website-extract into ai.js to stay under Vercel 12-function Hobby limit
+
+### Decision Log Additions
+
+| # | Decision | Rationale | Date |
+|---|----------|-----------|------|
+| 84 | Agent Hub: pillar-grouped layout over dual-zone | Agents belong to their renewal function, not their autonomy mode. Mode badge + border accent show mode within pillar context. | 2026-03-19 |
+| 85 | Team invites via org_invites table, not inviteUserByEmail | Supabase's inviteUserByEmail triggers auto-org-creation which conflicts. org_invites + auto-accept on login is cleaner. | 2026-03-19 |
+| 86 | Website scanner uses AI training knowledge for SPAs | Modern sites (Dropbox, Quickbase) return empty HTML. Claude already knows brand colors, products, and pricing for major companies. | 2026-03-19 |
+| 87 | Consolidate API endpoints to stay under Vercel 12-function limit | Hobby plan caps at 12. Use action query params on existing endpoints rather than new files. Upgrade to Pro when consolidation hurts design. | 2026-03-19 |
+| 88 | Horizontal padding on main element, not PageLayout | Single source of truth prevents double-padding. TopBar uses negative margins to stretch edge-to-edge. | 2026-03-19 |
 
 ---
 
