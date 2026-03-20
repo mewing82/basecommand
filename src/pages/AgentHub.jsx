@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ListChecks, Clock, Settings as SettingsIcon, ChevronUp } from "lucide-react";
+import { ListChecks, Clock, Bot, Settings as SettingsIcon, ChevronUp } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { renewalStore } from "../lib/storage";
@@ -114,7 +114,22 @@ export default function AgentHub() {
         }
       `}</style>
 
-      {/* ═══ A: Compact Fleet Status Header ═══ */}
+      {/* Page header */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 10,
+        marginBottom: isMobile ? 12 : 16,
+      }}>
+        <Bot size={isMobile ? 20 : 22} style={{ color: C.gold, flexShrink: 0 }} />
+        <span style={{ fontFamily: FONT_SANS, fontSize: fs(22, 18, isMobile), fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.02em" }}>
+          Agent Hub
+        </span>
+        <div style={{ flex: 1, height: 1, background: C.borderDefault }} />
+        <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary }}>
+          {allAgents.length} agents · {activePillars}/5 pillars
+        </span>
+      </div>
+
+      {/* ═══ A: Fleet Status Bar ═══ */}
       <div style={{
         display: "flex", flexDirection: isMobile ? "column" : "row",
         alignItems: isMobile ? "stretch" : "center", justifyContent: "space-between",
@@ -157,16 +172,21 @@ export default function AgentHub() {
 
         {/* Action buttons */}
         <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-          <button onClick={() => setFleetConfigOpen(prev => !prev)} style={{
-            display: "flex", alignItems: "center", gap: 5,
-            padding: "5px 12px", borderRadius: 6, cursor: "pointer",
-            background: effectiveConfigOpen ? C.gold + "18" : C.gold + "10",
-            border: `1px solid ${effectiveConfigOpen ? C.gold + "40" : C.gold + "25"}`,
-            fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600, color: C.gold,
-            transition: "all 0.15s",
-          }}>
-            <SettingsIcon size={12} /> Configure Fleet
-            <ChevronUp size={10} style={{ transition: "transform 0.15s", transform: effectiveConfigOpen ? "rotate(0deg)" : "rotate(180deg)" }} />
+          <button
+            onClick={() => setFleetConfigOpen(prev => !prev)}
+            onMouseEnter={e => { e.currentTarget.style.background = effectiveConfigOpen ? C.goldHover : C.gold; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = effectiveConfigOpen ? C.gold : C.gold; e.currentTarget.style.transform = "translateY(0)"; }}
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "7px 14px", borderRadius: 7, cursor: "pointer",
+              background: C.gold, border: "none",
+              fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: "#fff",
+              transition: "all 0.15s",
+              boxShadow: `0 2px 8px ${C.gold}40`,
+            }}
+          >
+            <SettingsIcon size={13} /> Configure Fleet
+            <ChevronUp size={11} style={{ transition: "transform 0.15s", transform: effectiveConfigOpen ? "rotate(0deg)" : "rotate(180deg)" }} />
           </button>
           {activePending.length > 0 && (
             <button onClick={() => navigate("/app/tasks")} style={{
