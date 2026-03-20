@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Building2, Plus, X, Loader, Globe, Sparkles, Package, Shield, Swords, TrendingUp, HandshakeIcon, FileText, Check } from "lucide-react";
+import { Building2, Plus, X, Loader, Globe, Sparkles, Package, Shield, Swords, TrendingUp, HandshakeIcon, FileText, Check, Palette, Image, Link as LinkIcon } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
@@ -112,6 +112,27 @@ export default function CompanySettings() {
         if (extracted.industry && !merged.industry) merged.industry = extracted.industry;
         if (extracted.targetAudience && !merged.targetAudience) merged.targetAudience = extracted.targetAudience;
         if (extracted.websiteUrl) merged.websiteUrl = extracted.websiteUrl;
+        if (extracted.industry && !merged.industry) merged.industry = extracted.industry;
+        if (extracted.targetAudience && !merged.targetAudience) merged.targetAudience = extracted.targetAudience;
+        if (extracted.branding && !merged.branding) {
+          merged.branding = extracted.branding;
+        } else if (extracted.branding && merged.branding) {
+          // Fill blanks only
+          const b = merged.branding;
+          const eb = extracted.branding;
+          if (!b.logoUrl && eb.logoUrl) b.logoUrl = eb.logoUrl;
+          if (!b.faviconUrl && eb.faviconUrl) b.faviconUrl = eb.faviconUrl;
+          if (!b.primaryColor && eb.primaryColor) b.primaryColor = eb.primaryColor;
+          if (!b.secondaryColor && eb.secondaryColor) b.secondaryColor = eb.secondaryColor;
+          if (!b.accentColor && eb.accentColor) b.accentColor = eb.accentColor;
+          if ((!b.fonts || b.fonts.length === 0) && eb.fonts?.length > 0) b.fonts = eb.fonts;
+          if (!b.socialLinks) b.socialLinks = eb.socialLinks;
+          else if (eb.socialLinks) {
+            if (!b.socialLinks.linkedin && eb.socialLinks.linkedin) b.socialLinks.linkedin = eb.socialLinks.linkedin;
+            if (!b.socialLinks.twitter && eb.socialLinks.twitter) b.socialLinks.twitter = eb.socialLinks.twitter;
+            if (!b.socialLinks.youtube && eb.socialLinks.youtube) b.socialLinks.youtube = eb.socialLinks.youtube;
+          }
+        }
         merged.lastUpdated = new Date().toISOString();
         merged._extractedPages = data.pages;
         setProfile(merged);
@@ -221,6 +242,116 @@ export default function CompanySettings() {
         <div style={{ display: "flex", gap: 8, flexDirection: isMobile ? "column" : "row" }}>
           <input value={profile?.senderName || ""} onChange={e => updateProfile({ senderName: e.target.value })} placeholder="Your name (for email signatures)" style={{ ...inputStyle, flex: 1 }} />
           <input value={profile?.senderTitle || ""} onChange={e => updateProfile({ senderTitle: e.target.value })} placeholder="Your title" style={{ ...inputStyle, flex: 1 }} />
+        </div>
+      </div>
+
+      {/* Brand Kit */}
+      <div style={cardStyle}>
+        <div style={cardHeaderStyle}>
+          <Palette size={16} style={{ color: "#A78BFA" }} />
+          <span style={cardLabelStyle}>Brand Kit</span>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 10, color: C.textTertiary, marginLeft: "auto" }}>Used in exports, briefs & emails</span>
+        </div>
+
+        {/* Logo */}
+        <div style={{ display: "flex", gap: 12, marginBottom: 12, flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "stretch" : "center" }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: 10, flexShrink: 0,
+            background: C.bgAI, border: `1px solid ${C.borderDefault}`,
+            display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden",
+          }}>
+            {profile?.branding?.logoUrl ? (
+              <img src={profile.branding.logoUrl} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+            ) : (
+              <Image size={20} style={{ color: C.textTertiary, opacity: 0.4 }} />
+            )}
+          </div>
+          <div style={{ flex: 1 }}>
+            <input
+              value={profile?.branding?.logoUrl || ""}
+              onChange={e => updateProfile({ branding: { ...(profile?.branding || {}), logoUrl: e.target.value } })}
+              placeholder="Logo URL (auto-detected from website)"
+              style={{ ...smallInputStyle, marginBottom: 4 }}
+            />
+            <input
+              value={profile?.branding?.faviconUrl || ""}
+              onChange={e => updateProfile({ branding: { ...(profile?.branding || {}), faviconUrl: e.target.value } })}
+              placeholder="Favicon URL"
+              style={smallInputStyle}
+            />
+          </div>
+        </div>
+
+        {/* Colors */}
+        <div style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: C.textSecondary, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+          <Palette size={12} /> Brand Colors
+        </div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+          {[
+            { key: "primaryColor", label: "Primary" },
+            { key: "secondaryColor", label: "Secondary" },
+            { key: "accentColor", label: "Accent" },
+          ].map(({ key, label }) => {
+            const val = profile?.branding?.[key] || "";
+            return (
+              <div key={key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div
+                  style={{
+                    width: 28, height: 28, borderRadius: 6,
+                    background: val || C.bgAI,
+                    border: `1px solid ${val ? val + "60" : C.borderDefault}`,
+                    cursor: "pointer", position: "relative", overflow: "hidden",
+                  }}
+                >
+                  <input
+                    type="color"
+                    value={val || "#6366F1"}
+                    onChange={e => updateProfile({ branding: { ...(profile?.branding || {}), [key]: e.target.value } })}
+                    style={{ position: "absolute", inset: -4, width: "calc(100% + 8px)", height: "calc(100% + 8px)", opacity: 0, cursor: "pointer" }}
+                  />
+                </div>
+                <div>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: C.textSecondary }}>{label}</div>
+                  <input
+                    value={val}
+                    onChange={e => updateProfile({ branding: { ...(profile?.branding || {}), [key]: e.target.value } })}
+                    placeholder="#000000"
+                    style={{ ...smallInputStyle, width: 80, fontSize: 10, padding: "3px 6px", fontFamily: FONT_MONO }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Fonts */}
+        <div style={{ marginBottom: 12 }}>
+          <input
+            value={(profile?.branding?.fonts || []).join(", ")}
+            onChange={e => updateProfile({ branding: { ...(profile?.branding || {}), fonts: e.target.value.split(",").map(f => f.trim()).filter(Boolean) } })}
+            placeholder="Font families (e.g., Inter, Space Grotesk)"
+            style={smallInputStyle}
+          />
+        </div>
+
+        {/* Social Links */}
+        <div style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: C.textSecondary, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+          <LinkIcon size={12} /> Social Links
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {[
+            { key: "linkedin", placeholder: "LinkedIn URL" },
+            { key: "twitter", placeholder: "Twitter / X URL" },
+            { key: "youtube", placeholder: "YouTube URL" },
+          ].map(({ key, placeholder }) => (
+            <input
+              key={key}
+              value={profile?.branding?.socialLinks?.[key] || ""}
+              onChange={e => updateProfile({ branding: { ...(profile?.branding || {}), socialLinks: { ...(profile?.branding?.socialLinks || {}), [key]: e.target.value } } })}
+              placeholder={placeholder}
+              style={smallInputStyle}
+            />
+          ))}
         </div>
       </div>
 

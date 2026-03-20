@@ -407,27 +407,70 @@ async function weFetchPageText(url) {
 }
 
 function weExtractText(html) {
+  const meta = [];
+
+  // Extract meta tags
+  for (const m of html.matchAll(/<meta\s+[^>]*(?:name|property)=["']([^"']*)["'][^>]*content=["']([^"']*)["'][^>]*>/gi)) {
+    if (["description", "og:title", "og:description", "og:site_name", "og:image", "twitter:title", "twitter:description", "theme-color"].includes(m[1].toLowerCase())) {
+      meta.push(`[META ${m[1]}]: ${m[2]}`);
+    }
+  }
+  for (const m of html.matchAll(/<meta\s+[^>]*content=["']([^"']*)["'][^>]*(?:name|property)=["']([^"']*)["'][^>]*>/gi)) {
+    if (["description", "og:title", "og:description", "og:site_name", "og:image", "twitter:title", "twitter:description", "theme-color"].includes(m[2].toLowerCase())) {
+      meta.push(`[META ${m[2]}]: ${m[1]}`);
+    }
+  }
+
+  // Extract favicon / icon links
+  for (const m of html.matchAll(/<link\s+[^>]*rel=["'](?:icon|shortcut icon|apple-touch-icon)["'][^>]*href=["']([^"']*)["'][^>]*>/gi)) {
+    meta.push(`[FAVICON]: ${m[1]}`);
+  }
+
+  // Extract logo images (img tags with "logo" in class, alt, or src)
+  for (const m of html.matchAll(/<img\s+[^>]*(?:class|alt|src)=["'][^"']*logo[^"']*["'][^>]*src=["']([^"']*)["'][^>]*>/gi)) {
+    meta.push(`[LOGO IMG]: ${m[1]}`);
+  }
+  for (const m of html.matchAll(/<img\s+[^>]*src=["']([^"']*logo[^"']*)["'][^>]*>/gi)) {
+    meta.push(`[LOGO IMG]: ${m[1]}`);
+  }
+
+  // Extract Google Fonts
+  for (const m of html.matchAll(/fonts\.googleapis\.com\/css2?\?family=([^"'&\s]+)/gi)) {
+    meta.push(`[GOOGLE FONT]: ${decodeURIComponent(m[1]).replace(/\+/g, " ")}`);
+  }
+
+  // Extract CSS custom properties and prominent colors from inline styles and style blocks
+  const styleBlocks = html.match(/<style[\s\S]*?<\/style>/gi) || [];
+  const cssColors = new Set();
+  for (const block of styleBlocks) {
+    // Look for --primary, --brand, --accent, etc.
+    for (const m of block.matchAll(/--(?:primary|brand|accent|secondary|main)[^:]*:\s*([^;}\n]+)/gi)) {
+      cssColors.add(m[1].trim());
+    }
+    // Look for hex colors in prominent selectors
+    for (const m of block.matchAll(/(?:background|color|background-color|border-color)\s*:\s*(#[0-9a-fA-F]{3,8})/gi)) {
+      cssColors.add(m[1]);
+    }
+  }
+  if (cssColors.size > 0) meta.push(`[CSS COLORS]: ${[...cssColors].slice(0, 15).join(", ")}`);
+
+  // Extract social links
+  for (const m of html.matchAll(/href=["'](https?:\/\/(?:www\.)?(?:linkedin\.com|twitter\.com|x\.com|youtube\.com|facebook\.com|instagram\.com)\/[^"'\s]+)["']/gi)) {
+    meta.push(`[SOCIAL LINK]: ${m[1]}`);
+  }
+
+  // Extract JSON-LD structured data
+  for (const m of html.matchAll(/<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    try { meta.push(`[STRUCTURED DATA]: ${JSON.stringify(JSON.parse(m[1])).slice(0, 1000)}`); } catch { /* skip */ }
+  }
+
+  // Clean body text
   let clean = html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<nav[\s\S]*?<\/nav>/gi, " ")
     .replace(/<footer[\s\S]*?<\/footer>/gi, " ")
     .replace(/<!--[\s\S]*?-->/g, " ");
-
-  const meta = [];
-  for (const m of html.matchAll(/<meta\s+[^>]*(?:name|property)=["']([^"']*)["'][^>]*content=["']([^"']*)["'][^>]*>/gi)) {
-    if (["description", "og:title", "og:description", "og:site_name", "twitter:title", "twitter:description"].includes(m[1].toLowerCase())) {
-      meta.push(`[META ${m[1]}]: ${m[2]}`);
-    }
-  }
-  for (const m of html.matchAll(/<meta\s+[^>]*content=["']([^"']*)["'][^>]*(?:name|property)=["']([^"']*)["'][^>]*>/gi)) {
-    if (["description", "og:title", "og:description", "og:site_name", "twitter:title", "twitter:description"].includes(m[2].toLowerCase())) {
-      meta.push(`[META ${m[2]}]: ${m[1]}`);
-    }
-  }
-  for (const m of html.matchAll(/<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
-    try { meta.push(`[STRUCTURED DATA]: ${JSON.stringify(JSON.parse(m[1])).slice(0, 1000)}`); } catch { /* skip */ }
-  }
 
   clean = clean.replace(/<[^>]+>/g, " ")
     .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
@@ -471,7 +514,20 @@ Return ONLY valid JSON with this structure:
   "industry": "Industry or market category (e.g. 'B2B SaaS', 'Healthcare IT', 'E-commerce')",
   "targetAudience": "Who they sell to (e.g. 'Mid-market SaaS companies', 'Enterprise IT teams')",
   "securityCerts": "Security certifications mentioned (SOC2, HIPAA, ISO 27001, etc.) — or null",
-  "integrations": "Key integrations or technology partners mentioned — or null"
+  "integrations": "Key integrations or technology partners mentioned — or null",
+  "branding": {
+    "logoUrl": "URL of the company logo (from og:image, img tags with 'logo', etc.) — or null",
+    "faviconUrl": "URL of the favicon — or null",
+    "primaryColor": "Primary brand color as hex (e.g. '#4F46E5') — infer from hero backgrounds, buttons, theme-color meta, CSS variables — or null",
+    "secondaryColor": "Secondary brand color as hex — or null",
+    "accentColor": "Accent/CTA color as hex (often used on buttons, links) — or null",
+    "fonts": ["Font family names used on the site (from Google Fonts links, CSS) — or empty array"],
+    "socialLinks": {
+      "linkedin": "LinkedIn URL — or null",
+      "twitter": "Twitter/X URL — or null",
+      "youtube": "YouTube URL — or null"
+    }
+  }
 }
 
 EXTRACTION RULES:
@@ -479,6 +535,8 @@ EXTRACTION RULES:
 - For products: extract every distinct plan, tier, SKU, or add-on. Include pricing if visible.
 - For competitors: look for "vs", "alternative to", "compared to", "unlike" language. Also infer from positioning.
 - For value props: synthesize from hero copy, feature highlights, "why choose us" sections.
+- For branding: look at [META theme-color], [CSS COLORS], [LOGO IMG], [FAVICON], [GOOGLE FONT], and [SOCIAL LINK] tags in the extracted content. For colors, pick the most prominent/intentional brand colors, not generic grays or whites.
+- For logoUrl: prefer full absolute URLs. If relative, prepend ${origin}.
 - Clean up and normalize — don't copy-paste raw HTML artifacts.
 - Return ONLY the JSON. No markdown fences. No explanation.`;
 }
