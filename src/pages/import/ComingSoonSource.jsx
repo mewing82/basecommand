@@ -1,4 +1,4 @@
-import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
+import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 
 export default function ComingSoonSource({ label, color, icon: Icon, description }) {
   return (
@@ -33,7 +33,7 @@ export default function ComingSoonSource({ label, color, icon: Icon, description
 
         {/* Badge */}
         <span style={{
-          fontFamily: FONT_MONO, fontSize: 10, fontWeight: 600,
+          fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600,
           color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.06em",
           padding: "3px 10px", borderRadius: 4,
           border: `1px solid ${C.borderDefault}`,
@@ -47,7 +47,7 @@ export default function ComingSoonSource({ label, color, icon: Icon, description
         }}>{description}</p>
 
         <p style={{
-          fontFamily: FONT_MONO, fontSize: 11, color: C.textTertiary,
+          fontFamily: FONT_SANS, fontSize: 11, color: C.textTertiary,
           opacity: 0.6, margin: 0,
         }}>We'll notify you when this integration is available.</p>
       </div>
