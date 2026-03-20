@@ -4,9 +4,7 @@ import { C, FONT_SANS, FONT_BODY, FONT_MONO } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { renewalStore } from "../../lib/storage";
 import { getOrgSettings, saveOrgSettings } from "../../lib/supabaseStorage";
-import { callAI } from "../../lib/ai";
-import { COMPANY_EXTRACT_PROMPT } from "../../lib/prompts";
-import { safeParse } from "../../lib/utils";
+import { supabase } from "../../lib/supabase";
 import { Btn } from "../../components/ui/index";
 import { useAuthStore } from "../../store/authStore";
 
@@ -28,9 +26,9 @@ export default function CompanySettings() {
   const { isMobile } = useMediaQuery();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [extractRaw, setExtractRaw] = useState("");
   const [extracting, setExtracting] = useState(false);
-  const [activeSection, setActiveSection] = useState(null); // which card is expanded for editing
+  const [extractStatus, setExtractStatus] = useState(""); // progress message
+  const [extractError, setExtractError] = useState("");
   const [renewalWants, setRenewalWants] = useState([]);
   const [renewalGives, setRenewalGives] = useState([]);
   const [renewalRules, setRenewalRules] = useState("");
@@ -69,19 +67,62 @@ export default function CompanySettings() {
     load();
   }, [activeOrgId]);
 
-  async function extractFromInput() {
-    if (!extractRaw.trim()) return;
+  async function extractFromWebsite() {
+    const url = profile?.websiteUrl;
+    if (!url?.trim()) return;
     setExtracting(true);
+    setExtractError("");
+    setExtractStatus("Fetching website...");
     try {
-      const result = await callAI([{ role: "user", content: COMPANY_EXTRACT_PROMPT(extractRaw) }], "You are a data extraction system. Return only valid JSON.", 4000);
-      const parsed = safeParse(result.toString(), null);
-      if (parsed) {
-        const merged = { ...(profile || {}), ...parsed, lastUpdated: new Date().toISOString() };
+      let token = null;
+      if (supabase) {
+        const { data } = await supabase.auth.getSession();
+        token = data?.session?.access_token;
+      }
+      setExtractStatus("Crawling pages & extracting content...");
+      const res = await fetch("/api/website-extract", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ url: url.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setExtractError(data.error || "Extraction failed");
+        setExtracting(false);
+        setExtractStatus("");
+        return;
+      }
+      setExtractStatus("Populating profile...");
+      const extracted = data.profile;
+      if (extracted) {
+        // Merge: extracted values fill in blanks, don't overwrite existing non-empty fields
+        const merged = { ...(profile || {}) };
+        if (extracted.companyName && !merged.companyName) merged.companyName = extracted.companyName;
+        if (extracted.productDescription && !merged.productDescription) merged.productDescription = extracted.productDescription;
+        if (extracted.products?.length > 0 && (!merged.products || merged.products.length === 0)) merged.products = extracted.products;
+        if (extracted.contractTerms && !merged.contractTerms) merged.contractTerms = extracted.contractTerms;
+        if (extracted.upliftRate && !merged.upliftRate) merged.upliftRate = extracted.upliftRate;
+        if (extracted.competitors?.length > 0 && (!merged.competitors || merged.competitors.length === 0)) merged.competitors = extracted.competitors;
+        if (extracted.valueProps && !merged.valueProps) merged.valueProps = extracted.valueProps;
+        if (extracted.discountRules && !merged.discountRules) merged.discountRules = extracted.discountRules;
+        if (extracted.upsellPaths && !merged.upsellPaths) merged.upsellPaths = extracted.upsellPaths;
+        if (extracted.industry && !merged.industry) merged.industry = extracted.industry;
+        if (extracted.targetAudience && !merged.targetAudience) merged.targetAudience = extracted.targetAudience;
+        if (extracted.websiteUrl) merged.websiteUrl = extracted.websiteUrl;
+        merged.lastUpdated = new Date().toISOString();
+        merged._extractedPages = data.pages;
         setProfile(merged);
         await save(merged);
-        setExtractRaw("");
+        setExtractStatus(`Done — extracted from ${data.pages?.length || 1} page${(data.pages?.length || 1) !== 1 ? "s" : ""}`);
+        setTimeout(() => setExtractStatus(""), 3000);
       }
-    } catch (e) { console.error("[company] extraction error:", e.message); }
+    } catch (e) {
+      console.error("[company] website extraction error:", e.message);
+      setExtractError(e.message);
+    }
     setExtracting(false);
   }
 
@@ -131,27 +172,42 @@ export default function CompanySettings() {
         </div>
       </div>
 
-      {/* AI Quick Setup */}
+      {/* AI Quick Setup — URL only */}
       <div style={{ ...cardStyle, background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`, border: `1px solid ${C.borderAI}` }}>
         <div style={cardHeaderStyle}>
           <Sparkles size={16} style={{ color: C.aiBlue }} />
           <span style={{ ...cardLabelStyle, color: C.aiBlue }}>AI Quick Setup</span>
         </div>
-        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, marginBottom: 10, lineHeight: 1.5 }}>
-          Paste anything about your company — website copy, pitch deck, pricing page, sales materials. AI will extract and structure your profile.
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, marginBottom: 12, lineHeight: 1.5 }}>
+          Enter your website URL. AI will crawl your homepage, pricing, and about pages to auto-fill your company profile.
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <input value={profile?.websiteUrl || ""} onChange={e => updateProfile({ websiteUrl: e.target.value })} placeholder="https://yourcompany.com" style={{ ...inputStyle, flex: 1 }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "0 12px", background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 8, flexShrink: 0 }}>
-            <Globe size={14} style={{ color: C.textTertiary }} />
+          <div style={{ flex: 1, position: "relative" }}>
+            <Globe size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.textTertiary, pointerEvents: "none" }} />
+            <input
+              value={profile?.websiteUrl || ""}
+              onChange={e => updateProfile({ websiteUrl: e.target.value })}
+              onKeyDown={e => { if (e.key === "Enter") extractFromWebsite(); }}
+              placeholder="https://yourcompany.com"
+              style={{ ...inputStyle, paddingLeft: 34 }}
+            />
           </div>
-        </div>
-        <textarea value={extractRaw} onChange={e => setExtractRaw(e.target.value)} placeholder="Paste website copy, pitch deck text, pricing page, competitive intel, or just describe your business..." rows={3} style={{ ...textareaStyle, marginTop: 8 }} />
-        <div style={{ display: "flex", gap: 8, marginTop: 8, justifyContent: "flex-end" }}>
-          <Btn variant="primary" size="sm" disabled={!extractRaw.trim() || extracting} onClick={extractFromInput}>
-            {extracting ? <><Loader size={12} style={{ animation: "spin 1s linear infinite" }} /> Extracting...</> : <><Sparkles size={12} /> Extract with AI</>}
+          <Btn variant="ai" size="md" disabled={!profile?.websiteUrl?.trim() || extracting} onClick={extractFromWebsite}>
+            {extracting ? <><Loader size={12} style={{ animation: "spin 1s linear infinite" }} /> Scanning...</> : <><Sparkles size={12} /> Scan Website</>}
           </Btn>
         </div>
+        {extractStatus && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontFamily: FONT_MONO, fontSize: 11, color: extractStatus.startsWith("Done") ? C.green : C.aiBlue }}>
+            {!extractStatus.startsWith("Done") && <Loader size={10} style={{ animation: "spin 1s linear infinite" }} />}
+            {extractStatus.startsWith("Done") && <Check size={12} />}
+            {extractStatus}
+          </div>
+        )}
+        {extractError && (
+          <div style={{ marginTop: 8, fontFamily: FONT_SANS, fontSize: 12, color: C.red, padding: "6px 10px", borderRadius: 6, background: C.redMuted }}>
+            {extractError}
+          </div>
+        )}
       </div>
 
       {/* Company Identity */}
