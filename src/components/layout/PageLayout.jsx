@@ -8,7 +8,8 @@
 export function PageLayout({ children, maxWidth, center = true, largePadding = false, style = {} }) {
   return (
     <div style={{
-      padding: `var(${largePadding ? "--bc-page-py-lg" : "--bc-page-py"}) var(--bc-page-px)`,
+      paddingTop: `var(${largePadding ? "--bc-page-py-lg" : "--bc-page-py"})`,
+      paddingBottom: `var(${largePadding ? "--bc-page-py-lg" : "--bc-page-py"})`,
       maxWidth: maxWidth || undefined,
       margin: center ? "0 auto" : undefined,
       ...style,

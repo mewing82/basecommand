@@ -154,12 +154,12 @@ function AppLayout() {
         />
       </div>
 
-      <main style={{ flex: 1, overflow: "auto", position: "relative" }}>
+      <main style={{ flex: 1, overflow: "auto", position: "relative", padding: "0 var(--bc-page-px)" }}>
         <div className="bc-top-bar" style={{
           position: "sticky", top: 0, zIndex: 50,
           background: `${C.bgPrimary}F2`, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
           borderBottom: `1px solid ${C.borderDefault}`,
-          padding: "0 var(--bc-page-px)", height: 56,
+          height: 56, margin: "0 calc(-1 * var(--bc-page-px))", padding: "0 var(--bc-page-px)",
           display: "flex", alignItems: "center", gap: 12,
         }}>
           <button
