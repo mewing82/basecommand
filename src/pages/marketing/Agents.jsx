@@ -65,9 +65,9 @@ const PLATFORM_CATEGORIES = [
   {
     title: "Growth Agents",
     tagline: "Find expansion",
-    color: "#C07D10",
-    bg: "rgba(224, 155, 32, 0.10)",
-    border: "rgba(224, 155, 32, 0.20)",
+    color: "#059669",
+    bg: "rgba(5, 150, 105, 0.10)",
+    border: "rgba(5, 150, 105, 0.20)",
     agents: [
       { name: "Expansion Signal Scout", icon: Target, desc: "PQL detection, upsell triggers, budget signals, and expansion opportunities surfaced automatically.", outputs: "Expansion opportunity cards, trigger alerts, upsell recommendations" },
       { name: "Revenue Forecast Engine", icon: TrendingUp, desc: "GRR/NRR modeling with confidence tiers, scenario analysis, and benchmark comparisons.", outputs: "Board-ready forecast, confidence tiers, best-in-class comparison" },
@@ -101,7 +101,7 @@ export default function Agents() {
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 20px", borderRadius: 20, marginBottom: 24,
-          background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+          background: "rgba(124, 58, 237, 0.10)", border: "1px solid rgba(124, 58, 237, 0.20)",
           fontSize: isMobile ? 12 : 14, fontWeight: 500, color: C.aiBlue, fontFamily: FONT_SANS,
           flexWrap: "wrap", maxWidth: "100%",
         }}>

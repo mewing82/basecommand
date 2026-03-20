@@ -100,7 +100,7 @@ export default function PlaybookBuilder() {
     } catch (err) { setError(err.message); } finally { setGenerating(false); }
   }
 
-  const phaseColors = { "90": "#C07D10", "60": "#E09B20", "30": "#DC4A3D" };
+  const phaseColors = { "90": "#059669", "60": "#D97706", "30": "#DC4A3D" };
 
   return (
     <PageLayout maxWidth={900}>

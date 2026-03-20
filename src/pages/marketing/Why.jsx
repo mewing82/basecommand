@@ -246,7 +246,7 @@ export default function Why() {
                       <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, opacity: 0.5, lineHeight: 1.4 }}>{row.oldSub}</div>
                     </div>
-                    <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: "rgba(6, 149, 114, 0.04)", border: "1px solid rgba(6, 149, 114, 0.10)" }}>
+                    <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: "rgba(124, 58, 237, 0.04)", border: "1px solid rgba(124, 58, 237, 0.10)" }}>
                       <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
                       <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.aiBlue, lineHeight: 1.4 }}>{row.newSub}</div>
                     </div>
@@ -273,7 +273,7 @@ export default function Why() {
                 <div style={{
                   padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
                   color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
-                  background: "rgba(6, 149, 114, 0.04)",
+                  background: "rgba(124, 58, 237, 0.04)",
                 }}>
                   AI-Driven RevOps
                 </div>
@@ -295,7 +295,7 @@ export default function Why() {
                   </div>
                   <div style={{
                     padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
-                    background: "rgba(6, 149, 114, 0.04)",
+                    background: "rgba(124, 58, 237, 0.04)",
                   }}>
                     <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.aiBlue }}>{row.newSub}</div>
@@ -377,7 +377,7 @@ export default function Why() {
         </div>
 
         <div style={{
-          background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(224, 155, 32, 0.08))`,
+          background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(5, 150, 105, 0.08))`,
           border: `1px solid rgba(52, 211, 153, 0.15)`,
           borderRadius: 14, padding: isMobile ? "20px 20px" : "24px 32px", marginTop: 20, textAlign: "center",
         }}>
@@ -401,7 +401,7 @@ export default function Why() {
             textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
             minHeight: 44,
           }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(6, 149, 114, 0.30)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(6, 149, 114, 0.06)"; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(124, 58, 237, 0.30)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(124, 58, 237, 0.06)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.boxShadow = "none"; }}
           >
             <div style={{

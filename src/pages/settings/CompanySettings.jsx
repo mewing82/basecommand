@@ -290,7 +290,7 @@ export default function CompanySettings() {
                 >
                   <input
                     type="color"
-                    value={val || "#C07D10"}
+                    value={val || "#059669"}
                     onChange={e => updateProfile({ branding: { ...(profile?.branding || {}), [key]: e.target.value } })}
                     style={{ position: "absolute", inset: -4, width: "calc(100% + 8px)", height: "calc(100% + 8px)", opacity: 0, cursor: "pointer" }}
                   />

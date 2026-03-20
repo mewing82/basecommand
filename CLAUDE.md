@@ -23,7 +23,7 @@ BaseCommand is an AI-powered renewal intelligence platform — a React SPA with 
 - **Entry:** `index.html` → `src/main.jsx` → `src/App.jsx`
 - **Stack:** React 19, React Router v7, Zustand for state management
 - **Language:** JavaScript (JSX), no TypeScript
-- **Styling:** Inline styles with design tokens from `src/lib/tokens.js` (Signal Amber theme). Light background (`#FCFCFD`), amber primary (`#C07D10`), teal AI accent (`#069572`). Fonts: Outfit (display/headings), Inter (body), JetBrains Mono (timestamps/badges/code only).
+- **Styling:** Inline styles with design tokens from `src/lib/tokens.js` (Emerald + Violet theme). Light background (`#FCFCFD`), emerald primary (`#059669`), violet AI accent (`#7C3AED`). Fonts: Outfit (display/headings), Inter (body), JetBrains Mono (timestamps/badges/code only).
 
 ### Routing
 

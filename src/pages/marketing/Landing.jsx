@@ -173,8 +173,8 @@ export default function Landing() {
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(5, 1fr)", gap: isMobile ? 12 : 10 }}>
           {[
             { fn: "Monitor", desc: "Scans health signals 24/7 across unified systems.", icon: Activity, color: "#16A368" },
-            { fn: "Predict", desc: "Scores churn risk 90–180 days before the renewal.", icon: Brain, color: "#C07D10" },
-            { fn: "Generate", desc: "Drafts hyper-personalized, context-rich outreach.", icon: FileText, color: "#069572" },
+            { fn: "Predict", desc: "Scores churn risk 90–180 days before the renewal.", icon: Brain, color: "#059669" },
+            { fn: "Generate", desc: "Drafts hyper-personalized, context-rich outreach.", icon: FileText, color: "#7C3AED" },
             { fn: "Identify", desc: "Flags expansion and upsell triggers automatically.", icon: Target, color: "#F59E0B" },
             { fn: "Orchestrate", desc: "Keeps humans focused solely on high-value, strategic conversations.", icon: Users, color: "#8B5CF6" },
           ].map((item, i) => {
@@ -249,7 +249,7 @@ export default function Landing() {
           </div>
           <Link to="/agents" style={{
             padding: "10px 24px", borderRadius: 10, whiteSpace: "nowrap",
-            background: "rgba(6, 149, 114, 0.08)", border: `1px solid rgba(6, 149, 114, 0.20)`,
+            background: "rgba(124, 58, 237, 0.08)", border: `1px solid rgba(124, 58, 237, 0.20)`,
             color: C.aiBlue, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
             textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
             minHeight: 44, flexShrink: 0,

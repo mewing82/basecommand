@@ -12,8 +12,8 @@ import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
 const ARCHETYPES = [
   { name: "Power User", probability: 90, strategy: "Expansion play", color: "#16A368" },
-  { name: "Enthusiastic Adopter", probability: 80, strategy: "Safe renewal, nurture", color: "#069572" },
-  { name: "Convert", probability: 68, strategy: "Targeted upsell", color: "#C07D10" },
+  { name: "Enthusiastic Adopter", probability: 80, strategy: "Safe renewal, nurture", color: "#7C3AED" },
+  { name: "Convert", probability: 68, strategy: "Targeted upsell", color: "#059669" },
   { name: "Explorer", probability: 50, strategy: "Guided adoption", color: "#F59E0B" },
   { name: "Struggler", probability: 28, strategy: "Immediate intervention", color: "#FB923C" },
   { name: "Disconnected", probability: 5, strategy: "Last-resort rescue", color: "#DC4A3D" },
@@ -32,7 +32,7 @@ export default function HowItWorks() {
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 20px", borderRadius: 20, marginBottom: 24,
-          background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+          background: "rgba(124, 58, 237, 0.10)", border: "1px solid rgba(124, 58, 237, 0.20)",
           fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_SANS,
           letterSpacing: "0.03em", textTransform: "uppercase",
           maxWidth: "100%", textAlign: "center",
@@ -96,7 +96,7 @@ export default function HowItWorks() {
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 20px", borderRadius: 20, marginBottom: 16,
-            background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+            background: "rgba(124, 58, 237, 0.10)", border: "1px solid rgba(124, 58, 237, 0.20)",
             fontSize: isMobile ? 11 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_SANS,
             letterSpacing: "0.03em", textTransform: "uppercase",
             maxWidth: "100%", textAlign: "center",
@@ -127,7 +127,7 @@ export default function HowItWorks() {
                 desc: "Data parsing, signal detection, outreach drafting, risk scoring — running continuously without manual effort.",
                 items: ["Parse & structure CRM data", "Score account health in real-time", "Draft personalized renewal emails", "Detect expansion & churn signals"],
                 icon: Bot, color: C.aiBlue,
-                bg: "rgba(6, 149, 114, 0.06)", border: "rgba(6, 149, 114, 0.20)",
+                bg: "rgba(124, 58, 237, 0.06)", border: "rgba(124, 58, 237, 0.20)",
               },
               {
                 stage: "Continuous Orchestration",
@@ -283,7 +283,7 @@ export default function HowItWorks() {
                     <div style={{
                       fontFamily: FONT_SANS, fontSize: 10, color: C.aiBlue,
                       padding: "4px 10px", borderRadius: 6,
-                      background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+                      background: "rgba(124, 58, 237, 0.10)", border: "1px solid rgba(124, 58, 237, 0.20)",
                       whiteSpace: "nowrap",
                     }}>
                       AI: {item.ai}
@@ -414,7 +414,7 @@ export default function HowItWorks() {
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 10, paddingLeft: isMobile ? 0 : 40 }}>
               {[
                 { name: "Renewal Agents", agents: "Portfolio Health Monitor, At-Risk Rescue Planner, Renewal Outreach Drafter", color: "#16A368" },
-                { name: "Growth Agents", agents: "Expansion Signal Scout, Revenue Forecast Engine, Upsell Opportunity Brief", color: "#C07D10" },
+                { name: "Growth Agents", agents: "Expansion Signal Scout, Revenue Forecast Engine, Upsell Opportunity Brief", color: "#059669" },
                 { name: "Coaching Agents", agents: "Executive Strategy Brief, Renewal Meeting Prep, Renewal Playbook Builder", color: "#F59E0B" },
               ].map((cat, i) => (
                 <div key={i} style={{
@@ -430,7 +430,7 @@ export default function HowItWorks() {
 
           {/* Layer 2 */}
           <div style={{
-            background: "rgba(6, 149, 114, 0.06)", border: "1px solid rgba(6, 149, 114, 0.20)",
+            background: "rgba(124, 58, 237, 0.06)", border: "1px solid rgba(124, 58, 237, 0.20)",
             borderRadius: 14, padding: isMobile ? "16px 16px" : "20px 28px", display: "flex", alignItems: "center", gap: isMobile ? 12 : 20,
           }}>
             <Cpu size={20} color={C.aiBlue} style={{ flexShrink: 0 }} />
@@ -440,7 +440,7 @@ export default function HowItWorks() {
             </div>
             <div style={{
               padding: "4px 10px", borderRadius: 6,
-              background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+              background: "rgba(124, 58, 237, 0.10)", border: "1px solid rgba(124, 58, 237, 0.20)",
               fontFamily: FONT_SANS, fontSize: 10, color: C.aiBlue, whiteSpace: "nowrap",
               display: isMobile ? "none" : undefined,
             }}>BaseCommand</div>

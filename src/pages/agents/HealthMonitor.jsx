@@ -327,10 +327,10 @@ export default function HealthMonitor() {
         {[
           { id: "all", label: "All" },
           { id: "critical", label: "Critical", color: "#DC4A3D" },
-          { id: "high", label: "High", color: "#E09B20" },
+          { id: "high", label: "High", color: "#D97706" },
           { id: "medium", label: "Medium", color: "#8B5CF6" },
           { id: "low", label: "Low", color: "#16A368" },
-          { id: "healthy", label: "Healthy", color: "#069572" },
+          { id: "healthy", label: "Healthy", color: "#7C3AED" },
         ].map(tab => {
           const isActive = filter === tab.id;
           const count = tab.id === "all" ? healthResults.length : healthResults.filter(r => r.health.severity.label.toLowerCase() === tab.id).length;

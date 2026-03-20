@@ -13,9 +13,9 @@ import { formatARR } from "../../lib/utils";
 import { AILoadingProgress, ActionMenu } from "../../components/ui/AgentWidgets";
 
 const SIGNAL_COLORS = {
-  usage_growth: "#16A368", feature_request: "#069572", team_expansion: "#C07D10",
-  contract_timing: "#E09B20", competitive_displacement: "#DC4A3D", product_gap: "#8B5CF6",
-  pql_trigger: "#16A368", budget_signal: "#069572",
+  usage_growth: "#16A368", feature_request: "#7C3AED", team_expansion: "#059669",
+  contract_timing: "#D97706", competitive_displacement: "#DC4A3D", product_gap: "#8B5CF6",
+  pql_trigger: "#16A368", budget_signal: "#7C3AED",
 };
 const SIGNAL_LABELS = {
   usage_growth: "Usage Growth", feature_request: "Feature Request", team_expansion: "Team Expansion",

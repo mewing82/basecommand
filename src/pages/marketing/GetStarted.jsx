@@ -150,7 +150,7 @@ export default function GetStarted() {
       {/* ─── ROI Calculator ───────────────────────────────────────────────── */}
       <section style={{ padding: isMobile ? "0 20px 60px" : "0 40px 80px", maxWidth: 900, margin: "0 auto" }}>
         <div style={{
-          background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(224, 155, 32, 0.08))`,
+          background: `linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(5, 150, 105, 0.08))`,
           border: `1px solid rgba(52, 211, 153, 0.15)`,
           borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px", textAlign: "center",
         }}>
@@ -205,7 +205,7 @@ export default function GetStarted() {
             <div style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "8px 20px", borderRadius: 20, marginBottom: 16,
-              background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
+              background: "rgba(124, 58, 237, 0.10)", border: "1px solid rgba(124, 58, 237, 0.20)",
               fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_SANS,
               letterSpacing: "0.03em", textTransform: "uppercase",
             }}>
@@ -237,7 +237,7 @@ export default function GetStarted() {
                 background: C.bgPrimary, border: `1px solid ${C.borderDefault}`,
                 textDecoration: "none", transition: "border-color 0.15s",
               }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(6, 149, 114, 0.30)"}
+                onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(124, 58, 237, 0.30)"}
                 onMouseLeave={e => e.currentTarget.style.borderColor = C.borderDefault}
               >
                 <Bot size={20} color={C.aiBlue} style={{ flexShrink: 0 }} />

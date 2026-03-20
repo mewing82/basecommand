@@ -5,11 +5,11 @@
 
 // ─── Behavioral Archetypes ──────────────────────────────────────────────────
 export const ARCHETYPES = {
-  power_user:           { label: "Power User",           color: "#069572", description: "Maximum intensity, high expansion likelihood" },
-  enthusiastic_adopter: { label: "Enthusiastic Adopter",  color: "#C07D10", description: "High feature breadth, safe renewal" },
+  power_user:           { label: "Power User",           color: "#7C3AED", description: "Maximum intensity, high expansion likelihood" },
+  enthusiastic_adopter: { label: "Enthusiastic Adopter",  color: "#059669", description: "High feature breadth, safe renewal" },
   convert:              { label: "Convert",               color: "#16A368", description: "Rising usage, prime for targeted upsell" },
   explorer:             { label: "Explorer",              color: "#8B5CF6", description: "Broad but shallow, requires guided adoption" },
-  struggler:            { label: "Struggler",             color: "#E09B20", description: "Usage cliffs, high churn risk, immediate intervention needed" },
+  struggler:            { label: "Struggler",             color: "#D97706", description: "Usage cliffs, high churn risk, immediate intervention needed" },
   disconnected:         { label: "Disconnected",          color: "#DC4A3D", description: "Zero core engagement, near-certain churn" },
 };
 
@@ -37,10 +37,10 @@ const SIGNAL_DEFS = {
 // ─── Severity Thresholds ────────────────────────────────────────────────────
 const SEVERITY = {
   critical: { label: "Critical", color: "#DC4A3D", min: 0, max: 2 },
-  high:     { label: "High",     color: "#E09B20", min: 2, max: 4 },
+  high:     { label: "High",     color: "#D97706", min: 2, max: 4 },
   medium:   { label: "Medium",   color: "#8B5CF6", min: 4, max: 6 },
   low:      { label: "Low",      color: "#16A368", min: 6, max: 8 },
-  healthy:  { label: "Healthy",  color: "#069572", min: 8, max: 10 },
+  healthy:  { label: "Healthy",  color: "#7C3AED", min: 8, max: 10 },
 };
 
 export function getSeverity(score) {

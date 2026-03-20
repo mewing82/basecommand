@@ -1,7 +1,7 @@
 // ─── Design Tokens ────────────────────────────────────────────────────────────
-// "Signal Amber" — BaseCommand brand system
-// Warm amber primary, Insight Teal for AI, warm slate neutrals
-// Light-first with warm brown-black dark mode
+// "Emerald + Violet" — BaseCommand brand system
+// Emerald primary (growth/renewal), Violet AI accent (intelligence/premium)
+// Light-first with cool-slate dark mode
 
 export const C = {
   // Backgrounds — light-first
@@ -9,33 +9,33 @@ export const C = {
   bgCard: "#FFFFFF",
   bgCardHover: "#F8F9FB",
   bgSidebar: "#FFFFFF",
-  bgAI: "#F0FDF9",
+  bgAI: "#FAF5FF",
   bgElevated: "#FFFFFF",
   bgSurface: "#F0F2F5",
   // Borders
   borderDefault: "#E2E5EB",
-  borderActive: "#E09B20",
+  borderActive: "#10B981",
   borderSubtle: "#F0F2F5",
-  borderAI: "#9AF5D6",
+  borderAI: "#DDD6FE",
   // Text
   textPrimary: "#161A25",
   textSecondary: "#4A5162",
   textTertiary: "#9AA1B0",
   textOnPrimary: "#FFFFFF",
-  // Primary accent — Signal Amber
-  gold: "#C07D10",
-  goldHover: "#E09B20",
-  goldMuted: "rgba(224, 155, 32, 0.08)",
-  goldGlow: "rgba(224, 155, 32, 0.04)",
-  // AI accent — Insight Teal
-  aiBlue: "#069572",
-  aiBlueMuted: "rgba(6, 149, 114, 0.06)",
-  aiBlueGlow: "rgba(6, 149, 114, 0.03)",
+  // Primary accent — Emerald (growth, renewal, action)
+  gold: "#059669",
+  goldHover: "#10B981",
+  goldMuted: "rgba(5, 150, 105, 0.08)",
+  goldGlow: "rgba(5, 150, 105, 0.04)",
+  // AI accent — Violet (intelligence, AI content, premium)
+  aiBlue: "#7C3AED",
+  aiBlueMuted: "rgba(124, 58, 237, 0.06)",
+  aiBlueGlow: "rgba(124, 58, 237, 0.03)",
   // Status
   green: "#16A368",
   greenMuted: "rgba(22, 163, 104, 0.08)",
-  amber: "#E09B20",
-  amberMuted: "rgba(224, 155, 32, 0.08)",
+  amber: "#D97706",
+  amberMuted: "rgba(217, 119, 6, 0.08)",
   red: "#DC4A3D",
   redMuted: "rgba(220, 74, 61, 0.08)",
   blue: "#3B82F6",
@@ -47,37 +47,37 @@ export const C = {
 
 // Dark mode tokens (for future theme toggle)
 export const C_DARK = {
-  bgPrimary: "#141110",
-  bgCard: "#1C1814",
-  bgCardHover: "#241F1A",
-  bgSidebar: "#110E0A",
-  bgAI: "rgba(42, 211, 162, 0.04)",
-  bgElevated: "#1C1814",
-  bgSurface: "#241F1A",
-  borderDefault: "#2A2318",
-  borderActive: "#E09B20",
-  borderSubtle: "#1C1814",
-  borderAI: "rgba(42, 211, 162, 0.15)",
-  textPrimary: "#F0EBE3",
-  textSecondary: "#BFB6A5",
-  textTertiary: "#7A7164",
-  textOnPrimary: "#141110",
-  gold: "#F5B742",
-  goldHover: "#FFD074",
-  goldMuted: "rgba(245, 183, 66, 0.10)",
-  goldGlow: "rgba(245, 183, 66, 0.05)",
-  aiBlue: "#2AD3A2",
-  aiBlueMuted: "rgba(42, 211, 162, 0.08)",
-  aiBlueGlow: "rgba(42, 211, 162, 0.04)",
-  green: "#2AD3A2",
-  greenMuted: "rgba(42, 211, 162, 0.10)",
-  amber: "#F5B742",
-  amberMuted: "rgba(245, 183, 66, 0.10)",
-  red: "#DC4A3D",
+  bgPrimary: "#0F1114",
+  bgCard: "#161A20",
+  bgCardHover: "#1C2128",
+  bgSidebar: "#0B0E12",
+  bgAI: "rgba(124, 58, 237, 0.04)",
+  bgElevated: "#161A20",
+  bgSurface: "#1C2128",
+  borderDefault: "#252A34",
+  borderActive: "#10B981",
+  borderSubtle: "#161A20",
+  borderAI: "rgba(124, 58, 237, 0.15)",
+  textPrimary: "#E8EAF0",
+  textSecondary: "#A0A8B8",
+  textTertiary: "#6B7385",
+  textOnPrimary: "#0F1114",
+  gold: "#34D399",
+  goldHover: "#6EE7B7",
+  goldMuted: "rgba(52, 211, 153, 0.10)",
+  goldGlow: "rgba(52, 211, 153, 0.05)",
+  aiBlue: "#A78BFA",
+  aiBlueMuted: "rgba(167, 139, 250, 0.08)",
+  aiBlueGlow: "rgba(167, 139, 250, 0.04)",
+  green: "#34D399",
+  greenMuted: "rgba(52, 211, 153, 0.10)",
+  amber: "#FBBF24",
+  amberMuted: "rgba(251, 191, 36, 0.10)",
+  red: "#F87171",
   redMuted: "rgba(248, 113, 113, 0.10)",
   blue: "#60A5FA",
   blueMuted: "rgba(96, 165, 250, 0.10)",
-  purple: "#8B5CF6",
+  purple: "#A78BFA",
   purpleMuted: "rgba(167, 139, 250, 0.10)",
 };
 
