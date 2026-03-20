@@ -1,20 +1,11 @@
 import { Link } from "react-router-dom";
 import {
-  Sparkles, ArrowRight, Brain, Target, FileText, Users,
+  ArrowRight, Brain, Target, FileText, Users,
   Activity, ChevronRight, Bot, CheckCircle2,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { usePageMeta, PAGE_SEO } from "../../lib/seo";
-
-// ─── Free Agent.ai Agents ────────────────────────────────────────────────────
-
-const FREE_AGENTS = [
-  { name: "CRM Data Parser", desc: "Paste messy data, get clean accounts", link: "https://agent.ai/agent/basecommand-crm-parser" },
-  { name: "Renewal Autopilot", desc: "Account details in, action plan out", link: "https://agent.ai/agent/basecommand-autopilot" },
-  { name: "Exec Brief Generator", desc: "Portfolio data to board-ready brief", link: "https://agent.ai/agent/basecommand-exec-brief" },
-  { name: "Forecast Intelligence", desc: "Renewal data to GRR/NRR forecast", link: "https://agent.ai/agent/basecommand-forecast" },
-];
 
 export default function Landing() {
   const { isMobile } = useMediaQuery();
@@ -57,20 +48,12 @@ export default function Landing() {
 
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.7,
-          maxWidth: 560, margin: "0 auto 36px",
+          maxWidth: 560, margin: "0 auto 28px",
         }}>
-          BaseCommand gives you the AI reasoning engine, specialized agents, and a human escalation layer — everything you need to run renewals at AI speed with human judgment.
+          Health scoring, outreach drafts, expansion signals, board-ready forecasts — from co-pilot to supervised autopilot.
         </p>
 
-        <p style={{
-          fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
-          maxWidth: 620, margin: "0 auto 36px", padding: "12px 16px",
-          background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
-        }}>
-          <strong style={{ color: C.textPrimary }}>BaseCommand is an AI-powered renewal intelligence platform.</strong> Nine specialized agents monitor account health, draft outreach, forecast retention, and surface expansion signals — running your entire renewal workflow from co-pilot mode to supervised autopilot.
-        </p>
-
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : undefined }}>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : undefined, marginBottom: 32 }}>
           <Link to="/signup?plan=monthly" style={{
             padding: "14px 32px", borderRadius: 10, border: "none",
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
@@ -81,7 +64,7 @@ export default function Landing() {
           }}>
             Start 14-Day Pro Trial
           </Link>
-          <Link to="/why" style={{
+          <Link to="/agents" style={{
             padding: "14px 32px", borderRadius: 10,
             background: "transparent", border: `1px solid ${C.borderSubtle}`,
             color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 15, fontWeight: 500,
@@ -89,14 +72,23 @@ export default function Landing() {
             display: "inline-flex", alignItems: "center", gap: 8,
             textAlign: "center", minHeight: 44, justifyContent: "center",
           }}>
-            See why the playbook is broken <ChevronRight size={14} />
+            Try free on agent.ai <ChevronRight size={14} />
           </Link>
         </div>
+
+        {/* SEO detail — below the fold */}
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
+          maxWidth: 620, margin: "0 auto", padding: "12px 16px",
+          background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
+        }}>
+          <strong style={{ color: C.textPrimary }}>BaseCommand is an AI-powered renewal intelligence platform.</strong> Nine specialized agents monitor account health, draft outreach, forecast retention, and surface expansion signals — running your entire renewal workflow from co-pilot mode to supervised autopilot.
+        </p>
       </section>
 
-      {/* ─── The Shift ──────────────────────────────────────────────────────── */}
-      <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 1000, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
+      {/* ─── The Shift — compact stats ─────────────────────────────────────── */}
+      <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 900, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
           <h2 style={{
             fontFamily: FONT_SANS, fontSize: isMobile ? 24 : 32, fontWeight: 700,
             color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 12px",
@@ -105,97 +97,51 @@ export default function Landing() {
           </h2>
           <p style={{
             fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 17, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
-            maxWidth: 520, margin: "0 auto 8px",
+            maxWidth: 520, margin: "0 auto",
           }}>
-            Traditional Renewals is reactive, siloed, and manual. AI-Driven RevOps is proactive, unified, and agentic. Which side are you on?
+            Traditional renewal playbooks are breaking down. AI-powered renewal operations are replacing them.
           </p>
         </div>
 
-        {isMobile ? (
-          /* Mobile: stacked cards per dimension */
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {[
-              { dimension: "Timing", old: "Reactive", oldSub: "30 days to renewal", new_: "Proactive", newSub: "Predictive signals 90–180 days out" },
-              { dimension: "Data Scope", old: "Siloed", oldSub: "CRM notes, NPS surveys", new_: "Unified", newSub: "160 billion telemetry points" },
-              { dimension: "Action Engine", old: "Manual", oldSub: "Spreadsheets, generic emails", new_: "Agentic", newSub: "Automated workflows, AI-drafted outreach" },
-              { dimension: "Core Focus", old: "Firefighting", oldSub: "Saving the churn", new_: "Strategic Growth", newSub: "Surfacing the expansion" },
-            ].map((row, i) => (
-              <div key={i} style={{
-                background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-                borderRadius: 12, padding: "16px",
-              }}>
-                <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, color: C.gold, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>
-                  {row.dimension}
-                </div>
-                <div style={{ display: "flex", gap: 12 }}>
-                  <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: C.bgPrimary }}>
-                    <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
-                    <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.textTertiary, opacity: 0.5, lineHeight: 1.4 }}>{row.oldSub}</div>
-                  </div>
-                  <div style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: "rgba(6, 149, 114, 0.04)", border: "1px solid rgba(6, 149, 114, 0.10)" }}>
-                    <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
-                    <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.aiBlue, lineHeight: 1.4 }}>{row.newSub}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          /* Desktop: comparison table */
-          <div style={{
-            background: C.bgCard, border: `1px solid ${C.borderDefault}`,
-            borderRadius: 16, overflow: "hidden",
-          }}>
-            <div style={{
-              display: "grid", gridTemplateColumns: "140px 1fr 1fr",
-              borderBottom: `1px solid ${C.borderDefault}`,
+        <div style={{
+          display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 12,
+        }}>
+          {[
+            { stat: "90 days", label: "Earlier risk detection", sub: "vs 30-day reactive scrambles" },
+            { stat: "71%", label: "Churn prevented", sub: "with AI-powered interventions" },
+            { stat: "9 agents", label: "Running your workflow", sub: "from health scoring to board reports" },
+          ].map((item, i) => (
+            <div key={i} style={{
+              background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+              borderRadius: 14, padding: isMobile ? "20px 16px" : "28px 24px", textAlign: "center",
             }}>
-              <div style={{ padding: "16px 24px" }} />
               <div style={{
-                padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
-                color: C.textTertiary, borderLeft: `1px solid ${C.borderDefault}`,
+                fontFamily: FONT_SANS, fontSize: isMobile ? 28 : 36, fontWeight: 700,
+                background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                marginBottom: 4,
               }}>
-                Traditional Renewals
+                {item.stat}
               </div>
-              <div style={{
-                padding: "16px 24px", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 700,
-                color: C.aiBlue, borderLeft: `1px solid ${C.borderDefault}`,
-                background: "rgba(6, 149, 114, 0.04)",
-              }}>
-                AI-Driven RevOps
+              <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 4 }}>
+                {item.label}
+              </div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>
+                {item.sub}
               </div>
             </div>
-            {[
-              { dimension: "Timing", old: "Reactive", oldSub: "30 days to renewal", new_: "Proactive", newSub: "Predictive signals 90–180 days out" },
-              { dimension: "Data Scope", old: "Siloed", oldSub: "CRM notes, NPS surveys", new_: "Unified", newSub: "160 billion telemetry points" },
-              { dimension: "Action Engine", old: "Manual", oldSub: "Spreadsheets, generic emails", new_: "Agentic", newSub: "Automated workflows, AI-drafted outreach" },
-              { dimension: "Core Focus", old: "Firefighting", oldSub: "Saving the churn", new_: "Strategic Growth", newSub: "Surfacing the expansion" },
-            ].map((row, i) => (
-              <div key={i} style={{
-                display: "grid", gridTemplateColumns: "140px 1fr 1fr",
-                borderBottom: i < 3 ? `1px solid ${C.borderDefault}` : "none",
-              }}>
-                <div style={{
-                  padding: "18px 24px", fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600,
-                  color: C.gold, display: "flex", alignItems: "center",
-                }}>
-                  {row.dimension}
-                </div>
-                <div style={{ padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}` }}>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textTertiary, opacity: 0.7, marginBottom: 2 }}>{row.old}</div>
-                  <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary, opacity: 0.5 }}>{row.oldSub}</div>
-                </div>
-                <div style={{
-                  padding: "18px 24px", borderLeft: `1px solid ${C.borderDefault}`,
-                  background: "rgba(6, 149, 114, 0.04)",
-                }}>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{row.new_}</div>
-                  <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.aiBlue }}>{row.newSub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
+
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <Link to="/why" style={{
+            fontFamily: FONT_BODY, fontSize: 14, color: C.gold,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+            minHeight: 44,
+          }}>
+            See the full breakdown <ArrowRight size={14} />
+          </Link>
+        </div>
       </section>
 
       {/* ─── The AI-Powered Renewal Workflow ──────────────────────────────── */}
@@ -283,71 +229,33 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ─── Try Free on agent.ai ─────────────────────────────────────────── */}
-      <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 1200, margin: "0 auto" }}>
+      {/* ─── Try Free on agent.ai — compact callout ──────────────────────── */}
+      <section style={{ padding: isMobile ? "20px 20px 60px" : "20px 40px 80px", maxWidth: 900, margin: "0 auto" }}>
         <div style={{
           background: `linear-gradient(135deg, ${C.bgAI} 0%, ${C.bgCard} 100%)`,
-          border: `1px solid ${C.borderAI}`, borderRadius: 20, padding: isMobile ? "32px 20px" : "48px 40px",
+          border: `1px solid ${C.borderAI}`, borderRadius: 16,
+          padding: isMobile ? "24px 20px" : "28px 36px",
+          display: "flex", alignItems: isMobile ? "flex-start" : "center",
+          gap: isMobile ? 16 : 24, flexDirection: isMobile ? "column" : "row",
         }}>
-          <div style={{ textAlign: "center", marginBottom: 36 }}>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              padding: "8px 20px", borderRadius: 20, marginBottom: 16,
-              background: "rgba(6, 149, 114, 0.10)", border: "1px solid rgba(6, 149, 114, 0.20)",
-              fontSize: isMobile ? 12 : 14, fontWeight: 600, color: C.aiBlue, fontFamily: FONT_SANS,
-              letterSpacing: "0.03em", textTransform: "uppercase",
-            }}>
-              <Sparkles size={12} />
-              No signup required
+          <Bot size={28} color={C.aiBlue} style={{ flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, marginBottom: 4 }}>
+              Not ready to sign up? Try free on agent.ai
             </div>
-            <h2 style={{
-              fontFamily: FONT_SANS, fontSize: isMobile ? 22 : 28, fontWeight: 700,
-              color: C.textPrimary, letterSpacing: "-0.03em", margin: "0 0 8px",
-            }}>
-              Try our agents free on agent.ai
-            </h2>
-            <p style={{
-              fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 16, color: C.textPrimary, fontWeight: 400, opacity: 0.75, lineHeight: 1.6,
-              maxWidth: 480, margin: "0 auto",
-            }}>
-              Paste your data. Get instant results. No account needed. These standalone agents give you a taste of what the full platform does at scale.
-            </p>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary, lineHeight: 1.5 }}>
+              4 standalone AI agents — paste your data, get instant results. No account needed.
+            </div>
           </div>
-
-          <div style={{
-            display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 12,
-            maxWidth: 720, margin: "0 auto",
+          <Link to="/agents" style={{
+            padding: "10px 24px", borderRadius: 10, whiteSpace: "nowrap",
+            background: "rgba(6, 149, 114, 0.08)", border: `1px solid rgba(6, 149, 114, 0.20)`,
+            color: C.aiBlue, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+            minHeight: 44, flexShrink: 0,
           }}>
-            {FREE_AGENTS.map((agent, i) => (
-              <a key={i} href={agent.link} target="_blank" rel="noopener noreferrer" style={{
-                display: "flex", alignItems: "center", gap: 14,
-                padding: "16px 20px", borderRadius: 12,
-                background: C.bgPrimary, border: `1px solid ${C.borderDefault}`,
-                textDecoration: "none", transition: "border-color 0.15s, box-shadow 0.15s",
-                minHeight: 44,
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(6, 149, 114, 0.30)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(6, 149, 114, 0.06)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderDefault; e.currentTarget.style.boxShadow = "none"; }}
-              >
-                <Bot size={20} color={C.aiBlue} style={{ flexShrink: 0 }} />
-                <div>
-                  <div style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, marginBottom: 2 }}>{agent.name}</div>
-                  <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textTertiary }}>{agent.desc}</div>
-                </div>
-                <ArrowRight size={14} color={C.textTertiary} style={{ marginLeft: "auto", flexShrink: 0 }} />
-              </a>
-            ))}
-          </div>
-
-          <div style={{ textAlign: "center", marginTop: 20 }}>
-            <Link to="/agents" style={{
-              fontFamily: FONT_BODY, fontSize: 13, color: C.aiBlue,
-              textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4,
-              minHeight: 44,
-            }}>
-              See all agents <ArrowRight size={12} />
-            </Link>
-          </div>
+            Try agents <ArrowRight size={14} />
+          </Link>
         </div>
       </section>
 

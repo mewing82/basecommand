@@ -90,9 +90,21 @@ export default function Pricing() {
           Every signup starts with 14 days of full Pro access — no credit card required. After that, keep the free tier forever or lock in founding member pricing.
         </p>
 
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginTop: 24 }}>
+          <Link to="/signup?plan=monthly" style={{
+            padding: "12px 28px", borderRadius: 10, border: "none",
+            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+            color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, minHeight: 44,
+          }}>
+            Start 14-Day Pro Trial
+          </Link>
+        </div>
+
+        {/* SEO detail — below the fold */}
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
-          maxWidth: 620, margin: "0 auto", padding: "12px 16px",
+          maxWidth: 620, margin: "24px auto 0", padding: "12px 16px",
           background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>BaseCommand offers a free forever tier</strong> (10 accounts, 50 AI calls/month) and a 14-day Pro trial with no credit card required. Founding member pricing: $49/month locked for life for the first 100 Pro customers.

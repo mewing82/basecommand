@@ -48,9 +48,31 @@ export default function Why() {
           SaaS companies are spending more on Customer Success than ever — and retention rates are still declining. The problem isn't effort. It's architecture. You need a unified intelligence layer, not more headcount.
         </p>
 
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : undefined, marginTop: 28 }}>
+          <Link to="/how-it-works" style={{
+            padding: "12px 28px", borderRadius: 10, border: "none",
+            background: `linear-gradient(135deg, ${C.aiBlue}, #16A368)`,
+            color: "#FFFFFF", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+            minHeight: 44,
+          }}>
+            See the solution <ArrowRight size={14} />
+          </Link>
+          <Link to="/signup" style={{
+            padding: "12px 28px", borderRadius: 10,
+            background: "transparent", border: `1px solid ${C.borderSubtle}`,
+            color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+            minHeight: 44,
+          }}>
+            Start free trial
+          </Link>
+        </div>
+
+        {/* SEO detail — below the fold */}
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
-          maxWidth: 620, margin: "20px auto 0", padding: "12px 16px",
+          maxWidth: 620, margin: "28px auto 0", padding: "12px 16px",
           background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>Traditional renewal playbooks have broken down.</strong> 58% of SaaS companies report lower NRR despite record CS spending. AI-powered renewal operations detect risk 90 days earlier, prevent up to 71% of churn, and turn retention from cost center to growth engine.
@@ -170,6 +192,18 @@ export default function Why() {
               </div>
             </div>
           ))}
+        </div>
+        {/* Mid-page CTA */}
+        <div style={{ textAlign: "center", marginTop: 32 }}>
+          <Link to="/how-it-works" style={{
+            padding: "12px 28px", borderRadius: 10, border: "none",
+            background: `linear-gradient(135deg, ${C.aiBlue}, #16A368)`,
+            color: "#FFFFFF", fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+            minHeight: 44,
+          }}>
+            See how BaseCommand solves this <ArrowRight size={14} />
+          </Link>
         </div>
       </section>
 

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight, Bot, Cpu, Database, Users, RefreshCw,
   Activity, Brain, FileText, Target, CheckCircle2,
-  Upload, Mail, Table, Cloud,
+  Upload, Mail, Table, Cloud, ChevronRight,
 } from "lucide-react";
 import { C, FONT_SANS, FONT_BODY } from "../../lib/tokens";
 import { useMediaQuery } from "../../lib/useMediaQuery";
@@ -59,9 +59,31 @@ export default function HowItWorks() {
           A unified intelligence layer — not a dashboard with AI bolted on. Four architectural layers, a continuous flywheel, and AI interventions at every critical revenue moment.
         </p>
 
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : undefined, marginTop: 28 }}>
+          <Link to="/signup" style={{
+            padding: "12px 28px", borderRadius: 10, border: "none",
+            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+            color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+            minHeight: 44,
+          }}>
+            Start 14-Day Pro Trial
+          </Link>
+          <Link to="/agents" style={{
+            padding: "12px 28px", borderRadius: 10,
+            background: "transparent", border: `1px solid ${C.borderSubtle}`,
+            color: C.textSecondary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+            minHeight: 44,
+          }}>
+            Try free on agent.ai <ChevronRight size={14} />
+          </Link>
+        </div>
+
+        {/* SEO detail — below the fold */}
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
-          maxWidth: 620, margin: "20px auto 0", padding: "12px 16px",
+          maxWidth: 620, margin: "28px auto 0", padding: "12px 16px",
           background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>BaseCommand runs a 5-function AI pipeline</strong> — Monitor, Predict, Generate, Identify, Orchestrate — powered by 9 specialized agents organized into Renewal, Growth, and Coaching categories. The system scores health continuously, drafts outreach automatically, and surfaces expansion signals from your data.
@@ -194,6 +216,19 @@ export default function HowItWorks() {
             <RefreshCw size={11} />
             Every cycle makes the system smarter
           </div>
+        </div>
+
+        {/* Mid-page CTA */}
+        <div style={{ textAlign: "center", marginTop: 24 }}>
+          <Link to="/get-started" style={{
+            padding: "12px 28px", borderRadius: 10, border: "none",
+            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+            color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+            minHeight: 44,
+          }}>
+            See the 4-week implementation plan <ArrowRight size={14} />
+          </Link>
         </div>
       </section>
 

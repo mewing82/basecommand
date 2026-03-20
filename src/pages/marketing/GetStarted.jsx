@@ -55,9 +55,22 @@ export default function GetStarted() {
           You don't need a 6-month implementation. BaseCommand delivers value incrementally — each week activates a new layer of the architecture.
         </p>
 
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : undefined, marginTop: 28 }}>
+          <Link to="/signup" style={{
+            padding: "12px 28px", borderRadius: 10, border: "none",
+            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+            color: C.textOnPrimary, fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
+            textDecoration: "none", boxShadow: `0 4px 20px ${C.goldGlow}`,
+            display: "inline-flex", alignItems: "center", gap: 8, minHeight: 44,
+          }}>
+            Start Free Trial <ArrowRight size={14} />
+          </Link>
+        </div>
+
+        {/* SEO detail — below the fold */}
         <p style={{
           fontFamily: FONT_BODY, fontSize: isMobile ? 13 : 14, color: C.textSecondary, lineHeight: 1.7,
-          maxWidth: 620, margin: "20px auto 0", padding: "12px 16px",
+          maxWidth: 620, margin: "28px auto 0", padding: "12px 16px",
           background: "rgba(0,0,0,0.02)", borderRadius: 8, border: `1px solid rgba(0,0,0,0.04)`,
         }}>
           <strong style={{ color: C.textPrimary }}>Go from spreadsheets to AI-powered renewals in 4 weeks.</strong> Week 1: import and health scoring. Week 2: outreach and forecasting. Week 3: expansion intelligence. Week 4: full supervised autopilot. Free 14-day Pro trial, no credit card required.
