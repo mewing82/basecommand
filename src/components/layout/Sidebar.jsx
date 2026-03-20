@@ -43,15 +43,14 @@ function OrgDisplay({ collapsed }) {
   return (
     <div className="bc-sidebar-ws-expanded" style={{ padding: "0 0 8px" }}>
       <div style={{
-        width: "100%", display: "flex", alignItems: "center", gap: 10,
-        padding: "7px 16px 7px 20px", borderRadius: 0,
-        background: "transparent",
-        border: "1px solid transparent",
+        width: "100%", display: "flex", alignItems: "center",
+        padding: "7px 16px 7px 52px", position: "relative",
       }}>
         <span style={{
+          position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)",
           width: 22, height: 22, borderRadius: 5, background: C.goldMuted,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 11, fontWeight: 700, color: C.gold, fontFamily: FONT_SANS, flexShrink: 0,
+          fontSize: 11, fontWeight: 700, color: C.gold, fontFamily: FONT_SANS,
         }}>{initial}</span>
         <span style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.textPrimary, flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {activeOrg.name}
@@ -92,14 +91,17 @@ function ProfileDropdown({ user, displayName, avatarUrl, initials, isExpanded, a
     <div ref={ref} style={{ position: "relative", padding: "8px 0 16px" }}>
       <button onClick={() => setOpen(prev => !prev)} style={{
         width: "100%", display: "flex", alignItems: "center", gap: 10,
-        padding: isExpanded ? "8px 16px 8px 20px" : "8px 0", borderRadius: 0, cursor: "pointer",
+        padding: isExpanded ? "8px 16px 8px 52px" : "8px 0", borderRadius: 0, cursor: "pointer",
         background: open ? "rgba(255,255,255,0.07)" : "transparent",
         border: "none", justifyContent: isExpanded ? "flex-start" : "center", transition: "all 0.15s",
+        position: "relative",
       }}
         onMouseEnter={e => { if (!open) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
         onMouseLeave={e => { if (!open) e.currentTarget.style.background = "transparent"; }}
       >
-        {avatar}
+        <div style={{ ...(isExpanded ? { position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" } : {}) }}>
+          {avatar}
+        </div>
         {isExpanded && (
           <>
             <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.textPrimary, flex: 1, textAlign: "left", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{displayName}</span>
@@ -200,29 +202,33 @@ export default function Sidebar({ activeView, onNavigate }) {
       overflow: "hidden", zIndex: 100, flexShrink: 0,
     }}>
       {/* Logo */}
-      <div style={{ padding: isExpanded ? "20px 16px 16px 20px" : "20px 0 16px", display: "flex", alignItems: "center", gap: 10, justifyContent: isExpanded ? "flex-start" : "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 8,
-            background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 12, fontWeight: 700, color: C.bgSidebar, fontFamily: FONT_MONO, flexShrink: 0,
-          }}>B</div>
-          {isExpanded && (
-            <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontWeight: 600, fontSize: 17, color: C.textPrimary, letterSpacing: "-0.03em", whiteSpace: "nowrap" }}>
+      <div style={{
+        padding: isExpanded ? "20px 16px 16px 52px" : "20px 0 16px",
+        display: "flex", alignItems: "center",
+        justifyContent: isExpanded ? "flex-start" : "center",
+        position: "relative",
+      }}>
+        <div style={{
+          ...(isExpanded ? { position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)" } : {}),
+          width: 28, height: 28, borderRadius: 8,
+          background: `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 12, fontWeight: 700, color: C.bgSidebar, fontFamily: FONT_MONO, flexShrink: 0,
+        }}>B</div>
+        {isExpanded && (
+          <>
+            <span className="bc-sidebar-text" style={{ fontFamily: FONT_SANS, fontWeight: 600, fontSize: 17, color: C.textPrimary, letterSpacing: "-0.03em", whiteSpace: "nowrap", flex: 1 }}>
               BaseCommand
             </span>
-          )}
-        </div>
-        {isExpanded && (
-          <button className="bc-sidebar-collapse-btn" onClick={() => setSidebarCollapsed(true)} style={{
-            marginLeft: "auto", flexShrink: 0,
-            background: "rgba(255,255,255,0.04)", border: "none", color: C.textTertiary, cursor: "pointer",
-            fontSize: 12, padding: "4px 6px", borderRadius: 6, transition: "all 0.15s",
-          }}
-            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
-            onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
-          ><ChevronLeft size={14} /></button>
+            <button className="bc-sidebar-collapse-btn" onClick={() => setSidebarCollapsed(true)} style={{
+              flexShrink: 0, marginLeft: 8,
+              background: "rgba(255,255,255,0.04)", border: "none", color: C.textTertiary, cursor: "pointer",
+              fontSize: 12, padding: "4px 6px", borderRadius: 6, transition: "all 0.15s",
+            }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
+              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+            ><ChevronLeft size={14} /></button>
+          </>
         )}
       </div>
 
