@@ -263,7 +263,7 @@ export default function Pillar() {
             ].map((stat, i) => (
               <div key={i} style={{ padding: "10px 14px", background: C.bgPrimary, border: `1px solid ${C.borderDefault}`, borderRadius: 8 }}>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>{stat.label}</div>
-                <div style={{ fontFamily: FONT_MONO, fontSize: fs(18, 16, isMobile), fontWeight: 700, color: stat.color, marginTop: 4 }}>{stat.value}</div>
+                <div style={{ fontFamily: FONT_SANS, fontSize: fs(18, 16, isMobile), fontWeight: 700, color: stat.color, marginTop: 4 }}>{stat.value}</div>
               </div>
             ))}
           </div>
