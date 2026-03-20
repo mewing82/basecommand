@@ -98,44 +98,21 @@ export default function CompanySettings() {
       setExtractStatus("Populating profile...");
       const extracted = data.profile;
       if (extracted) {
-        // Merge: extracted values fill in blanks, don't overwrite existing non-empty fields
-        const merged = { ...(profile || {}) };
-        if (extracted.companyName && !merged.companyName) merged.companyName = extracted.companyName;
-        if (extracted.productDescription && !merged.productDescription) merged.productDescription = extracted.productDescription;
-        if (extracted.products?.length > 0 && (!merged.products || merged.products.length === 0)) merged.products = extracted.products;
-        if (extracted.contractTerms && !merged.contractTerms) merged.contractTerms = extracted.contractTerms;
-        if (extracted.upliftRate && !merged.upliftRate) merged.upliftRate = extracted.upliftRate;
-        if (extracted.competitors?.length > 0 && (!merged.competitors || merged.competitors.length === 0)) merged.competitors = extracted.competitors;
-        if (extracted.valueProps && !merged.valueProps) merged.valueProps = extracted.valueProps;
-        if (extracted.discountRules && !merged.discountRules) merged.discountRules = extracted.discountRules;
-        if (extracted.upsellPaths && !merged.upsellPaths) merged.upsellPaths = extracted.upsellPaths;
-        if (extracted.industry && !merged.industry) merged.industry = extracted.industry;
-        if (extracted.targetAudience && !merged.targetAudience) merged.targetAudience = extracted.targetAudience;
-        if (extracted.websiteUrl) merged.websiteUrl = extracted.websiteUrl;
-        if (extracted.industry && !merged.industry) merged.industry = extracted.industry;
-        if (extracted.targetAudience && !merged.targetAudience) merged.targetAudience = extracted.targetAudience;
-        if (extracted.branding && !merged.branding) {
-          merged.branding = extracted.branding;
-        } else if (extracted.branding && merged.branding) {
-          // Fill blanks only
-          const b = merged.branding;
-          const eb = extracted.branding;
-          if (!b.logoUrl && eb.logoUrl) b.logoUrl = eb.logoUrl;
-          if (!b.faviconUrl && eb.faviconUrl) b.faviconUrl = eb.faviconUrl;
-          if (!b.primaryColor && eb.primaryColor) b.primaryColor = eb.primaryColor;
-          if (!b.secondaryColor && eb.secondaryColor) b.secondaryColor = eb.secondaryColor;
-          if (!b.accentColor && eb.accentColor) b.accentColor = eb.accentColor;
-          if ((!b.fonts || b.fonts.length === 0) && eb.fonts?.length > 0) b.fonts = eb.fonts;
-          if (!b.socialLinks) b.socialLinks = eb.socialLinks;
-          else if (eb.socialLinks) {
-            if (!b.socialLinks.linkedin && eb.socialLinks.linkedin) b.socialLinks.linkedin = eb.socialLinks.linkedin;
-            if (!b.socialLinks.twitter && eb.socialLinks.twitter) b.socialLinks.twitter = eb.socialLinks.twitter;
-            if (!b.socialLinks.youtube && eb.socialLinks.youtube) b.socialLinks.youtube = eb.socialLinks.youtube;
-          }
-        }
-        merged.lastUpdated = new Date().toISOString();
-        merged._extractedPages = data.pages;
+        // Overwrite all fields from scan, but preserve user-specific fields
+        const prev = profile || {};
+        const merged = {
+          ...extracted,
+          senderName: prev.senderName || "",
+          senderTitle: prev.senderTitle || "",
+          renewalStrategy: prev.renewalStrategy || {},
+          lastUpdated: new Date().toISOString(),
+          _extractedPages: data.pages,
+        };
         setProfile(merged);
+        // Sync renewal strategy state
+        setRenewalWants(merged.renewalStrategy?.wants || []);
+        setRenewalGives(merged.renewalStrategy?.gives || []);
+        setRenewalRules(merged.renewalStrategy?.rules || "");
         await save(merged);
         setExtractStatus(`Done — extracted from ${data.pages?.length || 1} page${(data.pages?.length || 1) !== 1 ? "s" : ""}`);
         setTimeout(() => setExtractStatus(""), 3000);
