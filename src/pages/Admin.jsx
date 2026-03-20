@@ -136,7 +136,7 @@ export default function Admin() {
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
               <s.icon size={14} style={{ color: s.color }} />
-              <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 {s.label}
               </span>
             </div>
@@ -196,7 +196,7 @@ export default function Admin() {
             background: "rgba(0,0,0,0.02)",
           }}>
             {["Email", "Tier", "Status", "Role", "AI Calls", "Actions"].map(h => (
-              <div key={h} style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
+              <div key={h} style={{ fontFamily: FONT_SANS, fontSize: 10, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
                 {h}
               </div>
             ))}
@@ -312,7 +312,7 @@ function Badge({ bg, color, children }) {
 function EditField({ label, value, options, onChange, saving }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+      <span style={{ fontFamily: FONT_SANS, fontSize: 9, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.05em" }}>
         {label}
       </span>
       <div style={{ display: "flex", gap: 4 }}>
@@ -326,7 +326,7 @@ function EditField({ label, value, options, onChange, saving }) {
               background: opt === value ? C.gold : "transparent",
               border: `1px solid ${opt === value ? C.gold : C.borderDefault}`,
               color: opt === value ? C.bgPrimary : C.textTertiary,
-              fontFamily: FONT_MONO, fontSize: 10, fontWeight: opt === value ? 600 : 400,
+              fontFamily: FONT_SANS, fontSize: 10, fontWeight: opt === value ? 600 : 400,
               transition: "all 0.15s",
             }}
           >
