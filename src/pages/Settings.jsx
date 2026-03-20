@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { User, Building2, Sparkles, Plug, Database, CreditCard, Users, Key, Bot } from "lucide-react";
-import { C, FONT_SANS, FONT_BODY, FONT_MONO, fs } from "../lib/tokens";
+import { C, FONT_SANS, FONT_MONO, fs } from "../lib/tokens";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { PageLayout } from "../components/layout/PageLayout";
 import ProfileSettings from "./settings/ProfileSettings";
@@ -10,6 +10,7 @@ import ConnectorSettings from "./settings/ConnectorSettings";
 import DataSettings from "./settings/DataSettings";
 import IntegrationSettings from "./settings/IntegrationSettings";
 import BillingSettings from "./settings/BillingSettings";
+import TeamSettings from "./settings/TeamSettings";
 import AutonomySettings from "./settings/AutonomySettings";
 
 const TABS = [
@@ -18,7 +19,7 @@ const TABS = [
   { id: "ai", label: "AI", icon: Sparkles },
   { id: "autonomy", label: "Autonomy", icon: Bot },
   { id: "billing", label: "Billing", icon: CreditCard },
-  { id: "team", label: "Team", icon: Users, soon: true },
+  { id: "team", label: "Team", icon: Users },
   { id: "integrations", label: "Integrations", icon: Key },
   { id: "connectors", label: "Connectors", icon: Plug },
   { id: "data", label: "Data", icon: Database },
@@ -48,26 +49,25 @@ export default function Settings() {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <button key={tab.id} onClick={() => !tab.soon && setActiveTab(tab.id)} style={{
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
                 display: "flex", alignItems: "center", gap: isMobile ? 6 : 10,
                 width: isMobile ? "auto" : "100%",
                 padding: isMobile ? "8px 14px" : "9px 12px", borderRadius: 8,
-                cursor: tab.soon ? "not-allowed" : "pointer",
+                cursor: "pointer",
                 background: isActive ? "rgba(255,255,255,0.07)" : "transparent",
                 border: "none",
                 borderLeft: isMobile ? "none" : (isActive ? `2px solid ${C.gold}` : "2px solid transparent"),
                 borderBottom: isMobile ? (isActive ? `2px solid ${C.gold}` : "2px solid transparent") : "none",
-                color: tab.soon ? C.textTertiary + "60" : (isActive ? C.textPrimary : C.textSecondary),
+                color: isActive ? C.textPrimary : C.textSecondary,
                 fontFamily: FONT_SANS, fontSize: 13, fontWeight: isActive ? 600 : 400,
-                transition: "all 0.15s", opacity: tab.soon ? 0.5 : 1,
+                transition: "all 0.15s",
                 whiteSpace: "nowrap", flexShrink: 0,
               }}
-                onMouseEnter={e => { if (!isActive && !tab.soon) { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = C.textPrimary; } }}
-                onMouseLeave={e => { if (!isActive && !tab.soon) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textSecondary; } }}
+                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = C.textPrimary; } }}
+                onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textSecondary; } }}
               >
                 <Icon size={15} strokeWidth={1.75} />
                 <span style={{ flex: isMobile ? undefined : 1 }}>{tab.label}</span>
-                {tab.soon && !isMobile && <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.textTertiary, padding: "1px 5px", borderRadius: 3, border: `1px solid ${C.borderDefault}` }}>SOON</span>}
               </button>
             );
           })}
@@ -80,23 +80,12 @@ export default function Settings() {
           {activeTab === "ai" && <AISettings />}
           {activeTab === "autonomy" && <AutonomySettings />}
           {activeTab === "billing" && <BillingSettings />}
-          {activeTab === "team" && <TeamPlaceholder />}
+          {activeTab === "team" && <TeamSettings />}
           {activeTab === "integrations" && <IntegrationSettings />}
           {activeTab === "connectors" && <ConnectorSettings />}
           {activeTab === "data" && <DataSettings />}
         </div>
       </div>
     </PageLayout>
-  );
-}
-
-// ─── Placeholder components for upcoming tabs ────────────────────────────────
-function TeamPlaceholder() {
-  return (
-    <div style={{ padding: 24, background: C.bgCard, border: `1px solid ${C.borderDefault}`, borderRadius: 10, textAlign: "center" }}>
-      <Users size={32} style={{ color: C.textTertiary, marginBottom: 12 }} />
-      <div style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.textPrimary, marginBottom: 6 }}>Team Management</div>
-      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textTertiary, lineHeight: 1.6 }}>Invite team members, manage roles, and share your renewal portfolio. Coming soon.</div>
-    </div>
   );
 }
