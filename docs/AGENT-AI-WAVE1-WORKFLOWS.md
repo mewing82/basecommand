@@ -47,18 +47,124 @@ Step 9: Save to BaseCommand via API
 
 ### Actions JSON
 
-> **Copy-paste ready.** Updated 2026-03-21 v6 — CONFIRMED working HubSpot data pull.
-> Minimal HubSpot search (object_type + output_variable_name only) confirmed to return
-> real deal data. Simplified to 6 steps: search → LLM analyze → LLM format → display → email.
-> No set_variable, no loops, no if/else. Get the core working first.
+> **Copy-paste ready.** Updated 2026-03-21 v7 — Adaptive renewal setup flow.
+> 8 steps: setup questions → search → LLM analyze (adapts to user's setup) → LLM format → display → email.
+> Handles 4 user scenarios: separate pipeline, custom property, close date only, need help.
+> "Need help" users get a Breeze AI prompt to set up renewal structure in HubSpot.
 
 ```json
 [
   {
-    "id": "a1000001-v6-001",
+    "id": "a1000001-v7-001",
+    "type": "get_user_input",
+    "label": "How do you identify renewals in HubSpot?",
+    "order": 0,
+    "inputs": [
+      {
+        "name": "input_type",
+        "value": "dropdown (single)",
+        "type": "dropdown",
+        "required": true,
+        "dropdownOptions": [
+          {"label": "I have a separate renewal pipeline", "value": "separate_pipeline"},
+          {"label": "I use a custom property to tag renewals (e.g., deal_type = renewal)", "value": "custom_property"},
+          {"label": "I use close date on all deals (no renewal-specific setup yet)", "value": "close_date_only"},
+          {"label": "I'm not sure / I need help setting this up", "value": "need_help"}
+        ]
+      },
+      {
+        "name": "input_description",
+        "value": "How do you currently identify renewal deals in HubSpot?",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "default_value",
+        "value": "close_date_only",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "required",
+        "value": true,
+        "type": "checkbox",
+        "required": false
+      },
+      {
+        "name": "input_name",
+        "value": "renewal_setup_type",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "show_in_agent_settings",
+        "value": true,
+        "type": "checkbox",
+        "required": false
+      },
+      {
+        "name": "settings_only",
+        "value": false,
+        "type": "checkbox",
+        "required": false
+      }
+    ]
+  },
+  {
+    "id": "a1000001-v7-002",
+    "type": "get_user_input",
+    "label": "Renewal pipeline or property details",
+    "order": 1,
+    "inputs": [
+      {
+        "name": "input_type",
+        "value": "text",
+        "type": "dropdown",
+        "required": true
+      },
+      {
+        "name": "input_description",
+        "value": "If you selected 'separate pipeline' — what is the pipeline name? If 'custom property' — what property name and value identify renewals? (e.g., deal_type = renewal). If 'close date only' or 'need help' — just type 'skip'.",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "default_value",
+        "value": "skip",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "required",
+        "value": true,
+        "type": "checkbox",
+        "required": false
+      },
+      {
+        "name": "input_name",
+        "value": "renewal_identifier",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "show_in_agent_settings",
+        "value": true,
+        "type": "checkbox",
+        "required": false
+      },
+      {
+        "name": "settings_only",
+        "value": false,
+        "type": "checkbox",
+        "required": false
+      }
+    ]
+  },
+  {
+    "id": "a1000001-v7-003",
     "type": "get_user_input",
     "label": "Get analysis preferences",
-    "order": 0,
+    "order": 2,
     "inputs": [
       {
         "name": "input_type",
@@ -113,10 +219,10 @@ Step 9: Save to BaseCommand via API
     ]
   },
   {
-    "id": "a1000001-v6-002",
+    "id": "a1000001-v7-004",
     "type": "hubspot.v2.search_objects",
     "label": "Pull all deals from HubSpot",
-    "order": 1,
+    "order": 3,
     "inputs": [
       {
         "name": "object_type",
@@ -131,21 +237,21 @@ Step 9: Save to BaseCommand via API
     ]
   },
   {
-    "id": "a1000001-v6-003",
+    "id": "a1000001-v7-005",
     "type": "invoke_llm",
     "label": "AI: Score health and classify archetypes",
-    "order": 2,
+    "order": 4,
     "inputs": [
       {"name": "llm_engine", "value": "gpt4o", "type": "dropdown", "required": true},
-      {"name": "instructions", "value": "You are an expert renewal health scoring engine for B2B SaaS companies.\n\nUSE ONLY THE ACTUAL DATA BELOW — do not invent account names, ARR values, or scores.\n\nDEALS FROM HUBSPOT:\n{{ hs_search_results }}\n\nUSER SELECTED TIME HORIZON: {{ time_horizon }}\nToday's date: {{ current_date }}\n\nINSTRUCTIONS:\n1. Look at the dealname, amount, closedate, and dealstage for each deal in the data above.\n2. FILTER: Only analyze deals with a closedate within the user's time horizon from today. Ignore deals with no closedate, closedates in the distant past, or closedates beyond the horizon. Also ignore deals in closedlost stage.\n3. If no deals qualify after filtering, say so clearly and list what you found.\n\nFor EACH qualifying deal, produce:\n- Health Score (0-10, one decimal): Based on deal stage progression, close date proximity, amount, and last modified date\n- Behavioral Archetype: Power User (8-10), Enthusiastic Adopter (7-8), Convert (5-7), Explorer (4-5), Struggler (2-4), Disconnected (0-2)\n- Risk Signals: Specific red flags from THIS deal's actual data\n- Top Action: The single most important thing to do this week\n- Days to Renewal: calculated from closedate vs today\n\nPORTFOLIO SUMMARY:\n- Total accounts analyzed, total ARR, average health score\n- Count by archetype\n- Top 3 needing immediate attention\n- Total ARR at risk (score < 5)\n\nCRITICAL: Use REAL deal names and REAL amounts from the data above. Reference the actual dealname and amount values you see. Do NOT make up data.", "type": "textarea", "required": true},
+      {"name": "instructions", "value": "You are an expert renewal health scoring engine for B2B SaaS companies.\n\nUSE ONLY THE ACTUAL DATA BELOW — do not invent account names, ARR values, or scores.\n\nDEALS FROM HUBSPOT:\n{{ hs_search_results }}\n\nUSER'S RENEWAL SETUP:\n- Setup type: {{ renewal_setup_type }}\n- Identifier details: {{ renewal_identifier }}\n- Time horizon: {{ time_horizon }}\n- Today's date: {{ current_date }}\n\nFILTERING RULES (adapt based on user's setup type):\n\nIf setup type is 'separate_pipeline':\n- Only analyze deals where the pipeline property matches the pipeline name the user provided in renewal_identifier\n- Use closedate to determine time horizon\n\nIf setup type is 'custom_property':\n- Only analyze deals where the property/value the user described in renewal_identifier matches (e.g., if they said 'deal_type = renewal', only include deals that appear to be renewals based on dealname or stage context)\n- Use closedate to determine time horizon\n\nIf setup type is 'close_date_only':\n- Analyze ALL deals with a closedate within the time horizon from today\n- Ignore deals with no closedate, closedates in the distant past, or closedates beyond the horizon\n- Ignore deals in closedlost stage\n\nIf setup type is 'need_help':\n- Analyze ALL deals to give the user a taste of the value\n- At the END of your analysis, add a section called SETUP_RECOMMENDATION with this exact text:\n  'To get the most accurate renewal analysis, we recommend creating a dedicated renewal structure in HubSpot. Use this prompt in HubSpot Breeze AI to set it up automatically:\\n\\nBreeze prompt: Create the following custom deal properties and group them under a new property group called Renewal Intelligence: 1) renewal_type (Dropdown: New Business, Renewal, Expansion, Contraction) with default value New Business, 2) renewal_date (Date picker) for the actual contract renewal date, 3) contract_start_date (Date picker), 4) contract_term_months (Number) default 12, 5) arr (Currency) for Annual Recurring Revenue, 6) previous_arr (Currency) for prior contract value, 7) renewal_owner (HubSpot user picker) for the person managing the renewal. Also create a new deal pipeline called Renewal Pipeline with these stages: Upcoming (20%), Outreach Sent (40%), In Discussion (60%), Proposal Sent (80%), Verbal Commit (90%), Closed Won (100% won), Closed Lost (0% lost).'\n\nFor EACH qualifying deal, produce:\n- Health Score (0-10, one decimal): Based on deal stage, close date proximity, amount, last modified date, and any available engagement signals\n- Behavioral Archetype: Power User (8-10), Enthusiastic Adopter (7-8), Convert (5-7), Explorer (4-5), Struggler (2-4), Disconnected (0-2)\n- Risk Signals: Specific red flags from THIS deal's actual data\n- Top Action: The single most important thing to do this week\n- Days to Renewal: calculated from closedate vs today\n\nPORTFOLIO SUMMARY:\n- Total accounts analyzed, total ARR, average health score\n- Count by archetype\n- Top 3 needing immediate attention\n- Total ARR at risk (score < 5)\n\nCRITICAL: Use REAL deal names and REAL amounts from the data. Do NOT make up data.", "type": "textarea", "required": true},
       {"name": "output_variable_name", "value": "health_analysis", "type": "text", "required": false}
     ]
   },
   {
-    "id": "a1000001-v6-004",
+    "id": "a1000001-v7-006",
     "type": "invoke_llm",
     "label": "AI: Generate formatted report",
-    "order": 3,
+    "order": 5,
     "inputs": [
       {"name": "llm_engine", "value": "gpt4o", "type": "dropdown", "required": true},
       {"name": "instructions", "value": "Generate a premium-styled HTML renewal health report from this data. Do NOT use markdown — output raw HTML only.\n\nUse this styling:\n- Font: font-family: 'Inter', -apple-system, sans-serif throughout\n- Container: max-width 720px, margin 0 auto\n- Section headers: font-size 18px, font-weight 700, color #161A25, border-bottom 2px solid #E2E5EB, padding-bottom 8px, margin-top 28px, margin-bottom 14px\n- Tables: width 100%, border-collapse collapse, font-size 13px\n- Table headers (th): background #F0F2F5, color #4A5162, font-weight 600, text-align left, padding 10px 14px, border-bottom 2px solid #E2E5EB\n- Table cells (td): padding 10px 14px, border-bottom 1px solid #F0F2F5, color #161A25\n- Score badges: display inline-block, padding 3px 10px, border-radius 6px, font-weight 600, font-size 12px\n  - Score 8+: background #ECFDF5, color #059669\n  - Score 5-7: background #FFFBEB, color #D97706\n  - Score <5: background #FEF2F2, color #DC4A3D\n- Archetype badges: same styling as scores but with background #F0F2F5, color #4A5162\n- Stat cards: display inline-block, background #FFFFFF, border 1px solid #E2E5EB, border-radius 12px, padding 18px 22px, min-width 140px, text-align center, margin 6px\n  - Stat value: font-size 28px, font-weight 700\n  - Stat label: font-size 11px, font-weight 600, color #9AA1B0, text-transform uppercase, letter-spacing 0.04em\n- Action items: numbered list, each with bold account name, then action text\n- At-risk highlight rows: background #FEF2F2\n\nSections to include:\n1. Summary stat cards row (Total Accounts, Total ARR, Avg Health, ARR at Risk)\n2. Accounts Requiring Immediate Attention (score < 5, table sorted by ARR, red highlight)\n3. Full Portfolio Scorecard (table: Account | ARR | Renewal | Score | Archetype | Top Action)\n4. Archetype Distribution (horizontal bar or count badges)\n5. Top 5 Actions by Revenue Impact (numbered list)\n\nData:\n{{ health_analysis }}\n\nOutput ONLY the HTML — no markdown, no code fences, no explanation. Start with <div> end with </div>.", "type": "textarea", "required": true},
@@ -153,10 +259,10 @@ Step 9: Save to BaseCommand via API
     ]
   },
   {
-    "id": "a1000001-v6-005",
+    "id": "a1000001-v7-007",
     "type": "output_formatter",
     "label": "Display health report",
-    "order": 4,
+    "order": 6,
     "inputs": [
       {"name": "heading", "value": "Renewal Health Report — {{ current_date }}", "type": "text", "required": false},
       {"name": "output_formatted", "value": "{{ formatted_report }}<div style=\"margin-top:28px;padding-top:20px;border-top:1px solid #E2E5EB;text-align:center;font-family:Inter,-apple-system,sans-serif\"><p style=\"font-size:14px;color:#4A5162;margin:0 0 12px\">Want continuous monitoring? BaseCommand runs this analysis 24/7.</p><a href=\"https://basecommand.ai/signup\" style=\"display:inline-block;padding:10px 28px;background:#059669;color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none\">Start your free 14-day Pro trial</a></div>", "type": "textarea", "required": true},
@@ -164,10 +270,10 @@ Step 9: Save to BaseCommand via API
     ]
   },
   {
-    "id": "a1000001-v6-006",
+    "id": "a1000001-v7-008",
     "type": "send_message",
     "label": "Email report to user",
-    "order": 5,
+    "order": 7,
     "inputs": [
       {"name": "type", "value": "email", "type": "dropdown", "required": true},
       {"name": "to", "value": "current_user", "type": "dropdown", "required": true},
@@ -178,9 +284,9 @@ Step 9: Save to BaseCommand via API
 ]
 ```
 
-> **v6 — 6 steps total.** Stripped to minimum: search → analyze → format → display → email.
-> No set_variable, no loops, no if/else. Proven that `{{ hs_search_results }}` works directly.
-> Add engagements loop, write-back, and BaseCommand save as enhancements once this works.
+> **v7 — 8 steps.** Adds adaptive setup flow (2 questions) to handle different HubSpot configs.
+> Users with no renewal setup get a Breeze AI prompt to create properties + pipeline.
+> Engagements loop, write-back, and BaseCommand save are future enhancements.
 
 ### HubSpot Custom Properties Required
 
