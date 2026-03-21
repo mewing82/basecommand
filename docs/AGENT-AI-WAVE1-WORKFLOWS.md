@@ -381,10 +381,21 @@ Step 5: Email the full setup plan to user
     ]
   },
   {
+    "id": "a1b-setup-003b",
+    "type": "invoke_llm",
+    "label": "AI: Format migration plan as HTML",
+    "order": 3,
+    "inputs": [
+      {"name": "llm_engine", "value": "gpt-4o-mini", "type": "dropdown", "required": true},
+      {"name": "instructions", "value": "Convert this migration plan into premium-styled HTML. Do NOT use markdown — output raw HTML only.\n\nMIGRATION PLAN:\n{{ migration_plan }}\n\nUse this styling:\n- Font: font-family: 'Inter', -apple-system, sans-serif\n- Summary section: stat cards in a row (display:flex, gap:12px). Each card: background #FFFFFF, border 1px solid #E2E5EB, border-radius 10px, padding 14px 18px, text-align center. Value: font-size 24px, font-weight 700. Label: font-size 11px, color #9AA1B0, text-transform uppercase.\n  - Renewals count: value color #059669\n  - New Business count: value color #3B82F6\n  - Needs Review count: value color #D97706\n- Deal table: width 100%, border-collapse collapse, font-size 12px\n  - Headers (th): background #F0F2F5, color #4A5162, font-weight 600, padding 8px 12px, text-align left, border-bottom 2px solid #E2E5EB\n  - Cells (td): padding 8px 12px, border-bottom 1px solid #F0F2F5\n  - renewal_type badges: display inline-block, padding 2px 8px, border-radius 4px, font-size 11px, font-weight 600\n    - Renewal: background #ECFDF5, color #059669\n    - New Business: background #EFF6FF, color #3B82F6\n    - Expansion: background #F5F3FF, color #7C3AED\n    - Contraction: background #FEF2F2, color #DC4A3D\n  - NEEDS_INPUT cells: background #FFFBEB, color #D97706, font-weight 600\n  - pipeline_action MOVE: color #059669. KEEP: color #9AA1B0. REVIEW: color #D97706.\n- Needs manual input section: amber background #FFFBEB, border #FDE68A, border-radius 8px, padding 14px, list of deals needing attention\n\nOutput ONLY HTML — no markdown, no code fences. Start with <div> end with </div>.", "type": "textarea", "required": true},
+      {"name": "output_variable_name", "value": "formatted_migration_plan", "type": "text", "required": false}
+    ]
+  },
+  {
     "id": "a1b-setup-004",
     "type": "output_formatter",
     "label": "Step 1: Create Renewal Structure",
-    "order": 3,
+    "order": 4,
     "inputs": [
       {"name": "heading", "value": "Step 1: Create Renewal Properties & Pipeline", "type": "text", "required": false},
       {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:20px 24px;margin-bottom:16px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#059669;margin:0 0 4px\">Step 1 of 3 — Create the structure</h3>\n<p style=\"font-size:13px;color:#4A5162;margin:0\">Copy the prompt below and paste it into HubSpot Breeze AI. This creates the properties and pipeline.</p>\n</div>\n<div style=\"background:#FFFFFF;border:1px solid #E2E5EB;border-radius:8px;padding:16px;margin-bottom:12px\">\n<p style=\"font-size:11px;font-weight:600;color:#9AA1B0;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px\">Breeze AI Prompt #1 — Create Structure</p>\n<p style=\"font-size:13px;color:#161A25;line-height:1.7;margin:0;white-space:pre-wrap\">Create the following custom deal properties and group them under a new property group called \"Renewal Intelligence\":\n\n1. renewal_type (Dropdown with options: New Business, Renewal, Expansion, Contraction) — default: New Business\n2. renewal_date (Date picker) — the actual contract renewal date\n3. contract_start_date (Date picker) — when the current contract started\n4. contract_term_months (Number) — default 12\n5. arr (Number, formatted as currency) — Annual Recurring Revenue for this deal\n6. previous_arr (Number, formatted as currency) — prior contract value before this renewal\n7. renewal_owner (Single-line text) — name or email of the person managing this renewal\n\nAlso create a new deal pipeline called \"Renewal Pipeline\" with these stages:\n- Upcoming (20% probability)\n- Outreach Sent (40%)\n- In Discussion (60%)\n- Proposal Sent (80%)\n- Verbal Commit (90%)\n- Closed Won (100%, won)\n- Closed Lost (0%, lost)</p>\n</div>\n<p style=\"font-size:12px;color:#D97706;margin:0\">⚠️ After Breeze creates the structure, come back here and continue to Step 2.</p>\n</div>", "type": "textarea", "required": true},
@@ -395,10 +406,10 @@ Step 5: Email the full setup plan to user
     "id": "a1b-setup-005",
     "type": "output_formatter",
     "label": "Step 2: Review Migration Plan",
-    "order": 4,
+    "order": 5,
     "inputs": [
       {"name": "heading", "value": "Step 2: Review Your Deal Migration Plan", "type": "text", "required": false},
-      {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:20px 24px;margin-bottom:16px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#3B82F6;margin:0 0 4px\">Step 2 of 3 — Review the plan</h3>\n<p style=\"font-size:13px;color:#4A5162;margin:0\">We analyzed your deals and classified each one. Review the table below — fix anything that looks wrong before proceeding to Step 3.</p>\n</div>\n<div style=\"background:#FFFFFF;border:1px solid #E2E5EB;border-radius:8px;padding:16px\">\n{{ migration_plan }}\n</div>\n</div>", "type": "textarea", "required": true},
+      {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:20px 24px;margin-bottom:16px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#3B82F6;margin:0 0 4px\">Step 2 of 3 — Review the plan</h3>\n<p style=\"font-size:13px;color:#4A5162;margin:0\">We analyzed your deals and classified each one. Review the table below — fix anything that looks wrong before proceeding to Step 3.</p>\n</div>\n{{ formatted_migration_plan }}\n</div>", "type": "textarea", "required": true},
       {"name": "format", "value": "html", "type": "dropdown", "required": true}
     ]
   },
@@ -406,7 +417,7 @@ Step 5: Email the full setup plan to user
     "id": "a1b-setup-006",
     "type": "output_formatter",
     "label": "Step 3: Populate Data with Breeze",
-    "order": 5,
+    "order": 6,
     "inputs": [
       {"name": "heading", "value": "Step 3: Populate Your Renewal Data", "type": "text", "required": false},
       {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#F5F3FF;border:1px solid #DDD6FE;border-radius:12px;padding:20px 24px;margin-bottom:16px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#7C3AED;margin:0 0 4px\">Step 3 of 3 — Populate the data</h3>\n<p style=\"font-size:13px;color:#4A5162;margin:0\">Copy the prompt below and paste it into HubSpot Breeze AI. This writes the field values to each deal based on our analysis.</p>\n</div>\n<div style=\"background:#FFFFFF;border:1px solid #E2E5EB;border-radius:8px;padding:16px;margin-bottom:16px\">\n<p style=\"font-size:11px;font-weight:600;color:#9AA1B0;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px\">Breeze AI Prompt #2 — Populate Data</p>\n<div style=\"font-size:13px;color:#161A25;line-height:1.7;margin:0;white-space:pre-wrap\">{{ breeze_data_prompt }}</div>\n</div>\n<div style=\"background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:14px 16px\">\n<p style=\"font-size:13px;color:#059669;font-weight:600;margin:0 0 4px\">✓ After Breeze populates the data:</p>\n<p style=\"font-size:13px;color:#4A5162;margin:0;line-height:1.6\">Run the <strong>Renewal Health Scanner</strong> and select \"I have a separate renewal pipeline\" → enter \"Renewal Pipeline\". You'll get accurate health scores based on your real renewal data.</p>\n</div>\n</div>", "type": "textarea", "required": true},
@@ -417,7 +428,7 @@ Step 5: Email the full setup plan to user
     "id": "a1b-setup-007",
     "type": "send_message",
     "label": "Email setup plan to user",
-    "order": 6,
+    "order": 7,
     "inputs": [
       {"name": "type", "value": "email", "type": "dropdown", "required": true},
       {"name": "to", "value": "current_user", "type": "dropdown", "required": true},
@@ -428,8 +439,8 @@ Step 5: Email the full setup plan to user
 ]
 ```
 
-> **7 steps total.** Pull deals → LLM classify → LLM generate Breeze prompt →
-> Show 3-step guide (create structure → review plan → populate data) → email.
+> **8 steps total.** Pull deals → LLM classify → LLM generate Breeze prompt →
+> LLM format migration plan as HTML → Show 3-step guide → email.
 > No write-back to HubSpot — user controls everything via Breeze prompts.
 
 ---
