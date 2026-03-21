@@ -120,13 +120,44 @@ BaseCommand is a **side-hustle**, not a VC-backed startup. Michael has no intent
 
 **Key principle:** agent.ai agents are the proving ground, not the end state. Use them to validate willingness to pay, learn what users need, and build brand. Pull successful patterns into the owned platform.
 
+### Pricing Relationship: agent.ai vs BaseCommand Platform
+
+| | agent.ai Agents | BaseCommand Platform |
+|---|---|---|
+| **What it is** | Point tools — run when you need an answer | Operating system — runs continuously |
+| **Price** | $10/mo per agent, $25-49/mo bundles | $49/mo (founding) / $149/mo (standard) |
+| **Data** | Pulls from HubSpot on each run | Persistent portfolio + history + trends |
+| **Team** | Individual use | Shared portfolio, org-level |
+| **Automation** | Manual or scheduled runs | Supervised autopilot with approve/dismiss |
+| **Analytics** | Single report | Week-over-week trends, NRR waterfall |
+
+**Principle:** agent.ai agents are the gateway drug. Platform is the full commitment. No price change needed — they serve different needs. If bundle cannibalization occurs post-launch, adjust bundle price to $69/mo.
+
+### AI Usage Safeguards ("Unlimited" = Fair Use)
+
+Pro tier is marketed as "unlimited AI" but protected by fair use guardrails:
+
+| Safeguard | Implementation | Why |
+|-----------|---------------|-----|
+| **Monthly fair use cap** | 2,000 calls/mo for Pro | 100 calls/business day — far more than any real user needs. Prevents automation abuse. |
+| **Rate limiting** | 15 calls/minute via KV sliding window | Prevents scripts or bots from burning through API credits. |
+| **BYOK escape valve** | Users can add their own API key in Settings | If they hit fair use, they can continue with their own key. We don't pay. |
+| **Model routing** | Sonnet for standard calls, Opus/premium for complex analysis | Controls cost per call. Most calls are 2-5x cheaper on Sonnet. |
+| **Metering visibility** | Usage meter in Settings shows calls used this month | Transparency — users can see their consumption. |
+
+**Cost math at scale:**
+- Average Pro user: ~200 calls/mo × $0.03 avg cost = ~$6/mo AI cost → 88% margin at $49
+- Heavy Pro user: ~1,000 calls/mo × $0.03 = ~$30/mo AI cost → 39% margin at $49 (acceptable)
+- Abusive user: hits 2,000 cap → forced to BYOK or wait for reset → $0 additional cost to us
+
 ### Unit Economics
 - **At early adopter pricing ($49/mo):** ~21 customers for Gate 1 ($1K MRR), ~102 for Gate 2 ($5K MRR)
 - **Blended (mix of $49 early + $99-149 new):** Gate 2 becomes more achievable as pricing normalizes
 - At 0.5% conversion of engaged agent.ai users, 50-80 Pro customers is achievable in 6-8 months
-- **AI cost per user:** Free tier ~$1-2.50/mo (Sonnet, 50 calls), Pro ~$5-15/mo (Opus, unlimited) → 70-90% gross margin at $49, 90-97% at $149
-- **AI is included, not BYOK:** Users never need an API key. BaseCommand provides AI as part of the product. BYOK is an advanced option in Settings for enterprise/compliance.
+- **AI cost per user:** Free tier ~$1-2.50/mo (Sonnet, 50 calls), Pro ~$6/mo avg (Sonnet+Opus, 200 calls) → 70-90% gross margin at $49, 90-97% at $149
+- **AI is included, not BYOK:** Users never need an API key. BaseCommand provides AI as part of the product. BYOK is an advanced option in Settings for enterprise/compliance or to bypass fair use cap.
 - **50 early adopters at $49/mo = $2,450 MRR** — enough to prove demand and fund Gate 1-2 investments
+- **agent.ai revenue is additive:** 15 paid agents × 100 subscribers × $10/mo = $15K/mo on top of platform MRR
 
 ---
 

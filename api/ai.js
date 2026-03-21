@@ -13,6 +13,8 @@ import { createClient } from "@supabase/supabase-js";
 import { resolveUser } from "./lib/auth.js";
 
 const FREE_MONTHLY_LIMIT = 50;
+const PRO_MONTHLY_LIMIT = 2000;   // "Unlimited" = generous fair use cap
+const PRO_RATE_LIMIT_PER_MIN = 15; // Prevent automation abuse
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -72,14 +74,34 @@ export default async function handler(req, res) {
     }
   }
 
-  // ─── Usage metering (free tier only, skip for BYOK) ─────────────────────
+  // ─── Usage metering (skip for BYOK — user pays their own API costs) ─────
   if (userId && !body.byokKey) {
     const usage = await getUsage(userId);
+
+    // Free tier: hard cap at 50 calls/mo
     if (usage !== null && userTier === "free" && usage >= FREE_MONTHLY_LIMIT) {
       return res.status(429).json({
         error: "Free tier limit reached. Upgrade to Pro for unlimited AI.",
         usage,
         limit: FREE_MONTHLY_LIMIT,
+      });
+    }
+
+    // Pro tier: fair use cap at 2,000 calls/mo (covers 99.9% of real users)
+    if (usage !== null && (userTier === "pro" || userTier === "pro_trial") && usage >= PRO_MONTHLY_LIMIT) {
+      return res.status(429).json({
+        error: "You've hit the monthly fair use limit (2,000 AI calls). Add your own API key in Settings to continue, or usage resets next month.",
+        usage,
+        limit: PRO_MONTHLY_LIMIT,
+      });
+    }
+
+    // Rate limit: max 15 calls/min to prevent automation abuse
+    const recentCalls = await getRecentCallCount(userId);
+    if (recentCalls >= PRO_RATE_LIMIT_PER_MIN) {
+      return res.status(429).json({
+        error: "Too many requests. Please wait a moment before trying again.",
+        retryAfterSeconds: 30,
       });
     }
   }
@@ -123,6 +145,7 @@ export default async function handler(req, res) {
     // ─── Track usage (after successful call, skip for BYOK) ─────────────
     if (userId && !body.byokKey) {
       await trackUsage(userId, model, result.data.usage);
+      await incrementRateLimit(userId);
     }
 
     return res.status(200).json(result.data);
@@ -263,6 +286,42 @@ async function getUsage(userId) {
     .single();
 
   return data?.call_count || 0;
+}
+
+async function getRecentCallCount(userId) {
+  // Rate limiting via KV (1-minute sliding window)
+  const kvUrl = process.env.KV_REST_API_URL;
+  const kvToken = process.env.KV_REST_API_TOKEN;
+  if (!kvUrl || !kvToken) return 0; // No KV = no rate limiting (local dev)
+
+  const key = `bc2-ratelimit:${userId}`;
+  try {
+    const r = await fetch(`${kvUrl}/get/${encodeURIComponent(key)}`, {
+      headers: { Authorization: `Bearer ${kvToken}` },
+    });
+    if (!r.ok) return 0;
+    const json = await r.json();
+    return parseInt(json.result) || 0;
+  } catch { return 0; }
+}
+
+async function incrementRateLimit(userId) {
+  const kvUrl = process.env.KV_REST_API_URL;
+  const kvToken = process.env.KV_REST_API_TOKEN;
+  if (!kvUrl || !kvToken) return;
+
+  const key = `bc2-ratelimit:${userId}`;
+  try {
+    // Increment and set TTL of 60 seconds
+    await fetch(`${kvUrl}/multi-exec`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify([
+        ["INCR", key],
+        ["EXPIRE", key, 60],
+      ]),
+    });
+  } catch { /* non-critical */ }
 }
 
 async function trackUsage(userId, model, usage) {
