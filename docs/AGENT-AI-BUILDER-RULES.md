@@ -10,16 +10,18 @@
 
 ## CRITICAL RULES (learned from live testing failures)
 
-### 1. HubSpot search output variables are NOT directly visible in later steps
+### 1. HubSpot search output variables — direct access WORKS
 
-The `output_variable_name` from `hubspot.v2.search_objects` is accessible in the
-immediately next step but NOT in LLM `invoke_llm` instructions. You MUST bridge
-with `set_variable`:
+**UPDATE 2026-03-21:** Tested and confirmed that `{{ hs_search_results }}` is
+directly accessible in `invoke_llm` and `output_formatter` steps — no `set_variable`
+bridge needed. The earlier failures were caused by other broken inputs (bad filters,
+wrong object_type enum), not variable scoping.
 
 ```
-WRONG:  hubspot.v2.search_objects (output: hs_results) → invoke_llm ({{ hs_results }})
-RIGHT:  hubspot.v2.search_objects (output: hs_results) → set_variable (deals_data = {{ hs_results.results }}) → invoke_llm ({{ deals_data }})
+WORKS:  hubspot.v2.search_objects (output: hs_search_results) → invoke_llm ({{ hs_search_results }})
 ```
+
+Keep HubSpot search inputs minimal (object_type + output_variable_name only) to avoid errors.
 
 ### 2. HubSpot object_type must use `hubspot_object_type` not `dropdown`
 
