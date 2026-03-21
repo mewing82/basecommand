@@ -55,6 +55,7 @@ Step 8: Email report
       {"name": "input_type", "value": "dropdown", "type": "dropdown", "required": true},
       {"name": "input_description", "value": "What time period should I analyze?", "type": "text", "required": true},
       {"name": "default_value", "value": "last_quarter", "type": "text", "required": false},
+      {"name": "dropdown_options", "value": "This quarter\nLast quarter\nLast 6 months\nLast 12 months", "type": "textarea", "required": true},
       {"name": "input_name", "value": "time_period", "type": "text", "required": true},
       {"name": "show_in_agent_settings", "value": true, "type": "checkbox", "required": false}
     ]
@@ -418,6 +419,7 @@ Step 6: Email report
       {"name": "input_type", "value": "dropdown", "type": "dropdown", "required": true},
       {"name": "input_description", "value": "Which object type should I scan for duplicates?", "type": "text", "required": true},
       {"name": "default_value", "value": "contacts", "type": "text", "required": false},
+      {"name": "dropdown_options", "value": "contacts\ncompanies", "type": "textarea", "required": true},
       {"name": "input_name", "value": "object_type", "type": "text", "required": true}
     ]
   },

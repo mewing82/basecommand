@@ -58,6 +58,7 @@ Step 9: Save to BaseCommand via API
       {"name": "input_type", "value": "dropdown", "type": "dropdown", "required": true},
       {"name": "input_description", "value": "How far ahead should I look for renewals?", "type": "text", "required": true},
       {"name": "default_value", "value": "6 months", "type": "text", "required": false},
+      {"name": "dropdown_options", "value": "3 months\n6 months\n12 months", "type": "textarea", "required": true},
       {"name": "input_name", "value": "time_horizon", "type": "text", "required": true},
       {"name": "show_in_agent_settings", "value": true, "type": "checkbox", "required": false}
     ]
@@ -538,6 +539,7 @@ Step 5: Display + email
       {"name": "input_type", "value": "dropdown", "type": "dropdown", "required": true},
       {"name": "input_description", "value": "Which HubSpot object should I audit?", "type": "text", "required": true},
       {"name": "default_value", "value": "contacts", "type": "text", "required": false},
+      {"name": "dropdown_options", "value": "contacts\ncompanies\ndeals", "type": "textarea", "required": true},
       {"name": "input_name", "value": "object_to_clean", "type": "text", "required": true}
     ]
   },

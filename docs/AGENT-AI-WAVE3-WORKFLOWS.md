@@ -58,6 +58,7 @@ Step 6: Email to user
       {"name": "input_type", "value": "dropdown", "type": "dropdown", "required": true},
       {"name": "input_description", "value": "What type of outreach sequence do you need?", "type": "text", "required": true},
       {"name": "default_value", "value": "renewal_outreach", "type": "text", "required": false},
+      {"name": "dropdown_options", "value": "Renewal outreach\nRe-engagement (gone dark)\nExpansion / upsell\nCold outbound", "type": "textarea", "required": true},
       {"name": "input_name", "value": "sequence_goal", "type": "text", "required": true}
     ]
   },
@@ -171,6 +172,7 @@ Step 5: Email report
       {"name": "input_type", "value": "dropdown", "type": "dropdown", "required": true},
       {"name": "input_description", "value": "What product analysis should I run?", "type": "text", "required": true},
       {"name": "default_value", "value": "margin_analysis", "type": "text", "required": false},
+      {"name": "dropdown_options", "value": "Margin analysis\nBundle optimization\nPricing comparison\nFull analysis (all of the above)", "type": "textarea", "required": true},
       {"name": "input_name", "value": "analysis_type", "type": "text", "required": true}
     ]
   },
@@ -264,6 +266,7 @@ HubSpot reports and goals only display in the portal's default currency. A compa
       {"name": "input_type", "value": "dropdown", "type": "dropdown", "required": true},
       {"name": "input_description", "value": "What currency should all amounts be reported in?", "type": "text", "required": true},
       {"name": "default_value", "value": "USD", "type": "text", "required": false},
+      {"name": "dropdown_options", "value": "USD\nEUR\nGBP\nCAD\nAUD\nJPY\nCHF\nSGD\nINR\nBRL", "type": "textarea", "required": true},
       {"name": "input_name", "value": "base_currency", "type": "text", "required": true},
       {"name": "show_in_agent_settings", "value": true, "type": "checkbox", "required": false}
     ]
@@ -555,8 +558,9 @@ Every HubSpot portal accumulates cruft over time — unused properties, duplicat
     "order": 0,
     "inputs": [
       {"name": "input_type", "value": "dropdown", "type": "dropdown", "required": true},
-      {"name": "input_description", "value": "Which object types should I audit? (contacts, companies, deals, or all)", "type": "text", "required": true},
+      {"name": "input_description", "value": "Which object types should I audit?", "type": "text", "required": true},
       {"name": "default_value", "value": "all", "type": "text", "required": false},
+      {"name": "dropdown_options", "value": "All objects\nContacts only\nCompanies only\nDeals only", "type": "textarea", "required": true},
       {"name": "input_name", "value": "audit_scope", "type": "text", "required": true}
     ]
   },
