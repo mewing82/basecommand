@@ -47,13 +47,13 @@ Step 9: Save to BaseCommand via API
 
 ### Actions JSON
 
-> **Copy-paste ready.** Updated 2026-03-21 v3 — all validation errors fixed from live testing:
-> - Dropdown uses `dropdownOptions` with label/value pairs
-> - HubSpot search: no filters (removed — caused 400 errors), LLM filters by time horizon
-> - Engagements: `object_type` set to `note` (valid enum: note/call/email/meeting/task)
-> - LLM engine: `gpt4o` not `gpt-4o` (no hyphen)
-> - LLM references `deal_engagements` (loop output variable), not `renewal_deals`
-> - rest_call format: `json` not `JSON` (lowercase)
+> **Copy-paste ready.** Updated 2026-03-21 v4 — matches docs.agent.ai patterns exactly:
+> - HubSpot search uses `hubspot_object_type` (not `dropdown`) per docs
+> - Removed `associations`, `output_sort`, `output_sort_dir`, `output_limit` (not in docs schema)
+> - Added `set_variable` to capture deals into `deals_data` (HubSpot output vars not visible in later steps)
+> - Engagements `object_type` set to `note` (valid enum: note/call/email/meeting/task)
+> - LLM engine: `gpt4o` (no hyphen)
+> - LLM references `deals_data` + `deal_engagements` (set_variable outputs)
 
 ```json
 [
@@ -124,71 +124,54 @@ Step 9: Save to BaseCommand via API
       {
         "name": "object_type",
         "value": "deals",
-        "type": "dropdown",
-        "required": true
+        "type": "hubspot_object_type"
       },
       {
         "name": "properties",
         "value": ["dealname", "amount", "closedate", "dealstage", "pipeline", "hubspot_owner_id", "notes_last_updated", "num_associated_contacts"],
-        "type": "properties",
-        "required": false
-      },
-      {
-        "name": "associations",
-        "value": ["contacts", "companies"],
-        "type": "associations",
-        "required": false
+        "type": "properties"
       },
       {
         "name": "output_variable_name",
-        "value": "hubspot_deals",
-        "type": "text",
-        "required": true
-      },
-      {
-        "name": "output_sort",
-        "value": "closedate",
-        "type": "dropdown",
-        "required": false
-      },
-      {
-        "name": "output_sort_dir",
-        "value": "ASCENDING",
-        "type": "dropdown",
-        "required": false
-      },
-      {
-        "name": "output_limit",
-        "value": "200",
-        "type": "text",
-        "required": false
+        "value": "hs_search_results",
+        "type": "text"
       }
     ]
   },
   {
     "id": "a1000001-0001-0001-0001-000000000003",
     "type": "set_variable",
-    "label": "Count deals found",
+    "label": "Store deals data for LLM",
     "order": 2,
     "inputs": [
-      {"name": "variable_name", "value": "deal_count", "type": "text", "required": true},
-      {"name": "variable_value", "value": "{{ hubspot_deals.total }}", "type": "textarea", "required": true}
+      {"name": "variable_name", "value": "deals_data", "type": "text", "required": true},
+      {"name": "variable_value", "value": "{{ hs_search_results.results }}", "type": "textarea", "required": true}
     ]
   },
   {
     "id": "a1000001-0001-0001-0001-000000000004",
+    "type": "set_variable",
+    "label": "Count deals found",
+    "order": 3,
+    "inputs": [
+      {"name": "variable_name", "value": "deal_count", "type": "text", "required": true},
+      {"name": "variable_value", "value": "{{ hs_search_results.total }}", "type": "textarea", "required": true}
+    ]
+  },
+  {
+    "id": "a1000001-0001-0001-0001-000000000005",
     "type": "if_condition",
     "label": "Check if deals were found",
-    "order": 3,
+    "order": 4,
     "inputs": [
       {"name": "query", "value": "{{ deal_count }} > 0", "type": "textarea", "required": false}
     ]
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000005",
+    "id": "a1000001-0001-0001-0001-000000000006",
     "type": "parallel_for_condition",
     "label": "For each deal — pull engagement data",
-    "order": 4,
+    "order": 5,
     "inputs": [
       {"name": "loop_count", "value": "{{ deal_count }}", "type": "text", "required": true},
       {"name": "output_variable_name", "value": "deal_engagements", "type": "text", "required": true},
@@ -196,41 +179,41 @@ Step 9: Save to BaseCommand via API
     ]
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000006",
+    "id": "a1000001-0001-0001-0001-000000000007",
     "type": "hubspot.v2.get_engagements",
-    "label": "Get recent engagements for deal",
-    "order": 5,
+    "label": "Get recent notes for deal",
+    "order": 6,
     "inputs": [
       {"name": "object_type", "value": "note", "type": "dropdown", "required": true},
-      {"name": "source_object_id", "value": "{{ hubspot_deals.results[deal_index].id }}", "type": "text", "required": true},
+      {"name": "source_object_id", "value": "{{ hs_search_results.results[deal_index].id }}", "type": "text", "required": true},
       {"name": "output_variable_name", "value": "engagements", "type": "text", "required": true},
       {"name": "result_limit", "value": "10", "type": "text", "required": false}
     ]
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000007",
+    "id": "a1000001-0001-0001-0001-000000000008",
     "type": "end_condition",
     "label": "End deal engagement loop",
-    "order": 6,
+    "order": 7,
     "inputs": []
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000008",
+    "id": "a1000001-0001-0001-0001-000000000009",
     "type": "invoke_llm",
     "label": "AI: Score health and classify archetypes",
-    "order": 7,
+    "order": 8,
     "inputs": [
       {"name": "llm_engine", "value": "gpt4o", "type": "dropdown", "required": true},
-      {"name": "instructions", "value": "You are an expert renewal health scoring engine for B2B SaaS companies. Analyze these HubSpot deals and their engagement data. USE ONLY THE ACTUAL DATA PROVIDED — do not invent account names, ARR values, or scores. If a field is missing, say so.\n\nDEALS FROM HUBSPOT:\n{{ hubspot_deals }}\n\nENGAGEMENT NOTES PER DEAL:\n{{ deal_engagements }}\n\nUSER SELECTED TIME HORIZON: {{ time_horizon }}\nToday's date: {{ current_date }}\n\nFILTER: Only analyze deals with a closedate within the user's selected time horizon from today. Ignore deals with no closedate or closedates beyond the horizon. Also ignore deals in closed-lost stages.\n\nFor EACH qualifying deal, produce:\n1. Health Score (0-10, one decimal): Weight engagement recency 30%, stakeholder signals 25%, commercial signals 20%, deal stage position 15%, activity volume 10%.\n2. Behavioral Archetype: Power User (8-10), Enthusiastic Adopter (7-8), Convert (5-7), Explorer (4-5), Struggler (2-4), Disconnected (0-2)\n3. Risk Signals: Specific red flags from the ACTUAL data (not generic advice)\n4. Top Action: The single most important thing to do for this account this week\n5. Days to Renewal: calculated from closedate vs today\n\nAlso produce PORTFOLIO SUMMARY:\n- Total accounts analyzed, total ARR, average health score\n- Count by archetype\n- Top 3 accounts needing immediate attention (lowest scores with highest ARR)\n- Total ARR at risk (score < 5)\n\nCRITICAL: Use the REAL deal names from the dealname property. Use the REAL amounts from the amount property. Do NOT make up data.\n\nReturn as JSON:\n{\"accounts\": [{\"deal_id\": \"the HubSpot deal ID\", \"name\": \"actual dealname\", \"arr\": 0, \"renewal_date\": \"from closedate\", \"health_score\": 0.0, \"archetype\": \"\", \"risk_signals\": [], \"top_action\": \"\", \"days_to_renewal\": 0}], \"summary\": {\"total_accounts\": 0, \"total_arr\": 0, \"avg_health\": 0.0, \"at_risk_arr\": 0, \"immediate_attention\": []}}", "type": "textarea", "required": true},
+      {"name": "instructions", "value": "You are an expert renewal health scoring engine for B2B SaaS companies. Analyze the HubSpot deals and engagement data below. USE ONLY THE ACTUAL DATA PROVIDED — do not invent account names, ARR values, or scores. If a field is missing, say so.\n\nDEALS (from HubSpot):\n{{ deals_data }}\n\nENGAGEMENT NOTES PER DEAL:\n{{ deal_engagements }}\n\nUSER SELECTED TIME HORIZON: {{ time_horizon }}\nToday's date: {{ current_date }}\n\nFILTER: Only analyze deals with a closedate within the user's selected time horizon from today. Ignore deals with no closedate or closedates beyond the horizon. Also ignore deals in closed-lost stages.\n\nFor EACH qualifying deal, produce:\n1. Health Score (0-10, one decimal): Weight engagement recency 30%, stakeholder signals 25%, commercial signals 20%, deal stage position 15%, activity volume 10%.\n2. Behavioral Archetype: Power User (8-10), Enthusiastic Adopter (7-8), Convert (5-7), Explorer (4-5), Struggler (2-4), Disconnected (0-2)\n3. Risk Signals: Specific red flags from the ACTUAL data (not generic advice)\n4. Top Action: The single most important thing to do for this account this week\n5. Days to Renewal: calculated from closedate vs today\n\nAlso produce PORTFOLIO SUMMARY:\n- Total accounts analyzed, total ARR, average health score\n- Count by archetype\n- Top 3 accounts needing immediate attention (lowest scores with highest ARR)\n- Total ARR at risk (score < 5)\n\nCRITICAL: Use the REAL deal names from the dealname property. Use the REAL amounts from the amount property. Do NOT make up data.\n\nReturn as JSON:\n{\"accounts\": [{\"deal_id\": \"the HubSpot deal ID\", \"name\": \"actual dealname\", \"arr\": 0, \"renewal_date\": \"from closedate\", \"health_score\": 0.0, \"archetype\": \"\", \"risk_signals\": [], \"top_action\": \"\", \"days_to_renewal\": 0}], \"summary\": {\"total_accounts\": 0, \"total_arr\": 0, \"avg_health\": 0.0, \"at_risk_arr\": 0, \"immediate_attention\": []}}", "type": "textarea", "required": true},
       {"name": "output_json_schema", "value": "{\"type\": \"object\", \"properties\": {\"accounts\": {\"type\": \"array\"}, \"summary\": {\"type\": \"object\"}}}", "type": "json-schema", "required": false},
       {"name": "output_variable_name", "value": "health_analysis", "type": "text", "required": false}
     ]
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000009",
+    "id": "a1000001-0001-0001-0001-000000000010",
     "type": "invoke_llm",
     "label": "AI: Generate formatted report",
-    "order": 8,
+    "order": 9,
     "inputs": [
       {"name": "llm_engine", "value": "gpt4o", "type": "dropdown", "required": true},
       {"name": "instructions", "value": "Generate a beautiful markdown renewal health report from this analysis data. Use tables, headers, and color indicators (emoji: 🟢 for score 8+, 🟡 for 5-7, 🔴 for <5).\n\nInclude sections:\n1. Portfolio Health Dashboard (summary stats)\n2. Accounts Requiring Immediate Attention (score < 5, sorted by ARR)\n3. Full Portfolio Scorecard (table: Account | ARR | Renewal | Score | Archetype | Top Action)\n4. Archetype Distribution\n5. Week Ahead: Top 5 actions ranked by revenue impact\n\nData:\n{{ health_analysis }}\n\nMake it scannable in 60 seconds. A VP should be able to forward this email to their CEO.", "type": "textarea", "required": true},
@@ -238,10 +221,10 @@ Step 9: Save to BaseCommand via API
     ]
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000010",
+    "id": "a1000001-0001-0001-0001-000000000011",
     "type": "output_formatter",
     "label": "Display health report",
-    "order": 9,
+    "order": 10,
     "inputs": [
       {"name": "heading", "value": "Renewal Health Report — {{ current_date }}", "type": "text", "required": false},
       {"name": "output_formatted", "value": "{{ formatted_report }}\n\n---\n**Want continuous monitoring?** BaseCommand runs this analysis 24/7, tracks trends over time, and generates actions automatically. [Start your free 14-day Pro trial](https://basecommand.ai/signup)", "type": "textarea", "required": true},
@@ -249,10 +232,10 @@ Step 9: Save to BaseCommand via API
     ]
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000011",
+    "id": "a1000001-0001-0001-0001-000000000012",
     "type": "send_message",
     "label": "Email report to user",
-    "order": 10,
+    "order": 11,
     "inputs": [
       {"name": "type", "value": "email", "type": "dropdown", "required": true},
       {"name": "to", "value": "current_user", "type": "dropdown", "required": true},
@@ -261,26 +244,26 @@ Step 9: Save to BaseCommand via API
     ]
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000012",
+    "id": "a1000001-0001-0001-0001-000000000013",
     "type": "end_condition",
     "label": "End if deals found",
-    "order": 11,
+    "order": 12,
     "inputs": []
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000013",
+    "id": "a1000001-0001-0001-0001-000000000014",
     "type": "if_condition",
     "label": "No deals found — show guidance",
-    "order": 12,
+    "order": 13,
     "inputs": [
       {"name": "query", "value": "{{ deal_count }} == 0", "type": "textarea", "required": false}
     ]
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000014",
+    "id": "a1000001-0001-0001-0001-000000000015",
     "type": "output_formatter",
     "label": "Show no-deals message",
-    "order": 13,
+    "order": 14,
     "inputs": [
       {"name": "heading", "value": "No Deals Found", "type": "text", "required": false},
       {"name": "output_formatted", "value": "I connected to your HubSpot portal but didn't find any deals.\n\n**Possible reasons:**\n- You might not have any deals in your pipeline yet\n- Your HubSpot connection might need different permissions\n\n**Next steps:**\n1. Check that you have deals in your HubSpot pipeline\n2. Try disconnecting and reconnecting HubSpot\n3. Try our [CRM Data Parser](https://agent.ai/agent/basecommand-crm-parser) to import data manually", "type": "textarea", "required": true},
@@ -288,18 +271,17 @@ Step 9: Save to BaseCommand via API
     ]
   },
   {
-    "id": "a1000001-0001-0001-0001-000000000015",
+    "id": "a1000001-0001-0001-0001-000000000016",
     "type": "end_condition",
     "label": "End no-deals check",
-    "order": 14,
+    "order": 15,
     "inputs": []
   }
 ]
 ```
 
-> **Note:** HubSpot write-back (updating deal properties with AI scores) and BaseCommand API save
-> have been removed from this v3 to simplify testing. Once the core flow is validated with real data,
-> add them back as steps between the report display and email.
+> **Note:** HubSpot write-back and BaseCommand API save removed for v4 testing.
+> Add back once real HubSpot data flows through the core pipeline.
 
 ### HubSpot Custom Properties Required
 
