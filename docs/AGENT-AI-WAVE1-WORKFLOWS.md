@@ -47,6 +47,11 @@ Step 9: Save to BaseCommand via API
 
 ### Actions JSON
 
+> **Copy-paste ready.** Updated 2026-03-21 with fixes from live testing:
+> - Dropdown has `dropdownOptions` with label/value pairs
+> - HubSpot filter uses `amount > 0` (universal, avoids date/stage format issues)
+> - Input type uses `dropdown (single)` matching agent.ai's actual enum
+
 ```json
 [
   {
@@ -55,12 +60,56 @@ Step 9: Save to BaseCommand via API
     "label": "Get analysis preferences",
     "order": 0,
     "inputs": [
-      {"name": "input_type", "value": "dropdown", "type": "dropdown", "required": true},
-      {"name": "input_description", "value": "How far ahead should I look for renewals?", "type": "text", "required": true},
-      {"name": "default_value", "value": "6 months", "type": "text", "required": false},
-      {"name": "dropdown_options", "value": "3 months\n6 months\n12 months", "type": "textarea", "required": true},
-      {"name": "input_name", "value": "time_horizon", "type": "text", "required": true},
-      {"name": "show_in_agent_settings", "value": true, "type": "checkbox", "required": false}
+      {
+        "name": "input_type",
+        "value": "dropdown (single)",
+        "type": "dropdown",
+        "required": true,
+        "dropdownOptions": [
+          {"label": "6 Months", "value": "6 Months"},
+          {"label": "5 Months", "value": "5 Months"},
+          {"label": "4 Months", "value": "4 Months"},
+          {"label": "3 Months", "value": "3 Months"},
+          {"label": "2 Months", "value": "2 Months"},
+          {"label": "1 Month", "value": "1 Month"}
+        ]
+      },
+      {
+        "name": "input_description",
+        "value": "How far ahead should I look for renewals?",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "default_value",
+        "value": "6 Months",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "required",
+        "value": true,
+        "type": "checkbox",
+        "required": false
+      },
+      {
+        "name": "input_name",
+        "value": "time_horizon",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "show_in_agent_settings",
+        "value": true,
+        "type": "checkbox",
+        "required": false
+      },
+      {
+        "name": "settings_only",
+        "value": false,
+        "type": "checkbox",
+        "required": false
+      }
     ]
   },
   {
@@ -69,18 +118,56 @@ Step 9: Save to BaseCommand via API
     "label": "Pull all renewing deals from HubSpot",
     "order": 1,
     "inputs": [
-      {"name": "object_type", "value": "deals", "type": "dropdown", "required": true},
-      {"name": "filters", "value": [
-        {"propertyName": "dealstage", "operator": "NEQ", "value": "closedlost"},
-        {"propertyName": "closedate", "operator": "GTE", "value": "{{ current_date }}"},
-        {"propertyName": "closedate", "operator": "LTE", "value": "+365d"}
-      ], "type": "properties", "required": false},
-      {"name": "properties", "value": ["dealname", "amount", "closedate", "dealstage", "pipeline", "hubspot_owner_id", "notes_last_updated", "num_associated_contacts"], "type": "properties", "required": false},
-      {"name": "associations", "value": ["contacts", "companies"], "type": "associations", "required": false},
-      {"name": "output_variable_name", "value": "renewal_deals", "type": "text", "required": true},
-      {"name": "output_sort", "value": "closedate", "type": "dropdown", "required": false},
-      {"name": "output_sort_dir", "value": "ASCENDING", "type": "dropdown", "required": false},
-      {"name": "output_limit", "value": "200", "type": "text", "required": false}
+      {
+        "name": "object_type",
+        "value": "deals",
+        "type": "dropdown",
+        "required": true
+      },
+      {
+        "name": "filters",
+        "value": [
+          {"propertyName": "amount", "operator": "GT", "value": "0"}
+        ],
+        "type": "properties",
+        "required": false
+      },
+      {
+        "name": "properties",
+        "value": ["dealname", "amount", "closedate", "dealstage", "pipeline", "hubspot_owner_id", "notes_last_updated", "num_associated_contacts"],
+        "type": "properties",
+        "required": false
+      },
+      {
+        "name": "associations",
+        "value": ["contacts", "companies"],
+        "type": "associations",
+        "required": false
+      },
+      {
+        "name": "output_variable_name",
+        "value": "renewal_deals",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "output_sort",
+        "value": "closedate",
+        "type": "dropdown",
+        "required": false
+      },
+      {
+        "name": "output_sort_dir",
+        "value": "ASCENDING",
+        "type": "dropdown",
+        "required": false
+      },
+      {
+        "name": "output_limit",
+        "value": "200",
+        "type": "text",
+        "required": false
+      }
     ]
   },
   {
@@ -139,7 +226,7 @@ Step 9: Save to BaseCommand via API
     "order": 7,
     "inputs": [
       {"name": "llm_engine", "value": "gpt-4o", "type": "dropdown", "required": true},
-      {"name": "instructions", "value": "You are an expert renewal health scoring engine. Analyze these HubSpot deals and their engagement data.\n\nDEALS:\n{{ renewal_deals }}\n\nENGAGEMENT DATA:\n{{ deal_engagements }}\n\nToday's date: {{ current_date }}\n\nFor EACH deal, produce:\n1. Health Score (0-10, one decimal): Weight usage signals 25%, engagement recency 20%, stakeholder stability 20%, commercial signals 15%, support health 10%, competitive risk 10%.\n2. Behavioral Archetype: Power User (8-10), Enthusiastic Adopter (7-8), Convert (5-7), Explorer (4-5), Struggler (2-4), Disconnected (0-2)\n3. Risk Signals: Specific red flags from the data (not generic)\n4. Top Action: The single most important thing to do for this account this week\n5. Days to Renewal: calculated from closedate\n\nAlso produce PORTFOLIO SUMMARY:\n- Total accounts, total ARR, average health score\n- Count by archetype\n- Top 3 accounts needing immediate attention\n- Total ARR at risk (score < 5)\n\nReturn as JSON with this structure:\n{\"accounts\": [{\"deal_id\": \"\", \"name\": \"\", \"arr\": 0, \"renewal_date\": \"\", \"health_score\": 0.0, \"archetype\": \"\", \"risk_signals\": [], \"top_action\": \"\", \"days_to_renewal\": 0}], \"summary\": {\"total_accounts\": 0, \"total_arr\": 0, \"avg_health\": 0.0, \"at_risk_arr\": 0, \"immediate_attention\": []}}", "type": "textarea", "required": true},
+      {"name": "instructions", "value": "You are an expert renewal health scoring engine. Analyze these HubSpot deals and their engagement data.\n\nDEALS:\n{{ renewal_deals }}\n\nENGAGEMENT DATA:\n{{ deal_engagements }}\n\nUSER SELECTED TIME HORIZON: {{ time_horizon }}\nToday's date: {{ current_date }}\n\nFILTER: Only analyze deals with a closedate within the user's selected time horizon from today. Ignore deals with no closedate or closedates beyond the horizon.\n\nFor EACH qualifying deal, produce:\n1. Health Score (0-10, one decimal): Weight usage signals 25%, engagement recency 20%, stakeholder stability 20%, commercial signals 15%, support health 10%, competitive risk 10%.\n2. Behavioral Archetype: Power User (8-10), Enthusiastic Adopter (7-8), Convert (5-7), Explorer (4-5), Struggler (2-4), Disconnected (0-2)\n3. Risk Signals: Specific red flags from the data (not generic)\n4. Top Action: The single most important thing to do for this account this week\n5. Days to Renewal: calculated from closedate\n\nAlso produce PORTFOLIO SUMMARY:\n- Total accounts analyzed (within time horizon), total ARR, average health score\n- Count by archetype\n- Top 3 accounts needing immediate attention\n- Total ARR at risk (score < 5)\n\nReturn as JSON with this structure:\n{\"accounts\": [{\"deal_id\": \"\", \"name\": \"\", \"arr\": 0, \"renewal_date\": \"\", \"health_score\": 0.0, \"archetype\": \"\", \"risk_signals\": [], \"top_action\": \"\", \"days_to_renewal\": 0}], \"summary\": {\"total_accounts\": 0, \"total_arr\": 0, \"avg_health\": 0.0, \"at_risk_arr\": 0, \"immediate_attention\": []}}", "type": "textarea", "required": true},
       {"name": "output_json_schema", "value": "{\"type\": \"object\", \"properties\": {\"accounts\": {\"type\": \"array\"}, \"summary\": {\"type\": \"object\"}}}", "type": "json-schema", "required": false},
       {"name": "output_variable_name", "value": "health_analysis", "type": "text", "required": false}
     ]
@@ -252,7 +339,7 @@ Step 9: Save to BaseCommand via API
     "order": 17,
     "inputs": [
       {"name": "heading", "value": "No Renewal Deals Found", "type": "text", "required": false},
-      {"name": "output_formatted", "value": "I connected to your HubSpot portal but didn't find any open deals with future close dates.\n\n**Possible reasons:**\n- Your deals might use a custom pipeline — check your pipeline names\n- Close dates might not be set on your deals\n- You might be using a different object for renewals\n\n**Next steps:**\n1. Make sure your renewal deals have close dates set to future dates\n2. Check that deals aren't in 'Closed Lost' status\n3. Try our [CRM Data Parser](https://agent.ai/agent/basecommand-crm-parser) to import data manually", "type": "textarea", "required": true},
+      {"name": "output_formatted", "value": "I connected to your HubSpot portal but didn't find any deals with a value greater than $0.\n\n**Possible reasons:**\n- Your deals might not have amounts set\n- You might be using a different object for renewals\n\n**Next steps:**\n1. Make sure your deals have amounts set in HubSpot\n2. Check that you have open deals in your pipeline\n3. Try our [CRM Data Parser](https://agent.ai/agent/basecommand-crm-parser) to import data manually", "type": "textarea", "required": true},
       {"name": "format", "value": "markdown", "type": "dropdown", "required": true}
     ]
   },
