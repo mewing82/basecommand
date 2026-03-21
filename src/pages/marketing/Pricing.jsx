@@ -30,7 +30,7 @@ const TIERS = [
     features: [
       "Everything in Free, plus:",
       "Unlimited accounts",
-      "Unlimited AI calls (powered by Claude)",
+      "2,000 AI calls/mo (powered by Claude) — BYOK for more",
       "Supervised autopilot workflows",
       "Email connectors (Gmail & Outlook)",
       "Cloud sync across devices",
@@ -210,7 +210,7 @@ export default function Pricing() {
                 ? `linear-gradient(135deg, ${C.gold}, ${C.goldHover})`
                 : "transparent",
               border: tier.highlight ? "none" : `1px solid ${C.borderDefault}`,
-              color: tier.highlight ? C.bgPrimary : C.textSecondary,
+              color: tier.highlight ? C.textOnPrimary : C.textSecondary,
               fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600,
               transition: "all 0.15s",
               boxShadow: tier.highlight ? `0 4px 16px ${C.goldGlow}` : "none",
@@ -234,6 +234,106 @@ export default function Pricing() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* How it fits together — agent.ai vs platform */}
+      <div style={{
+        maxWidth: 760, margin: isMobile ? "0 auto 40px" : "0 auto 60px",
+      }}>
+        <h2 style={{
+          fontFamily: FONT_SANS, fontSize: isMobile ? 20 : 24, fontWeight: 700,
+          color: C.textPrimary, letterSpacing: "-0.02em",
+          textAlign: "center", margin: "0 0 12px",
+        }}>
+          Agent.ai agents vs. BaseCommand platform
+        </h2>
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: 14, color: C.textSecondary,
+          textAlign: "center", margin: "0 auto 24px", maxWidth: 480, lineHeight: 1.6,
+        }}>
+          Our free agents on agent.ai are a great starting point. The platform is where it all comes together.
+        </p>
+
+        <div style={{
+          background: C.bgCard, border: `1px solid ${C.borderDefault}`,
+          borderRadius: 16, overflow: "hidden",
+        }}>
+          {/* Header row */}
+          <div style={{
+            display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr",
+            borderBottom: `1px solid ${C.borderDefault}`,
+          }}>
+            {!isMobile && <div style={{ padding: "14px 20px" }} />}
+            <div style={{
+              padding: "14px 20px", fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600,
+              color: C.aiBlue, textAlign: "center",
+              borderLeft: isMobile ? "none" : `1px solid ${C.borderDefault}`,
+            }}>
+              agent.ai Agents
+            </div>
+            <div style={{
+              padding: "14px 20px", fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600,
+              color: C.gold, textAlign: "center",
+              borderLeft: `1px solid ${C.borderDefault}`,
+              background: C.goldMuted,
+            }}>
+              BaseCommand Pro
+            </div>
+          </div>
+
+          {/* Comparison rows */}
+          {[
+            { feature: "Price", agentai: "Free or $10/mo each", platform: "$49/mo (all features)" },
+            { feature: "Data input", agentai: "Paste or HubSpot connect", platform: "Persistent portfolio + auto-sync" },
+            { feature: "Analysis", agentai: "On-demand snapshots", platform: "Continuous 24/7 monitoring" },
+            { feature: "History", agentai: "Single run", platform: "Week-over-week trends" },
+            { feature: "Team", agentai: "Individual", platform: "Shared portfolio + org" },
+            { feature: "Automation", agentai: "Manual or scheduled", platform: "Supervised autopilot" },
+            { feature: "Agents", agentai: "1 at a time", platform: "9 agents working together" },
+            { feature: "AI calls", agentai: "Per-run", platform: "2,000/mo included" },
+          ].map((row, i) => (
+            <div key={i} style={{
+              display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr",
+              borderBottom: i < 7 ? `1px solid ${C.borderDefault}` : "none",
+            }}>
+              {!isMobile && (
+                <div style={{
+                  padding: "12px 20px", fontFamily: FONT_SANS, fontSize: 13, fontWeight: 500,
+                  color: C.textSecondary,
+                }}>
+                  {row.feature}
+                </div>
+              )}
+              <div style={{
+                padding: "12px 20px", fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary,
+                borderLeft: isMobile ? "none" : `1px solid ${C.borderDefault}`,
+                textAlign: isMobile ? "center" : undefined,
+              }}>
+                {isMobile && <div style={{ fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: C.textTertiary, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 2 }}>{row.feature}</div>}
+                {row.agentai}
+              </div>
+              <div style={{
+                padding: "12px 20px", fontFamily: FONT_BODY, fontSize: 13, color: C.textPrimary, fontWeight: 500,
+                borderLeft: `1px solid ${C.borderDefault}`,
+                background: C.goldMuted,
+                textAlign: isMobile ? "center" : undefined,
+              }}>
+                {isMobile && <div style={{ fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, color: C.gold, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 2 }}>{row.feature}</div>}
+                {row.platform}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <Link to="/agents" style={{
+            fontFamily: FONT_BODY, fontSize: 13, color: C.aiBlue,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4,
+            minHeight: 44,
+          }}>
+            Try free agents on agent.ai first <ArrowRight size={12} />
+          </Link>
+        </div>
       </div>
 
       {/* FAQ / Details */}
