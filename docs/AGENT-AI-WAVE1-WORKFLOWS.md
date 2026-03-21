@@ -361,41 +361,19 @@ Step 5: Email the full setup plan to user
   {
     "id": "a1b-setup-002",
     "type": "invoke_llm",
-    "label": "AI: Classify deals and generate migration plan",
+    "label": "AI: Classify deals + generate Breeze prompt + format as HTML",
     "order": 1,
     "inputs": [
       {"name": "llm_engine", "value": "gpt4o", "type": "dropdown", "required": true},
-      {"name": "instructions", "value": "You are a HubSpot renewal operations expert. Analyze these deals and create a migration plan to set up renewal intelligence fields.\n\nDEALS FROM HUBSPOT:\n{{ hs_search_results }}\n\nToday's date: {{ current_date }}\n\nFor EACH deal, determine:\n\n1. **renewal_type** — classify as one of:\n   - 'Renewal' if: dealname contains 'renewal', 'renew', or the deal appears to be an existing customer renewal based on context\n   - 'New Business' if: dealname contains 'new', or the deal appears to be a first-time sale\n   - 'Expansion' if: dealname contains 'upsell', 'upgrade', 'expand', or suggests additional purchase\n   - 'Contraction' if: dealname contains 'downgrade', 'reduce', or suggests a decrease\n   - Default to 'Renewal' if unclear but has a close date, or 'New Business' if truly ambiguous\n\n2. **arr** — copy from the deal's amount field. If amount is null or 0, mark as 'NEEDS_INPUT'\n\n3. **renewal_date** — copy from closedate. If closedate is null or in the distant past (more than 2 years ago), mark as 'NEEDS_INPUT'\n\n4. **contract_term_months** — default to 12 unless context suggests otherwise\n\n5. **contract_start_date** — if renewal_date is available, calculate as renewal_date minus contract_term_months. Otherwise mark as 'NEEDS_INPUT'\n\n6. **previous_arr** — mark as 'NEEDS_INPUT' (requires historical data we don't have)\n\n7. **renewal_owner** — use the deal's hubspot_owner_id value if available, otherwise mark as 'NEEDS_INPUT'\n\n8. **pipeline_action** — should this deal be moved to the Renewal Pipeline?\n   - 'MOVE' if renewal_type is Renewal or Expansion\n   - 'KEEP' if renewal_type is New Business\n   - 'REVIEW' if uncertain\n\n9. **pipeline_stage** — if moving to Renewal Pipeline, which stage?\n   - Map from current dealstage: appointmentscheduled→Upcoming, qualifiedtobuy→In Discussion, presentationscheduled→In Discussion, decisionmakerboughtin→Proposal Sent, contractsent→Verbal Commit, closedwon→Closed Won, closedlost→Closed Lost\n   - Default: 'Upcoming'\n\nAlso produce a SUMMARY:\n- Total deals found\n- Classified as Renewal: X deals ($X ARR)\n- Classified as New Business: X deals\n- Classified as Expansion: X deals\n- Needs manual review: X deals\n- Fields that need manual input: list them\n\nCRITICAL: Use REAL deal names, REAL amounts, REAL IDs from the data. Do NOT invent data.\n\nReturn your analysis as a structured report, not JSON. Use clear headers and a table format:\n\nDEAL MIGRATION TABLE:\n| Deal Name | Deal ID | renewal_type | arr | renewal_date | contract_term | pipeline_action | stage | needs_input |\n\nThen list any deals that need manual input with what's missing.", "type": "textarea", "required": true},
-      {"name": "output_variable_name", "value": "migration_plan", "type": "text", "required": false}
+      {"name": "instructions", "value": "You are a HubSpot renewal operations expert. Analyze these deals and produce TWO outputs.\n\nDEALS:\n{{ hs_search_results }}\n\nToday: {{ current_date }}\n\nFor each deal classify: renewal_type (Renewal/New Business/Expansion/Contraction — infer from dealname), arr (from amount, or NEEDS_INPUT if null), renewal_date (from closedate, or NEEDS_INPUT if null/past), contract_term_months (default 12), pipeline_action (MOVE to Renewal Pipeline if Renewal/Expansion, KEEP if New Business).\n\nOutput format — produce BOTH sections with these exact headers:\n\n===MIGRATION_PLAN===\nAn HTML table with this styling. Output raw HTML, no markdown.\n- Wrap in <div style=\"font-family:Inter,-apple-system,sans-serif\">\n- Summary: <div style=\"display:flex;gap:12px;margin-bottom:16px\"> with stat cards for Renewals (green #059669), New Business (blue #3B82F6), Needs Input (amber #D97706). Each card: background #fff, border 1px solid #E2E5EB, border-radius 10px, padding 14px 18px, text-align center. Value: font-size 24px, font-weight 700. Label: font-size 11px, color #9AA1B0, text-transform uppercase.\n- Table: width 100%, border-collapse collapse, font-size 12px. Headers: background #F0F2F5, padding 8px 12px. Cells: padding 8px 12px, border-bottom 1px solid #F0F2F5. renewal_type badges: inline-block, padding 2px 8px, border-radius 4px, font-weight 600 (Renewal=#ECFDF5/#059669, New Business=#EFF6FF/#3B82F6). NEEDS_INPUT: background #FFFBEB, color #D97706.\n- Columns: Deal Name | Type | ARR | Renewal Date | Term | Pipeline Action\n\n===BREEZE_PROMPT===\nA copy-pasteable Breeze AI prompt to populate fields. Format:\n\nUpdate these deals with Renewal Intelligence properties:\n\nDeal '[real name]':\n- renewal_type: [value]\n- arr: [value]\n- renewal_date: [value]\n- contract_term_months: 12\n- Move to 'Renewal Pipeline' stage 'Upcoming'\n\n[repeat for each deal that has data]\n\nDeals needing manual input:\n- [name]: needs [what's missing]\n\nUse REAL deal names and values. Do NOT invent data.", "type": "textarea", "required": true},
+      {"name": "output_variable_name", "value": "setup_analysis", "type": "text", "required": false}
     ]
   },
   {
     "id": "a1b-setup-003",
-    "type": "invoke_llm",
-    "label": "AI: Generate Breeze data population prompt",
-    "order": 2,
-    "inputs": [
-      {"name": "llm_engine", "value": "gpt4o", "type": "dropdown", "required": true},
-      {"name": "instructions", "value": "Based on this migration plan, generate a HubSpot Breeze AI prompt that will populate the Renewal Intelligence fields on each deal.\n\nMIGRATION PLAN:\n{{ migration_plan }}\n\nGenerate a Breeze prompt that:\n1. For each deal where we have data (not NEEDS_INPUT), write the property values\n2. For deals that should move to the Renewal Pipeline, include the pipeline move\n3. Skip deals classified as 'New Business' that should stay in their current pipeline\n4. List deals that need manual input separately at the end\n\nFormat the Breeze prompt as a clear, copy-pasteable instruction. Example format:\n\nUpdate the following deals with Renewal Intelligence properties:\n\nDeal '[actual deal name]':\n- renewal_type: Renewal\n- arr: 300000\n- renewal_date: 2025-10-01\n- contract_term_months: 12\n- Move to 'Renewal Pipeline' stage 'Upcoming'\n\n[repeat for each deal]\n\nDeals requiring manual input:\n- [deal name]: needs [what's missing]\n\nIMPORTANT: Use the REAL deal names and values from the migration plan. Every deal with data should have a Breeze instruction. Make it copy-paste ready.", "type": "textarea", "required": true},
-      {"name": "output_variable_name", "value": "breeze_data_prompt", "type": "text", "required": false}
-    ]
-  },
-  {
-    "id": "a1b-setup-003b",
-    "type": "invoke_llm",
-    "label": "AI: Format migration plan as HTML",
-    "order": 3,
-    "inputs": [
-      {"name": "llm_engine", "value": "gpt-4o-mini", "type": "dropdown", "required": true},
-      {"name": "instructions", "value": "Convert this migration plan into premium-styled HTML. Do NOT use markdown — output raw HTML only.\n\nMIGRATION PLAN:\n{{ migration_plan }}\n\nUse this styling:\n- Font: font-family: 'Inter', -apple-system, sans-serif\n- Summary section: stat cards in a row (display:flex, gap:12px). Each card: background #FFFFFF, border 1px solid #E2E5EB, border-radius 10px, padding 14px 18px, text-align center. Value: font-size 24px, font-weight 700. Label: font-size 11px, color #9AA1B0, text-transform uppercase.\n  - Renewals count: value color #059669\n  - New Business count: value color #3B82F6\n  - Needs Review count: value color #D97706\n- Deal table: width 100%, border-collapse collapse, font-size 12px\n  - Headers (th): background #F0F2F5, color #4A5162, font-weight 600, padding 8px 12px, text-align left, border-bottom 2px solid #E2E5EB\n  - Cells (td): padding 8px 12px, border-bottom 1px solid #F0F2F5\n  - renewal_type badges: display inline-block, padding 2px 8px, border-radius 4px, font-size 11px, font-weight 600\n    - Renewal: background #ECFDF5, color #059669\n    - New Business: background #EFF6FF, color #3B82F6\n    - Expansion: background #F5F3FF, color #7C3AED\n    - Contraction: background #FEF2F2, color #DC4A3D\n  - NEEDS_INPUT cells: background #FFFBEB, color #D97706, font-weight 600\n  - pipeline_action MOVE: color #059669. KEEP: color #9AA1B0. REVIEW: color #D97706.\n- Needs manual input section: amber background #FFFBEB, border #FDE68A, border-radius 8px, padding 14px, list of deals needing attention\n\nOutput ONLY HTML — no markdown, no code fences. Start with <div> end with </div>.", "type": "textarea", "required": true},
-      {"name": "output_variable_name", "value": "formatted_migration_plan", "type": "text", "required": false}
-    ]
-  },
-  {
-    "id": "a1b-setup-004",
     "type": "output_formatter",
     "label": "Step 1: Create Renewal Structure",
-    "order": 4,
+    "order": 2,
     "inputs": [
       {"name": "heading", "value": "Step 1: Create Renewal Properties & Pipeline", "type": "text", "required": false},
       {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:20px 24px;margin-bottom:16px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#059669;margin:0 0 4px\">Step 1 of 3 — Create the structure</h3>\n<p style=\"font-size:13px;color:#4A5162;margin:0\">Copy the prompt below and paste it into HubSpot Breeze AI. This creates the properties and pipeline.</p>\n</div>\n<div style=\"background:#FFFFFF;border:1px solid #E2E5EB;border-radius:8px;padding:16px;margin-bottom:12px\">\n<p style=\"font-size:11px;font-weight:600;color:#9AA1B0;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px\">Breeze AI Prompt #1 — Create Structure</p>\n<p style=\"font-size:13px;color:#161A25;line-height:1.7;margin:0;white-space:pre-wrap\">Create the following custom deal properties and group them under a new property group called \"Renewal Intelligence\":\n\n1. renewal_type (Dropdown with options: New Business, Renewal, Expansion, Contraction) — default: New Business\n2. renewal_date (Date picker) — the actual contract renewal date\n3. contract_start_date (Date picker) — when the current contract started\n4. contract_term_months (Number) — default 12\n5. arr (Number, formatted as currency) — Annual Recurring Revenue for this deal\n6. previous_arr (Number, formatted as currency) — prior contract value before this renewal\n7. renewal_owner (Single-line text) — name or email of the person managing this renewal\n\nAlso create a new deal pipeline called \"Renewal Pipeline\" with these stages:\n- Upcoming (20% probability)\n- Outreach Sent (40%)\n- In Discussion (60%)\n- Proposal Sent (80%)\n- Verbal Commit (90%)\n- Closed Won (100%, won)\n- Closed Lost (0%, lost)</p>\n</div>\n<p style=\"font-size:12px;color:#D97706;margin:0\">⚠️ After Breeze creates the structure, come back here and continue to Step 2.</p>\n</div>", "type": "textarea", "required": true},
@@ -403,32 +381,32 @@ Step 5: Email the full setup plan to user
     ]
   },
   {
-    "id": "a1b-setup-005",
+    "id": "a1b-setup-004",
     "type": "output_formatter",
     "label": "Step 2: Review Migration Plan",
-    "order": 5,
+    "order": 3,
     "inputs": [
       {"name": "heading", "value": "Step 2: Review Your Deal Migration Plan", "type": "text", "required": false},
-      {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:20px 24px;margin-bottom:16px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#3B82F6;margin:0 0 4px\">Step 2 of 3 — Review the plan</h3>\n<p style=\"font-size:13px;color:#4A5162;margin:0\">We analyzed your deals and classified each one. Review the table below — fix anything that looks wrong before proceeding to Step 3.</p>\n</div>\n{{ formatted_migration_plan }}\n</div>", "type": "textarea", "required": true},
+      {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:20px 24px;margin-bottom:16px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#3B82F6;margin:0 0 4px\">Step 2 of 3 — Review the plan</h3>\n<p style=\"font-size:13px;color:#4A5162;margin:0\">We analyzed your deals and classified each one. Review the table below — fix anything that looks wrong before proceeding to Step 3.</p>\n</div>\n{{ setup_analysis }}\n</div>", "type": "textarea", "required": true},
+      {"name": "format", "value": "html", "type": "dropdown", "required": true}
+    ]
+  },
+  {
+    "id": "a1b-setup-005",
+    "type": "output_formatter",
+    "label": "Step 3: Populate Data with Breeze",
+    "order": 4,
+    "inputs": [
+      {"name": "heading", "value": "Step 3: Populate Your Renewal Data", "type": "text", "required": false},
+      {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#F5F3FF;border:1px solid #DDD6FE;border-radius:12px;padding:20px 24px;margin-bottom:16px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#7C3AED;margin:0 0 4px\">Step 3 of 3 — Populate the data</h3>\n<p style=\"font-size:13px;color:#4A5162;margin:0\">Copy the prompt below and paste it into HubSpot Breeze AI. This writes the field values to each deal based on our analysis.</p>\n</div>\n<div style=\"background:#FFFFFF;border:1px solid #E2E5EB;border-radius:8px;padding:16px;margin-bottom:16px\">\n<p style=\"font-size:11px;font-weight:600;color:#9AA1B0;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px\">Breeze AI Prompt #2 — Populate Data</p>\n<div style=\"font-size:13px;color:#161A25;line-height:1.7;margin:0;white-space:pre-wrap\">{{ setup_analysis }}</div>\n</div>\n<div style=\"background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:14px 16px\">\n<p style=\"font-size:13px;color:#059669;font-weight:600;margin:0 0 4px\">✓ After Breeze populates the data:</p>\n<p style=\"font-size:13px;color:#4A5162;margin:0;line-height:1.6\">Run the <strong>Renewal Health Scanner</strong> and select \"I have a separate renewal pipeline\" → enter \"Renewal Pipeline\". You'll get accurate health scores based on your real renewal data.</p>\n</div>\n</div>", "type": "textarea", "required": true},
       {"name": "format", "value": "html", "type": "dropdown", "required": true}
     ]
   },
   {
     "id": "a1b-setup-006",
-    "type": "output_formatter",
-    "label": "Step 3: Populate Data with Breeze",
-    "order": 6,
-    "inputs": [
-      {"name": "heading", "value": "Step 3: Populate Your Renewal Data", "type": "text", "required": false},
-      {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#F5F3FF;border:1px solid #DDD6FE;border-radius:12px;padding:20px 24px;margin-bottom:16px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#7C3AED;margin:0 0 4px\">Step 3 of 3 — Populate the data</h3>\n<p style=\"font-size:13px;color:#4A5162;margin:0\">Copy the prompt below and paste it into HubSpot Breeze AI. This writes the field values to each deal based on our analysis.</p>\n</div>\n<div style=\"background:#FFFFFF;border:1px solid #E2E5EB;border-radius:8px;padding:16px;margin-bottom:16px\">\n<p style=\"font-size:11px;font-weight:600;color:#9AA1B0;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px\">Breeze AI Prompt #2 — Populate Data</p>\n<div style=\"font-size:13px;color:#161A25;line-height:1.7;margin:0;white-space:pre-wrap\">{{ breeze_data_prompt }}</div>\n</div>\n<div style=\"background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:14px 16px\">\n<p style=\"font-size:13px;color:#059669;font-weight:600;margin:0 0 4px\">✓ After Breeze populates the data:</p>\n<p style=\"font-size:13px;color:#4A5162;margin:0;line-height:1.6\">Run the <strong>Renewal Health Scanner</strong> and select \"I have a separate renewal pipeline\" → enter \"Renewal Pipeline\". You'll get accurate health scores based on your real renewal data.</p>\n</div>\n</div>", "type": "textarea", "required": true},
-      {"name": "format", "value": "html", "type": "dropdown", "required": true}
-    ]
-  },
-  {
-    "id": "a1b-setup-007",
     "type": "send_message",
     "label": "Email setup plan to user",
-    "order": 7,
+    "order": 5,
     "inputs": [
       {"name": "type", "value": "email", "type": "dropdown", "required": true},
       {"name": "to", "value": "current_user", "type": "dropdown", "required": true},
@@ -439,8 +417,8 @@ Step 5: Email the full setup plan to user
 ]
 ```
 
-> **8 steps total.** Pull deals → LLM classify → LLM generate Breeze prompt →
-> LLM format migration plan as HTML → Show 3-step guide → email.
+> **6 steps total.** Pull deals → single LLM call (classify + format HTML + generate Breeze prompt) →
+> Show 3-step guide → email. Consolidated 3 LLM calls into 1 to prevent timeouts.
 > No write-back to HubSpot — user controls everything via Breeze prompts.
 
 ---
