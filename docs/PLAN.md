@@ -1,7 +1,7 @@
 # BaseCommand Master Plan
 
 > **Living document.** Updated as decisions are made. Single source of truth for vision, business model, and what we're building.
-> **Last updated:** 2026-03-19 (Epic 19 — Agent Hub + Team + Company Profile redesign) | **Version:** 0.8.0
+> **Last updated:** 2026-03-21 (v0.9.0 — Rebrand + Agent.ai Paid Program Strategy) | **Version:** 0.9.0
 > **Previous versions:** `docs/archive/PLAN-v0.4.0-2026-03-17.md`
 
 ---
@@ -13,16 +13,30 @@
 
 Not a dashboard with AI features — a fleet of specialized agents that run renewal operations continuously, with a human command layer for oversight, approvals, and strategy.
 
-### The Arc
+### The Arc — Phased Expansion
 
-| Phase | Mode | Experience |
-|-------|------|-----------|
-| **Now** | Co-pilot | AI drafts, analyzes, suggests. Human does everything. |
-| **Next** | Supervised autopilot | AI sends emails, updates CRM on approval. Human sets rules, approves batches. |
-| **Future** | Full autonomous | AI runs the renewal process. Monitors, acts, escalates only when needed. Human steers strategy. |
+| Phase | Timeline | Focus | Revenue Gate |
+|-------|----------|-------|-------------|
+| **1 — Prove the Wedge** | Now → 3 months | Renewals only. 17 agents on agent.ai + BaseCommand platform. First 50 paying subscribers. | $5K/mo agent.ai + 10 platform users |
+| **2 — Own the Category** | 3-6 months | Become THE renewal intelligence brand on agent.ai. Featured placement, community presence. | $15K/mo + clear retention data |
+| **3 — Adjacent Expansion** | 6-12 months | RevOps suite (natural overlap with renewals). Rebrand HubSpot Gap agents as "RevOps Suite" alongside "Renewal Suite." | $30K/mo + RevOps users asking for more |
+| **4 — Platform Play** | 12-18 months | Module/marketplace architecture on BaseCommand. Domain experts build agents on OUR platform. Fundraising story. | $50K/mo + multi-module traction |
+
+### The Autonomy Arc (within each module)
+
+| Mode | Experience |
+|------|-----------|
+| **Co-pilot** | AI drafts, analyzes, suggests. Human does everything. |
+| **Supervised autopilot** | AI sends emails, updates CRM on approval. Human sets rules, approves batches. |
+| **Full autonomous** | AI runs the process. Monitors, acts, escalates only when needed. Human steers strategy. |
 
 ### The Moat
 The defensibility isn't the AI — everyone has that. It's the **workflow graph**: the accumulated knowledge of how renewals actually get worked, what actions lead to saves, which patterns predict churn. Every account that flows through BaseCommand trains the system on what good renewal ops looks like.
+
+### Long-Term Vision: Modular AI Operations Platform
+BaseCommand's long-term trajectory is a modular platform where each SaaS function (Renewals, RevOps, Sales, Marketing, CS, Legal, Finance) has purpose-built AI agent suites. Customers buy individual agents or module bundles. This follows the industry's shift from per-seat to outcome-based pricing.
+
+**Critical constraint:** This vision executes ONLY after proving the renewal wedge. No module expansion before Phase 3 gate ($30K/mo). The expansion signal is customers asking "can you do this for my [other function] team?" — pull, not push.
 
 ### Operating Constraint
 BaseCommand is a **side-hustle**, not a VC-backed startup. Michael has no intention of quitting his day job (Senior Director of Global Renewals). This shapes every decision:
@@ -79,11 +93,32 @@ BaseCommand is a **side-hustle**, not a VC-backed startup. Michael has no intent
 - **Gate 2 ($5K MRR):** New customers pay $99/mo. Early adopters keep $49.
 - **Post-SOC 2 + autonomous agents:** Full price $149/mo for new customers. Early adopters still keep $49.
 
-### Distribution
-- **Primary channel:** agent.ai (3M+ users) — free agents as top-of-funnel
-- **agent.ai is the free marketing engine** — no paid marketing spend until Gate 2
-- **Conversion funnel:** Free agent → instant value → CTA → signup → Quick Add → portfolio → paid
-- Personal relationship with agent.ai owner who will promote agents on platform
+### Distribution — Two-Tier Agent Strategy
+
+**agent.ai is both a distribution channel AND a revenue stream.**
+
+| Tier | Where it lives | Purpose | Revenue model |
+|------|---------------|---------|--------------|
+| **Renewal agents** | agent.ai + BaseCommand platform | Acquisition funnel → platform conversion | Free (funnel) + $10/mo (premium workflow) |
+| **HubSpot Gap agents** | agent.ai ONLY | Brand awareness + standalone revenue | $10/mo each (pure profit center) |
+| **BaseCommand platform** | basecommand.ai | Owned product, deeper features, persistence | $49/mo (founding) / $149/mo (standard) |
+
+**Funnel logic:**
+- 17 agents on agent.ai = 17 doors into the BaseCommand brand
+- Every agent says "by BaseCommand" — brand building across all HubSpot users
+- Renewal users → funnel to BaseCommand platform (team features, scheduling, trend tracking)
+- Non-renewal users → stay on agent.ai, pay $10/mo, contribute revenue + brand equity
+- When a non-renewal agent hits 500+ subscribers → candidate to become a BaseCommand module (Phase 3+)
+
+**agent.ai paid program:**
+- Invited as one of the first paid agent builders (Matthew Stein, 2026-03-20)
+- HubSpot-first strategy: agent.ai user base skews heavily HubSpot
+- 17 agents total: 2 free (top-of-funnel), 15 paid ($10/mo each)
+- Wave 1 (launch day): 6 agents. Wave 2 (week 2-3): 5 agents. Wave 3 (month 2): 6 agents.
+- Bundle strategy: Renewal Intelligence Team ($25/mo), HubSpot Power Tools Team ($25/mo), Full Suite ($49/mo)
+- Specs: `docs/AGENT-AI-WAVE1-WORKFLOWS.md`, `docs/AGENT-AI-WAVE2-WORKFLOWS.md`, `docs/AGENT-AI-WAVE3-WORKFLOWS.md`
+
+**Key principle:** agent.ai agents are the proving ground, not the end state. Use them to validate willingness to pay, learn what users need, and build brand. Pull successful patterns into the owned platform.
 
 ### Unit Economics
 - **At early adopter pricing ($49/mo):** ~21 customers for Gate 1 ($1K MRR), ~102 for Gate 2 ($5K MRR)
@@ -170,6 +205,9 @@ Before asking for featured placement on agent.ai or driving significant traffic,
 | 16 | v2 Design — Unified App Redesign | **Completed** | Sidebar restructure (5 groups), Mission Control dashboard, Intelligence Hub, Agent Hub (Active/Catalog + autonomy dial), portfolio filtering, archetype badges, NRR waterfall, export toolbar |
 | 17 | Organization & Team Model (Phase 1) | **Completed** | Org/team data model, org-scoped queries, auto-create org on signup, backfill existing users, billing scoped to org, workspace CRUD replaced with org display |
 | 18 | Discovery Optimization — SEO, AEO, GEO Foundation | **Planned** | Schema.org markup, semantic HTML, LLMs.txt, per-page meta/OG tags, robots.txt, sitemap, answer-first content, FAQ schema |
+| 19 | Agent Hub + Team + Company Profile Redesign | **Completed** | Agent nav restructure, team settings, company profile with website scan + Brand Kit |
+| 20 | v0.9.0 Brand Rebrand — Emerald + Violet | **Completed** | Light-first theme, Outfit font, emerald primary (#059669), violet AI accent (#7C3AED), The Signal logo, 85+ files |
+| 21 | agent.ai Paid Program — HubSpot-First Agent Fleet | **In Progress** | 17 workflow agents across 3 waves. API foundation (org_id fix, PATCH/GET, executions POST). Build guide + workflow JSON specs complete. |
 
 ---
 
@@ -1943,6 +1981,13 @@ Contextual banners on agent pages: "Your email drafts would be more specific wit
 | 58 | AI-first ingestion (paste → extract → confirm) | Users shouldn't fill out 50 form fields. Paste pitch deck, AI does the work. | 2026-03-16 |
 | 59 | Negotiation exchange framework (wants vs. gives) | Every renewal team has this playbook, usually undocumented. Makes AI drafts strategically accurate. | 2026-03-16 |
 | 60 | Renewal strategy rules as free text | Too varied across companies to structure. Free text lets the AI interpret context-specific rules. | 2026-03-16 |
+| 61 | Rebrand from Signal Amber to Emerald + Violet | Amber felt aggressive on light backgrounds. Purple/green combo tested better — emerald = growth/renewal, violet = AI/intelligence. Matches energy of /agents page Michael liked. | 2026-03-21 |
+| 62 | agent.ai agents are TWO tiers: renewal (→ platform funnel) + HubSpot Gap (→ standalone revenue) | Renewal agents funnel to BaseCommand platform. HubSpot Gap agents are pure profit centers + brand builders. 17 doors into the brand vs 4. | 2026-03-21 |
+| 63 | Workflow agents (not just Knowledge agents) for paid tier | Premium agents auto-pull from HubSpot via OAuth, write back AI scores, email reports, generate downloadable files. No pasting required. This is what makes $10/mo feel premium. | 2026-03-21 |
+| 64 | HubSpot Gap agents solve declined Ideas Board requests | HubSpot has 26+ pages of declined feature requests. Each is a proven market of frustrated users. Zero competition on agent.ai for these. | 2026-03-21 |
+| 65 | No module expansion before Phase 3 gate ($30K/mo) | Long-term vision is modular SaaS ops platform (Renewals, RevOps, Sales, Marketing, etc.). But expansion before proving the wedge is the #1 startup killer. Revenue gates, not ambition, unlock scope. | 2026-03-21 |
+| 66 | Non-renewal agents stay agent.ai-only until 500+ subscribers | When a HubSpot Gap agent hits 500 subscribers, it's a candidate to become a BaseCommand platform module. Customer pull, not push. | 2026-03-21 |
+| 67 | Bundle strategy mirrors agent.ai's team model | Renewal Intelligence Team ($25/mo), HubSpot Power Tools Team ($25/mo), Full Suite ($49/mo). Matches agent.ai's existing $25/mo team pricing. | 2026-03-21 |
 
 ---
 
