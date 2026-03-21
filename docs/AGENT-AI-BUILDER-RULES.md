@@ -252,3 +252,11 @@ Every action follows this structure:
 - [ ] LLM prompts include anti-hallucination instructions
 - [ ] Order numbers are sequential starting from 0
 - [ ] Every `if_condition` / `for_condition` / `parallel_for_condition` has matching `end_condition`
+
+---
+
+## HUBSPOT PROPERTY TYPE GOTCHAS (from Breeze testing 2026-03-21)
+
+- **Currency fields:** HubSpot doesn't have a true "Currency" custom property type. Use "Number" and note it's formatted as currency. Multi-currency formatting is driven by the deal's Amount/Currency settings, not custom properties.
+- **User picker fields:** HubSpot doesn't support a "HubSpot user" typed custom property. Use "Single-line text" for owner names/emails, and optionally sync via workflows from deal owner.
+- **Breeze AI** can create properties and pipelines from natural language prompts. Always test the Breeze prompt yourself before shipping it to users — Breeze will flag any HubSpot-specific limitations and suggest alternatives.
