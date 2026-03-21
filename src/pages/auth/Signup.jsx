@@ -8,8 +8,6 @@ import { ONBOARDING } from "../../lib/demoData";
 import { ProgressBar } from "../../components/onboarding/OnboardingWidgets";
 import { usePageMeta, PAGE_SEO } from "../../lib/seo";
 
-const FOUNDING_SPOTS_REMAINING = 67;
-
 const PROOF_STATS = [
   { icon: Shield, text: "No credit card required" },
   { icon: Clock, text: "14-day Pro trial" },
@@ -27,10 +25,19 @@ export default function Signup() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [foundingSpots, setFoundingSpots] = useState({ remaining: null, total: 100 });
 
   const urlPlan = searchParams.get("plan");
   const [selectedPlan, setSelectedPlan] = useState(urlPlan === "monthly" || urlPlan === "annual" ? "pro" : "trial");
   const isPro = selectedPlan === "pro";
+
+  // Fetch founding member spots remaining
+  useEffect(() => {
+    fetch("/api/stripe?action=founding-spots")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.remaining != null) setFoundingSpots(data); })
+      .catch(() => {});
+  }, []);
 
   // Clear any stale plan param
   useEffect(() => {
@@ -268,7 +275,7 @@ export default function Signup() {
                 Founding Member
               </div>
               <div style={{ fontFamily: FONT_SANS, fontSize: 28, fontWeight: 700, color: C.textPrimary, letterSpacing: "-0.03em" }}>
-                {FOUNDING_SPOTS_REMAINING} <span style={{ fontSize: 14, fontWeight: 400, color: C.textTertiary }}>of 100 spots left</span>
+                {foundingSpots.remaining != null ? foundingSpots.remaining : "—"} <span style={{ fontSize: 14, fontWeight: 400, color: C.textTertiary }}>of {foundingSpots.total} spots left</span>
               </div>
               <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSecondary, marginTop: 6, lineHeight: 1.5 }}>
                 $49/mo locked in for life. First 100 customers get founding member pricing — it never goes up.

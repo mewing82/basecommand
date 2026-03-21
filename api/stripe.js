@@ -16,6 +16,7 @@ export default async function handler(req, res) {
 
   if (action === "webhooks" && req.method === "POST") return handleWebhooks(req, res);
   if (action === "status" && req.method === "GET") return handleStatus(req, res);
+  if (action === "founding-spots" && req.method === "GET") return handleFoundingSpots(req, res);
   if (action === "checkout" && req.method === "POST") return handleCheckout(req, res);
   if (action === "portal" && req.method === "POST") return handlePortal(req, res);
 
@@ -123,6 +124,7 @@ async function handleWebhooks(req, res) {
         if (!userId || !session.subscription) break;
         const subscription = await stripe.subscriptions.retrieve(session.subscription);
         await syncSubscription(supabase, userId, orgId, subscription);
+        await refreshFoundingCount(supabase);
         break;
       }
       case "customer.subscription.updated": {
@@ -141,6 +143,7 @@ async function handleWebhooks(req, res) {
             stripe_subscription_id: subscription.id,
             updated_at: new Date().toISOString(),
           }).eq("user_id", userId);
+          await refreshFoundingCount(supabase);
         }
         break;
       }
@@ -256,6 +259,65 @@ async function handleStatus(req, res) {
   });
 }
 
+// ─── Founding Spots (public — no auth) ──────────────────────────────────────
+
+const FOUNDING_TOTAL = 100;
+
+async function handleFoundingSpots(req, res) {
+  // Allow CORS for marketing pages
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600");
+
+  // Try KV cache first (fast)
+  const kvUrl = process.env.KV_REST_API_URL;
+  const kvToken = process.env.KV_REST_API_TOKEN;
+  if (kvUrl && kvToken) {
+    try {
+      const r = await fetch(`${kvUrl}/get/bc2-founding-pro-count`, {
+        headers: { Authorization: `Bearer ${kvToken}` },
+      });
+      if (r.ok) {
+        const json = await r.json();
+        const count = parseInt(json.result) || 0;
+        return res.status(200).json({
+          total: FOUNDING_TOTAL,
+          claimed: count,
+          remaining: Math.max(0, FOUNDING_TOTAL - count),
+        });
+      }
+    } catch { /* fall through to DB */ }
+  }
+
+  // Fallback: count from Supabase
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    return res.status(200).json({ total: FOUNDING_TOTAL, claimed: 0, remaining: FOUNDING_TOTAL });
+  }
+
+  const { count } = await supabase
+    .from("subscriptions")
+    .select("*", { count: "exact", head: true })
+    .eq("tier", "pro")
+    .in("status", ["active", "trialing"]);
+
+  const claimed = count || 0;
+
+  // Cache in KV for next request
+  if (kvUrl && kvToken) {
+    try {
+      await fetch(`${kvUrl}/set/bc2-founding-pro-count/${claimed}`, {
+        headers: { Authorization: `Bearer ${kvToken}` },
+      });
+    } catch { /* non-critical */ }
+  }
+
+  return res.status(200).json({
+    total: FOUNDING_TOTAL,
+    claimed,
+    remaining: Math.max(0, FOUNDING_TOTAL - claimed),
+  });
+}
+
 // ─── Shared helpers ─────────────────────────────────────────────────────────
 
 async function syncSubscription(supabase, userId, orgId, subscription) {
@@ -309,6 +371,24 @@ async function resolveOrgId(req, userId) {
     .limit(1)
     .single();
   return mem?.org_id || null;
+}
+
+async function refreshFoundingCount(supabase) {
+  try {
+    const { count } = await supabase
+      .from("subscriptions")
+      .select("*", { count: "exact", head: true })
+      .eq("tier", "pro")
+      .in("status", ["active", "trialing"]);
+
+    const kvUrl = process.env.KV_REST_API_URL;
+    const kvToken = process.env.KV_REST_API_TOKEN;
+    if (kvUrl && kvToken) {
+      await fetch(`${kvUrl}/set/bc2-founding-pro-count/${count || 0}`, {
+        headers: { Authorization: `Bearer ${kvToken}` },
+      });
+    }
+  } catch { /* non-critical — cache will refresh on next GET */ }
 }
 
 async function readJsonBody(req) {
