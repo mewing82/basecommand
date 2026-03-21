@@ -271,9 +271,20 @@ Step 9: Save to BaseCommand via API
   },
   {
     "id": "a1000001-v7-008",
+    "type": "output_formatter",
+    "label": "Show HubSpot setup guide",
+    "order": 7,
+    "inputs": [
+      {"name": "heading", "value": "Optimize Your HubSpot for Renewal Intelligence", "type": "text", "required": false},
+      {"name": "output_formatted", "value": "<div style=\"font-family:Inter,-apple-system,sans-serif;max-width:720px;margin:0 auto\">\n<div style=\"background:#F0FDF9;border:1px solid #D1FAE5;border-radius:12px;padding:24px;margin-bottom:20px\">\n<h3 style=\"font-size:16px;font-weight:700;color:#059669;margin:0 0 8px\">Get better results with a dedicated renewal setup</h3>\n<p style=\"font-size:13px;color:#4A5162;line-height:1.6;margin:0 0 16px\">This agent works best when your HubSpot has renewal-specific properties and a dedicated pipeline. Copy the prompt below and paste it into <strong>HubSpot Breeze AI</strong> to set everything up in seconds.</p>\n<div style=\"background:#FFFFFF;border:1px solid #E2E5EB;border-radius:8px;padding:16px;margin-bottom:16px\">\n<p style=\"font-size:11px;font-weight:600;color:#9AA1B0;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px\">Breeze AI Prompt — copy and paste into HubSpot</p>\n<p style=\"font-size:13px;color:#161A25;line-height:1.7;margin:0;white-space:pre-wrap\">Create the following custom deal properties and group them under a new property group called \"Renewal Intelligence\":\n\n1. renewal_type (Dropdown with options: New Business, Renewal, Expansion, Contraction) — default: New Business\n2. renewal_date (Date picker) — the actual contract renewal date\n3. contract_start_date (Date picker) — when the current contract started\n4. contract_term_months (Number) — default 12\n5. arr (Currency) — Annual Recurring Revenue for this deal\n6. previous_arr (Currency) — prior contract value before this renewal\n7. renewal_owner (HubSpot user) — person managing this renewal\n\nAlso create a new deal pipeline called \"Renewal Pipeline\" with these stages:\n- Upcoming (20% probability)\n- Outreach Sent (40%)\n- In Discussion (60%)\n- Proposal Sent (80%)\n- Verbal Commit (90%)\n- Closed Won (100%, won)\n- Closed Lost (0%, lost)</p>\n</div>\n<p style=\"font-size:12px;color:#9AA1B0;margin:0\">After creating these, re-run this agent and select \"I have a separate renewal pipeline\" for more accurate results.</p>\n</div>\n</div>", "type": "textarea", "required": true},
+      {"name": "format", "value": "html", "type": "dropdown", "required": true}
+    ]
+  },
+  {
+    "id": "a1000001-v7-009",
     "type": "send_message",
     "label": "Email report to user",
-    "order": 7,
+    "order": 8,
     "inputs": [
       {"name": "type", "value": "email", "type": "dropdown", "required": true},
       {"name": "to", "value": "current_user", "type": "dropdown", "required": true},
@@ -284,8 +295,8 @@ Step 9: Save to BaseCommand via API
 ]
 ```
 
-> **v7 — 8 steps.** Adds adaptive setup flow (2 questions) to handle different HubSpot configs.
-> Users with no renewal setup get a Breeze AI prompt to create properties + pipeline.
+> **v7b — 9 steps.** Adaptive setup flow + guaranteed Breeze AI prompt as its own step.
+> Breeze prompt is a dedicated output_formatter (not LLM-dependent), always shows.
 > Engagements loop, write-back, and BaseCommand save are future enhancements.
 
 ### HubSpot Custom Properties Required
